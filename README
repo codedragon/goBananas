@@ -1,0 +1,16 @@
+Needs the following to work:
+1) recent version of Python 2.x
+2) Panda3D
+3) PandaEPL
+
+On the Windows machine, we are running:
+Python 2.7.3, installed by Panda3d, and located in the Panda3d folder
+Panda3d 1.8.1 located in c:\Panda3D-1.8.1
+PandaEPL 0.9 is also located in Panda3d folder in python/lib/site-packages/pandaepl
+
+Convert egg files to bam files:
+Use generateBananaBamFiles.py script
+
+Start the game:
+banarchy.py --no-eeg --resolution=1280x1024 -sTest
+use --no-fs for small window
