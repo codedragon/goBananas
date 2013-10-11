@@ -1,6 +1,7 @@
 from pandaepl.common import *
 import os
 import datetime
+import random
 
 class goBananas:
     def __init__(self):
@@ -38,6 +39,12 @@ class goBananas:
         # Load environment
         self.loadEnvironment(config)
 
+        # Handle keyboard events
+        vr.inputListen('toggleDebug',
+                       lambda inputEvent:
+                       Vr.getInstance().setDebug(not Vr.getInstance().isDebug*()))
+
+
     def loadEnvironment(self, config):
         """
         Load terrain, sky, etc
@@ -68,21 +75,42 @@ class goBananas:
         self.windmillModel.setScale(config['windmillScale'])
         self.windmillModel.setH(config['windmillH'])
 
-
-        # Load bananas.
+        # Randomly assign where bananas go and load bananas.
         self.bananaModels = []
         for i in range(0, config['numBananas']):
+            x = random.uniform(config['minDistance'], config['maxDistance'])
+            y = random.uniform(config['minFwDistance'], config['maxFwDistance'])
             bananaModel = Model("banana" + str(i),
                                 os.path.join(config['bananaDir'], "banana" + ".bam"),
-                                Point3(config['bananaLocs'][i][0],
-                                       config['bananaLocs'][i][1],
-                                       config['bananaZ']),
+                                Point3(x, y, 90),
                                 self.collideBanana)
             bananaModel.setScale(config['bananaScale'])
             self.bananaModels.append(bananaModel)
-            self.bananaModels[i].setH(random.randint(0, 361))
-            if config['training'] > 0:
-                self.bananaModels[i].setStashed(1)
+            # setH sets objects heading in degrees, only used if rotating
+            # self.bananaModels[i].setH(random.randint(0, 361))
+            # if true, object is removed from the environment, but not destroyed
+            # so start with not stashed
+            self.bananaModels[i].setStashed(False)
+
+    def collideBanana(self, collisionInfoList):
+        """
+        Handle the subject colliding with a banana
+        @param collisionInfoList:
+        @return:
+        """
+        # get config dictionary
+        config = Conf.getInstance().getConfig
+
+        # get experiment parameters
+        state = Experiment.getInstance().getState()
+
+        banana = collisionInfoList[0].getInfo().getIdentifier()
+
+        # make banana go away
+        self.bananaModels[banana].setStashed(True)
+        # Log collision
+        VLQ.getInstance().writeLine("YUMMY", [banana])
+
 
     def start(self):
         """

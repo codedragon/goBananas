@@ -1,3 +1,18 @@
 Point3 Class comes from Panda3d:
 A three-component point in space (as opposed to a vector, which represents a direction and a distance).
 (float x, float y, float z)
+
+What happens when you hit this object?
+self.myModel.setCollisionCallback(MovingObject.chooseme)
+chooseme can be:
+MovingObject.handleRepelCollision # don't let colliding objects to into one another
+MovingObject.handleSlideCollision # colliding objects slide along each other
+
+if this is an object you care about the collision:
+make a method:
+self.myModel.collideMe
+where:
+def collideMe(self, collisionInfoList):
+allows you to use this:
+collisionInfoList[0].getInto().getIdentifier()
+to get the id of what you collided with.

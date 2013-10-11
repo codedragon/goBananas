@@ -38,10 +38,15 @@ class initGoBananasTests(unittest.TestCase):
 		"""
         self.assertIn('YUMMY', self.checkLog('YUMMY'))
 
+    def testFour(self):
+        """Banana disapears after collision
+        """
+        pass
+
     def tearDown(self):
         print 'teardown'
         print os.getcwd()
-        shutil.rmtree(self.session)
+        #shutil.rmtree(self.session)
 
     if __name__ == "__main__":
         unittest.main()

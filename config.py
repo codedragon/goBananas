@@ -1,5 +1,5 @@
 # configuration file for goBananas
-from random import uniform
+
 # Set Training Level
 # 5.2 - fully trained
 # 3.1   fullTurningSpeed = 0
@@ -42,42 +42,37 @@ movementType = 'walking' # car | walking
 bananaDir = './models/bananas/'
 bananaZ = 1
 bananaScale = .5
-bananaRotation = 0  # Rotation speed in degrees/frame.
+#bananaRotation = 0  # Rotation speed in degrees/frame.
 numBananas = 10
 # Bananas replenish after eating this many bananas.
-bananaReplenishment = 0
+#bananaReplenishment = 0
 # Double the reward for the last banana in trial. 1=Yes; 0 = No.
-lastBananaBonus = 1
+#lastBananaBonus = 1
 
 # Banana Positions
-bananaLocs = []
 minDistance = -5
 maxDistance = 5
 minFwDistance = -5
 maxFwDistance = 5
-fwDistanceIncrement = .1
+#fwDistanceIncrement = .1
 
-for i in range(0, numBananas):
-	x = uniform(minDistance, maxDistance)
-	y = uniform(minFwDistance, maxFwDistance)
-	bananaLocs.append([x, y, 90])
-
-if (training > 0) and (training < 5):
-	numBananas = 1
-	distance = .15
-	bananaLocs[0] = [initialPos[0] - distance, initialPos[1] + 2, 90]
+# if not fully trained, do one banana at a time
+#if (training > 0) and (training < 5):
+#	numBananas = 1
+#	distance = .15
+#	bananaLocs[0] = [initialPos[0] - distance, initialPos[1] + 2, 90]
 
 # Target Ray
-targetRayWindow = .45
-fovRayVecX = 30
+#targetRayWindow = .45
+#fovRayVecX = 30
 
 # Target header window, to the left and right
-if (training > 2) & (training < 2.5):
-	targetHwinL = 4 - (((training - 2) * 10) - 1)
-	targetHwinR = 4 - (((training - 2) * 10) - 1)
-else:
-	targetHwinL = 2  #1.2 is sort of the boundary.
-	targetHwinR = 2  #1.2 is sort of the boundary.
+#if (training > 2) & (training < 2.5):
+#	targetHwinL = 4 - (((training - 2) * 10) - 1)
+#	targetHwinR = 4 - (((training - 2) * 10) - 1)
+#else:
+#	targetHwinL = 2  #1.2 is sort of the boundary.
+#	targetHwinR = 2  #1.2 is sort of the boundary.
 
 # Terrain, sky
 terrainModel = './models/towns/field.bam'
@@ -112,6 +107,5 @@ windmillH = 45
 keyboard = Keyboard.getInstance()
 keyboard.bind("exit", ["escape", "q"])
 keyboard.bind("toggleDebug", ["escape", "d"])
-keyboard.bind("left", "l")
-keyboard.bind("right", "r")
+
 
