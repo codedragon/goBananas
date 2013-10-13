@@ -1,12 +1,8 @@
 # configuration file for goBananas
 
-# Set Training Level
-# 5.2 - fully trained
-# 3.1   fullTurningSpeed = 0
-# >= 3  fullForwardSpeed = 2.8
-# < 3   fullForwardSpeed = 0
-# >= 2  fullTurningSpeed = 55
-# < 2   fullTurningSpeed = 200
+# Set Training Level 
+# See README for info about Training Levels
+
 training = 5.2
 
 #### Core PandaEPL settings ####

@@ -1,13 +1,19 @@
+from __future__ import with_statement
 import unittest
 import os
 import shutil
 import datetime
-
+import platform
+# Do not import pandaepl or it will start pandaepl without any of our parameters.
+from pandaepl import Conf
 
 class initGoBananasTests(unittest.TestCase):
     def setUp(self):
         print 'setup'
-        os.system('python goBananas.py -sTest --no-eeg --no-fs')
+        if platform.system() == 'Darwin':
+            os.system('ppython goBananas.py -sTest --no-eeg --no-fs')
+        else:
+            os.system('python goBananas.py -sTest --no-eeg --no-fs')
         self.session = "data/Test/session_" + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
 
     def checkLog(self, logWord):
@@ -39,14 +45,19 @@ class initGoBananasTests(unittest.TestCase):
         self.assertIn('YUMMY', self.checkLog('YUMMY'))
 
     def testFour(self):
-        """Banana disapears after collision
+        """Have correct number of bananas
         """
-        pass
+        config = Conf.getInstance().getConfig()
+        print config['numBananas']
+        self.assertIn('noWay', self.checkLog('YUMMY'))
 
     def tearDown(self):
         print 'teardown'
         print os.getcwd()
         #shutil.rmtree(self.session)
 
-    if __name__ == "__main__":
-        unittest.main()
+if __name__ == "__main__":
+    unittest.main()
+
+
+

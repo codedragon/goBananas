@@ -16,3 +16,10 @@ def collideMe(self, collisionInfoList):
 allows you to use this:
 collisionInfoList[0].getInto().getIdentifier()
 to get the id of what you collided with.
+
+# 5.2 - fully trained                                                                                         
+# 3.1   fullTurningSpeed = 0                                                                                  
+# >= 3  fullForwardSpeed = 2.8                                                                                
+# < 3   fullForwardSpeed = 0                                                                                  
+# >= 2  fullTurningSpeed = 55                                                                                 
+# < 2   fullTurningSpeed = 200     
