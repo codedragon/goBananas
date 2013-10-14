@@ -16,6 +16,11 @@
 #
 # Author: Maria Mckinley
 
+# Converting on the Windows machine is just not working! Bam files created
+# cannot be loaded (no error message, but window stays blank). Create on
+# Mac and move to Windows, that works fine
+
+
 from pandaepl.Tuples   import *
 from pandaepl.Keyboard import Keyboard
 from pandaepl.Joystick import Joystick
@@ -27,7 +32,7 @@ def convertEggToBam(eggFile):
     Load the given .egg file and convert it to .bam.
     """
 
-    print eggFile
+    #print eggFile
     bamFile = eggFile[:-4]+".bam"
     model   = loader.loadModel(eggFile)
     model.writeBamFile(bamFile)
@@ -44,13 +49,14 @@ execfile("config.py", globals(), config)
 # all bam files (this converts a lot we don't need...):
 for directory in os.listdir('./models'):
     #print 'directory', directory
-    temp = os.path.join('models',directory)
-    print temp
+    temp = os.path.join('./models',directory)
+    #print temp
     for filename in os.listdir(temp):
-        print 'filename', filename
-        print filename[:-4]
+        #print 'filename', filename
+        #print filename[:-4]
         if filename[-4:] == '.egg':
             print 'convert'
+            print os.path.join(temp,filename)
             convertEggToBam(os.path.join(temp,filename))
 
 # Stores.

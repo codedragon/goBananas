@@ -5,6 +5,7 @@
 
 training = 5.2
 
+from panda3d.core import Point3
 #### Core PandaEPL settings ####
 
 FOV = 60
@@ -93,15 +94,16 @@ stLightScale= .75
 
 # bananarchy was using amill.bam, but I couldn't load that file,
 # and the original amill.egg was not in the folder.
-windmillModel = './models/windmill/windmill.bam'
+windmillModel = './models/windmill/amill.bam'
 windmillLoc = Point3(13, -13, 0)
 windmillScale = .2
 windmillH = 45
 
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common
-keyboard = Keyboard.getInstance()
-keyboard.bind("exit", ["escape", "q"])
-keyboard.bind("toggleDebug", ["escape", "d"])
+if 'Keyboard' in globals():
+    keyboard = Keyboard.getInstance()
+    keyboard.bind("exit", ["escape", "q"])
+    keyboard.bind("toggleDebug", ["escape", "d"])
 
 

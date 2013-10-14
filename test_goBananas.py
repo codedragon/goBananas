@@ -10,10 +10,10 @@ from pandaepl import Conf
 class initGoBananasTests(unittest.TestCase):
     def setUp(self):
         print 'setup'
-        if platform.system() == 'Darwin':
-            os.system('ppython goBananas.py -sTest --no-eeg --no-fs')
-        else:
-            os.system('python goBananas.py -sTest --no-eeg --no-fs')
+        #if platform.system() == 'Darwin':
+        os.system('ppython goBananas.py -sTest --no-eeg --no-fs')
+        #else:
+        #    os.system('python goBananas.py -sTest --no-eeg --no-fs')
         self.session = "data/Test/session_" + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
 
     def checkLog(self, logWord):
@@ -47,7 +47,8 @@ class initGoBananasTests(unittest.TestCase):
     def testFour(self):
         """Have correct number of bananas
         """
-        config = Conf.getInstance().getConfig()
+        config = {}
+        execfile('config.py',config)
         print config['numBananas']
         self.assertIn('noWay', self.checkLog('YUMMY'))
 

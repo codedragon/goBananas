@@ -44,7 +44,6 @@ class goBananas:
                        lambda inputEvent:
                        Vr.getInstance().setDebug(not Vr.getInstance().isDebug*()))
 
-
     def loadEnvironment(self, config):
         """
         Load terrain, sky, etc
@@ -53,44 +52,49 @@ class goBananas:
         self.terrainModel = Model('terrain', config['terrainModel'], config['terrainCenter'])
         # When hitting an object that is part of the terrain, repel or slide?
         self.terrainModel.setCollisionCallback(MovingObject.handleRepelCollision)
-
-        # load sky
+        #
+        ## load sky
         self.skyModel = Model("sky", config['skyModel'])
         self.skyModel.setScale(config['skyScale'])
-
-        # Load palm tree.
+        #
+        ## Load palm tree.
         self.treeModel = Model("tree", config['treeModel'], config['treeLoc'])
         self.treeModel.setScale(config['treeScale'])
-
-        # Load Skyscraper
+        #
+        ## Load Skyscraper
         self.skyscraperModel = Model("skyscraper", config['skyScraperModel'], config['skyScraperLoc'])
         self.skyscraperModel.setScale(config['skyScraperScale'])
-
-        # Load Streetlight
+        #
+        ## Load Streetlight
         self.streetlightModel = Model("streetlight", config['stLightModel'], config['stLightLoc'])
         self.streetlightModel.setScale(config['stLightScale'])
-
-        # Load Windmill
+        #
+        ## Load Windmill
         self.windmillModel = Model("windmill", config['windmillModel'], config['windmillLoc'])
         self.windmillModel.setScale(config['windmillScale'])
         self.windmillModel.setH(config['windmillH'])
 
+        # Load Bananas
+        self.bananaModel = self.createBananas()
+
+    def createBananas(self):
         # Randomly assign where bananas go and load bananas.
-        self.bananaModels = []
+        # get config dictionary
+        config = Conf.getInstance().getConfig()
+        bananaModel = []
+        print config['numBananas']
         for i in range(0, config['numBananas']):
             x = random.uniform(config['minDistance'], config['maxDistance'])
             y = random.uniform(config['minFwDistance'], config['maxFwDistance'])
             bananaModel = Model("banana" + str(i),
-                                os.path.join(config['bananaDir'], "banana" + ".bam"),
-                                Point3(x, y, 90),
-                                self.collideBanana)
+            os.path.join(config['bananaDir'], "banana" + ".bam"),
+                         Point3(x, y, 90),
+                         self.collideBanana)
             bananaModel.setScale(config['bananaScale'])
-            self.bananaModels.append(bananaModel)
-            # setH sets objects heading in degrees, only used if rotating
-            # self.bananaModels[i].setH(random.randint(0, 361))
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
-            self.bananaModels[i].setStashed(False)
+            #bananaModel[i].setStashed(False)
+        return bananaModel
 
     def collideBanana(self, collisionInfoList):
         """
