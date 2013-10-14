@@ -16,7 +16,7 @@ class initGoBananasTests(unittest.TestCase):
         #    os.system('python goBananas.py -sTest --no-eeg --no-fs')
         self.session = "data/Test/session_" + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
 
-    def checkLog(self, logWord):
+    def check_log(self, log_word):
         """ Check the log file to see if logWord is present,
         returns line where logWord is found
         """
@@ -24,33 +24,37 @@ class initGoBananasTests(unittest.TestCase):
         line = []
         with open(log_name) as logfile:
             for line in logfile:
-                if logWord in line.split():
+                if log_word in line.split():
                     break
             return line
 
-    def testOne(self):
+    def test_one(self):
         """ goBananas should make a new session in the data directory,
         session should be today's date """
         print self.session
         self.failUnless(os.access(self.session, os.F_OK))
 
-    def testTwo(self):
+    def test_two(self):
         """ load the config directory
 		"""
-        self.assertIn('CONF_LOAD', self.checkLog('CONF_LOAD'))
+        self.assertTrue(self.check_log('CONF_LOAD'))
 
-    def testThree(self):
+    def test_three(self):
         """ check that custom logging working
 		"""
-        self.assertIn('YUMMY', self.checkLog('YUMMY'))
+        self.assertTrue(self.check_log('YUMMY'))
 
-    def testFour(self):
+    def test_four(self):
         """Have correct number of bananas
         """
         config = {}
         execfile('config.py',config)
-        print config['numBananas']
-        self.assertIn('noWay', self.checkLog('YUMMY'))
+        #print config['numBananas']
+        #last_banana = 'banana{0}'.format(str(config['numBananas'] - 1))
+        #print last_banana
+        self.assertTrue(self.check_log('banana{0}'.format(str(config['numBananas'] - 1))))
+        # should not have more bananas
+        self.assertRaises(self.check_log('banana{0}'.format(str(config['numBananas']))))
 
     def tearDown(self):
         print 'teardown'

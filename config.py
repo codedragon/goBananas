@@ -36,9 +36,9 @@ movementType = 'walking' # car | walking
 # Experiment-specific settings
 
 # Bananas.
-bananaDir = './models/bananas/'
-bananaZ = 1
-bananaScale = .5
+#bananaDir = './models/bananas/'
+#bananaZ = 1
+#bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 numBananas = 10
 # Bananas replenish after eating this many bananas.
@@ -98,6 +98,11 @@ windmillModel = './models/windmill/amill.bam'
 windmillLoc = Point3(13, -13, 0)
 windmillScale = .2
 windmillH = 45
+
+bananaModel = './models/bananas/banana.bam'
+bananaLoc = Point3(3, 3, 90)
+bananaScale = 5
+#bananaH = 45
 
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common

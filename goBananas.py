@@ -75,7 +75,12 @@ class goBananas:
         self.windmillModel.setH(config['windmillH'])
 
         # Load Bananas
-        self.bananaModel = self.createBananas()
+        #self.bananaModel = self.createBananas()
+
+        self.bananaModel = Model("banana", config['bananaModel'], config['bananaLoc'])
+        self.bananaModel.setScale(config['bananaScale'])
+        #self.bananaModel.setH(config['bananaH'])
+
 
     def createBananas(self):
         # Randomly assign where bananas go and load bananas.
@@ -91,6 +96,7 @@ class goBananas:
                          Point3(x, y, 90),
                          self.collideBanana)
             bananaModel.setScale(config['bananaScale'])
+            bananaModel.setH(random.randint(0,361))
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
             #bananaModel[i].setStashed(False)
