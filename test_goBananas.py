@@ -4,8 +4,6 @@ import os
 import shutil
 import datetime
 import platform
-# Do not import pandaepl or it will start pandaepl without any of our parameters.
-from pandaepl import Conf
 
 class initGoBananasTests(unittest.TestCase):
     def setUp(self):
@@ -47,8 +45,8 @@ class initGoBananasTests(unittest.TestCase):
     def testFour(self):
         """Have correct number of bananas
         """
-        config = Conf.getInstance().getConfig()
-        print config['numBananas']
+        #config = Conf.getInstance().getConfig()
+        #print config['numBananas']
         self.assertIn('noWay', self.checkLog('YUMMY'))
 
     def tearDown(self):
