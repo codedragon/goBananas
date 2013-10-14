@@ -1,6 +1,9 @@
+importing with_statement from future in test. is this a problem for windows?
+
 Point3 Class comes from Panda3d:
 A three-component point in space (as opposed to a vector, which represents a direction and a distance).
 (float x, float y, float z)
+
 
 What happens when you hit this object?
 self.myModel.setCollisionCallback(MovingObject.chooseme)
