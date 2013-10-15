@@ -36,11 +36,11 @@ movementType = 'walking' # car | walking
 # Experiment-specific settings
 
 # Bananas.
-#bananaDir = './models/bananas/'
+bananaDir = './models/bananas/'
 #bananaZ = 1
-#bananaScale = .5
+bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
-numBananas = 10
+numBananas = 2
 # Bananas replenish after eating this many bananas.
 #bananaReplenishment = 0
 # Double the reward for the last banana in trial. 1=Yes; 0 = No.
@@ -89,7 +89,7 @@ skyScraperLoc  = Point3(-13, -13, 0)
 skyScraperScale= .3
 
 stLightModel= './models/streetlight/streetlight.bam'
-stLightLoc  = Point3(-13, 13, 45)
+stLightLoc  = Point3(-13, 13, 0)
 stLightScale= .75
 
 # bananarchy was using amill.bam, but I couldn't load that file,
@@ -100,9 +100,10 @@ windmillScale = .2
 windmillH = 45
 
 bananaModel = './models/bananas/banana.bam'
-bananaLoc = Point3(3, 3, 0)
-bananaScale = 5
-#bananaH = 45
+bananaLoc = Point3(-3, -2, 1)
+bananaScale = 0.5
+bananaH = 0
+bananaLoc2 = Point3(-3, -1.5, 1)
 
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common

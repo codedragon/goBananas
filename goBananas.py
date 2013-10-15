@@ -3,6 +3,7 @@ import os
 import datetime
 import random
 
+
 class goBananas:
     def __init__(self):
         """
@@ -24,7 +25,7 @@ class goBananas:
         # Initialize experiment parameters
         if not exp.getState():
             bananas = []
-        # Get avatar object
+            # Get avatar object
         avatar = Avatar.getInstance()
 
         # Register Custom Log Entries
@@ -42,7 +43,7 @@ class goBananas:
         # Handle keyboard events
         vr.inputListen('toggleDebug',
                        lambda inputEvent:
-                       Vr.getInstance().setDebug(not Vr.getInstance().isDebug*()))
+                       Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
 
     def loadEnvironment(self, config):
         """
@@ -77,29 +78,43 @@ class goBananas:
         # Load Bananas
         #self.bananaModel = self.createBananas()
 
-        self.bananaModel = Model("banana", config['bananaModel'], config['bananaLoc'])
-        self.bananaModel.setScale(config['bananaScale'])
-        #self.bananaModel.setH(config['bananaH'])
+        bananaModels = []
+        bananaModel = Model("banana", config['bananaModel'], config['bananaLoc'])
+        bananaModel.setScale(config['bananaScale'])
+        bananaModel.setH(config['bananaH'])
+        bananaModels.append(bananaModel)
+
+        bananaModel2 = Model("banana2", config['bananaModel'], config['bananaLoc2'])
+        bananaModel2.setScale(config['bananaScale'])
+        bananaModel2.setH(config['bananaH'])
+
+        bananaModels.append(bananaModel2)
+        self.bananaModel = bananaModels
 
     def createBananas(self):
         # Randomly assign where bananas go and load bananas.
         # get config dictionary
+        # distance formula: ((x2 - x1)^2 + (y2 - y1)^2)^1/2
+        # make sure distance is less than 0.5
         config = Conf.getInstance().getConfig()
-        bananaModel = []
+        bananaModels = []
         print config['numBananas']
-        for i in range(0, config['numBananas']):
+        for i in range(config['numBananas']):
             x = random.uniform(config['minDistance'], config['maxDistance'])
             y = random.uniform(config['minFwDistance'], config['maxFwDistance'])
             bananaModel = Model("banana" + str(i),
-            os.path.join(config['bananaDir'], "banana" + ".bam"),
-                         Point3(x, y, 90),
-                         self.collideBanana)
+                                os.path.join(config['bananaDir'], "banana" + ".bam"),
+                                Point3(x, y, 1),
+                                self.collideBanana)
             bananaModel.setScale(config['bananaScale'])
-            bananaModel.setH(random.randint(0,361))
+            bananaModel.setH(random.randint(0, 361))
+            bananaModels.append(bananaModel)
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
-            #bananaModel[i].setStashed(False)
-        return bananaModel
+            bananaModels[i].setStashed(False)
+
+        return bananaModels
+
 
     def collideBanana(self, collisionInfoList):
         """
@@ -113,18 +128,19 @@ class goBananas:
         # get experiment parameters
         state = Experiment.getInstance().getState()
 
-        banana = collisionInfoList[0].getInfo().getIdentifier()
-
+        banana = collisionInfoList[0].getInto().getIdentifier()
+        print banana
+        print self.bananaModel
         # make banana go away
-        self.bananaModels[banana].setStashed(True)
+        self.bananaModel[int(banana[-1])].setStashed(True)
         # Log collision
         VLQ.getInstance().writeLine("YUMMY", [banana])
 
 
     def start(self):
         """
-		Start the experiment.
-		"""
+        Start the experiment.
+        """
         print 'start'
         Experiment.getInstance().start()
 
