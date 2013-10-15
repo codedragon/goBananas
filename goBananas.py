@@ -81,7 +81,6 @@ class goBananas:
         self.bananaModel.setScale(config['bananaScale'])
         #self.bananaModel.setH(config['bananaH'])
 
-
     def createBananas(self):
         # Randomly assign where bananas go and load bananas.
         # get config dictionary

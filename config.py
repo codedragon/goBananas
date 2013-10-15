@@ -89,7 +89,7 @@ skyScraperLoc  = Point3(-13, -13, 0)
 skyScraperScale= .3
 
 stLightModel= './models/streetlight/streetlight.bam'
-stLightLoc  = Point3(-13, 13, 0)
+stLightLoc  = Point3(-13, 13, 45)
 stLightScale= .75
 
 # bananarchy was using amill.bam, but I couldn't load that file,
@@ -100,7 +100,7 @@ windmillScale = .2
 windmillH = 45
 
 bananaModel = './models/bananas/banana.bam'
-bananaLoc = Point3(3, 3, 90)
+bananaLoc = Point3(3, 3, 0)
 bananaScale = 5
 #bananaH = 45
 
