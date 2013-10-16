@@ -1,13 +1,16 @@
 from __future__ import with_statement
 import unittest
 import os
-import shutil
 import datetime
-import platform
-# Do not import pandaepl or it will start pandaepl without any of our parameters.
-from pandaepl import Conf
+import moBananas as mb
+
+# Do not import pandaepl or goBananas or it will start pandaepl without any of our parameters.
+# from pandaepl import Conf
+# from goBananas import distance
+
 
 class initGoBananasTests(unittest.TestCase):
+
     def setUp(self):
         print 'setup'
         #if platform.system() == 'Darwin':
@@ -61,6 +64,15 @@ class initGoBananasTests(unittest.TestCase):
 
     def test_e(self):
         """
+        Test Distance Formula
+        """
+        x = (8, 9)
+        y = (4, 5)
+        dist = 1.4142135623730951
+        self.assertEquals(distance(x,y), dist)
+
+    def test_f(self):
+        """
         Positions for all of the bananas. Should not be close together.
         """
         tooClose = 1
@@ -69,12 +81,12 @@ class initGoBananasTests(unittest.TestCase):
         numBananas = config['numBananas']
         xlist = []
         ylist = []
-        for i in range(numBananas):
-            line = self.check_log('VROBJECT_POS','banana{0}'.format(str(i)))
-            print line
-            temp = line.split()
-            xlist.append(temp[-3][9:-1])
-            ylist.append(temp[-2][:-1])
+        #for i in range(numBananas):
+        #    line = self.check_log('VROBJECT_POS','banana{0}'.format(str(i)))
+        #    print line
+        #    temp = line.split()
+        #    xlist.append(temp[-3][9:-1])
+        #    ylist.append(temp[-2][:-1])
         # need to compare the distance between all points.
             
         #while tmp:

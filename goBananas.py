@@ -2,7 +2,7 @@ from pandaepl.common import *
 import os
 import datetime
 import random
-
+import moBananas as mb
 
 class goBananas:
     def __init__(self):
@@ -92,7 +92,7 @@ class goBananas:
         self.bananaModel = bananaModels
 
     def createBananas(self):
-        # Randomly assign where bananas go and load bananas.
+        # Randomly assign where bananas go and return a banana bananaModel.
         # get config dictionary
         # distance formula: ((x2 - x1)^2 + (y2 - y1)^2)^1/2
         # make sure distance is less than 0.5
@@ -102,6 +102,8 @@ class goBananas:
         for i in range(config['numBananas']):
             x = random.uniform(config['minDistance'], config['maxDistance'])
             y = random.uniform(config['minFwDistance'], config['maxFwDistance'])
+            # Model is a global from pandaepl
+            # Point3 is a global from Panda3d
             bananaModel = Model("banana" + str(i),
                                 os.path.join(config['bananaDir'], "banana" + ".bam"),
                                 Point3(x, y, 1),
@@ -135,7 +137,6 @@ class goBananas:
         self.bananaModel[int(banana[-1])].setStashed(True)
         # Log collision
         VLQ.getInstance().writeLine("YUMMY", [banana])
-
 
     def start(self):
         """
