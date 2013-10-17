@@ -26,5 +26,8 @@ def setXY(pList, tooClose=[]):
     if pList:
         for x1,y1 in pList:
             if distance((x,y), (x1,y1)) < tooClose:
-                setXY(pList)
-    return (x,y)
+                #print 'set xy too close'
+                #print 'distance is ', distance((x,y), (x1,y1))
+                #print x,y
+                x, y = setXY(pList)
+    return x, y

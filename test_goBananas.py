@@ -91,9 +91,9 @@ class GoBananasTests(unittest.TestCase):
         # need to compare the distance between all points.
         #distance = mb.distance(plist[0], plist[1])
         for p0, p1 in itertools.combinations(plist, 2):
-            print p0, p1
+            #print p0, p1
             distance = mb.distance(p0, p1)
-            print distance
+            #print distance
             self.assertTrue(distance >= config['tooClose'])
 
 

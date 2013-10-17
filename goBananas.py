@@ -105,9 +105,9 @@ class goBananas:
         #print config['numBananas']
         pList = []
         for i in range(config['numBananas']):
-            x, y = mb.setXY(pList)
-            #print x, y
-            pList += [(x ,y)]
+            (x, y) = mb.setXY(pList)
+            #print point
+            pList += [(x, y)]
             # Model is a global from pandaepl
             # Point3 is a global from Panda3d
             bananaModel = Model("banana" + str(i),
@@ -121,7 +121,7 @@ class goBananas:
             # so start with not stashed
             bananaModels[i].setStashed(False)
 
-        print pList
+        #print pList
         return bananaModels
 
 

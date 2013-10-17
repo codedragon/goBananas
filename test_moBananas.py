@@ -19,7 +19,7 @@ class initMoBananasTests(unittest.TestCase):
         """
         pList = []
         p0 = mb.setXY(pList, 0.5)
-        print p0
+        #print p0
         for p in pList:
             #print p
             dist = mb.distance(p0, p)
@@ -32,8 +32,9 @@ class initMoBananasTests(unittest.TestCase):
         away from points already on the list
         """
         pList = [(4.3, 5.2)]
+
         p0 = mb.setXY(pList, 0.5)
-        print p0
+        #print p0
         for p in pList:
             #print p
             dist = mb.distance(p0, p)
@@ -45,14 +46,16 @@ class initMoBananasTests(unittest.TestCase):
         Test that we are given a point that at least 0.5 distance
         away from points already on the list
         """
-        pList = [(5, 2), (2, 2), (-5, -5)]
-        p0 = mb.setXY(pList, 0.5)
-        print p0
-        for p in pList:
-            #print p
-            dist = mb.distance(p0, p)
-            #print dist
-            self.assertTrue(dist > 0.5)
+        pList = []
+        for i in range(20):
+            (x, y) = mb.setXY(pList, 0.5)
+            #print 'new point', p0
+            for p in pList:
+                dist = mb.distance((x, y), p)
+                self.assertTrue(dist >= 0.5)
+            pList += [(x,y)]
+        #print pList
+        #print len(pList)
 
 if __name__ == "__main__":
     unittest.main()
