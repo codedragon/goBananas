@@ -38,7 +38,7 @@ class GoBananasTests(unittest.TestCase):
                 if log_word in line.split() and next_word in line.split():
                     return line
         print 'fail'
-        return line
+        return ''
 
     def test_session(self):
         """ goBananas should make a new session in the data directory,
@@ -96,6 +96,19 @@ class GoBananasTests(unittest.TestCase):
             #print distance
             self.assertTrue(distance >= config['tooClose'])
 
+    def test_last_banana(self):
+        """
+        Check that we log when last banana is picked up, need to
+        actually pick up all bananas for this to work. :(
+        """
+        print 'check last banana'
+        self.assertTrue(self.check_log('last_banana'))
+
+    def test_replenish_bananas(selfself):
+        """
+        Check that we put out more bananas when all gone.
+        """
+        pass
 
     def tearDown(self):
         print 'teardown'

@@ -41,7 +41,7 @@ bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
-numBananas = 10
+numBananas = 2
 # how close is too close together?
 tooClose = 0.5
 # Bananas replenish after eating this many bananas.

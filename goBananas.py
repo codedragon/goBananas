@@ -23,8 +23,8 @@ class goBananas:
         vr = Vr.getInstance()
 
         # Initialize experiment parameters
-        if not exp.getState():
-            bananas = []
+        #if not exp.getState():
+            #bananas = []
             # Get avatar object
         avatar = Avatar.getInstance()
 
@@ -102,9 +102,9 @@ class goBananas:
         # make sure distance is less than 0.5
         config = Conf.getInstance().getConfig()
         bananaModels = []
-        #print config['numBananas']
+        self.numBananas = config['numBananas']
         pList = []
-        for i in range(config['numBananas']):
+        for i in range(self.numBananas):
             (x, y) = mb.setXY(pList)
             #print point
             pList += [(x, y)]
@@ -120,9 +120,19 @@ class goBananas:
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
             bananaModels[i].setStashed(False)
-
+        self.stashed = self.numBananas
         #print pList
         return bananaModels
+
+    def replenishBananas(self):
+        pList = []
+        for i in range(self.numBananas):
+            (x, y) = mb.setXY(pList)
+            self.bananaModel[i].setPos(Point3(x, y, 1))
+            # make new bananas visible
+            self.bananaModel[i].setStashed(False)
+        # start count again
+        self.stashed = self.numBananas
 
 
     def collideBanana(self, collisionInfoList):
@@ -135,15 +145,26 @@ class goBananas:
         config = Conf.getInstance().getConfig
 
         # get experiment parameters
-        state = Experiment.getInstance().getState()
+        #state = Experiment.getInstance().getState()
 
         banana = collisionInfoList[0].getInto().getIdentifier()
-        print banana
-        print self.bananaModel
+        #print banana
+        #print self.bananaModel
         # make banana go away
         self.bananaModel[int(banana[-1])].setStashed(True)
-        # Log collision
+        self.stashed -= 1
+        print self.stashed
+        # log collected banana
         VLQ.getInstance().writeLine("YUMMY", [banana])
+        if self.stashed == 0:
+            print 'banana'
+            VLQ.getInstance().writeLine("YUMMY", ['last_banana'])
+            self.replenishBananas()
+
+        #if state['currentBanana'] < len(state['bananas']):
+        #    state['currentBanana'] += 1
+        #    Experiment.getInstance().setState(state)
+
 
     def start(self):
         """

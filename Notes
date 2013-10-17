@@ -1,5 +1,15 @@
 importing with_statement from future in test. is this a problem for windows?
 
+To run just one test:
+python test_goBananas.py GoBananasTests.test_position_bananas
+
+Next up:
+detect when all bananas gone.
+replace bananas when all gone.
+
+Tests are becoming quite problematic. Starting to require doing stuff in environment.
+How to get around this?
+
 Point3 Class comes from Panda3d:
 A three-component point in space (as opposed to a vector, which represents a direction and a distance).
 (float x, float y, float z)
@@ -26,6 +36,11 @@ to get the id of what you collided with.
 # < 3   fullForwardSpeed = 0                                                                                  
 # >= 2  fullTurningSpeed = 55                                                                                 
 # < 2   fullTurningSpeed = 200     
+
+Pandaepl has a state dictionary, which is written to disk. This is to save the
+state between runs of the experiment, in case the subject doesn't finish the
+experiment, we know where he/she left off. I don't think this is necessary for
+us, but may want to implement it later.
 
 Globals:
 LogException = <class 'pandaepl.Exceptions.LogException'>
