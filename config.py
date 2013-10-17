@@ -4,6 +4,7 @@
 # See README for info about Training Levels
 
 training = 5.2
+testing = False
 
 from panda3d.core import Point3
 #### Core PandaEPL settings ####
@@ -40,7 +41,9 @@ bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
-numBananas = 2
+numBananas = 10
+# how close is too close together?
+tooClose = 0.5
 # Bananas replenish after eating this many bananas.
 #bananaReplenishment = 0
 # Double the reward for the last banana in trial. 1=Yes; 0 = No.
@@ -99,11 +102,12 @@ windmillLoc = Point3(13, -13, 0)
 windmillScale = .2
 windmillH = 45
 
+# Load 2 bananas for testing, know where they are!
 bananaModel = './models/bananas/banana.bam'
-bananaLoc = Point3(-3, -2, 1)
+bananaLoc = Point3(10, 10, 1)
 bananaScale = 0.5
 bananaH = 0
-bananaLoc2 = Point3(-3, -1.5, 1)
+bananaLoc2 = Point3(-10, -10, 1)
 
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common

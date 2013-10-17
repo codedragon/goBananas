@@ -50,6 +50,7 @@ class goBananas:
         Load terrain, sky, etc
         """
         # load terrain
+        # Model is a global variable from pandaepl
         self.terrainModel = Model('terrain', config['terrainModel'], config['terrainCenter'])
         # When hitting an object that is part of the terrain, repel or slide?
         self.terrainModel.setCollisionCallback(MovingObject.handleRepelCollision)
@@ -75,21 +76,24 @@ class goBananas:
         self.windmillModel.setScale(config['windmillScale'])
         self.windmillModel.setH(config['windmillH'])
 
-        # Load Bananas
-        #self.bananaModel = self.createBananas()
-
-        bananaModels = []
-        bananaModel = Model("banana", config['bananaModel'], config['bananaLoc'])
-        bananaModel.setScale(config['bananaScale'])
-        bananaModel.setH(config['bananaH'])
-        bananaModels.append(bananaModel)
-
-        bananaModel2 = Model("banana2", config['bananaModel'], config['bananaLoc2'])
-        bananaModel2.setScale(config['bananaScale'])
-        bananaModel2.setH(config['bananaH'])
-
-        bananaModels.append(bananaModel2)
-        self.bananaModel = bananaModels
+        # Load random Bananas
+        if not config['testing']:
+            self.bananaModel = self.createBananas()
+        else:
+            # Show a couple of bananas where we define the positions for testing
+            # also need to uncomment some banana parameters in config file
+            bananaModels = []
+            bananaModel = Model("banana0", config['bananaModel'], config['bananaLoc'])
+            bananaModel.setScale(config['bananaScale'])
+            bananaModel.setH(config['bananaH'])
+            bananaModels.append(bananaModel)
+            #
+            bananaModel1 = Model("banana1", config['bananaModel'], config['bananaLoc2'])
+            bananaModel1.setScale(config['bananaScale'])
+            bananaModel1.setH(config['bananaH'])
+            #
+            bananaModels.append(bananaModel1)
+            self.bananaModel = bananaModels
 
     def createBananas(self):
         # Randomly assign where bananas go and return a banana bananaModel.
@@ -98,10 +102,12 @@ class goBananas:
         # make sure distance is less than 0.5
         config = Conf.getInstance().getConfig()
         bananaModels = []
-        print config['numBananas']
+        #print config['numBananas']
+        pList = []
         for i in range(config['numBananas']):
-            x = random.uniform(config['minDistance'], config['maxDistance'])
-            y = random.uniform(config['minFwDistance'], config['maxFwDistance'])
+            x, y = mb.setXY(pList)
+            #print x, y
+            pList += [(x ,y)]
             # Model is a global from pandaepl
             # Point3 is a global from Panda3d
             bananaModel = Model("banana" + str(i),
@@ -115,6 +121,7 @@ class goBananas:
             # so start with not stashed
             bananaModels[i].setStashed(False)
 
+        print pList
         return bananaModels
 
 
