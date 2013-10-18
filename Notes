@@ -4,8 +4,17 @@ To run just one test:
 python test_goBananas.py GoBananasTests.test_position_bananas
 
 Next up:
-detect when all bananas gone.
-replace bananas when all gone.
+
+I think we are recording enough information about the virtual world to know what we are looking at.
+Likely suspects for figuring out what the subject sees:
+VROBJECT_HEADING, especially for avatar (or VROBJECT_HDR for PandaEPL_defaultCamera - seem to be
+                                         the same thing, but with a couple of extra zeros)
+                                         always says LVecBase3f before it
+VROBJECT_POS for avatar
+What are Panda's units for distance? speed?
+
+Was Kiril using any of the eye data or just logging it? What else was he pulling from the other
+computer and why?
 
 Tests are becoming quite problematic. Starting to require doing stuff in environment.
 How to get around this?
@@ -13,7 +22,6 @@ How to get around this?
 Point3 Class comes from Panda3d:
 A three-component point in space (as opposed to a vector, which represents a direction and a distance).
 (float x, float y, float z)
-
 
 What happens when you hit this object?
 self.myModel.setCollisionCallback(MovingObject.chooseme)

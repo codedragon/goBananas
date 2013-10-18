@@ -134,7 +134,6 @@ class goBananas:
         # start count again
         self.stashed = self.numBananas
 
-
     def collideBanana(self, collisionInfoList):
         """
         Handle the subject colliding with a banana
