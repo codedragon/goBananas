@@ -13,15 +13,29 @@ VROBJECT_HEADING, especially for avatar (or VROBJECT_HDR for PandaEPL_defaultCam
 VROBJECT_POS for avatar
 What are Panda's units for distance? speed?
 
+I think we can use the data in the log.txt file to feed back into Panda, and then record using
+base.movie(). Probably we can add the eye position data and the spike/LFP data and do everything 
+in Panda.
+
 Was Kiril using any of the eye data or just logging it? What else was he pulling from the other
 computer and why?
 
 Tests are becoming quite problematic. Starting to require doing stuff in environment.
 How to get around this?
 
+Panda3d
 Point3 Class comes from Panda3d:
 A three-component point in space (as opposed to a vector, which represents a direction and a distance).
 (float x, float y, float z)
+myNodePath.setHpr([h],[p],[r])
+myNodePath.setH([h]) heading: right, left (rotate around z axis)
+myNodePath.setP([p]) pitch: climb, dive (rotate around x axis)
+myNodePath.setR([r]) roll: cartwheels  (rotate around y axis)
+
+More attributes to investigate:
+DepthOffsetAttrib: Causes the Z-buffer to treat the object as if it were closer or farther
+DeptTestAttrib: Alters teh way the Z-buffer affects the model.
+
 
 What happens when you hit this object?
 self.myModel.setCollisionCallback(MovingObject.chooseme)
