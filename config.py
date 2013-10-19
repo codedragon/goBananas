@@ -1,12 +1,18 @@
 # configuration file for goBananas
+from panda3d.core import Point3
 
 # Set Training Level 
 # See README for info about Training Levels
-
 training = 5.2
+
+# testing mode allows you to place 2 bananas in specific places,
+# rather than having random placement of x bananas
 testing = False
 
-from panda3d.core import Point3
+# reward
+numBeeps = 3
+
+
 #### Core PandaEPL settings ####
 
 FOV = 60

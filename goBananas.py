@@ -32,10 +32,17 @@ class goBananas:
         #This one corresponds to colliding with a banana
         Log.getInstance().addType("YUMMY", [("BANANA", basestring)],
                                   False)
-
-        VLQ.getInstance().writeLine("YUMMY", ['Started'])
+        Log.getInstance().addType("NewTrial", [("Trial", int)], False)
         #Log.getInstance().addType("EyeData", [("X", float), ("Y", float)], False)
-        #Log.getInstance().addType("NewTrial", [("Trial", int)], False)
+
+        # First Trial
+        self.trialNum = 1
+        VLQ.getInstance().writeLine("NewTrial", [self.trialNum])
+
+        # bring some configuration parameters into memory that we will
+        # use often. also makes it possible to change these dyanamically
+        self.numBananas = config['numBananas']
+        self.numBeeps = config['numBeeps']
 
         # Load environment
         self.loadEnvironment(config)
@@ -44,6 +51,7 @@ class goBananas:
         vr.inputListen('toggleDebug',
                        lambda inputEvent:
                        Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
+
 
     def loadEnvironment(self, config):
         """
@@ -78,6 +86,7 @@ class goBananas:
 
         # Load random Bananas
         if not config['testing']:
+            print 'random bananas'
             self.bananaModel = self.createBananas()
         else:
             # Show a couple of bananas where we define the positions for testing
@@ -96,13 +105,14 @@ class goBananas:
             self.bananaModel = bananaModels
 
     def createBananas(self):
+        print 'create bananas'
         # Randomly assign where bananas go and return a banana bananaModel.
         # get config dictionary
         # distance formula: ((x2 - x1)^2 + (y2 - y1)^2)^1/2
         # make sure distance is less than 0.5
         config = Conf.getInstance().getConfig()
         bananaModels = []
-        self.numBananas = config['numBananas']
+        print 'numbananas', self.numBananas
         pList = []
         for i in range(self.numBananas):
             (x, y) = mb.setXY(pList)
@@ -143,6 +153,8 @@ class goBananas:
         # get config dictionary
         config = Conf.getInstance().getConfig
 
+        # give reward
+        self.reward()
         # get experiment parameters
         #state = Experiment.getInstance().getState()
 
@@ -159,11 +171,17 @@ class goBananas:
             print 'banana'
             VLQ.getInstance().writeLine("YUMMY", ['last_banana'])
             self.replenishBananas()
+            self.trialNum += 1
+            VLQ.getInstance().writeLine("NewTrial", [self.trialNum])
+
 
         #if state['currentBanana'] < len(state['bananas']):
         #    state['currentBanana'] += 1
         #    Experiment.getInstance().setState(state)
 
+    def reward(self):
+        for i in range(self.numBeeps):
+            print 'Beep'
 
     def start(self):
         """
