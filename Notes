@@ -5,6 +5,10 @@ python test_goBananas.py GoBananasTests.test_position_bananas
 
 Next up:
 
+Make some suites out of my unittests:
+
+http://agiletesting.blogspot.com/2005/01/python-unit-testing-part-1-unittest.html
+
 I think we are recording enough information about the virtual world to know what we are looking at.
 Likely suspects for figuring out what the subject sees:
 VROBJECT_HEADING, especially for avatar (or VROBJECT_HDR for PandaEPL_defaultCamera - seem to be
