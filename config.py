@@ -7,6 +7,7 @@ training = 5.2
 
 # testing mode allows you to place 2 bananas in specific places,
 # rather than having random placement of x bananas
+# testing also shuts off reward and pydaq stuff
 testing = False
 
 # reward
