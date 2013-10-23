@@ -4,7 +4,7 @@ import datetime
 import random
 import moBananas as mb
 import PyDAQmx as daq
-from pydaq import GiveReward
+import pydaq
 
 class goBananas:
     def __init__(self):
@@ -19,11 +19,11 @@ class goBananas:
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
 
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
-        print config['training']
-
+        #print config['training']
+        #print 'load testing', config['testing']
         # set up reward system
         if not config['testing']:
-            self.reward = GiveReward()
+            self.reward = pydaq.GiveReward()
 
         # Get vr environment object
         vr = Vr.getInstance()
@@ -133,12 +133,11 @@ class goBananas:
             bananaModel.setScale(config['bananaScale'])
             bananaModel.setH(random.randint(0, 361))
             bananaModels.append(bananaModel)
-            # stop everything for a moment.
-            time.sleep(2)
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
             bananaModels[i].setStashed(False)
         self.stashed = self.numBananas
+        print 'end load bananas'
         #print pList
         return bananaModels
 
@@ -159,12 +158,12 @@ class goBananas:
         @return:
         """
         # get config dictionary
-        config = Conf.getInstance().getConfig
-
+        config = Conf.getInstance().getConfig()
+        #print 'testing', config['testing']
         # give reward
-        self.reward()
+        #self.reward()
         if not config['testing']:
-            self.reward.pumpout()
+            self.reward.pumpOut()
         # get experiment parameters
         #state = Experiment.getInstance().getState()
 
