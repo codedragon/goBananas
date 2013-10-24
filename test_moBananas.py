@@ -1,7 +1,8 @@
 import unittest
 import moBananas as mb
 
-class initMoBananasTests(unittest.TestCase):
+
+class MoBananasTests(unittest.TestCase):
 
     def test_distance(self):
         """
@@ -53,9 +54,10 @@ class initMoBananasTests(unittest.TestCase):
             for p in pList:
                 dist = mb.distance((x, y), p)
                 self.assertTrue(dist >= 0.5)
-            pList += [(x,y)]
-        #print pList
-        #print len(pList)
+            pList += [(x, y)]
+            #print pList
+            #print len(pList)
+
 
 if __name__ == "__main__":
     unittest.main()
