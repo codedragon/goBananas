@@ -17,7 +17,7 @@ class GiveReward(daq.Task):
         time.sleep(.05)
         self.WriteDigitalLines(1, False, daq.DAQmx_Val_WaitInfinitely, daq.DAQmx_Val_GroupByChannel,
                                  self.pulse, None, None)
-        print "sent reward impulse"
+        #print "sent reward impulse"
 
 class EOGTask(daq.Task):
     def __init__(self):

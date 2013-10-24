@@ -46,9 +46,12 @@ class goBananas:
         VLQ.getInstance().writeLine("NewTrial", [self.trialNum])
 
         # bring some configuration parameters into memory that we will
-        # use often. also makes it possible to change these dyanamically
+        # use often. also makes it possible to change these dynamically
         self.numBananas = config['numBananas']
         self.numBeeps = config['numBeeps']
+        if config['eyeData']:
+            self.gain = config['gain']
+            self.offset = config['offset']
 
         # Load environment
         self.loadEnvironment(config)
@@ -173,7 +176,7 @@ class goBananas:
         # make banana go away
         self.bananaModel[int(banana[-1])].setStashed(True)
         self.stashed -= 1
-        print self.stashed
+        #print self.stashed
         # log collected banana
         VLQ.getInstance().writeLine("YUMMY", [banana])
         if self.stashed == 0:
@@ -192,13 +195,18 @@ class goBananas:
         for i in range(self.numBeeps):
             print 'Beep'
 
+    def getEyeData(self):
+        eyeData = pydaq.EOGData
+        Log.getInstance().writeLine("EyeData",
+                                    [((eyeData[0] * self.gain[0]) - self.offset[0]),
+                                     ((eyeData[1] * self.gain[1]) - self.offset[1])])
+
     def start(self):
         """
         Start the experiment.
         """
-        print 'start'
+        #print 'start'
         Experiment.getInstance().start()
-
 
 if __name__ == '__main__':
     #print 'main?'

@@ -1,5 +1,5 @@
 # configuration file for goBananas
-from panda3d.core import Point3
+from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
@@ -10,9 +10,15 @@ training = 5.2
 # testing also shuts off reward and pydaq stuff
 testing = False
 
+# Are we collecting eye data?
+eyeData = False
+
 # reward
 numBeeps = 3
 
+# eye position calibration information
+gain = (262, 236)  #(x, y)
+offset = (-55, -46)  #(x,y)
 
 #### Core PandaEPL settings ####
 
@@ -40,6 +46,13 @@ avatarRadius = 0.3
 cameraPos = Point3(0, 0, 0)
 friction = 0.4
 movementType = 'walking' # car | walking
+
+instructSize = 0.1
+instructFont    = '/c/Windows/Fonts/times.ttf';
+instructBgColor = Point4(0, 0, 0, 1)
+instructFgColor = Point4(1, 1, 1, 1)
+instructMargin  = 0.06
+instructSeeAll  = False
 
 # Experiment-specific settings
 
