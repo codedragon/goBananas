@@ -22,8 +22,10 @@ class goBananas:
         #print config['training']
         #print 'load testing', config['testing']
         # set up reward system
-        if not config['testing']:
+        if config['reward']:
             self.reward = pydaq.GiveReward()
+        else:
+            self.reward = False
 
         # Get vr environment object
         vr = Vr.getInstance()
@@ -49,6 +51,10 @@ class goBananas:
         # use often. also makes it possible to change these dynamically
         self.numBananas = config['numBananas']
         self.numBeeps = config['numBeeps']
+
+        # initiate beeps
+        self.beeps = 0
+
         if config['eyeData']:
             self.gain = config['gain']
             self.offset = config['offset']
@@ -57,10 +63,15 @@ class goBananas:
         self.loadEnvironment(config)
 
         # Handle keyboard events
-        vr.inputListen('toggleDebug',
-                       lambda inputEvent:
-                       Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
+        #vr.inputListen('toggleDebug',
+        #               lambda inputEvent:
+        #               Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
 
+        # set up task to be performed between frames
+        vr.addTask(Task("pauseAvatar",
+                        lambda taskInfo:
+                            self.checkReward(),
+                        config['pulseInterval']))
 
     def loadEnvironment(self, config):
         """
@@ -121,7 +132,7 @@ class goBananas:
         # make sure distance is less than 0.5
         config = Conf.getInstance().getConfig()
         bananaModels = []
-        print 'numbananas', self.numBananas
+        print 'numBananas', self.numBananas
         pList = []
         for i in range(self.numBananas):
             (x, y) = mb.setXY(pList)
@@ -160,40 +171,69 @@ class goBananas:
         @param collisionInfoList:
         @return:
         """
-        # get config dictionary
-        config = Conf.getInstance().getConfig()
-        #print 'testing', config['testing']
-        # give reward
-        #self.reward()
-        if not config['testing']:
-            self.reward.pumpOut()
-        # get experiment parameters
-        #state = Experiment.getInstance().getState()
+        self.badBanana = collisionInfoList[0].getInto().getIdentifier()
 
-        banana = collisionInfoList[0].getInto().getIdentifier()
+        # cannot run inside of banana
+        MovingObject.handleRepelCollision(collisionInfoList)
+
+        # Makes it so Avatar cannot turn or go forward
+        Avatar.getInstance().setMaxTurningSpeed(0)
+        Avatar.getInstance().setMaxForwardSpeed(0)
+
+        # start reward, will continue reward as long as beeps is less than numBeeps
+        # (checks during each frame, see
+        if self.reward:
+            self.reward.pumpOut()
+        else:
+            print 'beep'
+        self.beeps = 1
+
+    def goneBanana(self):
+        # banana disappears
+
         #print banana
         #print self.bananaModel
+
         # make banana go away
-        self.bananaModel[int(banana[-1])].setStashed(True)
+        self.bananaModel[int(self.badBanana[-1])].setStashed(True)
         self.stashed -= 1
+        print 'banana gone', self.badBanana
         #print self.stashed
         # log collected banana
-        VLQ.getInstance().writeLine("YUMMY", [banana])
+        VLQ.getInstance().writeLine("YUMMY", [self.badBanana])
         if self.stashed == 0:
-            print 'banana'
+            print 'last banana'
             VLQ.getInstance().writeLine("YUMMY", ['last_banana'])
             self.replenishBananas()
             self.trialNum += 1
             VLQ.getInstance().writeLine("NewTrial", [self.trialNum])
 
+    def checkReward(self):
+        # checks to see if we are still giving reward. If we are,
+        # avatar still can't move, and banana doesn't disappear yet.
+        # After last reward, banana disappears and avatar can move.
+        #print 'current beep', self.beeps
+        if self.beeps == 0:
+            return
 
-        #if state['currentBanana'] < len(state['bananas']):
-        #    state['currentBanana'] += 1
-        #    Experiment.getInstance().setState(state)
+        if self.reward:
+            self.reward.pumpOut()
+        else:
+            print 'beep', self.beeps
+        # increment beeps or get rid of banana
+        if self.beeps < self.numBeeps:
+            self.beeps += 1
+        else:
+            # get config dictionary
+            config = Conf.getInstance().getConfig()
+            # banana disappears
+            self.goneBanana()
+            # avatar can move
+            Avatar.getInstance().setMaxTurningSpeed(config['fullTurningSpeed'])
+            Avatar.getInstance().setMaxForwardSpeed(config['fullForwardSpeed'])
+            # reward is over
+            self.beeps = 0
 
-    def reward(self):
-        for i in range(self.numBeeps):
-            print 'Beep'
 
     def getEyeData(self):
         eyeData = pydaq.EOGData

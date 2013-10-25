@@ -7,14 +7,18 @@ training = 5.2
 
 # testing mode allows you to place 2 bananas in specific places,
 # rather than having random placement of x bananas
-# testing also shuts off reward and pydaq stuff
+
 testing = False
+
+# Are we giving rewards?
+reward = False
 
 # Are we collecting eye data?
 eyeData = False
 
 # reward
 numBeeps = 3
+pulseInterval = 200 # in ms
 
 # eye position calibration information
 gain = (262, 236)  #(x, y)
@@ -42,7 +46,10 @@ turningLinearSpeed = 2  #Kiril has this as a factor, with min and max, eventuall
 
 # Point3 is global from pandaepl.common
 initialPos = Point3(0, 0, 1)
-avatarRadius = 0.3
+# If you want to collide with bananas at a closer or further distance, change this
+#avatarRadius = 0.3
+avatarRadius = 1.0
+
 cameraPos = Point3(0, 0, 0)
 friction = 0.4
 movementType = 'walking' # car | walking

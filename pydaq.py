@@ -7,9 +7,10 @@ class GiveReward(daq.Task):
         daq.Task.__init__(self)
         self.pulse = np.zeros(1, dtype = np.uint8)
         self.CreateDOChan("Dev1/port0/line0", "", daq.DAQmx_Val_ChanPerLine)
-        self.StartTask()
+        #self.StartTask()
 
     def pumpOut(self):
+        self.StartTask()
         self.pulse[0] = 1
         self.WriteDigitalLines(1, False, daq.DAQmx_Val_WaitInfinitely, daq.DAQmx_Val_GroupByChannel,
                                  self.pulse, None, None)
@@ -17,6 +18,7 @@ class GiveReward(daq.Task):
         time.sleep(.05)
         self.WriteDigitalLines(1, False, daq.DAQmx_Val_WaitInfinitely, daq.DAQmx_Val_GroupByChannel,
                                  self.pulse, None, None)
+        self.StopTask()
         #print "sent reward impulse"
 
 class EOGTask(daq.Task):
