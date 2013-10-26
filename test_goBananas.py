@@ -28,7 +28,8 @@ class TestGoBananas(unittest.TestCase):
         """ Help function for tests, will check the log
         file to see if logWord is present, returns the
         line where logWord is found, returns empty string
-        if logWord not found
+        if logWord not found, if next_word is given, will
+        look for both strings in the same line.
         """
         #print log_word
         if next_word == '':
@@ -40,7 +41,7 @@ class TestGoBananas(unittest.TestCase):
             for line in logfile:
                 if log_word in line.split() and next_word in line.split():
                     return line
-        print 'fail'
+        print '%s not found' %log_word
         return ''
 
     def test_session(self):
@@ -126,9 +127,6 @@ class TestGoBananas(unittest.TestCase):
             print sys.exc_info()
             print os.getcwd()
             print 'fail'
-
-
-
 
 def suite_one():
     suite_one = unittest.TestSuite()
