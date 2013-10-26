@@ -68,7 +68,7 @@ class goBananas:
         #               Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
 
         # set up task to be performed between frames
-        vr.addTask(Task("pauseAvatar",
+        vr.addTask(Task("checkReward",
                         lambda taskInfo:
                             self.checkReward(),
                         config['pulseInterval']))
@@ -152,7 +152,7 @@ class goBananas:
             bananaModels[i].setStashed(False)
         self.stashed = self.numBananas
         print 'end load bananas'
-        #print pList
+        print pList
         return bananaModels
 
     def replenishBananas(self):

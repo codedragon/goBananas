@@ -48,7 +48,7 @@ class MoBananasTests(unittest.TestCase):
         away from points already on the list
         """
         pList = []
-        for i in range(20):
+        for i in range(50):
             (x, y) = mb.setXY(pList, 0.5)
             #print 'new point', p0
             for p in pList:
@@ -57,6 +57,23 @@ class MoBananasTests(unittest.TestCase):
             pList += [(x, y)]
             #print pList
             #print len(pList)
+
+
+    def test_setXY_not_close_to_origin(self):
+        """
+        Test that each point we are given a point is at least 0.5 distance
+        away from the origin
+        """
+        origin = (0, 0)
+        pList = []
+        for i in range(50):
+            (x, y) = mb.setXY(pList, 0.5)
+            dist = mb.distance((x, y), origin)
+            self.assertTrue(dist >= 0.5)
+            pList += [(x, y)]
+            #print pList
+            #print len(pList)
+
 
 if __name__ == "__main__":
     unittest.main()

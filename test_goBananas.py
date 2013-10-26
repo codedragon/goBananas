@@ -6,6 +6,7 @@ import datetime
 import itertools
 import moBananas as mb
 import shutil
+import sys
 
 
 # Do not import pandaepl or goBananas or it will start pandaepl without any of our parameters.
@@ -118,9 +119,16 @@ class TestGoBananas(unittest.TestCase):
         pass
 
     def tearDown(self):
-        print 'teardown'
-        print os.getcwd()
-        shutil.rmtree(self.session)
+        if sys.exc_info() == (None, None, None):
+            print 'removing log file'
+            shutil.rmtree(self.session)
+        else:
+            print sys.exc_info()
+            print os.getcwd()
+            print 'fail'
+
+
+
 
 def suite_one():
     suite_one = unittest.TestSuite()

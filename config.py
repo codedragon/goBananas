@@ -11,7 +11,7 @@ training = 5.2
 testing = False
 
 # Are we giving rewards?
-reward = False
+reward = True
 
 # Are we collecting eye data?
 eyeData = False

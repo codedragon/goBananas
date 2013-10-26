@@ -14,15 +14,24 @@ def setXY(pList, tooClose=[]):
     """
     (list) -> tuple
     Returns a point (x,y) that is more than the minimum distance set by tooClose
-    in the config.py file from existing points in pList.
+    in the config.py file from existing points in pList. Also cannot be too close
+    to the origin, where the avatar pops up.
     """
     config = {}
     execfile('config.py', config)
     if not tooClose:
         tooClose = config['tooClose']
+        dist_origin = config['avatarRadius']*2
+    else:
+        dist_origin = tooClose
     x = random.uniform(config['minDistance'], config['maxDistance'])
     y = random.uniform(config['minFwDistance'], config['maxFwDistance'])
 
+    # check the distance to origin
+    if distance((x, y), (0, 0)) < dist_origin:
+        x, y = setXY(pList)
+
+    # check the distance to points already on the list
     if pList:
         for x1,y1 in pList:
             if distance((x,y), (x1,y1)) < tooClose:
