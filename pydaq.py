@@ -3,13 +3,17 @@ import numpy as np
 import time
 
 class GiveReward(daq.Task):
+    """Sets up Nidaq board to send a pulse to the reward pump, uses Dev1, port0, line1
+    """
     def __init__(self):
         daq.Task.__init__(self)
         self.pulse = np.zeros(1, dtype = np.uint8)
         self.CreateDOChan("Dev1/port0/line0", "", daq.DAQmx_Val_ChanPerLine)
-        #self.StartTask()
 
     def pumpOut(self):
+        """
+        Send signal to the reward pump to trigger a new reward.
+        """
         self.StartTask()
         self.pulse[0] = 1
         self.WriteDigitalLines(1, False, daq.DAQmx_Val_WaitInfinitely, daq.DAQmx_Val_GroupByChannel,
@@ -22,6 +26,9 @@ class GiveReward(daq.Task):
         #print "sent reward impulse"
 
 class EOGTask(daq.Task):
+    """Collects Voltage representing Eye Position data from the IScan computer.
+    Uses Dev1/ai3 and Dev1/ai4 channels
+    """
     def __init__(self):
         daq.Task.__init__(self)
         EOGSampRate = 240

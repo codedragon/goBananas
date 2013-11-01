@@ -8,10 +8,10 @@ import moBananas as mb
 import shutil
 import sys
 
-
 # Do not import pandaepl or goBananas or it will start pandaepl without any of our parameters.
 # from pandaepl import Conf
 # from goBananas import distance
+# import goBananas as gb
 
 
 class TestGoBananas(unittest.TestCase):
@@ -47,7 +47,7 @@ class TestGoBananas(unittest.TestCase):
     def test_session(self):
         """ goBananas should make a new session in the data directory,
         session should be today's date """
-        print self.session
+        print 'checking session', self.session
         time.sleep(0.3)
         self.failUnless(os.access(self.session, os.F_OK))
 
@@ -105,7 +105,8 @@ class TestGoBananas(unittest.TestCase):
         Check that we log when last banana is picked up, need to
         actually pick up all bananas for this to work. :(
         """
-        pass
+        #os.putenv(self.task.stashed, 0)
+        self.assertTrue(self.check_log('YUMMY'))
 
     def test_replenish_bananas(self):
         """
@@ -134,7 +135,9 @@ def suite_one():
     return suite_one
 
 if __name__ == "__main__":
-    #unittest.main()
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestGoBananas)
-    unittest.TextTestRunner(verbosity=2).run(suite_one())
+    unittest.main()
+    #suite = unittest.TestLoader().loadTestsFromTestCase(TestGoBananas)
+    #unittest.TextTestRunner(verbosity=2).run(suite_one())
 
+# To run a single test:
+# python test_goBananas.py TestGoBananas.test_last_banana

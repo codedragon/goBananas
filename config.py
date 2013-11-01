@@ -48,7 +48,7 @@ turningLinearSpeed = 2  #Kiril has this as a factor, with min and max, eventuall
 initialPos = Point3(0, 0, 1)
 # If you want to collide with bananas at a closer or further distance, change this
 #avatarRadius = 0.3
-avatarRadius = 1.0
+avatarRadius = 0.8
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4

@@ -1,12 +1,15 @@
+from direct.directbase.DirectStart import base
 from pandaepl.common import *
+#noinspection PyUnresolvedReferences
+from panda3d.core import WindowProperties
 import os
 import datetime
 import random
 import moBananas as mb
-import PyDAQmx as daq
+# import PyDAQmx as daq
 import pydaq
 
-class goBananas:
+class GoBananas:
     def __init__(self):
         """
 		Initialize the experiment
@@ -21,11 +24,17 @@ class goBananas:
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
         #print config['training']
         #print 'load testing', config['testing']
+
+        # get rid of cursor
+        win_props = WindowProperties()
+        win_props.setCursorHidden(True)
+        base.win.requestProperties(win_props)
+
         # set up reward system
         if config['reward']:
             self.reward = pydaq.GiveReward()
         else:
-            self.reward = False
+            self.reward = None
 
         # Get vr environment object
         vr = Vr.getInstance()
@@ -34,7 +43,7 @@ class goBananas:
         #if not exp.getState():
             #bananas = []
             # Get avatar object
-        avatar = Avatar.getInstance()
+        #avatar = Avatar.getInstance()
 
         # Register Custom Log Entries
         #This one corresponds to colliding with a banana
@@ -206,7 +215,7 @@ class goBananas:
             VLQ.getInstance().writeLine("YUMMY", ['last_banana'])
             self.replenishBananas()
             self.trialNum += 1
-            VLQ.getInstance().writeLine("NewTrial", [self.trialNum])
+        VLQ.getInstance().writeLine("NewTrial", [self.trialNum])
 
     def checkReward(self):
         # checks to see if we are still giving reward. If we are,
@@ -250,14 +259,14 @@ class goBananas:
 
 if __name__ == '__main__':
     #print 'main?'
-    goBananas().start()
+    GoBananas().start()
 else:
-#print 'not main?'
-#import argparse
-#p = argparse.ArgumentParser()
-#p.add_argument('-scrap')
-#import sys
-#sys.argv.extend(['stest'])
-#sys.argv = ['goBananas','-stest']
-#,'--no-eeg','--no-fs']
-    goBananas().start()
+    print 'not main?'
+    #import argparse
+    #p = argparse.ArgumentParser()
+    #p.add_argument('-scrap')
+    #import sys
+    #sys.argv.extend(['stest'])
+    #sys.argv = ['goBananas','-stest']
+    #,'--no-eeg','--no-fs']
+    GoBananas().start()
