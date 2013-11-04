@@ -143,8 +143,12 @@ class GoBananas:
         bananaModels = []
         print 'numBananas', self.numBananas
         pList = []
+        # get current position of avatar, so bananas not too close.
+        avatar = Avatar.getInstance()
+        avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
+        #print avatarXY
         for i in range(self.numBananas):
-            (x, y) = mb.setXY(pList)
+            (x, y) = mb.setXY(pList, avatarXY)
             #print point
             pList += [(x, y)]
             # Model is a global from pandaepl
@@ -166,8 +170,11 @@ class GoBananas:
 
     def replenishBananas(self):
         pList = []
+        avatar = Avatar.getInstance()
+        avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
+        #print avatarXY
         for i in range(self.numBananas):
-            (x, y) = mb.setXY(pList)
+            (x, y) = mb.setXY(pList, avatarXY)
             self.bananaModel[i].setPos(Point3(x, y, 1))
             # make new bananas visible
             self.bananaModel[i].setStashed(False)
