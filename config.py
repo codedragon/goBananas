@@ -11,13 +11,16 @@ training = 5.2
 testing = False
 
 # Are we giving rewards?
-reward = True
+reward = False
 
 # Are we collecting eye data?
 eyeData = False
 
 # reward
 numBeeps = 3
+# factor to increase reward for last banana
+extra = 2
+# for activating reward system
 pulseInterval = 200 # in ms
 
 # eye position calibration information
@@ -48,7 +51,7 @@ turningLinearSpeed = 2  #Kiril has this as a factor, with min and max, eventuall
 initialPos = Point3(0, 0, 1)
 # If you want to collide with bananas at a closer or further distance, change this
 #avatarRadius = 0.3
-avatarRadius = 0.8
+avatarRadius = 0.1
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4
@@ -68,7 +71,7 @@ bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
-numBananas = 10
+numBananas = 3
 # how close is too close together?
 tooClose = 0.5
 # Bananas replenish after eating this many bananas.

@@ -12,10 +12,10 @@ import pydaq
 class GoBananas:
     def __init__(self):
         """
-		Initialize the experiment
-		"""
+        Initialize the experiment
+        """
         # Get experiment instance.
-        print 'init'
+        #print 'init'
         exp = Experiment.getInstance()
         #exp.setSessionNum(0)
         # Set session to today's date
@@ -60,9 +60,10 @@ class GoBananas:
         # use often. also makes it possible to change these dynamically
         self.numBananas = config['numBananas']
         self.numBeeps = config['numBeeps']
+        self.extra = config['extra']
 
         # initiate beeps
-        self.beeps = 0
+        self.beeps = None
 
         if config['eyeData']:
             self.gain = config['gain']
@@ -115,7 +116,7 @@ class GoBananas:
 
         # Load random Bananas
         if not config['testing']:
-            print 'random bananas'
+            #print 'random bananas'
             self.bananaModel = self.createBananas()
         else:
             # Show a couple of bananas where we define the positions for testing
@@ -134,14 +135,14 @@ class GoBananas:
             self.bananaModel = bananaModels
 
     def createBananas(self):
-        print 'create bananas'
+        #print 'create bananas'
         # Randomly assign where bananas go and return a banana bananaModel.
         # get config dictionary
         # distance formula: ((x2 - x1)^2 + (y2 - y1)^2)^1/2
         # make sure distance is less than 0.5
         config = Conf.getInstance().getConfig()
         bananaModels = []
-        print 'numBananas', self.numBananas
+        #print 'numBananas', self.numBananas
         pList = []
         # get current position of avatar, so bananas not too close.
         avatar = Avatar.getInstance()
@@ -164,8 +165,8 @@ class GoBananas:
             # so start with not stashed
             bananaModels[i].setStashed(False)
         self.stashed = self.numBananas
-        print 'end load bananas'
-        print pList
+        #print 'end load bananas'
+        #print pList
         return bananaModels
 
     def replenishBananas(self):
@@ -187,8 +188,14 @@ class GoBananas:
         @param collisionInfoList:
         @return:
         """
-        self.badBanana = collisionInfoList[0].getInto().getIdentifier()
-
+        #print 'collide'
+        config = Conf.getInstance().getConfig()  # Get configuration dictionary.
+        # check if we are giving extra reward
+        self.extra = config['extra']
+        
+        # which banana we ran into
+        self.byeBanana = collisionInfoList[0].getInto().getIdentifier()
+        
         # cannot run inside of banana
         MovingObject.handleRepelCollision(collisionInfoList)
 
@@ -197,58 +204,65 @@ class GoBananas:
         Avatar.getInstance().setMaxForwardSpeed(0)
 
         # start reward, will continue reward as long as beeps is less than numBeeps
-        # (checks during each frame, see
-        if self.reward:
-            self.reward.pumpOut()
-        else:
-            print 'beep'
-        self.beeps = 1
+        # (checks during each frame, see checkReward)
+        #if self.reward:
+        #    self.reward.pumpOut()
+        #else:
+        #    print 'first beep'
+        self.beeps = 0
 
     def goneBanana(self):
-        # banana disappears
-
+        # make banana disappear
         #print banana
         #print self.bananaModel
-
         # make banana go away
-        self.bananaModel[int(self.badBanana[-1])].setStashed(True)
+        self.bananaModel[int(self.byeBanana[-1])].setStashed(True)
         self.stashed -= 1
-        print 'banana gone', self.badBanana
+        #print 'banana gone', self.byeBanana
         #print self.stashed
         # log collected banana
-        VLQ.getInstance().writeLine("YUMMY", [self.badBanana])
+        VLQ.getInstance().writeLine("YUMMY", [self.byeBanana])
         if self.stashed == 0:
-            print 'last banana'
+            #print 'last banana'
             VLQ.getInstance().writeLine("YUMMY", ['last_banana'])
             self.replenishBananas()
             self.trialNum += 1
         VLQ.getInstance().writeLine("NewTrial", [self.trialNum])
 
     def checkReward(self):
-        # checks to see if we are still giving reward. If we are,
-        # avatar still can't move, and banana doesn't disappear yet.
+        # checks to see if we are giving reward. If we are, there
+        # was a collision, and avatar can't move and banana hasn't 
+        # disappeared yet.
         # After last reward, banana disappears and avatar can move.
-        #print 'current beep', self.beeps
-        if self.beeps == 0:
+        # print 'current beep', self.beeps
+        if self.beeps == None:
             return
-
+        
+        # Still here? Give reward!
         if self.reward:
             self.reward.pumpOut()
         else:
             print 'beep', self.beeps
-        # increment beeps or get rid of banana
-        if self.beeps < self.numBeeps:
-            self.beeps += 1
-        else:
-            # get config dictionary
-            config = Conf.getInstance().getConfig()
-            # banana disappears
-            self.goneBanana()
-            # avatar can move
-            Avatar.getInstance().setMaxTurningSpeed(config['fullTurningSpeed'])
-            Avatar.getInstance().setMaxForwardSpeed(config['fullForwardSpeed'])
-            # reward is over
-            self.beeps = 0
+        # increment reward
+        self.beeps += 1
+        
+        # If done, get rid of banana
+        if self.beeps == self.numBeeps:
+            # check to see if we are doing double reward
+            if self.stashed == 1 and self.extra == 2:
+                #print 'reset'
+                self.beeps = 0
+                self.extra = 1
+            else:
+                # get config dictionary
+                config = Conf.getInstance().getConfig()
+                # banana disappears 
+                self.goneBanana()
+                # avatar can move
+                Avatar.getInstance().setMaxTurningSpeed(config['fullTurningSpeed'])
+                Avatar.getInstance().setMaxForwardSpeed(config['fullForwardSpeed'])
+                # reward is over
+                self.beeps = None
 
 
     def getEyeData(self):
