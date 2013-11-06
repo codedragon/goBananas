@@ -195,14 +195,14 @@ class GoBananas:
         @param collisionInfoList:
         @return:
         """
-        print 'collide'
+        #print 'collide'
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
         # check if we are giving extra reward
         self.extra = config['extra']
         
         # which banana we ran into
         self.byeBanana = collisionInfoList[0].getInto().getIdentifier()
-        print self.byeBanana
+        #print self.byeBanana
         # cannot run inside of banana
         MovingObject.handleRepelCollision(collisionInfoList)
 
@@ -221,12 +221,12 @@ class GoBananas:
 
     def goneBanana(self):
         # make banana disappear
-        print 'banana should go away'
+        #print 'banana should go away'
         # make banana go away
-        print self.byeBanana[-2:]
+        #print self.byeBanana[-2:]
         self.bananaModel[int(self.byeBanana[-2:])].setStashed(True)
         self.stashed -= 1
-        print 'banana gone', self.byeBanana
+        #print 'banana gone', self.byeBanana
         #print self.stashed
         # log collected banana
         VLQ.getInstance().writeLine("YUMMY", [self.byeBanana])
@@ -258,7 +258,7 @@ class GoBananas:
         if self.beeps == self.numBeeps:
             # check to see if we are doing double reward
             if self.stashed == 1 and self.extra > 1:
-                print 'reset'
+                #print 'reset'
                 self.beeps = 0
                 self.extra -= 1
             else:
