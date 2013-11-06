@@ -61,6 +61,8 @@ class GoBananas:
         self.numBananas = config['numBananas']
         self.numBeeps = config['numBeeps']
         self.extra = config['extra']
+        self.fullTurningSpeed = config['fullTurningSpeed']
+        self.fullForwardSpeed = config['fullForwardSpeed']
 
         # initiate beeps
         self.beeps = None
@@ -76,7 +78,9 @@ class GoBananas:
         #vr.inputListen('toggleDebug',
         #               lambda inputEvent:
         #               Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
-
+        vr.inputListen("upTurnSpeed", self.upTurnSpeed)
+        vr.inputListen("downTurnSpeed", self.downTurnSpeed)
+        
         # set up task to be performed between frames
         vr.addTask(Task("checkReward",
                         lambda taskInfo:
@@ -122,12 +126,14 @@ class GoBananas:
             # Show a couple of bananas where we define the positions for testing
             # also need to uncomment some banana parameters in config file
             bananaModels = []
-            bananaModel = Model("banana0", config['bananaModel'], config['bananaLoc'])
+            bananaModel = Model("banana0", config['bananaModel'], 
+                                config['bananaLoc'])
             bananaModel.setScale(config['bananaScale'])
             bananaModel.setH(config['bananaH'])
             bananaModels.append(bananaModel)
             #
-            bananaModel1 = Model("banana1", config['bananaModel'], config['bananaLoc2'])
+            bananaModel1 = Model("banana1", config['bananaModel'], 
+                                 config['bananaLoc2'])
             bananaModel1.setScale(config['bananaScale'])
             bananaModel1.setH(config['bananaH'])
             #
@@ -154,8 +160,9 @@ class GoBananas:
             pList += [(x, y)]
             # Model is a global from pandaepl
             # Point3 is a global from Panda3d
-            bananaModel = Model("banana" + str(i),
-                                os.path.join(config['bananaDir'], "banana" + ".bam"),
+            bananaModel = Model("banana" + "%02d" % i,
+                                os.path.join(config['bananaDir'], 
+                                "banana" + ".bam"),
                                 Point3(x, y, 1),
                                 self.collideBanana)
             bananaModel.setScale(config['bananaScale'])
@@ -188,14 +195,14 @@ class GoBananas:
         @param collisionInfoList:
         @return:
         """
-        #print 'collide'
+        print 'collide'
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
         # check if we are giving extra reward
         self.extra = config['extra']
         
         # which banana we ran into
         self.byeBanana = collisionInfoList[0].getInto().getIdentifier()
-        
+        print self.byeBanana
         # cannot run inside of banana
         MovingObject.handleRepelCollision(collisionInfoList)
 
@@ -203,7 +210,8 @@ class GoBananas:
         Avatar.getInstance().setMaxTurningSpeed(0)
         Avatar.getInstance().setMaxForwardSpeed(0)
 
-        # start reward, will continue reward as long as beeps is less than numBeeps
+        # start reward, will continue reward as long as beeps 
+        # is less than numBeeps
         # (checks during each frame, see checkReward)
         #if self.reward:
         #    self.reward.pumpOut()
@@ -213,12 +221,12 @@ class GoBananas:
 
     def goneBanana(self):
         # make banana disappear
-        #print banana
-        #print self.bananaModel
+        print 'banana should go away'
         # make banana go away
-        self.bananaModel[int(self.byeBanana[-1])].setStashed(True)
+        print self.byeBanana[-2:]
+        self.bananaModel[int(self.byeBanana[-2:])].setStashed(True)
         self.stashed -= 1
-        #print 'banana gone', self.byeBanana
+        print 'banana gone', self.byeBanana
         #print self.stashed
         # log collected banana
         VLQ.getInstance().writeLine("YUMMY", [self.byeBanana])
@@ -249,18 +257,16 @@ class GoBananas:
         # If done, get rid of banana
         if self.beeps == self.numBeeps:
             # check to see if we are doing double reward
-            if self.stashed == 1 and self.extra == 2:
-                #print 'reset'
+            if self.stashed == 1 and self.extra > 1:
+                print 'reset'
                 self.beeps = 0
-                self.extra = 1
+                self.extra -= 1
             else:
-                # get config dictionary
-                config = Conf.getInstance().getConfig()
                 # banana disappears 
                 self.goneBanana()
                 # avatar can move
-                Avatar.getInstance().setMaxTurningSpeed(config['fullTurningSpeed'])
-                Avatar.getInstance().setMaxForwardSpeed(config['fullForwardSpeed'])
+                Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
+                Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
                 # reward is over
                 self.beeps = None
 
@@ -268,8 +274,22 @@ class GoBananas:
     def getEyeData(self):
         eyeData = pydaq.EOGData
         Log.getInstance().writeLine("EyeData",
-                                    [((eyeData[0] * self.gain[0]) - self.offset[0]),
-                                     ((eyeData[1] * self.gain[1]) - self.offset[1])])
+                                [((eyeData[0] * self.gain[0]) - self.offset[0]),
+                                ((eyeData[1] * self.gain[1]) - self.offset[1])])
+
+    def upTurnSpeed(self, inputEvent):
+        avatar = Avatar.getInstance()
+        self.fullTurningSpeed += 0.1
+        if avatar.getMaxTurningSpeed() > 0:
+            avatar.setMaxTurningSpeed(self.fullTurningSpeed)
+        print("fullTurningSpeed: " + str(self.fullTurningSpeed))
+
+    def downTurnSpeed(self, inputEvent):
+        avatar = Avatar.getInstance()
+        self.fullTurningSpeed -= 0.1
+        if avatar.getMaxTurningSpeed() > 0:
+            avatar.setMaxTurningSpeed(self.fullTurningSpeed)
+        print("fullTurningSpeed: " + str(self.fullTurningSpeed))
 
     def start(self):
         """

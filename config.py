@@ -45,16 +45,19 @@ elif training >= 2:
 	fullTurningSpeed = 55
 else:
 	fullTurningSpeed = 200
-turningLinearSpeed = 2  #Kiril has this as a factor, with min and max, eventually implement
+turningLinearSpeed = 2  #Kiril has this as a factor, 
+# with min and max, eventually implement
 
 # Point3 is global from pandaepl.common
 initialPos = Point3(0, 0, 1)
-# If you want to collide with bananas at a closer or further distance, change this
+
+# If you want to collide with bananas at a closer or 
+# further distance, change this
 #avatarRadius = 0.3
 avatarRadius = 0.1
 
 cameraPos = Point3(0, 0, 0)
-friction = 0.4
+friction = 0.4 #0.4
 movementType = 'walking' # car | walking
 
 instructSize = 0.1
@@ -67,17 +70,13 @@ instructSeeAll  = False
 # Experiment-specific settings
 
 # Bananas.
+numBananas = 20
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
-numBananas = 3
 # how close is too close together?
-tooClose = 0.5
-# Bananas replenish after eating this many bananas.
-#bananaReplenishment = 0
-# Double the reward for the last banana in trial. 1=Yes; 0 = No.
-#lastBananaBonus = 1
+tooClose = 1
 
 # Banana Positions
 minDistance = -5
@@ -145,5 +144,5 @@ if 'Keyboard' in globals():
     keyboard = Keyboard.getInstance()
     keyboard.bind("exit", ["escape", "q"])
     keyboard.bind("toggleDebug", ["escape", "d"])
-
+    keyboard.bind("upTurnSpeed", "t")
 
