@@ -147,8 +147,14 @@ class GoBananas:
             #cnodePath.show()
 
             self.bananaModel = bananaModels
-            #a = self.bananaModel.getBounds()
-            #print a
+            a = self.bananaModel[0].retrNodePath().getBounds()
+            print a
+            self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).show()
+            #print b
+            print self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).node()
+            
+            #center = s.getCenter()
+            #radius = s.getRadius() * 1.1
             #bounds = self.bananaModel.getBounds()
             #print bounds.getCenter()
 
