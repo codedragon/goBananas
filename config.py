@@ -11,7 +11,7 @@ training = 5.2
 testing = False
 
 # Are we giving rewards?
-reward = False
+reward = True
 
 # Are we collecting eye data?
 eyeData = False
@@ -48,13 +48,14 @@ else:
 turningLinearSpeed = 2  #Kiril has this as a factor, 
 # with min and max, eventually implement
 
-# Point3 is global from pandaepl.common
+# Point3 is global from panda3d.core
 initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
-# further distance, change this
+# further distance, change this, but does no good if 
+# thing running into has huge radius
 #avatarRadius = 0.3
-avatarRadius = 0.1
+avatarRadius = 0.3
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4 #0.4
@@ -70,19 +71,19 @@ instructSeeAll  = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 20
+numBananas = 50
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 1
+tooClose = 1.5
 
 # Banana Positions
-minDistance = -5
-maxDistance = 5
-minFwDistance = -5
-maxFwDistance = 5
+minDistance = -7
+maxDistance = 7
+minFwDistance = -7
+maxFwDistance = 7
 #fwDistanceIncrement = .1
 
 # if not fully trained, do one banana at a time
@@ -133,16 +134,19 @@ windmillH = 45
 
 # Load 2 bananas for testing, know where they are!
 bananaModel = './models/bananas/banana.bam'
-bananaLoc = Point3(10, 10, 1)
+bananaLoc = Point3(2, 2, 1)
 bananaScale = 0.5
 bananaH = 0
-bananaLoc2 = Point3(-10, -10, 1)
+bananaLoc2 = Point3(3, 3, 1)
 
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common
 if 'Keyboard' in globals():
-    keyboard = Keyboard.getInstance()
-    keyboard.bind("exit", ["escape", "q"])
-    keyboard.bind("toggleDebug", ["escape", "d"])
-    keyboard.bind("upTurnSpeed", "t")
-
+        keyboard = Keyboard.getInstance()
+        keyboard.bind("exit", ["escape", "q"])
+        keyboard.bind("restart", "y")
+        keyboard.bind("toggleDebug", ["escape", "d"])
+        keyboard.bind("upTurnSpeed", "t")
+        keyboard.bind("downTurnSpeed", "g")
+        keyboard.bind("increaseBananas", "w")
+        keyboard.bind("decreaseBananas", "s")

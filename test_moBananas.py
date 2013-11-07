@@ -19,7 +19,7 @@ class MoBananasTests(unittest.TestCase):
         away from points already on the list
         """
         pList = []
-        p0 = mb.setXY(pList, tooClose=.5)
+        p0 = mb.setXY(pList, tooClose=0.5)
         #print p0
         for p in pList:
             #print p
@@ -34,7 +34,7 @@ class MoBananasTests(unittest.TestCase):
         """
         pList = [(4.3, 5.2)]
 
-        p0 = mb.setXY(pList, tooClose=.5)
+        p0 = mb.setXY(pList, tooClose=0.5)
         #print p0
         for p in pList:
             #print p
@@ -48,8 +48,8 @@ class MoBananasTests(unittest.TestCase):
         away from points already on the list
         """
         pList = []
-        for i in range(50):
-            (x, y) = mb.setXY(pList, tooClose=.5)
+        for i in range(30):
+            (x, y) = mb.setXY(pList, tooClose=0.5)
             #print 'new point', p0
             for p in pList:
                 dist = mb.distance((x, y), p)
@@ -57,7 +57,6 @@ class MoBananasTests(unittest.TestCase):
             pList += [(x, y)]
             #print pList
             #print len(pList)
-
 
     def test_setXY_not_close_to_origin(self):
         """
@@ -74,22 +73,41 @@ class MoBananasTests(unittest.TestCase):
             #print pList
             #print len(pList)
 
+    def test_setXY_not_close_to_origin(self):
+        """
+        Test that each point we are given a point is at least 0.5 distance
+        away from the avatar when not at origin
+        """
+        avatar = (2, -2)
+        pList = []
+        for i in range(50):
+            (x, y) = mb.setXY(pList, avatar, 0.5)
+            dist = mb.distance((x, y), avatar)
+            self.assertTrue(dist >= 0.5)
+            pList += [(x, y)]
+            #print pList
+            #print len(pList)
 
-def test_setXY_not_close_to_origin(self):
-    """
-    Test that each point we are given a point is at least 0.5 distance
-    away from the avatar when not at origin
-    """
-    avatar = (2, -2)
-    pList = []
-    for i in range(50):
-        (x, y) = mb.setXY(pList, avatar, 0.5)
-        dist = mb.distance((x, y), avatar)
-        self.assertTrue(dist >= 0.5)
-        pList += [(x, y)]
-        #print pList
-        #print len(pList)
-
+    def test_setXY_from_config_file(self):
+        """
+        Test that each point we are given a point is at least 0.5 distance
+        away from the avatar when not at origin
+        """
+        config = {}
+        execfile('config.py', config)
+        avatar = (config['initialPos'][0],config['initialPos'][1])
+        #print avatar
+        tooClose = config['tooClose']
+        pList = []
+        numBananas = config['numBananas']
+        for i in range(numBananas):
+            (x, y) = mb.setXY(pList, avatar, tooClose)
+            dist = mb.distance((x, y), avatar)
+            self.assertTrue(dist >= tooClose)
+            pList += [(x, y)]
+            #print pList
+            #print len(pList)
+ 
 
 if __name__ == "__main__":
     unittest.main()

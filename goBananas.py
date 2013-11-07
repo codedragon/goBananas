@@ -2,6 +2,7 @@ from direct.directbase.DirectStart import base
 from pandaepl.common import *
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
+from panda3d.core import CollisionNode, CollisionSphere
 import os
 import datetime
 import random
@@ -80,7 +81,9 @@ class GoBananas:
         #               Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
         vr.inputListen("upTurnSpeed", self.upTurnSpeed)
         vr.inputListen("downTurnSpeed", self.downTurnSpeed)
-        
+        vr.inputListen("increaseBananas", self.increaseBananas)
+        vr.inputListen("decreaseBananas", self.decreaseBananas)
+        vr.inputListen("restart", self.restart)
         # set up task to be performed between frames
         vr.addTask(Task("checkReward",
                         lambda taskInfo:
@@ -117,7 +120,8 @@ class GoBananas:
         self.windmillModel = Model("windmill", config['windmillModel'], config['windmillLoc'])
         self.windmillModel.setScale(config['windmillScale'])
         self.windmillModel.setH(config['windmillH'])
-
+        #self.windmillModel.showBounds()
+        
         # Load random Bananas
         if not config['testing']:
             #print 'random bananas'
@@ -136,11 +140,22 @@ class GoBananas:
                                  config['bananaLoc2'])
             bananaModel1.setScale(config['bananaScale'])
             bananaModel1.setH(config['bananaH'])
-            #
             bananaModels.append(bananaModel1)
-            self.bananaModel = bananaModels
 
-    def createBananas(self):
+            #cs = CollisionSphere(0, 0, 0, 1)
+            #cnodePath = bananaModels.attachNewNode(CollisionNode('cnode'))
+            #cnodePath.show()
+
+            self.bananaModel = bananaModels
+            #a = self.bananaModel.getBounds()
+            #print a
+            #bounds = self.bananaModel.getBounds()
+            #print bounds.getCenter()
+
+    def createBananas(self, start=None):
+        if not start:
+            start = 0
+        #print start
         #print 'create bananas'
         # Randomly assign where bananas go and return a banana bananaModel.
         # get config dictionary
@@ -154,13 +169,14 @@ class GoBananas:
         avatar = Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         #print avatarXY
-        for i in range(self.numBananas):
+        
+        for i,j in enumerate(range(start, self.numBananas)):
             (x, y) = mb.setXY(pList, avatarXY)
-            #print point
+            #print i,j
             pList += [(x, y)]
             # Model is a global from pandaepl
             # Point3 is a global from Panda3d
-            bananaModel = Model("banana" + "%02d" % i,
+            bananaModel = Model("banana" + "%02d" % j,
                                 os.path.join(config['bananaDir'], 
                                 "banana" + ".bam"),
                                 Point3(x, y, 1),
@@ -171,6 +187,7 @@ class GoBananas:
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
             bananaModels[i].setStashed(False)
+
         self.stashed = self.numBananas
         #print 'end load bananas'
         #print pList
@@ -239,8 +256,7 @@ class GoBananas:
 
     def checkReward(self):
         # checks to see if we are giving reward. If we are, there
-        # was a collision, and avatar can't move and banana hasn't 
-        # disappeared yet.
+        # was a collision, and avatar can't move and banana hasn't         # disappeared yet.
         # After last reward, banana disappears and avatar can move.
         # print 'current beep', self.beeps
         if self.beeps == None:
@@ -290,6 +306,30 @@ class GoBananas:
         if avatar.getMaxTurningSpeed() > 0:
             avatar.setMaxTurningSpeed(self.fullTurningSpeed)
         print("fullTurningSpeed: " + str(self.fullTurningSpeed))
+        
+    def increaseBananas(self, inputEvent):
+        # increase number of bananas by 5
+        self.numBananas += 5
+        # if we are increasing beyond original amount of bananas,
+        # have to create the new bananas
+        # print 'bananas number', len(self.bananaModel)
+        if self.numBananas > len(self.bananaModel):
+            self.bananaModel.extend(self.createBananas(self.numBananas - 5))
+        # make new ones show up
+        self.replenishBananas()
+
+    def decreaseBananas(self, inputEvent):
+        # decrease number of bananas by 5
+        # we can just hide the bananas we aren't using
+        for i in range(self.numBananas):
+            self.bananaModel[i].setStashed(True)
+        self.numBananas -= 5
+        # reset bananas
+        self.replenishBananas()        
+        
+    def restart(self, inputEvent):
+        #print 'restarted'
+         self.replenishBananas()
 
     def start(self):
         """
