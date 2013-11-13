@@ -28,8 +28,13 @@ class GoBananas:
 
         # get rid of cursor
         win_props = WindowProperties()
+        #print win_props
         win_props.setCursorHidden(True)
         base.win.requestProperties(win_props)
+        #print base.win.requestProperties(win_props)
+
+        #if config['threeD']:
+            #win_props.makeDisplayRegion()
 
         # set up reward system
         if config['reward']:
@@ -43,9 +48,24 @@ class GoBananas:
         # Initialize experiment parameters
         #if not exp.getState():
             #bananas = []
-            # Get avatar object
-        #avatar = Avatar.getInstance()
 
+        # Get avatar object
+        avatar = Avatar.getInstance()
+        #print avatar
+        a = avatar.retrNodePath().getChild(0).node()
+        #print a
+        collisionNode = avatar.retrNodePath().find('**/+CollisionNode')
+        #print collisionNode
+        #print 'show'
+        #collisionNode.show()
+        #avatar.retrNodePath().getChild(0).findAllMatches('**/+CollisionNode').show()
+        #print collisionNode
+        #print a
+        #avatar.showCollisions(render)
+        #print avatar.getCollisionIdentifier()
+        #print avatar.getCollisionRadius()
+        #avatar.collisionNP.show()
+        #self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).show()
         # Register Custom Log Entries
         #This one corresponds to colliding with a banana
         Log.getInstance().addType("YUMMY", [("BANANA", basestring)],
@@ -129,17 +149,23 @@ class GoBananas:
         else:
             # Show a couple of bananas where we define the positions for testing
             # also need to uncomment some banana parameters in config file
+            self.numBananas = 2 
+            self.stashed = self.numBananas
             bananaModels = []
-            bananaModel = Model("banana0", config['bananaModel'], 
-                                config['bananaLoc'])
+            bananaModel = Model("banana00", config['bananaModel'], 
+                                config['bananaLoc'], self.collideBanana)
             bananaModel.setScale(config['bananaScale'])
             bananaModel.setH(config['bananaH'])
+            bananaModel.setStashed(False)
             bananaModels.append(bananaModel)
+            
             #
-            bananaModel1 = Model("banana1", config['bananaModel'], 
-                                 config['bananaLoc2'])
+            bananaModel1 = Model("banana01", config['bananaModel'], 
+                                 config['bananaLoc2'], self.collideBanana)
             bananaModel1.setScale(config['bananaScale'])
             bananaModel1.setH(config['bananaH'])
+            bananaModel1.setStashed(False)
+            
             bananaModels.append(bananaModel1)
 
             #cs = CollisionSphere(0, 0, 0, 1)
@@ -148,10 +174,13 @@ class GoBananas:
 
             self.bananaModel = bananaModels
             a = self.bananaModel[0].retrNodePath().getBounds()
-            print a
+            print 'banana bounds', a
+            self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.5)
             self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).show()
+            self.bananaModel[1].retrNodePath().getChild(0).getChild(0).getChild(0).show()
             #print b
-            print self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).node()
+            #print self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0)
+            #print self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).node()
             
             #center = s.getCenter()
             #radius = s.getRadius() * 1.1
@@ -189,6 +218,10 @@ class GoBananas:
                                 self.collideBanana)
             bananaModel.setScale(config['bananaScale'])
             bananaModel.setH(random.randint(0, 361))
+            # make collision sphere around banana really small
+            bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
+            # uncomment to see collision sphere around bananas
+            #bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
             bananaModels.append(bananaModel)
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
@@ -203,7 +236,7 @@ class GoBananas:
         pList = []
         avatar = Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
-        #print avatarXY
+        # print 'avatar pos', avatarXY
         for i in range(self.numBananas):
             (x, y) = mb.setXY(pList, avatarXY)
             self.bananaModel[i].setPos(Point3(x, y, 1))

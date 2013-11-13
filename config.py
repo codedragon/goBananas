@@ -14,7 +14,10 @@ testing = False
 reward = True
 
 # Are we collecting eye data?
-eyeData = False
+eyeData = True
+
+# 3d?
+# framebuffer-stereo 1
 
 # reward
 numBeeps = 3
@@ -24,6 +27,8 @@ extra = 2
 pulseInterval = 200 # in ms
 
 # eye position calibration information
+# must be entered before every experiment from
+# presentation callibration
 gain = (262, 236)  #(x, y)
 offset = (-55, -46)  #(x,y)
 
@@ -55,7 +60,7 @@ initialPos = Point3(0, 0, 1)
 # further distance, change this, but does no good if 
 # thing running into has huge radius
 #avatarRadius = 0.3
-avatarRadius = 0.3
+avatarRadius = 0.05
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4 #0.4
@@ -71,13 +76,13 @@ instructSeeAll  = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 50
+numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 1.5
+tooClose = 2  # 1.7
 
 # Banana Positions
 minDistance = -7
@@ -134,10 +139,10 @@ windmillH = 45
 
 # Load 2 bananas for testing, know where they are!
 bananaModel = './models/bananas/banana.bam'
-bananaLoc = Point3(2, 2, 1)
+bananaLoc = Point3(5, 3, 1)
 bananaScale = 0.5
 bananaH = 0
-bananaLoc2 = Point3(3, 3, 1)
+bananaLoc2 = Point3(5.5, 3, 1)
 
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common

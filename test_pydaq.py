@@ -18,7 +18,7 @@ class PyDAQTests(unittest.TestCase):
             pass
         #    print task.EOGData
         task.StopTask()
-        #print task.EOGData
+        print task.EOGData
         task.ClearTask()
         self.assertTrue(len(task.EOGData) == 2)
         # should not be exactly zero if really getting data
