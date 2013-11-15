@@ -19,7 +19,7 @@ class GoBananas:
         #print 'init'
         exp = Experiment.getInstance()
         #exp.setSessionNum(0)
-        # Set session to today's date
+        # Set session to today's date and time
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
 
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
@@ -32,9 +32,6 @@ class GoBananas:
         win_props.setCursorHidden(True)
         base.win.requestProperties(win_props)
         #print base.win.requestProperties(win_props)
-
-        #if config['threeD']:
-            #win_props.makeDisplayRegion()
 
         # set up reward system
         if config['reward']:
@@ -50,22 +47,10 @@ class GoBananas:
             #bananas = []
 
         # Get avatar object
-        avatar = Avatar.getInstance()
-        #print avatar
-        a = avatar.retrNodePath().getChild(0).node()
-        #print a
-        collisionNode = avatar.retrNodePath().find('**/+CollisionNode')
-        #print collisionNode
-        #print 'show'
-        #collisionNode.show()
-        #avatar.retrNodePath().getChild(0).findAllMatches('**/+CollisionNode').show()
-        #print collisionNode
-        #print a
-        #avatar.showCollisions(render)
-        #print avatar.getCollisionIdentifier()
-        #print avatar.getCollisionRadius()
-        #avatar.collisionNP.show()
-        #self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).show()
+        #avatar = Avatar.getInstance()
+
+        #vr.cTrav.showCollisions(render)
+
         # Register Custom Log Entries
         #This one corresponds to colliding with a banana
         Log.getInstance().addType("YUMMY", [("BANANA", basestring)],
@@ -174,7 +159,7 @@ class GoBananas:
 
             self.bananaModel = bananaModels
             a = self.bananaModel[0].retrNodePath().getBounds()
-            print 'banana bounds', a
+            #print 'banana bounds', a
             self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.5)
             self.bananaModel[0].retrNodePath().getChild(0).getChild(0).getChild(0).show()
             self.bananaModel[1].retrNodePath().getChild(0).getChild(0).getChild(0).show()
@@ -294,10 +279,14 @@ class GoBananas:
         VLQ.getInstance().writeLine("NewTrial", [self.trialNum])
 
     def checkReward(self):
+        # Runs every flip of screen
         # checks to see if we are giving reward. If we are, there
-        # was a collision, and avatar can't move and banana hasn't         # disappeared yet.
+        # was a collision, and avatar can't move and banana hasn't
+        # disappeared yet.
         # After last reward, banana disappears and avatar can move.
+
         # print 'current beep', self.beeps
+
         if self.beeps == None:
             return
         

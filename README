@@ -3,13 +3,15 @@ Needs the following to work:
 2) Panda3D
 3) PandaEPL
 
+Set resolution for 1280 x 720, refresh 120hz
+
 On the Windows machine, we are running:
 Python 2.7.3, installed by Panda3d, and located in the Panda3d folder
 Panda3d 1.8.1 located in c:\Panda3D-1.8.1
 PandaEPL 0.9 is also located in Panda3d folder in python/lib/site-packages/pandaepl
 
 On my Mac (OS 10.7.5), we are running:
-Python 2.5.6  system python -> use ppython
+Python 2.7 system python -> use ppython
 Panda3d 1.8.1 is installed in /Developer/Panda3d
 PandEPL 0.9 is installed in /Library/Python/2.5/site-packages/pandaepl
 

@@ -40,14 +40,17 @@ FOV = 60
 linearAcceleration = 30
 if training >= 3:
 	fullForwardSpeed = 2.8
+	#fullForwardSpeed = 0.0
 else:
 	fullForwardSpeed = 0
 fullBackwardSpeed = 0
+#turningAcceleration = 30
 turningAcceleration = 130
 if training == 3.1:
 	fullTurningSpeed = 0
 elif training >= 2:
 	fullTurningSpeed = 55
+	#fullTurningSpeed = 20
 else:
 	fullTurningSpeed = 200
 turningLinearSpeed = 2  #Kiril has this as a factor, 
