@@ -10,6 +10,10 @@ training = 5.2
 
 testing = False
 
+# environ types available:
+# 'training'
+# 'original'
+environ = 'original'
 # Are we giving rewards?
 reward = True
 
@@ -79,7 +83,8 @@ instructSeeAll  = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 25
+numBananas = 5
+#numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5

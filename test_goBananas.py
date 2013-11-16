@@ -24,26 +24,6 @@ class TestGoBananas(unittest.TestCase):
         #    os.system('python goBananas.py -sTest --no-eeg --no-fs')
         self.session = "data/Test/session_" + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
 
-    def check_log(self, log_word, next_word = ''):
-        """ Help function for tests, will check the log
-        file to see if logWord is present, returns the
-        line where logWord is found, returns empty string
-        if logWord not found, if next_word is given, will
-        look for both strings in the same line.
-        """
-        #print log_word
-        if next_word == '':
-            next_word = log_word
-        #print next_word
-        log_name = self.session + '/log.txt'
-        line = []
-        with open(log_name) as logfile:
-            for line in logfile:
-                if log_word in line.split() and next_word in line.split():
-                    return line
-        print '%s not found' %log_word
-        return ''
-
     def test_session(self):
         """ goBananas should make a new session in the data directory,
         session should be today's date """
@@ -59,7 +39,7 @@ class TestGoBananas(unittest.TestCase):
     def test_logging(self):
         """ check that custom logging working
 		"""
-        self.assertTrue(self.check_log('YUMMY'))
+        self.assertTrue(self.check_log('NewTrial'))
 
     def test_num_bananas(self):
         """Have correct number of bananas
@@ -80,7 +60,7 @@ class TestGoBananas(unittest.TestCase):
         config = {}
         execfile('config.py', config)
         # check log if more than one banana, if running tests, numBananas in config not accurate
-        if not self.check_log('banana1'):
+        if not self.check_log('banana01'):
             print 'Test aborted: Need more than one banana to test distance'
             return unittest.skip("Need more than one banana to test distance")
         plist = []
@@ -100,25 +80,12 @@ class TestGoBananas(unittest.TestCase):
             #print distance
             self.assertTrue(distance >= config['tooClose'])
 
-    def test_last_banana(self):
-        """
-        Check that we log when last banana is picked up, need to
-        actually pick up all bananas for this to work. :(
-        """
-        #os.putenv(self.task.stashed, 0)
+    def test_banana_eaten_and_logged(self):
+        print 'Please get one banana'
         self.assertTrue(self.check_log('YUMMY'))
 
-    def test_replenish_bananas(self):
-        """
-        Check that we put out more bananas when all gone.
-        """
-        pass
-
-    def test_gives_reward(self):
-        pass
-
     def test_collect_eye_positions(self):
-        pass
+        self.assertTrue(self.check_log('EyeData'))
 
     def tearDown(self):
         if sys.exc_info() == (None, None, None):
@@ -128,6 +95,27 @@ class TestGoBananas(unittest.TestCase):
             print sys.exc_info()
             print os.getcwd()
             print 'fail'
+
+
+    def check_log(self, log_word, next_word=''):
+        """ Help function for tests, will check the log
+        file to see if logWord is present, returns the
+        line where logWord is found, returns empty string
+        if logWord not found, if next_word is given, will
+        look for both strings in the same line.
+        """
+        #print log_word
+        if next_word == '':
+            next_word = log_word
+            #print next_word
+        log_name = self.session + '/log.txt'
+        line = []
+        with open(log_name) as logfile:
+            for line in logfile:
+                if log_word in line.split() and next_word in line.split():
+                    return line
+        print '%s not found' % log_word
+        return ''
 
 def suite_one():
     suite_one = unittest.TestSuite()

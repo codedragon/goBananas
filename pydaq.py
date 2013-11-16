@@ -2,6 +2,7 @@ import PyDAQmx as daq
 import numpy as np
 import time
 
+
 class GiveReward(daq.Task):
     """Sets up Nidaq board to send a pulse to the reward pump, uses Dev1, port0, line1
     """
