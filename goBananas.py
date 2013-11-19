@@ -20,7 +20,7 @@ class GoBananas:
         #exp.setSessionNum(0)
         # Set session to today's date and time
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
-
+        print exp.getSessionNum()
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
         #print config['training']
         #print 'load testing', config['testing']
@@ -39,12 +39,6 @@ class GoBananas:
         base.win.requestProperties(win_props)
         #print base.win.requestProperties(win_props)
 
-        # set up reward system
-        if config['reward']:
-            self.reward = pydaq.GiveReward()
-        else:
-            self.reward = None
-
         # Get vr environment object
         vr = Vr.getInstance()
         #vr.cTrav.showCollisions(render)
@@ -57,17 +51,25 @@ class GoBananas:
         #avatar = Avatar.getInstance()
 
         # Register Custom Log Entries
-        #This one corresponds to colliding with a banana
+        # This one corresponds to colliding with a banana
         Log.getInstance().addType("YUMMY", [("BANANA", basestring)],
                                   False)
+        # Reward
+        Log.getInstance().addType('Beeps', [('Banana', basestring),
+                                            ('Reward', int)],
+                                            False)
+        # Start our first trial
         Log.getInstance().addType("NewTrial", [("Trial", int)], False)
         # First Trial
         self.trial_num = 1
         VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
+        # if collecting eye data, start the log for it
         if config['eyeData']:
-            Log.getInstance().addType("EyeData", [("X", float), ("Y", float)], False)
-            self.gain = config['gain']
-            self.offset = config['offset']
+            Log.getInstance().addType("EyeData", [("X", float),
+                                                  ("Y", float)],
+                                                  False)
+            #self.gain = config['gain']
+            #self.offset = config['offset']
 
         # Load environment
         self.environ = Environment(config)
@@ -77,6 +79,7 @@ class GoBananas:
         vr.inputListen('toggleDebug',
                        lambda inputEvent:
                        Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
+        vr.inputListen('close', self.close)
         vr.inputListen("upTurnSpeed", self.upTurnSpeed)
         vr.inputListen("downTurnSpeed", self.downTurnSpeed)
         vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
@@ -88,9 +91,18 @@ class GoBananas:
                         self.check_reward(),
                         config['pulseInterval']))
 
+        # set up reward system
+        if config['reward']:
+            self.reward = pydaq.GiveReward()
+        else:
+            self.reward = None
+
         # start recording eye position
         if config['eyeData']:
+            self.gain = config['gain']
+            self.offset = config['offset']
             self.task = pydaq.EOGTask()
+            self.task.SetCallback(self.get_eye_data)
             self.task.StartTask()
 
     def check_reward(self):
@@ -110,6 +122,11 @@ class GoBananas:
             self.reward.pumpOut()
         else:
             print 'beep', self.banana_models.beeps
+
+        #print MovingObject.getCollisionIdentifier(Vr.getInstance())
+        #collisionInfoList[0]
+        #byeBanana = collisionInfoList[0].getInto().getIdentifier()
+        #Log.getInstance().writeLine('Beeps', byeBanana, self.banana_models.beeps)
         # increment reward
         self.banana_models.beeps += 1
         
@@ -124,17 +141,22 @@ class GoBananas:
                 self.banana_models.beeps = 0
                 self.extra -= 1
             else:
-                # banana disappears 
+                # banana disappears
+                old_trial = self.trial_num
                 self.trial_num = self.banana_models.goneBanana(self.trial_num)
+                if self.trial_num > old_trial:
+                    # reset the increased reward for last banana
+                    config = Conf.getInstance().getConfig()  # Get configuration dictionary.
+                    self.extra = config['extra']
                 # avatar can move
                 Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
                 Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
                 # reward is over
                 self.banana_models.beeps = None
 
-    def get_eye_data(self):
-        eye_data = pydaq.EOGData
-        Log.getInstance().writeLine("EyeData",
+    def get_eye_data(self, eye_data):
+        # pydaq calls this function every time it calls back to get eye data
+        VLQ.getInstance().writeLine("EyeData",
                                 [((eye_data[0] * self.gain[0]) - self.offset[0]),
                                 ((eye_data[1] * self.gain[1]) - self.offset[1])])
 
@@ -163,6 +185,11 @@ class GoBananas:
         #print 'start'
         Experiment.getInstance().start()
 
+    def close(self, inputEvent):
+        self.task.StopTask()
+        self.task.ClearTask()
+        Experiment.getInstance().stop()
+
 if __name__ == '__main__':
     #print 'main?'
     GoBananas().start()
@@ -175,4 +202,4 @@ else:
     #sys.argv.extend(['stest'])
     #sys.argv = ['goBananas','-stest']
     #,'--no-eeg','--no-fs']
-    GoBananas().start()
+    #GoBananas().start()

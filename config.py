@@ -43,20 +43,20 @@ FOV = 60
 # Movement
 linearAcceleration = 30
 if training >= 3:
-	fullForwardSpeed = 2.8
-	#fullForwardSpeed = 0.0
+    fullForwardSpeed = 2.8
+#fullForwardSpeed = 0.0
 else:
-	fullForwardSpeed = 0
+    fullForwardSpeed = 0
 fullBackwardSpeed = 0
 #turningAcceleration = 30
 turningAcceleration = 130
 if training == 3.1:
-	fullTurningSpeed = 0
+    fullTurningSpeed = 0
 elif training >= 2:
-	fullTurningSpeed = 55
-	#fullTurningSpeed = 20
+    fullTurningSpeed = 55
+#fullTurningSpeed = 20
 else:
-	fullTurningSpeed = 200
+    fullTurningSpeed = 200
 turningLinearSpeed = 2  #Kiril has this as a factor, 
 # with min and max, eventually implement
 
@@ -74,16 +74,16 @@ friction = 0.4 #0.4
 movementType = 'walking' # car | walking
 
 instructSize = 0.1
-instructFont    = '/c/Windows/Fonts/times.ttf';
+instructFont = '/c/Windows/Fonts/times.ttf';
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
-instructMargin  = 0.06
-instructSeeAll  = False
+instructMargin = 0.06
+instructSeeAll = False
 
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 5
+numBananas = 25
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
@@ -119,24 +119,24 @@ maxFwDistance = 7
 
 # Terrain, sky
 terrainModel = './models/towns/field.bam'
-terrainCenter = Point3(0,0,0)
+terrainCenter = Point3(0, 0, 0)
 skyModel = './models/sky/sky.bam'
 skyScale = 1.6
 
 # Eventually want landmarks in state, and load directory full of
 # landmarks, randomly placed in background.
 
-treeModel     = './models/trees/palmTree.bam'
-treeLoc       = Point3(13, 13, 0)
-treeScale     = .0175
+treeModel = './models/trees/palmTree.bam'
+treeLoc = Point3(13, 13, 0)
+treeScale = .0175
 
-skyScraperModel= './models/skyscraper/skyscraper.bam'
-skyScraperLoc  = Point3(-13, -13, 0)
-skyScraperScale= .3
+skyScraperModel = './models/skyscraper/skyscraper.bam'
+skyScraperLoc = Point3(-13, -13, 0)
+skyScraperScale = .3
 
-stLightModel= './models/streetlight/streetlight.bam'
-stLightLoc  = Point3(-13, 13, 0)
-stLightScale= .75
+stLightModel = './models/streetlight/streetlight.bam'
+stLightLoc = Point3(-13, 13, 0)
+stLightScale = .75
 
 # bananarchy was using amill.bam, but I couldn't load that file,
 # and the original amill.egg was not in the folder.
@@ -155,11 +155,12 @@ bananaLoc2 = Point3(5.5, 3, 1)
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common
 if 'Keyboard' in globals():
-        keyboard = Keyboard.getInstance()
-        keyboard.bind("exit", ["escape", "q"])
-        keyboard.bind("restart", "y")
-        keyboard.bind("toggleDebug", ["escape", "d"])
-        keyboard.bind("upTurnSpeed", "t")
-        keyboard.bind("downTurnSpeed", "g")
-        keyboard.bind("increaseBananas", "w")
-        keyboard.bind("decreaseBananas", "s")
+    keyboard = Keyboard.getInstance()
+    keyboard.bind("close", ["escape", "q"])
+    #keyboard.bind("exit", ["escape", "q"])
+    keyboard.bind("restart", "y")
+    keyboard.bind("toggleDebug", ["escape", "d"])
+    keyboard.bind("upTurnSpeed", "t")
+    keyboard.bind("downTurnSpeed", "g")
+    keyboard.bind("increaseBananas", "w")
+    keyboard.bind("decreaseBananas", "s")

@@ -26,6 +26,7 @@ class GiveReward(daq.Task):
         self.StopTask()
         #print "sent reward impulse"
 
+
 class EOGTask(daq.Task):
     """Collects Voltage representing Eye Position data from the IScan computer.
     Uses Dev1/ai3 and Dev1/ai4 channels
@@ -40,13 +41,16 @@ class EOGTask(daq.Task):
         self.CfgSampClkTiming("", EOGSampRate, daq.DAQmx_Val_Rising, daq.DAQmx_Val_ContSamps, EOGSampsPerChanToAcquire)
         self.AutoRegisterEveryNSamplesEvent(daq.DAQmx_Val_Acquired_Into_Buffer, 1, 0)
         self.AutoRegisterDoneEvent(0)
-        #print 'init done'
+        # set event to false, if a callback is set, it will be set to self.event.
+        self.event = False
 
     def EveryNCallback(self):
         #print 'callback'
         read = daq.int32()
         #print 'read', read
         self.ReadAnalogF64(1, 10.0, daq.DAQmx_Val_GroupByScanNumber, self.EOGData, 2, daq.byref(read), None)
+        if self.event:
+            self.event(self.EOGData)
         #print 'x,y', self.EOGData[0], self.EOGData[1]
         #print 'okay'
         return 0  # the function should return an integer
@@ -57,3 +61,5 @@ class EOGTask(daq.Task):
         #print 'what'
         return 0  # the function should return an integer
 
+    def SetCallback(self, event):
+        self.event = event

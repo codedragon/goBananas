@@ -7,7 +7,6 @@ import itertools
 import moBananas as mb
 import shutil
 import sys
-
 # Do not import pandaepl or goBananas or it will start pandaepl without any of our parameters.
 # from pandaepl import Conf
 # from goBananas import distance
@@ -22,14 +21,21 @@ class TestGoBananas(unittest.TestCase):
         os.system('ppython goBananas.py -sTest --no-eeg --no-fs')
         #else:
         #    os.system('python goBananas.py -sTest --no-eeg --no-fs')
+        # Should figure out how to get this from exp.getSessionNum,
+        # could be off by a minute, as is.
         self.session = "data/Test/session_" + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
+        self.config = {}
+        execfile('config.py', self.config)
+        print self.session
 
     def test_session(self):
         """ goBananas should make a new session in the data directory,
         session should be today's date """
         print 'checking session', self.session
         time.sleep(0.3)
+        print 'after sleep'
         self.failUnless(os.access(self.session, os.F_OK))
+        print 'done?'
 
     def test_config(self):
         """ load the config directory
@@ -37,35 +43,37 @@ class TestGoBananas(unittest.TestCase):
         self.assertTrue(self.check_log('CONF_LOAD'))
 
     def test_logging(self):
-        """ check that custom logging working
+        """ check that custom logging working - checks for a new trial
 		"""
         self.assertTrue(self.check_log('NewTrial'))
 
     def test_num_bananas(self):
-        """Have correct number of bananas
+        """Have correct number of bananas out
         """
-        config = {}
-        execfile('config.py',config)
+        #config = {}
+        #execfile('config.py',config)
         #print config['numBananas']
+        #print 'banana{0}'.format(str(config['numBananas'] - 1))
         #last_banana = 'banana{0}'.format(str(config['numBananas'] - 1))
         #print last_banana
-        self.assertTrue(self.check_log('banana{0}'.format(str(config['numBananas'] - 1))))
+        self.assertTrue(self.check_log('banana{0}'.format(str(self.config['numBananas'] - 1))))
         # should not have more bananas
-        self.assertRaises(self.check_log('banana{0}'.format(str(config['numBananas']))))
+        self.assertRaises(self.check_log('banana{0}'.format(str(self.config['numBananas']))))
+        print 'banana{0} should not have been found'.format(str(self.config['numBananas']))
 
     def test_position_bananas(self):
         """
         Positions for all of the bananas. Should not be close together.
         """
-        config = {}
-        execfile('config.py', config)
+        #config = {}
+        #execfile('config.py', config)
         # check log if more than one banana, if running tests, numBananas in config not accurate
         if not self.check_log('banana01'):
             print 'Test aborted: Need more than one banana to test distance'
             return unittest.skip("Need more than one banana to test distance")
         plist = []
-        for i in range(config['numBananas']):
-            line = self.check_log('VROBJECT_POS','banana{0}'.format(str(i)))
+        for i in range(self.config['numBananas']):
+            line = self.check_log('VROBJECT_POS', 'banana' + '%02d' % i)
             #print line
             temp = line.split()
             #print temp[-3][9:-1]
@@ -78,14 +86,21 @@ class TestGoBananas(unittest.TestCase):
             #print p0, p1
             distance = mb.distance(p0, p1)
             #print distance
-            self.assertTrue(distance >= config['tooClose'])
+            self.assertTrue(distance >= self.config['tooClose'])
 
     def test_banana_eaten_and_logged(self):
-        print 'Please get one banana'
         self.assertTrue(self.check_log('YUMMY'))
 
     def test_collect_eye_positions(self):
         self.assertTrue(self.check_log('EyeData'))
+
+    def test_reward_logged(self):
+        self.assertTrue(self.check_log('Beeps'))
+
+    def test_double_reward_last_banana(self):
+        self.config['numBananas']
+        self.assertTrue
+        self.assertTrue(self.check_log('banana{0}'.format(str(self.config['numBananas'] - 1))))
 
     def tearDown(self):
         if sys.exc_info() == (None, None, None):
@@ -123,7 +138,7 @@ def suite_one():
     return suite_one
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=2)
     #suite = unittest.TestLoader().loadTestsFromTestCase(TestGoBananas)
     #unittest.TextTestRunner(verbosity=2).run(suite_one())
 

@@ -1,7 +1,7 @@
 importing with_statement from future in test. is this a problem for windows?
 
 To run just one test:
-python test_goBananas.py GoBananasTests.test_position_bananas
+python test_goBananas.py TestGoBananas.test_position_bananas
 
 Next up:
 
