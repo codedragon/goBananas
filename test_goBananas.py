@@ -24,6 +24,14 @@ class TestGoBananas(unittest.TestCase):
         # Should figure out how to get this from exp.getSessionNum,
         # could be off by a minute, as is.
         self.session = "data/Test/session_" + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
+        # make sure this is really the session number
+        if not os.path.exists(self.session):
+            # if not, try a minute earlier
+            self.session = self.session.replace('','')[:-2] + str(int(self.session[-2:]) - 1)
+            print 'session problem, trying one minute earlier', self.session
+            if not os.path.exists(self.session):
+                print self.session
+                raise Exception("Data file does not exist!")
         self.config = {}
         execfile('config.py', self.config)
         print self.session
@@ -97,10 +105,18 @@ class TestGoBananas(unittest.TestCase):
     def test_reward_logged(self):
         self.assertTrue(self.check_log('Beeps'))
 
+    def test_reward_amount(self):
+        # just check the first banana
+        self.assertEqual(self.count_beeps(1)[0], self.config['numBeeps'])
+
     def test_double_reward_last_banana(self):
-        self.config['numBananas']
-        self.assertTrue
-        self.assertTrue(self.check_log('banana{0}'.format(str(self.config['numBananas'] - 1))))
+        # check last banana for extra reward
+        num_bananas = self.config['numBananas']
+        reward = self.config['numBeeps'] * self.config['extra']
+        print reward
+        [beeps, last] = self.count_beeps(num_bananas)
+        self.assertTrue(last)
+        self.assertTrue(reward == beeps)
 
     def tearDown(self):
         if sys.exc_info() == (None, None, None):
@@ -129,6 +145,50 @@ class TestGoBananas(unittest.TestCase):
             for line in logfile:
                 if log_word in line.split() and next_word in line.split():
                     return line
+        print '%s not found' % log_word
+        return ''
+
+    def count_beeps(self, yum_n):
+        """ Help function for tests, will check the log
+            file to find Yummy n (yum_n), which is just the nth
+            yummy in the file. So if yum_x = 2, finds the collision
+            with the second banana, then checks the number of beeps
+            between it and the next Yummy, and finally checks if there
+            is a NewTrial entry before the next Yummy. Returns
+            beeps, int, number of beeps between 2 Yummys, and
+            new_trial, bool, True or False for whether that was
+            last banana.
+            """
+        yummy = 0
+        new_trial = False
+        check = 0
+        beeps = 0
+        log_name = self.session + '/log.txt'
+        line = []
+        with open(log_name) as logfile:
+            for line in logfile:
+                if 'Yummy' in line.split():
+                    yummy += 1
+                    print 'found yummy'
+                    if yum_n == yummy:
+                        check = 1
+                        print 'yummy we are looking for'
+                    elif yum_n == yummy + 1:
+                        check = None
+                        print 'okay, stop looking'
+                if check:
+                    if 'Beeps' in line.split():
+                        beeps += 1
+                        print 'found a beep', beeps
+                    if 'NewTrial' in line.split():
+                        new_trial = True
+                        print 'found a new trial'
+                        return beeps, new_trial
+                elif check is None:
+                    return beeps, new_trial
+        print 'ended'
+        return beeps, new_trial
+
         print '%s not found' % log_word
         return ''
 

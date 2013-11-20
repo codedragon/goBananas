@@ -1,4 +1,4 @@
-# configuration file for testing goBananas
+# configuration file for goBananas
 from panda3d.core import Point3, Point4
 
 # Set Training Level 
@@ -15,10 +15,10 @@ testing = False
 # 'original'
 environ = 'original'
 # Are we giving rewards?
-reward = False
+reward = True
 
 # Are we collecting eye data?
-eyeData = False
+eyeData = True
 
 # 3d?
 # framebuffer-stereo 1
@@ -83,7 +83,7 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 2
+numBananas = 25
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1

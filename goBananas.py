@@ -52,15 +52,18 @@ class GoBananas:
 
         # Register Custom Log Entries
         # This one corresponds to colliding with a banana
-        Log.getInstance().addType("YUMMY", [("BANANA", basestring)],
+        Log.getInstance().addType("Yummy", [("BANANA", basestring)],
                                   False)
         # Reward
-        Log.getInstance().addType('Beeps', [('Banana', basestring),
-                                            ('Reward', int)],
+        Log.getInstance().addType('Beeps', [('Reward', int)],
                                             False)
-        # Start our first trial
-        Log.getInstance().addType("NewTrial", [("Trial", int)], False)
-        # First Trial
+        # Done getting reward, banana disappears
+        Log.getInstance().addType("Finished", [("BANANA", basestring)],
+                                  False)
+        # New Trial
+        Log.getInstance().addType("NewTrial", [("Trial", int)],
+                                  False)
+        # Log First Trial
         self.trial_num = 1
         VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
         # if collecting eye data, start the log for it
@@ -104,6 +107,8 @@ class GoBananas:
             self.task = pydaq.EOGTask()
             self.task.SetCallback(self.get_eye_data)
             self.task.StartTask()
+        else:
+            self.task = False
 
     def check_reward(self):
         # Runs every flip of screen
@@ -124,9 +129,13 @@ class GoBananas:
             print 'beep', self.banana_models.beeps
 
         #print MovingObject.getCollisionIdentifier(Vr.getInstance())
+        #vr = Vr.getInstance()
+        #vr.cTrav.
+        #for i in xrange(vr.cQueue.getNumEntries()):
+        #    print Vr.getInstance().cQueue.getEntry(i)
         #collisionInfoList[0]
         #byeBanana = collisionInfoList[0].getInto().getIdentifier()
-        #Log.getInstance().writeLine('Beeps', byeBanana, self.banana_models.beeps)
+        VLQ.getInstance().writeLine('Beeps', [int(self.banana_models.beeps)])
         # increment reward
         self.banana_models.beeps += 1
         
@@ -186,8 +195,9 @@ class GoBananas:
         Experiment.getInstance().start()
 
     def close(self, inputEvent):
-        self.task.StopTask()
-        self.task.ClearTask()
+        if self.task:
+            self.task.StopTask()
+            self.task.ClearTask()
         Experiment.getInstance().stop()
 
 if __name__ == '__main__':

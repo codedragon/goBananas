@@ -15,10 +15,10 @@ testing = False
 # 'original'
 environ = 'original'
 # Are we giving rewards?
-reward = False
+reward = True
 
 # Are we collecting eye data?
-eyeData = False
+eyeData = True
 
 # 3d?
 # framebuffer-stereo 1
