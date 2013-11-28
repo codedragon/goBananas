@@ -1,5 +1,5 @@
 #from direct.directbase.DirectStart import base
-from pandaepl import Model, MovingObject, Avatar, VideoLogQueue
+from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
 from panda3d.core import Point3
 import moBananas as mb
 import os
@@ -39,7 +39,7 @@ class Bananas():
             # make collision sphere around banana really small
             bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
             # uncomment to see collision sphere around bananas
-            #bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
+            bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
             self.bananaModels.append(bananaModel)
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
@@ -60,23 +60,23 @@ class Bananas():
         """
         # which banana we ran into
         self.byeBanana = collisionInfoList[0].getInto().getIdentifier()
-        VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", [self.byeBanana])
-        #print self.byeBanana
-        # cannot run inside of banana
-        MovingObject.MovingObject.handleRepelCollision(collisionInfoList)
+        # check to see if the banana was in the camera view when collided,
+        # if not, then ignore collision
+        collided = collisionInfoList[0].getInto()
+        camNodePath = Camera.Camera.getDefaultCamera().retrNodePath()
+        #print collided.retrNodePath().getPos(camNodePath)
+        #print camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath))
+        if camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath)):
+            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", [self.byeBanana])
+            #print self.byeBanana
+            # cannot run inside of banana
+            MovingObject.MovingObject.handleRepelCollision(collisionInfoList)
 
-        # Makes it so Avatar cannot turn or go forward
-        Avatar.Avatar.getInstance().setMaxTurningSpeed(0)
-        Avatar.Avatar.getInstance().setMaxForwardSpeed(0)
+            # Makes it so Avatar cannot turn or go forward
+            Avatar.Avatar.getInstance().setMaxTurningSpeed(0)
+            Avatar.Avatar.getInstance().setMaxForwardSpeed(0)
 
-        # start reward, will continue reward as long as beeps
-        # is less than numBeeps
-        # (checks during each frame, see checkReward)
-        #if self.reward:
-        #    self.reward.pumpOut()
-        #else:
-        #    print 'first beep'
-        self.beeps = 0
+            self.beeps = 0
 
     def replenishBananas(self):
         pList = []
