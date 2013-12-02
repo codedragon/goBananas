@@ -21,15 +21,22 @@ class TestGoBananas(unittest.TestCase):
         if platform.system() == 'Darwin':
             print 'trying arch'
             os.system('arch -i386 ppython goBananas.py -sTest --no-eeg --no-fs')
-        #else:
-        #    os.system('python goBananas.py -sTest --no-eeg --no-fs')
+            # WANT TO USE THE TEST CONFIGURATION FILE, I think. HOW DO I MAKE THIS HAPPEN?
+            # MAYBE COPY THE CONFIG FILE
+        else:
+            os.system('python goBananas.py -sTest --no-eeg --no-fs')
+
         # Should figure out how to get this from exp.getSessionNum,
         # could be off by a minute, as is.
         self.session = "data/Test/session_" + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
         # make sure this is really the session number
         if not os.path.exists(self.session):
             # if not, try a minute earlier
-            self.session = self.session.replace('','')[:-2] + str(int(self.session[-2:]) - 1)
+            new_time = str(int(self.session[-2:]) - 1)
+            # need to make sure new time is using 0n notation for numbers < 10
+            if len(new_time) == 1:
+                new_time = '0' + new_time
+            self.session = self.session.replace('','')[:-2] + new_time
             print 'session problem, trying one minute earlier', self.session
             if not os.path.exists(self.session):
                 print self.session
@@ -66,10 +73,12 @@ class TestGoBananas(unittest.TestCase):
         #print 'banana{0}'.format(str(config['numBananas'] - 1))
         #last_banana = 'banana{0}'.format(str(config['numBananas'] - 1))
         #print last_banana
-        self.assertTrue(self.check_log('banana{0}'.format(str(self.config['numBananas'] - 1))))
+        self.assertTrue(self.check_log('banana' + "%02d" % self.config['numBananas'] - 1))
+        #self.assertTrue(self.check_log('banana{0}'.format(str(self.config['numBananas'] - 1))))
         # should not have more bananas
         self.assertRaises(self.check_log('banana{0}'.format(str(self.config['numBananas']))))
-        print 'banana{0} should not have been found'.format(str(self.config['numBananas']))
+        self.assertTrue(self.check_log('banana' + "%02d" % self.config['numBananas']))
+        print 'banana' + '%02d' + 'should not have been found' % self.config['numBananas']
 
     def test_position_bananas(self):
         """
@@ -99,7 +108,7 @@ class TestGoBananas(unittest.TestCase):
             self.assertTrue(distance >= self.config['tooClose'])
 
     def test_banana_eaten_and_logged(self):
-        self.assertTrue(self.check_log('YUMMY'))
+        self.assertTrue(self.check_log('Yummy'))
 
     def test_collect_eye_positions(self):
         self.assertTrue(self.check_log('EyeData'))
@@ -117,6 +126,7 @@ class TestGoBananas(unittest.TestCase):
         reward = self.config['numBeeps'] * self.config['extra']
         print reward
         [beeps, last] = self.count_beeps(num_bananas)
+        print last
         self.assertTrue(last)
         self.assertTrue(reward == beeps)
 
@@ -161,23 +171,26 @@ class TestGoBananas(unittest.TestCase):
             new_trial, bool, True or False for whether that was
             last banana.
             """
-        yummy = 0
+        yummy = 1
         new_trial = False
         check = 0
         beeps = 0
         log_name = self.session + '/log.txt'
         line = []
+        #print 'yum_n', yum_n
         with open(log_name) as logfile:
             for line in logfile:
                 if 'Yummy' in line.split():
-                    yummy += 1
-                    print 'found yummy'
-                    if yum_n == yummy:
+                    print 'found yummy', yummy
+                    print 'yum_n', yum_n
+                    if yummy == yum_n:
                         check = 1
-                        print 'yummy we are looking for'
-                    elif yum_n == yummy + 1:
+                        print 'yummy we are looking for', yummy
+                    elif yummy == yum_n + 1:
                         check = None
-                        print 'okay, stop looking'
+                        print 'okay, stop looking', yummy
+                    yummy += 1
+                    print 'check', check
                 if check:
                     if 'Beeps' in line.split():
                         beeps += 1

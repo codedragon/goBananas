@@ -1,10 +1,9 @@
-#from direct.directbase.DirectStart import base
 from pandaepl.common import *
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
 from panda3d.core import CollisionNode, CollisionSphere
-from create_environment import Environment
-from create_bananas import Bananas
+from environment import Environment
+from bananas import Bananas
 import datetime
 import sys
 sys.path.insert(0, '../pydaq')
@@ -37,6 +36,7 @@ class GoBananas:
         win_props = WindowProperties()
         #print win_props
         win_props.setCursorHidden(True)
+        # base is global, used by pandaepl from panda3d
         base.win.requestProperties(win_props)
         #print base.win.requestProperties(win_props)
 
@@ -50,6 +50,9 @@ class GoBananas:
 
         # Get avatar object
         #avatar = Avatar.getInstance()
+        #collisionNode = avatar.retrNodePath().find('**/+CollisionNode')
+        #collisionNode.show()
+        #collisionNode.setTwoSided(True)
 
         # Register Custom Log Entries
         # This one corresponds to colliding with a banana

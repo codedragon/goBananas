@@ -4,6 +4,7 @@ To run just one test:
 python test_goBananas.py TestGoBananas.test_position_bananas
 
 Next up:
+Copy the new data to the R drive after a session
 
 Make some suites out of my unittests:
 
