@@ -7,6 +7,7 @@ import itertools
 import moBananas as mb
 import shutil
 import sys
+import platform
 # Do not import pandaepl or goBananas or it will start pandaepl without any of our parameters.
 # from pandaepl import Conf
 # from goBananas import distance
@@ -17,8 +18,9 @@ class TestGoBananas(unittest.TestCase):
 
     def setUp(self):
         print 'setup'
-        #if platform.system() == 'Darwin':
-        os.system('ppython goBananas.py -sTest --no-eeg --no-fs')
+        if platform.system() == 'Darwin':
+            print 'trying arch'
+            os.system('arch -i386 ppython goBananas.py -sTest --no-eeg --no-fs')
         #else:
         #    os.system('python goBananas.py -sTest --no-eeg --no-fs')
         # Should figure out how to get this from exp.getSessionNum,

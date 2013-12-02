@@ -1,4 +1,4 @@
-from direct.directbase.DirectStart import base
+#from direct.directbase.DirectStart import base
 from pandaepl.common import *
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
@@ -6,8 +6,9 @@ from panda3d.core import CollisionNode, CollisionSphere
 from create_environment import Environment
 from create_bananas import Bananas
 import datetime
+import sys
+sys.path.insert(0, '../pydaq')
 import pydaq
-
 
 class GoBananas:
     def __init__(self):
