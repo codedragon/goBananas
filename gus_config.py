@@ -83,14 +83,14 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 20
+numBananas = 15
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 2.1  # 1.7
+tooClose = 2.2  # 1.7
 
 # Banana Positions
 minDistance = -7
