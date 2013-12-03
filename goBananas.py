@@ -6,7 +6,7 @@ from environment import Environment
 from bananas import Bananas
 import datetime
 import sys
-sys.path.insert(0, '../pydaq')
+#sys.path.insert(0, '../pydaq')
 import pydaq
 
 class GoBananas:
@@ -15,7 +15,7 @@ class GoBananas:
         Initialize the experiment
         """
         # Get experiment instance.
-        #print 'init'
+        print 'init'
         exp = Experiment.getInstance()
         #exp.setSessionNum(0)
         # Set session to today's date and time

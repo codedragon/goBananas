@@ -24,7 +24,7 @@ def setXY(pList, avatar=(0, 0), tooClose=[],):
         dist_avatar = config['avatarRadius']*3
     else:
         dist_avatar = tooClose
-    print 'too close', tooClose
+    #print 'too close', tooClose
     x = random.uniform(config['minDistance'], config['maxDistance'])
     y = random.uniform(config['minFwDistance'], config['maxFwDistance'])
 

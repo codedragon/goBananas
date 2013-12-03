@@ -11,8 +11,8 @@ class Bananas():
         self.dir = config['bananaDir']
         self.scale = config['bananaScale']
 
-        #self.createBananas(0)
-        self.createManualBananas()
+        self.createBananas(0)
+        #self.createManualBananas()
 
     def createManualBananas(self):
         # don't assign bananas randomly, place exactly where we want them
@@ -116,15 +116,15 @@ class Bananas():
         # to keep track of whether this is the first collision
         if camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath)) and self.collision:
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", [self.byeBanana])
-            print 'logged'
+            #print 'logged'
             #print self.byeBanana
             # cannot run inside of banana
             MovingObject.MovingObject.handleRepelCollision(collisionInfoList)
-            print 'stop moving'
+            #print 'stop moving'
             # Makes it so Avatar cannot turn or go forward
             Avatar.Avatar.getInstance().setMaxTurningSpeed(0)
             Avatar.Avatar.getInstance().setMaxForwardSpeed(0)
-            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", ['stop moving!'])
+            #VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", ['stop moving!'])
             self.beeps = 0
             self.collision = False
 
