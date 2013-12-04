@@ -83,8 +83,8 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-#numBananas = 15
-numBananas = 30
+numBananas = 15
+#numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
