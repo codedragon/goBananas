@@ -66,9 +66,8 @@ initialPos = Point3(0, 0, 1)
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
 # thing running into has huge radius
-avatarRadius = 0.3
-#avatarRadius = 0.05
-#avatarRadius = 0.01
+#avatarRadius = 0.3
+avatarRadius = 0.05
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4 #0.4
@@ -84,14 +83,14 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 20
+numBananas = 15
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 2.1  # 1.7
+tooClose = 2.2  # 1.7
 
 # Banana Positions
 minDistance = -7

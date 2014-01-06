@@ -1,5 +1,5 @@
 import unittest
-from create_environment import Environment
+from environment import Environment
 from direct.directbase.DirectStart import base
 from panda3d.core import LVecBase4f, ConfigVariableString
 

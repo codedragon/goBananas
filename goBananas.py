@@ -16,7 +16,7 @@ class GoBananas:
         Initialize the experiment
         """
         # Get experiment instance.
-        #print 'init'
+        print 'init'
         exp = Experiment.getInstance()
         #exp.setSessionNum(0)
         # Set session to today's date and time

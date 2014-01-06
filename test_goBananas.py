@@ -32,12 +32,13 @@ class TestGoBananas(unittest.TestCase):
         # make sure this is really the session number
         if not os.path.exists(self.session):
             # if not, try a minute earlier
+            print 'first attempted:', self.session
             new_time = str(int(self.session[-2:]) - 1)
             # need to make sure new time is using 0n notation for numbers < 10
             if len(new_time) == 1:
                 new_time = '0' + new_time
             self.session = self.session.replace('','')[:-2] + new_time
-            print 'session problem, trying one minute earlier', self.session
+            print 'session problem, trying one minute earlier:', self.session
             if not os.path.exists(self.session):
                 print self.session
                 raise Exception("Data file does not exist!")
@@ -67,18 +68,13 @@ class TestGoBananas(unittest.TestCase):
     def test_num_bananas(self):
         """Have correct number of bananas out
         """
-        #config = {}
-        #execfile('config.py',config)
         #print config['numBananas']
-        #print 'banana{0}'.format(str(config['numBananas'] - 1))
-        #last_banana = 'banana{0}'.format(str(config['numBananas'] - 1))
-        #print last_banana
-        self.assertTrue(self.check_log('banana' + "%02d" % self.config['numBananas'] - 1))
-        #self.assertTrue(self.check_log('banana{0}'.format(str(self.config['numBananas'] - 1))))
-        # should not have more bananas
-        self.assertRaises(self.check_log('banana{0}'.format(str(self.config['numBananas']))))
-        self.assertTrue(self.check_log('banana' + "%02d" % self.config['numBananas']))
-        print 'banana' + '%02d' + 'should not have been found' % self.config['numBananas']
+        # this one should be there
+        self.assertTrue(self.check_log('banana' + "%02d" % (int(self.config['numBananas']) - 1)))
+        # the next one should not be
+        #print 'should have found banana' + '%02d' % (int(self.config['numBananas']) - 1)
+        self.assertRaises(self.check_log('banana' + '%02d' % int(self.config['numBananas'])))
+        #print 'should not have found banana' + '%02d' % int(self.config['numBananas'])
 
     def test_position_bananas(self):
         """

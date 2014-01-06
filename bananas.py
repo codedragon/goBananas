@@ -10,7 +10,52 @@ class Bananas():
         self.numBananas = config['numBananas']
         self.dir = config['bananaDir']
         self.scale = config['bananaScale']
+
         self.createBananas(0)
+        #self.createManualBananas()
+
+    def createManualBananas(self):
+        # don't assign bananas randomly, place exactly where we want them
+        self.bananaModels = []
+        x0 = 0
+        y0 = 2
+        x1 = 0.05
+        y1 = 2
+        print 'help'
+        bananaModel0 = Model.Model("banana00",
+                                  os.path.join(self.dir,
+                                               "banana.bam"),
+                                  Point3(x0, y0, 1),
+                                  self.collideBanana)
+        bananaModel0.setScale(self.scale)
+        bananaModel0.setH(1) # can be 0 to 360
+        # make collision sphere around banana really small
+        bananaModel0.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
+        # uncomment to see collision sphere around bananas
+        bananaModel0.retrNodePath().getChild(0).getChild(0).getChild(0).show()
+        self.bananaModels.append(bananaModel0)
+        bananaModel1 = Model.Model("banana01",
+                                  os.path.join(self.dir,
+                                               "banana.bam"),
+                                  Point3(x1, y1, 1),
+                                  self.collideBanana)
+
+        bananaModel1.setScale(self.scale)
+        bananaModel1.setH(180) # can be 0 to 360
+        # make collision sphere around banana really small
+        bananaModel1.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
+        # uncomment to see collision sphere around bananas
+        bananaModel1.retrNodePath().getChild(0).getChild(0).getChild(0).show()
+        self.bananaModels.append(bananaModel1)
+        # if true, object is removed from the environment, but not destroyed
+        # so start with not stashed
+        self.bananaModels[0].setStashed(False)
+        self.bananaModels[1].setStashed(False)
+        self.numBananas = 2
+        self.stashed = self.numBananas
+        self.beeps = None
+        self.collision = True
+
 
     def createBananas(self, start):
         #print 'create bananas'
@@ -31,7 +76,7 @@ class Bananas():
 
             bananaModel = Model.Model("banana" + "%02d" % j,
                                 os.path.join(self.dir,
-                                "banana" + ".bam"),
+                                "banana.bam"),
                                 Point3(x, y, 1),
                                 self.collideBanana)
             bananaModel.setScale(self.scale)
@@ -39,7 +84,7 @@ class Bananas():
             # make collision sphere around banana really small
             bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
             # uncomment to see collision sphere around bananas
-            bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
+            #bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
             self.bananaModels.append(bananaModel)
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
@@ -47,6 +92,7 @@ class Bananas():
 
         self.stashed = self.numBananas
         self.beeps = None
+        self.collision = True
         #self.byeBanana = []
         #print 'end load bananas'
         #print pList
@@ -66,17 +112,21 @@ class Bananas():
         camNodePath = Camera.Camera.getDefaultCamera().retrNodePath()
         #print collided.retrNodePath().getPos(camNodePath)
         #print camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath))
-        if camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath)):
+        # Sometimes we collide with a banana multiple times for no damn reason, so setting self.collision
+        # to keep track of whether this is the first collision
+        if camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath)) and self.collision:
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", [self.byeBanana])
+            #print 'logged'
             #print self.byeBanana
             # cannot run inside of banana
             MovingObject.MovingObject.handleRepelCollision(collisionInfoList)
-
+            #print 'stop moving'
             # Makes it so Avatar cannot turn or go forward
             Avatar.Avatar.getInstance().setMaxTurningSpeed(0)
             Avatar.Avatar.getInstance().setMaxForwardSpeed(0)
-
+            #VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", ['stop moving!'])
             self.beeps = 0
+            self.collision = False
 
     def replenishBananas(self):
         pList = []
@@ -103,6 +153,7 @@ class Bananas():
         #print self.stashed
         # log collected banana
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.byeBanana])
+        self.collision = True
         if self.stashed == 0:
             #print 'last banana'
             self.replenishBananas()
