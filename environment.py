@@ -1,4 +1,4 @@
-from direct.directbase.DirectStart import base
+#from direct.directbase.DirectStart import base
 from pandaepl import Model, MovingObject
 
 

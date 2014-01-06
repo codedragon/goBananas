@@ -1,3 +1,4 @@
+# cringe #
 from pandaepl.common import *
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
@@ -39,6 +40,11 @@ class GoBananas:
         # base is global, used by pandaepl from panda3d
         base.win.requestProperties(win_props)
         #print base.win.requestProperties(win_props)
+
+        window2 = base.openWindow()
+        win_props.setOrigin(600, 200)  # make it so windows aren't on top of each other
+        resolution = [800, 600]  # if no resolution given, assume normal panda window
+        window2.requestProperties(win_props)
 
         # Get vr environment object
         vr = Vr.getInstance()
