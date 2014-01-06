@@ -15,6 +15,10 @@ class Environment():
     def original(self, config):
         #print config['terrainModel']
         self.terrainModel = Model.Model('terrain', config['terrainModel'], config['terrainCenter'])
+        #print self.terrainModel.nodePath.findAllTextures()
+        #self.terrainModel.nodePath.findTexture('wall_12').setColor(0.6, 1.0, 1.0, 1.0)
+        self.terrainModel.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
+
         # When hitting an object that is part of the terrain, repel or slide?
         self.terrainModel.setCollisionCallback(MovingObject.MovingObject.handleRepelCollision)
 
