@@ -19,8 +19,6 @@ Nidaq card: ni pci-6221
 
 Guiseppe log: Computer/Research Share (R:)/Buffulo Lab/Lob files
 
-Convert egg files to bam files:
-Use generateBananaBamFiles.py script
 
 Start the game:
 banarchy.py --no-eeg --resolution=1280x1024 -sTest
