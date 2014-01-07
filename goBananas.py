@@ -7,8 +7,13 @@ from environment import Environment
 from bananas import Bananas
 import datetime
 import sys
-sys.path.insert(0, '../pydaq')
-import pydaq
+# only load pydaq if it's available
+try:
+    sys.path.insert(1, '../pydaq')
+    import pydaq
+    #print 'loaded'
+except:
+    pass
 
 class GoBananas:
     def __init__(self):
