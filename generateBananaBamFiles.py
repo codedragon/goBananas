@@ -1,5 +1,7 @@
+# DO NOT USE THIS ON THE WINDOWS MACHINE!!!!!
+# (see note below)
 #
-# This file is part of Bananarchy
+# This file is part of goBananas
 #
 # Bananarchy is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -21,11 +23,12 @@
 # Mac and move to Windows, that works fine
 
 
-from pandaepl.Tuples   import *
+from pandaepl.Tuples import *
 from pandaepl.Keyboard import Keyboard
 from pandaepl.Joystick import Joystick
 import direct.directbase.DirectStart
 import os
+
 
 def convertEggToBam(eggFile):
     """
@@ -33,39 +36,42 @@ def convertEggToBam(eggFile):
     """
 
     #print eggFile
-    bamFile = eggFile[:-4]+".bam"
-    model   = loader.loadModel(eggFile)
+    bamFile = eggFile[:-4] + ".bam"
+    model = loader.loadModel(eggFile)
     model.writeBamFile(bamFile)
     #print 'ok'
 
-# Load config file values.
-config = {}
-execfile("config.py", globals(), config)
 
-# Terrain, sky.
-#convertEggToBam(config['terrainModel'][:-4]+".egg")
-#convertEggToBam(config['skyModel'][:-4]+".egg")
+def convert_all():
+    # Load config file values.
+    config = {}
 
-# all bam files (this converts a lot we don't need...):
-for directory in os.listdir('./models'):
-    #print 'directory', directory
-    temp = os.path.join('./models',directory)
-    #print temp
-    for filename in os.listdir(temp):
-        #print 'filename', filename
-        #print filename[:-4]
-        if filename[-4:] == '.egg':
-            print 'convert'
-            print os.path.join(temp,filename)
-            convertEggToBam(os.path.join(temp,filename))
+    execfile("config.py", globals(), config)
 
-# Stores.
-#for filename in os.listdir(config['storeDir']):
-#    if filename[-4:] == ".egg":
-#        convertEggToBam(os.path.join(config['storeDir'], filename))
+    # Terrain, sky.
+    #convertEggToBam(config['terrainModel'][:-4]+".egg")
+    #convertEggToBam(config['skyModel'][:-4]+".egg")
 
-# Buildings.
-#for filename in os.listdir(config['buildingDir']):
-#    if filename[-4:] == ".egg":
-#        convertEggToBam(os.path.join(config['buildingDir'], filename))
+    # all bam files (this converts a lot we don't need...):
+    for directory in os.listdir('./models'):
+        #print 'directory', directory
+        temp = os.path.join('./models', directory)
+        #print temp
+        for filename in os.listdir(temp):
+            #print 'filename', filename
+            #print filename[:-4]
+            if filename[-4:] == '.egg':
+                print 'convert'
+                print os.path.join(temp, filename)
+                convertEggToBam(os.path.join(temp, filename))
+
+    # Stores.
+    #for filename in os.listdir(config['storeDir']):
+    #    if filename[-4:] == ".egg":
+    #        convertEggToBam(os.path.join(config['storeDir'], filename))
+
+    # Buildings.
+    #for filename in os.listdir(config['buildingDir']):
+    #    if filename[-4:] == ".egg":
+    #        convertEggToBam(os.path.join(config['buildingDir'], filename))
 

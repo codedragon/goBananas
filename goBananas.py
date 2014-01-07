@@ -37,14 +37,23 @@ class GoBananas:
         win_props = WindowProperties()
         #print win_props
         win_props.setCursorHidden(True)
+        #win_props.setOrigin(20, 20)  # make it so windows aren't on top of each other
+        #win_props.setSize(800, 600)  # normal panda window
         # base is global, used by pandaepl from panda3d
         base.win.requestProperties(win_props)
         #print base.win.requestProperties(win_props)
 
-        window2 = base.openWindow()
-        win_props.setOrigin(600, 200)  # make it so windows aren't on top of each other
-        resolution = [800, 600]  # if no resolution given, assume normal panda window
-        window2.requestProperties(win_props)
+        # window2 = base.openWindow()
+        # win_props.setOrigin(800, 200)  # make it so windows aren't on top of each other
+        # win_props.setSize(800, 600)  # if no resolution given, assume normal panda window
+        # window2.requestProperties(win_props)
+        #
+        # camera = base.camList[0]
+        # camera.reparentTo(render)
+        #
+        # camera2 = base.camList[1]
+        # camera.reparentTo(render)
+
 
         # Get vr environment object
         vr = Vr.getInstance()
