@@ -3,7 +3,7 @@ Needs the following to work:
 2) Panda3D
 3) PandaEPL
 
-Set resolution for 1280 x 720, refresh 120hz
+For projector: set resolution for 1280 x 720, refresh 120hz
 
 On the Windows machine, we are running:
 Python 2.7.3, installed by Panda3d, and located in the Panda3d folder
@@ -17,8 +17,7 @@ PandEPL 0.9 is installed in /Library/Python/2.7/site-packages/pandaepl
 
 Nidaq card: ni pci-6221
 
-Guiseppe log: Computer/Research Share (R:)/Buffulo Lab/Lob files
-
+Guiseppe log: Computer/Research Share (R:)/Buffalo Lab/Log files
 
 Start the game:
 banarchy.py --no-eeg --resolution=1280x1024 -sTest
