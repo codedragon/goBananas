@@ -49,7 +49,7 @@ def convert_all():
     #convertEggToBam(config['skyModel'][:-4]+".egg")
 
     # all bam files (this converts a lot we don't need...):
-    for directory in os.listdir('./models'):
+    for directory in mylistdir('./models'):
         #print 'directory', directory
         temp = os.path.join('./models', directory)
         #print temp
@@ -61,6 +61,13 @@ def convert_all():
                 print os.path.join(temp, filename)
                 convertEggToBam(os.path.join(temp, filename))
 
+def mylistdir(directory):
+    """A specialized version of os.listdir() that ignores files that
+    start with a leading period."""
+    filelist = os.listdir(directory)
+    return [x for x in filelist
+            if not (x.startswith('.'))]
+
     # Stores.
     #for filename in os.listdir(config['storeDir']):
     #    if filename[-4:] == ".egg":
@@ -71,3 +78,5 @@ def convert_all():
     #    if filename[-4:] == ".egg":
     #        convertEggToBam(os.path.join(config['buildingDir'], filename))
 
+if __name__ == '__main__':
+    convert_all()
