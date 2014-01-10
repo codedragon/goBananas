@@ -20,7 +20,7 @@ Nidaq card: ni pci-6221
 Guiseppe log: Computer/Research Share (R:)/Buffalo Lab/Log files
 
 Start the game:
-banarchy.py --no-eeg --resolution=1280x1024 -sTest
+ppython goBananas.py --no-eeg --resolution=1280x1024 -sTest
 use --no-fs for small window
 
 Config file training variable:

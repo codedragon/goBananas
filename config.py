@@ -128,7 +128,7 @@ maxFwDistance = 7
 #	targetHwinR = 2  #1.2 is sort of the boundary.
 
 # Terrain, sky
-terrainModel = './models/towns/play_field.bam'
+terrainModel = './models/towns/field.bam'
 terrainCenter = Point3(0, 0, 0)
 skyModel = './models/sky/sky.bam'
 skyScale = 1.6

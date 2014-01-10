@@ -34,8 +34,8 @@ pulseInterval = 200 # in ms
 # eye position calibration information
 # must be entered before every experiment from
 # presentation callibration
-gain = (262, 236)  #(x, y)
-offset = (-55, -46)  #(x,y)
+gain = (100, 100)  #(x, y)
+offset = (1, 1)  #(x,y)
 
 #### Core PandaEPL settings ####
 
@@ -71,11 +71,11 @@ initialPos = Point3(0, 0, 1)
 avatarRadius = 0.1
 
 cameraPos = Point3(0, 0, 0)
-friction = 0.4 #0.4
-movementType = 'walking' # car | walking
+friction = 0.4  # 0.4
+movementType = 'walking'  # car | walking
 
 instructSize = 0.1
-instructFont = '/c/Windows/Fonts/times.ttf';
+instructFont = '/c/Windows/Fonts/times.ttf'
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
 instructMargin = 0.06
