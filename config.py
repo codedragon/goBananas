@@ -1,9 +1,15 @@
+# change individual config files, and have script copy to config.py
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
 training = 5.2
+
+# are we using pydaq? Not available on the mac. Assume that if using pydaq,
+# both collecting data and giving reward, but these are separate configs below,
+# so could change individually, if desired.
+pydaq = False
 
 # testing mode allows you to place 2 bananas in specific places,
 # rather than having random placement of x bananas
@@ -14,11 +20,15 @@ testing = False
 # 'training'
 # 'original'
 environ = 'original'
-# Are we giving rewards?
-reward = True
 
-# Are we collecting eye data?
-eyeData = True
+if pydaq:
+    # Are we giving rewards?
+    reward = True
+    # Are we collecting eye data?
+    eyeData = True
+else:
+    reward = False
+    eyeData = False
 
 # 3d?
 # framebuffer-stereo 1
@@ -138,9 +148,7 @@ stLightModel = './models/streetlight/streetlight.bam'
 stLightLoc = Point3(-13, 13, 0)
 stLightScale = .75
 
-# bananarchy was using amill.bam, but I couldn't load that file,
-# and the original amill.egg was not in the folder.
-windmillModel = './models/windmill/amill.bam'
+windmillModel = './models/windmill/windmill.bam'
 windmillLoc = Point3(13, -13, 0)
 windmillScale = .2
 windmillH = 45

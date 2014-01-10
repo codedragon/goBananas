@@ -21,6 +21,16 @@
 # Converting on the Windows machine is just not working! Bam files created
 # cannot be loaded (no error message, but window stays blank). Create on
 # Mac and move to Windows, that works fine
+#
+# To convert all models in my model directory from gobananas directory on my mac:
+# arch -i386 ppython generateBananaBamFiles.py
+#
+# To convert one file:
+# start python in gobananas directory:
+# arch -i386 ppython
+# from generateBananaBamFiles import convertEggToBam
+# convertEggToBam('../../play/play_models/play_field.egg')
+
 
 import direct.directbase.DirectStart
 import os

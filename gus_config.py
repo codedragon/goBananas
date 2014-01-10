@@ -1,3 +1,4 @@
+# change individual config files, and have script copy to config.py
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
 
@@ -67,7 +68,7 @@ initialPos = Point3(0, 0, 1)
 # further distance, change this, but does no good if 
 # thing running into has huge radius
 #avatarRadius = 0.3
-avatarRadius = 0.05
+avatarRadius = 0.1
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4 #0.4
