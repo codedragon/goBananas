@@ -15,6 +15,7 @@ try:
 except:
     pass
 
+
 class GoBananas:
     def __init__(self):
         """

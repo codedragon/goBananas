@@ -6,11 +6,6 @@ from panda3d.core import Point3, Point4
 # See README for info about Training Levels
 training = 5.2
 
-# are we using pydaq? Not available on the mac. Assume that if using pydaq,
-# both collecting data and giving reward, but these are separate configs below,
-# so could change individually, if desired.
-pydaq = False
-
 # testing mode allows you to place 2 bananas in specific places,
 # rather than having random placement of x bananas
 
@@ -20,15 +15,11 @@ testing = False
 # 'training'
 # 'original'
 environ = 'original'
+# Are we giving rewards?
+reward = True
 
-if pydaq:
-    # Are we giving rewards?
-    reward = True
-    # Are we collecting eye data?
-    eyeData = True
-else:
-    reward = False
-    eyeData = False
+# Are we collecting eye data?
+eyeData = True
 
 # 3d?
 # framebuffer-stereo 1
@@ -43,8 +34,8 @@ pulseInterval = 200 # in ms
 # eye position calibration information
 # must be entered before every experiment from
 # presentation callibration
-gain = (262, 236)  #(x, y)
-offset = (-55, -46)  #(x,y)
+gain = (100, 100)  #(x, y)
+offset = (1, 1)  #(x,y)
 
 #### Core PandaEPL settings ####
 
@@ -77,14 +68,14 @@ initialPos = Point3(0, 0, 1)
 # further distance, change this, but does no good if 
 # thing running into has huge radius
 #avatarRadius = 0.3
-avatarRadius = 0.05
+avatarRadius = 0.2
 
 cameraPos = Point3(0, 0, 0)
-friction = 0.4 #0.4
-movementType = 'walking' # car | walking
+friction = 0.4  # 0.4
+movementType = 'walking'  # car | walking
 
 instructSize = 0.1
-instructFont = '/c/Windows/Fonts/times.ttf';
+instructFont = '/c/Windows/Fonts/times.ttf'
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
 instructMargin = 0.06
@@ -148,7 +139,9 @@ stLightModel = './models/streetlight/streetlight.bam'
 stLightLoc = Point3(-13, 13, 0)
 stLightScale = .75
 
-windmillModel = './models/windmill/windmill.bam'
+# bananarchy was using amill.bam, but I couldn't load that file,
+# and the original amill.egg was not in the folder.
+windmillModel = './models/windmill/amill.bam'
 windmillLoc = Point3(13, -13, 0)
 windmillScale = .2
 windmillH = 45

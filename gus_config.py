@@ -68,7 +68,7 @@ initialPos = Point3(0, 0, 1)
 # further distance, change this, but does no good if 
 # thing running into has huge radius
 #avatarRadius = 0.3
-avatarRadius = 0.1
+avatarRadius = 0.2
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4  # 0.4
