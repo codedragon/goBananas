@@ -1,33 +1,32 @@
 #!/bin/bash
 cp gus_config.py config.py
-#ppython goBananas.py -sGus --no-eeg --resolution=1024x768
-SD=( data/Gus/session_$(date +%y_%m_%d) )
-TEST=
-#BD=/r/"Buffalo Lab"/"VR Task Data UW"/Giuseppe/"panda data"/
-BD=( /r/Buffalo\ Lab/VR\ Task\ Data\ UW/Giuseppe/panda\ data/JN_$(date +%y_%m_%d)* )
+ppython goBananas.py -sGus --no-eeg --resolution=1024x768
+# original directory
+SD=( data/Gus/session_$(date +%y_%m_%d)* )
+
+# change to better name
+DATESTR=${SD:17:14}
+#echo $DATESTR
+SND=( data/Gus/JN_$DATESTR )
+mv $SD "${SND}"
+
+# make copy to research backup drive
+BD=/r/"Buffalo Lab"/"VR Task Data UW"/Giuseppe/"panda data"/
 ND=( /r/Buffalo\ Lab/VR\ Task\ Data\ UW/Giuseppe/panda\ data/JN_$(date +%y_%m_%d)* )
-echo "from directory"
-echo "${SD}"
-ls "${SD}"
-echo "to directory"
-echo "${BD}"
-#mkdir "${BD}"
-#ls "${BD}"
-#cp -r $SD "${BD}"
-#echo "copied directory"
-#ls $SD
-#ls "${BD}"
+cp -r $SND "${BD}"
+
+# also copy calibration files, if they exist
 EFILE=( ../calibrate/data/Gus/eye_cal2_$(date +%y_%m_%d)* )
 TFILE=( ../calibrate/data/Gus/time_cal2_$(date +%y_%m_%d)* )
 # will only save to first data directory of that day.
 if [ -a "${EFILE}" ]
 then
-    echo "yup" 
-    #cp -r $EFILE "${ND}"
+    #echo "yup" 
+    cp -r $EFILE "${ND}"
 fi
 if [ -a "${TFILE}" ]
 then
-    echo "yup" 
-    #cp -r $TFILE "${ND}"
+    #echo "yup" 
+    cp -r $TFILE "${ND}"
 fi
-
+echo "Thanks for playing."
