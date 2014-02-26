@@ -12,10 +12,11 @@ mv $SD "${SND}"
 
 # make copy to research backup drive
 BD=/r/"Buffalo Lab"/"VR Task Data UW"/Giuseppe/"panda data"/
-ND=( /r/Buffalo\ Lab/VR\ Task\ Data\ UW/Giuseppe/panda\ data/JN_$(date +%y_%m_%d)* )
 cp -r $SND "${BD}"
 
 # also copy calibration files, if they exist
+ND=( /r/Buffalo\ Lab/VR\ Task\ Data\ UW/Giuseppe/panda\ data/JN_$(date +%y_%m_%d)*/ )
+#echo $ND
 EFILE=( ../calibrate/data/Gus/eye_cal2_$(date +%y_%m_%d)* )
 TFILE=( ../calibrate/data/Gus/time_cal2_$(date +%y_%m_%d)* )
 # will only save to first data directory of that day.
