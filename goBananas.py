@@ -2,7 +2,7 @@
 from pandaepl.common import *
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
-from panda3d.core import CollisionNode, CollisionSphere
+#from panda3d.core import CollisionNode, CollisionSphere
 from environment import Environment
 from bananas import Bananas
 import datetime
