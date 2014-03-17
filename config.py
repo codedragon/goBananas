@@ -21,6 +21,9 @@ testing = False
 # 'original'
 environ = 'original'
 
+# set this if models is not in current directory
+path_models = ''
+
 if pydaq:
     # Are we giving rewards?
     reward = True
@@ -126,32 +129,6 @@ maxFwDistance = 7
 #else:
 #	targetHwinL = 2  #1.2 is sort of the boundary.
 #	targetHwinR = 2  #1.2 is sort of the boundary.
-
-# Terrain, sky
-terrainModel = './models/towns/field.bam'
-terrainCenter = Point3(0, 0, 0)
-skyModel = './models/sky/sky.bam'
-skyScale = 1.6
-
-# Eventually want landmarks in state, and load directory full of
-# landmarks, randomly placed in background.
-
-treeModel = './models/trees/palmTree.bam'
-treeLoc = Point3(13, 13, 0)
-treeScale = .0175
-
-skyScraperModel = './models/skyscraper/skyscraper.bam'
-skyScraperLoc = Point3(-13, -13, 0)
-skyScraperScale = .3
-
-stLightModel = './models/streetlight/streetlight.bam'
-stLightLoc = Point3(-13, 13, 0)
-stLightScale = .75
-
-windmillModel = './models/windmill/windmill.bam'
-windmillLoc = Point3(13, -13, 0)
-windmillScale = .2
-windmillH = 45
 
 # Load 2 bananas for testing, know where they are!
 bananaModel = './models/bananas/banana.bam'

@@ -1,9 +1,11 @@
 # cringe #
 from pandaepl.common import *
+#from pandaepl import Model, MovingObject
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
-from panda3d.core import CollisionNode, CollisionSphere
-from environment import Environment
+#from panda3d.core import CollisionNode, CollisionSphere
+from load_models import load_models
+from environment import PlaceModels
 from bananas import Bananas
 import datetime
 import sys
@@ -90,16 +92,30 @@ class GoBananas:
         # Log First Trial
         self.trial_num = 1
         VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
-        # if collecting eye data, start the log for it
-        if config['eyeData']:
-            Log.getInstance().addType("EyeData", [("X", float),
+
+        Log.getInstance().addType("EyeData", [("X", float),
                                                   ("Y", float)],
                                                   False)
-            #self.gain = config['gain']
-            #self.offset = config['offset']
-
         # Load environment
-        self.environ = Environment(config)
+        load_models()
+        # Models must be attached to self
+        self.envModels = []
+        for item in PlaceModels._registry:
+            if item.group == config['environ']:
+                #print item.name
+                item.model = config['path_models'] + item.model
+                #print item.model
+                model = Model(item.name, item.model, item.location)
+                if item.callback is not None:
+                    #print 'not none'
+                    model.setCollisionCallback(eval(item.callback))
+                    # white wall is bright, and sometimes hard to see bananas,
+                    # quick fix.
+                    model.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
+                model.setScale(item.scale)
+                model.setH(item.head)
+                self.envModels.append(model)
+
         self.banana_models = Bananas(config)
 
         # Handle keyboard events

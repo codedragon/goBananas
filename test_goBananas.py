@@ -20,9 +20,9 @@ class TestGoBananas(unittest.TestCase):
         print 'setup'
         if platform.system() == 'Darwin':
             print 'trying arch'
+            # any reason to use a special config file?
+            #shutil.copy('testing_config.py', 'config.py')
             os.system('arch -i386 ppython goBananas.py -sTest --no-eeg --no-fs')
-            # WANT TO USE THE TEST CONFIGURATION FILE, I think. HOW DO I MAKE THIS HAPPEN?
-            # MAYBE COPY THE CONFIG FILE
         else:
             os.system('python goBananas.py -sTest --no-eeg --no-fs')
 
@@ -91,9 +91,10 @@ class TestGoBananas(unittest.TestCase):
             line = self.check_log('VROBJECT_POS', 'banana' + '%02d' % i)
             #print line
             temp = line.split()
+            start = temp[-3].index('(') + 1
             #print temp[-3][9:-1]
             #print temp[-2][:-1]
-            plist += [(temp[-3][9:-1], temp[-2][:-1])]
+            plist += [(temp[-3][start:-1], temp[-2][:-1])]
         #print plist
         # need to compare the distance between all points.
         #distance = mb.distance(plist[0], plist[1])
@@ -107,6 +108,9 @@ class TestGoBananas(unittest.TestCase):
         self.assertTrue(self.check_log('Yummy'))
 
     def test_collect_eye_positions(self):
+        # won't actually get any eye data unless using pydaq.
+        # probably want to check for actual eye positions, but
+        # need to figure this out.
         self.assertTrue(self.check_log('EyeData'))
 
     def test_reward_logged(self):
