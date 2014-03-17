@@ -10,7 +10,7 @@ def distance(p0, p1):
     dist = sqrt((float(p0[0]) - float(p1[0]))**2 + (float(p0[1]) - float(p1[1]))**2)
     return dist
 
-def setXY(pList, avatar=(0, 0), tooClose=[],):
+def setXY(pList, avatar=(0, 0), tooClose=None,):
     """
     (list) -> tuple
     Returns a point (x,y) that is more than the minimum distance set by tooClose
@@ -20,24 +20,29 @@ def setXY(pList, avatar=(0, 0), tooClose=[],):
     config = {}
     execfile('config.py', config)
     if not tooClose:
+        #print 'get from config'
         tooClose = config['tooClose']
         dist_avatar = config['avatarRadius']*3
     else:
         dist_avatar = tooClose
-    #print 'too close', tooClose
+    #print 'too close, setXY', tooClose
+
     x = random.uniform(config['minDistance'], config['maxDistance'])
     y = random.uniform(config['minFwDistance'], config['maxFwDistance'])
 
-    # check the distance to the avatar
-    if distance((x, y), avatar) < dist_avatar:
-        x, y = setXY(pList, avatar, tooClose)
-
-    # check the distance to points already on the list
+    #print 'x', x
+    # check the distance to points already on the list and to the avatar
     if pList:
-        for x1,y1 in pList:
-            if distance((x,y), (x1,y1)) < tooClose:
+        for x1, y1 in pList:
+            # if either too close, get new points.
+            if distance((x, y), (x1, y1)) < tooClose or distance((x, y), avatar) < dist_avatar:
                 #print 'set xy too close'
                 #print 'distance is ', distance((x,y), (x1,y1))
                 #print x,y
                 x, y = setXY(pList, avatar, tooClose)
+    else:
+        # check the distance to the avatar if there is no list yet
+        if distance((x, y), avatar) < dist_avatar:
+            x, y = setXY(pList, avatar, tooClose)
+    #print 'setXY, x,y', x, y
     return x, y

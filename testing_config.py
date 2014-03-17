@@ -14,7 +14,7 @@ testing = False
 # 'training'
 # 'original'
 environ = 'original'
-# Are we giving rewards?
+# Are we giving rewards? not if not using pydaq
 reward = True
 
 # Are we collecting eye data?

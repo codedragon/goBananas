@@ -23,12 +23,12 @@
 # Mac and move to Windows, that works fine
 #
 # To convert all models in my model directory from gobananas directory on my mac:
-# arch -i386 ppython generateBananaBamFiles.py
+# arch -i386 ppython myEggToBam.py
 #
 # To convert one file:
 # start python in gobananas directory:
 # arch -i386 ppython
-# from generateBananaBamFiles import convertEggToBam
+# from myEggToBam import convertEggToBam
 # convertEggToBam('../../play/play_models/play_field.egg')
 
 
