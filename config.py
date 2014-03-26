@@ -6,30 +6,25 @@ from panda3d.core import Point3, Point4
 # See README for info about Training Levels
 training = 5.2
 
+# models are in goBananas directory
+path_models = ''
 # testing mode allows you to place 2 bananas in specific places,
 # rather than having random placement of x bananas
 
 testing = False
 
-# are we on windows, running pydaq?
-pydaq = False
-
 # environ types available:
 # 'training'
 # 'original'
 environ = 'original'
+# Are we giving rewards?
+reward = True
 
-if pydaq:
-    # Are we giving rewards?
-    reward = True
-    # Are we collecting eye data?
-    eyeData = True
-else:
-    reward = False
-    eyeData = False
+# Are we collecting eye data?
+eyeData = True
 
-# set this if models is not in current directory
-path_models = ''
+# 3d?
+# framebuffer-stereo 1
 
 # reward
 numBeeps = 3
@@ -125,6 +120,33 @@ maxFwDistance = 7
 #	targetHwinL = 2  #1.2 is sort of the boundary.
 #	targetHwinR = 2  #1.2 is sort of the boundary.
 
+# Terrain, sky
+terrainModel = './models/towns/field.bam'
+terrainCenter = Point3(0, 0, 0)
+skyModel = './models/sky/sky.bam'
+skyScale = 1.6
+
+# Eventually want landmarks in state, and load directory full of
+# landmarks, randomly placed in background.
+
+treeModel = './models/trees/palmTree.bam'
+treeLoc = Point3(13, 13, 0)
+treeScale = .0175
+
+skyScraperModel = './models/skyscraper/skyscraper.bam'
+skyScraperLoc = Point3(-13, -13, 0)
+skyScraperScale = .3
+
+stLightModel = './models/streetlight/streetlight.bam'
+stLightLoc = Point3(-13, 13, 0)
+stLightScale = .75
+
+# bananarchy was using amill.bam, but I couldn't load that file,
+# and the original amill.egg was not in the folder.
+windmillModel = './models/windmill/amill.bam'
+windmillLoc = Point3(13, -13, 0)
+windmillScale = .2
+windmillH = 45
 
 # Load 2 bananas for testing, know where they are!
 bananaModel = './models/bananas/banana.bam'

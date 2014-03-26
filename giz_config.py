@@ -6,6 +6,8 @@ from panda3d.core import Point3, Point4
 # See README for info about Training Levels
 training = 5.2
 
+# models are in goBananas directory
+path_models = ''
 # testing mode allows you to place 2 bananas in specific places,
 # rather than having random placement of x bananas
 

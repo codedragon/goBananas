@@ -102,13 +102,14 @@ class GoBananas:
         # Models must be attached to self
         self.envModels = []
         for item in PlaceModels._registry:
-            if item.group == config['environ']:
+            if config['environ'] in item.group:
+            #if 'better' in item.group:
                 #print item.name
                 item.model = config['path_models'] + item.model
                 #print item.model
                 model = Model(item.name, item.model, item.location)
                 if item.callback is not None:
-                    #print 'not none'
+                    print 'not none'
                     model.setCollisionCallback(eval(item.callback))
                     # white wall is bright, and sometimes hard to see bananas,
                     # quick fix.
