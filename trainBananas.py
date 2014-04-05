@@ -1,5 +1,6 @@
 # cringe #
 from pandaepl.common import *
+from pandaepl import Joystick
 #from pandaepl import Model, MovingObject
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
@@ -40,6 +41,12 @@ class GoBananas:
         self.extra = config['extra']
         self.fullTurningSpeed = config['fullTurningSpeed']
         self.fullForwardSpeed = config['fullForwardSpeed']
+        if config['trainingDirection'] == 'Left':
+            self.trainDir = 'turnLeft'
+        elif config['trainingDirection'] == 'Right':
+            self.trainDir = 'turnRight'
+        elif config['trainingDirection'] == 'Forward':
+            self.trainDir = 'moveForward'
 
         # get rid of cursor
         win_props = WindowProperties()
@@ -64,9 +71,16 @@ class GoBananas:
 
 
         # Get vr environment object
+        print Vr
+        print Options
+        options = Options.getInstance()
+        print Joystick
+        print options.__dict__.keys()
+        print options.option_list
+        print options.values
         vr = Vr.getInstance()
         #vr.cTrav.showCollisions(render)
-
+        self.js = Joystick.Joystick.getInstance()
         # not using experiment state currently
         #if not exp.getState():
             #bananas = []
@@ -160,6 +174,13 @@ class GoBananas:
         # After last reward, banana disappears and avatar can move.
 
         # print 'current beep', self.beeps
+
+        test = self.js.getEvents()
+        if test:
+            print test.keys()
+
+        if self.trainDir in test.keys():
+            print 'reward'
 
         if self.banana_models.beeps is None:
             return

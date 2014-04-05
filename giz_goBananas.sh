@@ -1,4 +1,5 @@
 #!/bin/bash
+# make sure we are using the correct configuration
 cp giz_config.py config.py
 ppython goBananas.py -sGus --no-eeg --resolution=1024x768
 # original directory
