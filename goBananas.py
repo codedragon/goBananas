@@ -13,9 +13,9 @@ import sys
 try:
     sys.path.insert(1, '../pydaq')
     import pydaq
-    #print 'loaded'
-except:
-    pass
+    #print 'loaded PyDaq'
+except ImportError:
+    print 'Not using PyDaq'
 
 
 class GoBananas:
@@ -98,25 +98,7 @@ class GoBananas:
                                                   ("Y", float)],
                                                   False)
         # Load environment
-        load_models()
-        # Models must be attached to self
-        self.envModels = []
-        for item in PlaceModels._registry:
-            if config['environ'] in item.group:
-            #if 'better' in item.group:
-                #print item.name
-                item.model = config['path_models'] + item.model
-                #print item.model
-                model = Model(item.name, item.model, item.location)
-                if item.callback is not None:
-                    #print 'not none'
-                    model.setCollisionCallback(eval(item.callback))
-                    # white wall is bright, and sometimes hard to see bananas,
-                    # quick fix.
-                    model.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
-                model.setScale(item.scale)
-                model.setH(item.head)
-                self.envModels.append(model)
+        self.load_environment(config)
 
         self.banana_models = Bananas(config)
 
@@ -210,6 +192,27 @@ class GoBananas:
         VLQ.getInstance().writeLine("EyeData",
                                 [((eye_data[0] * self.gain[0]) - self.offset[0]),
                                 ((eye_data[1] * self.gain[1]) - self.offset[1])])
+
+    def load_environment(self, config):
+        load_models()
+        # Models must be attached to self
+        self.envModels = []
+        for item in PlaceModels._registry:
+            if config['environ'] in item.group:
+            #if 'better' in item.group:
+                #print item.name
+                item.model = config['path_models'] + item.model
+                #print item.model
+                model = Model(item.name, item.model, item.location)
+                if item.callback is not None:
+                    #print 'not none'
+                    model.setCollisionCallback(eval(item.callback))
+                    # white wall is bright, and sometimes hard to see bananas,
+                    # quick fix.
+                    model.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
+                model.setScale(item.scale)
+                model.setH(item.head)
+                self.envModels.append(model)
 
     def upTurnSpeed(self, inputEvent):
         avatar = Avatar.getInstance()
