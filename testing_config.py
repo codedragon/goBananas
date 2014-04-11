@@ -19,10 +19,12 @@ testing = False
 # 'original'
 environ = 'original'
 # Are we giving rewards? not if not using pydaq
-reward = True
+#reward = True
+reward = False
 
 # Are we collecting eye data?
-eyeData = True
+#eyeData = True
+eyeData = False
 
 # 3d?
 # framebuffer-stereo 1
@@ -78,13 +80,19 @@ friction = 0.4 #0.4
 movementType = 'walking' # car | walking
 
 instructSize = 0.1
-instructFont = '/c/Windows/Fonts/times.ttf';
+#instructFont = '/c/Windows/Fonts/times.ttf'
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
 instructMargin = 0.06
 instructSeeAll = False
 
 # Experiment-specific settings
+
+# starting alpha for crosshair
+xHairAlpha = 1
+# starting distance from center (range 0-1).
+xHairDist = 0.1
+xStartPos = (0, 0, 0)
 
 # Bananas.
 numBananas = 2

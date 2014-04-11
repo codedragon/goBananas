@@ -1,5 +1,4 @@
-# change individual config files, and have script copy to config.py
-# configuration file for goBananas
+# configuration file for testing goBananas
 from panda3d.core import Point3, Point4
 
 # Set Training Level 
@@ -8,20 +7,24 @@ training = 5.2
 
 # models are in goBananas directory by default
 path_models = ''
+
+trainingDirection = 'Right'
+
 # testing mode allows you to place 2 bananas in specific places,
 # rather than having random placement of x bananas
-
 testing = False
 
 # environ types available:
 # 'training'
 # 'original'
 environ = 'original'
-# Are we giving rewards?
-reward = True
+# Are we giving rewards? not if not using pydaq
+#reward = True
+reward = False
 
 # Are we collecting eye data?
-eyeData = True
+#eyeData = True
+eyeData = False
 
 # 3d?
 # framebuffer-stereo 1
@@ -36,8 +39,8 @@ pulseInterval = 200 # in ms
 # eye position calibration information
 # must be entered before every experiment from
 # presentation callibration
-gain = (100, 100)  #(x, y)
-offset = (1, 1)  #(x,y)
+gain = (262, 236)  #(x, y)
+offset = (-55, -46)  #(x,y)
 
 #### Core PandaEPL settings ####
 
@@ -70,14 +73,14 @@ initialPos = Point3(0, 0, 1)
 # further distance, change this, but does no good if 
 # thing running into has huge radius
 #avatarRadius = 0.3
-avatarRadius = 0.2
+avatarRadius = 0.05
 
 cameraPos = Point3(0, 0, 0)
-friction = 0.4  # 0.4
-movementType = 'walking'  # car | walking
+friction = 0.4 #0.4
+movementType = 'walking' # car | walking
 
 instructSize = 0.1
-instructFont = '/c/Windows/Fonts/times.ttf'
+#instructFont = '/c/Windows/Fonts/times.ttf'
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
 instructMargin = 0.06
@@ -85,15 +88,21 @@ instructSeeAll = False
 
 # Experiment-specific settings
 
+# starting alpha for crosshair
+xHairAlpha = 1
+# starting distance from center (range 0-1).
+xHairDist = 0.1
+xStartPos = (0, 0, 0)
+
 # Bananas.
-numBananas = 10
+numBananas = 2
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 2.2  # 1.7
+tooClose = 2  # 1.7
 
 # Banana Positions
 minDistance = -7

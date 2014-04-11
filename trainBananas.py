@@ -19,7 +19,7 @@ except:
     pass
 
 
-class GoBananas:
+class TrainBananas:
     def __init__(self):
         """
         Initialize the experiment
@@ -109,40 +109,29 @@ class GoBananas:
         VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
 
         Log.getInstance().addType("EyeData", [("X", float),
-                                                  ("Y", float)],
-                                                  False)
+                                              ("Y", float)],
+                                              False)
         # Load environment
-        load_models()
-        # Models must be attached to self
-        self.envModels = []
-        for item in PlaceModels._registry:
-            if config['environ'] in item.group:
-            #if 'better' in item.group:
-                #print item.name
-                item.model = config['path_models'] + item.model
-                #print item.model
-                model = Model(item.name, item.model, item.location)
-                if item.callback is not None:
-                    #print 'not none'
-                    model.setCollisionCallback(eval(item.callback))
-                    # white wall is bright, and sometimes hard to see bananas,
-                    # quick fix.
-                    model.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
-                model.setScale(item.scale)
-                model.setH(item.head)
-                self.envModels.append(model)
+        #self.load_environment(config)
 
-        self.banana_models = Bananas(config)
+        #self.banana_models = Bananas(config)
+        self.x_start_p = config['xStartPos']
+        self.x_alpha = config['xHairAlpha']
+        self.x_start_c = (1, 0, 0, self.x_alpha)
+        self.cross = Text("cross", '+', Point3(self.x_start_p), config['instructSize'], Point4(self.x_start_c))
+        #self.cross = Model("cross", "smiley", Point3(self.x_start_p))
+        self.x_stop_p = (0, 0, 0)
 
         # Handle keyboard events
         vr.inputListen('toggleDebug',
                        lambda inputEvent:
                        Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
         vr.inputListen('close', self.close)
+        vr.inputListen('space', self.reward.pumpOut)
         vr.inputListen("upTurnSpeed", self.upTurnSpeed)
         vr.inputListen("downTurnSpeed", self.downTurnSpeed)
-        vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
-        vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
+        #vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
+        #vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
         vr.inputListen("restart", self.restart)
         # set up task to be performed between frames
         vr.addTask(Task("checkReward",
@@ -168,69 +157,49 @@ class GoBananas:
 
     def check_reward(self):
         # Runs every flip of screen
-        # checks to see if we are giving reward. If we are, there
-        # was a collision, and avatar can't move and banana hasn't
-        # disappeared yet.
-        # After last reward, banana disappears and avatar can move.
-
-        # print 'current beep', self.beeps
+        # check to see if crosshair is in center, if so, stop it, give reward
 
         test = self.js.getEvents()
         if test:
             print test.keys()
 
         if self.trainDir in test.keys():
+            self.reward.pumpOut()
             print 'reward'
 
-        if self.banana_models.beeps is None:
-            return
-        
-        # Still here? Give reward!
-        if self.reward:
-            self.reward.pumpOut()
-        else:
-            print 'beep', self.banana_models.beeps
-
-        #print MovingObject.getCollisionIdentifier(Vr.getInstance())
-        #vr = Vr.getInstance()
-        #vr.cTrav.
-        #for i in xrange(vr.cQueue.getNumEntries()):
-        #    print Vr.getInstance().cQueue.getEntry(i)
-        #collisionInfoList[0]
-        #byeBanana = collisionInfoList[0].getInto().getIdentifier()
-        VLQ.getInstance().writeLine('Beeps', [int(self.banana_models.beeps)])
-        # increment reward
-        self.banana_models.beeps += 1
-        
-        # If done, get rid of banana
-        #print 'beeps', self.banana_models.beeps
-        #print 'extra', self.extra
-        #print 'stashed', self.banana_models.stashed
-        if self.banana_models.beeps == self.numBeeps:
-            # check to see if we are doing double reward
-            if self.banana_models.stashed == 1 and self.extra > 1:
-                #print 'reset'
-                self.banana_models.beeps = 0
-                self.extra -= 1
-            else:
-                # banana disappears
-                old_trial = self.trial_num
-                self.trial_num = self.banana_models.goneBanana(self.trial_num)
-                if self.trial_num > old_trial:
-                    # reset the increased reward for last banana
-                    config = Conf.getInstance().getConfig()  # Get configuration dictionary.
-                    self.extra = config['extra']
-                # avatar can move
-                Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
-                Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
-                # reward is over
-                self.banana_models.beeps = None
+        #if self.cross.getPos() == Point3(0, 0, 0):
+        #    print 'reward'
+        #    self.x_change_position(self.x_star_p)
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
         VLQ.getInstance().writeLine("EyeData",
                                 [((eye_data[0] * self.gain[0]) - self.offset[0]),
                                 ((eye_data[1] * self.gain[1]) - self.offset[1])])
+
+    def x_change_position(self, position):
+        self.cross.setPos(Point3(position))
+
+    def load_environment(self, config):
+        load_models()
+        # Models must be attached to self
+        self.envModels = []
+        for item in PlaceModels._registry:
+            if config['environ'] in item.group:
+            #if 'better' in item.group:
+                #print item.name
+                item.model = config['path_models'] + item.model
+                #print item.model
+                model = Model(item.name, item.model, item.location)
+                if item.callback is not None:
+                    #print 'not none'
+                    model.setCollisionCallback(eval(item.callback))
+                    # white wall is bright, and sometimes hard to see bananas,
+                    # quick fix.
+                    model.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
+                model.setScale(item.scale)
+                model.setH(item.head)
+                self.envModels.append(model)
 
     def upTurnSpeed(self, inputEvent):
         avatar = Avatar.getInstance()
@@ -265,7 +234,7 @@ class GoBananas:
 
 if __name__ == '__main__':
     #print 'main?'
-    GoBananas().start()
+    TrainBananas().start()
 else:
     print 'not main?'
     #import argparse
