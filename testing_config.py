@@ -3,7 +3,7 @@ from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
-training = 5.2
+training = 0
 
 # models are in goBananas directory by default
 path_models = ''
@@ -17,10 +17,11 @@ testing = False
 # environ types available:
 # 'training'
 # 'original'
-environ = 'original'
+# None gives you nothing
+environ = None
 # Are we giving rewards? not if not using pydaq
 #reward = True
-reward = False
+reward = True
 
 # Are we collecting eye data?
 #eyeData = True
@@ -79,8 +80,9 @@ cameraPos = Point3(0, 0, 0)
 friction = 0.4 #0.4
 movementType = 'walking' # car | walking
 
+# needed for joystick (instructions)
 instructSize = 0.1
-#instructFont = '/c/Windows/Fonts/times.ttf'
+instructFont = '/c/Windows/Fonts/times.ttf'
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
 instructMargin = 0.06
@@ -176,3 +178,4 @@ if 'Keyboard' in globals():
     keyboard.bind("downTurnSpeed", "g")
     keyboard.bind("increaseBananas", "w")
     keyboard.bind("decreaseBananas", "s")
+    keyboard.bind("reward", "space")

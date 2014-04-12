@@ -14,10 +14,9 @@ import sys
 try:
     sys.path.insert(1, '../pydaq')
     import pydaq
-    #print 'loaded'
-except:
-    pass
-
+    #print 'loaded PyDaq'
+except ImportError:
+    print 'Not using PyDaq'
 
 class TrainBananas:
     def __init__(self):
@@ -56,28 +55,15 @@ class TrainBananas:
         #win_props.setSize(800, 600)  # normal panda window
         # base is global, used by pandaepl from panda3d
         base.win.requestProperties(win_props)
-        #print base.win.requestProperties(win_props)
-
-        # window2 = base.openWindow()
-        # win_props.setOrigin(800, 200)  # make it so windows aren't on top of each other
-        # win_props.setSize(800, 600)  # if no resolution given, assume normal panda window
-        # window2.requestProperties(win_props)
-        #
-        # camera = base.camList[0]
-        # camera.reparentTo(render)
-        #
-        # camera2 = base.camList[1]
-        # camera.reparentTo(render)
-
 
         # Get vr environment object
-        print Vr
-        print Options
-        options = Options.getInstance()
-        print Joystick
-        print options.__dict__.keys()
-        print options.option_list
-        print options.values
+        #print Vr
+        #print Options
+        #options = Options.getInstance()
+        #print Joystick
+        #print options.__dict__.keys()
+        #print options.option_list
+        #print options.values
         vr = Vr.getInstance()
         #vr.cTrav.showCollisions(render)
         self.js = Joystick.Joystick.getInstance()
@@ -92,6 +78,7 @@ class TrainBananas:
         #collisionNode.setTwoSided(True)
 
         # Register Custom Log Entries
+
         # This one corresponds to colliding with a banana
         Log.getInstance().addType("Yummy", [("BANANA", basestring)],
                                   False)
@@ -112,33 +99,19 @@ class TrainBananas:
                                               ("Y", float)],
                                               False)
         # Load environment
-        #self.load_environment(config)
+        self.load_environment(config)
 
         #self.banana_models = Bananas(config)
         self.x_start_p = config['xStartPos']
         self.x_alpha = config['xHairAlpha']
-        self.x_start_c = (1, 0, 0, self.x_alpha)
+        self.x_start_c = (1, 1, 1, self.x_alpha)
+        self.x_stop_c = (0, 1, 0, self.x_alpha)
         self.cross = Text("cross", '+', Point3(self.x_start_p), config['instructSize'], Point4(self.x_start_c))
         #self.cross = Model("cross", "smiley", Point3(self.x_start_p))
+        print(dir(self.cross))
         self.x_stop_p = (0, 0, 0)
-
-        # Handle keyboard events
-        vr.inputListen('toggleDebug',
-                       lambda inputEvent:
-                       Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
-        vr.inputListen('close', self.close)
-        vr.inputListen('space', self.reward.pumpOut)
-        vr.inputListen("upTurnSpeed", self.upTurnSpeed)
-        vr.inputListen("downTurnSpeed", self.downTurnSpeed)
-        #vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
-        #vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
-        vr.inputListen("restart", self.restart)
-        # set up task to be performed between frames
-        vr.addTask(Task("checkReward",
-                        lambda taskInfo:
-                        self.check_reward(),
-                        config['pulseInterval']))
-
+        self.training = config['training']
+        self.yay_reward = False
         # set up reward system
         if config['reward']:
             self.reward = pydaq.GiveReward()
@@ -155,7 +128,40 @@ class TrainBananas:
         else:
             self.task = False
 
+        # Handle keyboard events
+        vr.inputListen('toggleDebug',
+                       lambda inputEvent:
+                       Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
+        vr.inputListen("close", self.close)
+        vr.inputListen("reward", self.give_reward)
+        vr.inputListen("upTurnSpeed", self.upTurnSpeed)
+        vr.inputListen("downTurnSpeed", self.downTurnSpeed)
+        #vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
+        #vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
+        vr.inputListen("restart", self.restart)
+        # set up task to be performed between frames
+        vr.addTask(Task("checkReward",
+                        lambda taskInfo:
+                        self.check_reward(),
+                        config['pulseInterval']))
+        if self.training == 0:
+            vr.addTask(Task("checkJS",
+                            lambda taskInfo:
+                            self.check_js()))
+
+    def give_reward(self, inputEvent):
+        print('beep')
+        self.reward.pumpOut()
+
+    def check_js(self):
+        joy_push = self.js.getEvents()
+        if joy_push:
+            self.yay_reward = True
+            print joy_push.keys()
+            self.x_change_color(self.x_stop_c)
+
     def check_reward(self):
+
         # Runs every 200 ms
         # check to see if crosshair is in center, if so, stop it, give reward
 
@@ -169,7 +175,18 @@ class TrainBananas:
 
         if self.trainDir in test.keys():
             self.reward.pumpOut()
+
+        # Runs every 200ms, same rate as pump rate
+        # check to see if crosshair is in center, if so, stop it, give reward
+        #if self.training == 0:
+        #    self.check_js()
+        #elif self.training == 1:
+        if self.yay_reward:
             print 'reward'
+            self.yay_reward = False
+        #if self.trainDir in test.keys():
+        #    self.reward.pumpOut()
+        #    print 'reward'
 
         #if self.cross.getPos() == Point3(0, 0, 0):
         #    print 'reward'
@@ -184,7 +201,13 @@ class TrainBananas:
     def x_change_position(self, position):
         self.cross.setPos(Point3(position))
 
+    def x_change_color(self, color):
+        #print self.cross.getColor()
+        self.cross.setColor(Point4(1, 0, 0, 1))
+
     def load_environment(self, config):
+        if config['environ'] is None:
+            return
         load_models()
         # Models must be attached to self
         self.envModels = []

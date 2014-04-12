@@ -61,10 +61,10 @@ def load_models():
     horizon.name = 'horizon'
     horizon.group = 'better'
     #horizon.scale = 1.6
-    horizon.scale = 1
+    horizon.scale = Point3(1, 1, 1)
     #horizon.model = '../play_environ/models/good_sky_hole.egg'
-    horizon.model = '../play_environ/models/sky_cylinder_40_18.egg'
-    horizon.location = Point3(0, 0, -8)
+    horizon.model = '../play_environ/models/sky_cylinder.egg'
+    horizon.location = Point3(0, 0, -1)
 
 #load_models()
 #for item in PlaceModels._registry:

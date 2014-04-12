@@ -112,7 +112,7 @@ class GoBananas:
         vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
         vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
         vr.inputListen("restart", self.restart)
-        # set up task to be performed between frames
+        # set up task to be performed between frames, checks at interval of pump
         vr.addTask(Task("checkReward",
                         lambda taskInfo:
                         self.check_reward(),
