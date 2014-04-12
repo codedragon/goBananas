@@ -156,9 +156,13 @@ class TrainBananas:
             self.task = False
 
     def check_reward(self):
-        # Runs every flip of screen
+        # Runs every 200 ms
         # check to see if crosshair is in center, if so, stop it, give reward
 
+        # move the crosshair
+        old_pos = self.cross.getPos()
+        old_pos[0] += 1
+        self.cross.setPos(old_pos)
         test = self.js.getEvents()
         if test:
             print test.keys()
