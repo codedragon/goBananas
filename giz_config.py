@@ -8,10 +8,9 @@ training = 5.2
 
 # models are in goBananas directory by default
 path_models = ''
-# testing mode allows you to place 2 bananas in specific places,
+# manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
-
-testing = False
+manual = False
 
 # environ types available:
 # 'training'

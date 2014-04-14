@@ -3,25 +3,29 @@ from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
-training = 0
+training = 1
 
 # models are in goBananas directory by default
 path_models = ''
 
+# direction subject has to push the joystick
 trainingDirection = 'Right'
+#trainingDirection = 'Left'
 
-# testing mode allows you to place 2 bananas in specific places,
+# manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
-testing = False
+manual = True
 
 # environ types available:
 # 'training'
 # 'original'
 # None gives you nothing
 environ = None
+#environ = 'original'
+
 # Are we giving rewards? not if not using pydaq
+reward = False
 #reward = True
-reward = True
 
 # Are we collecting eye data?
 #eyeData = True
@@ -92,16 +96,21 @@ instructSeeAll = False
 
 # starting alpha for crosshair
 xHairAlpha = 1
-# starting distance from center (range 0-1).
-xHairDist = 0.1
-xStartPos = (0, 0, 0)
+# how far to travel per joystick push
+xHairDist = 0.01
+# starting distance from center (range 0-1), use positive numbers,
+# direction determined by trainingDirection.
+xStartPos = Point3(0.2, 0, 0)
 
 # Bananas.
 numBananas = 2
+posBananas = [0, 5]
+#posBananas = [0, 0, 1, 0]
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
-bananaScale = .5
+#bananaScale = .5
+bananaScale = 5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
 tooClose = 2  # 1.7
@@ -172,10 +181,20 @@ if 'Keyboard' in globals():
     keyboard = Keyboard.getInstance()
     keyboard.bind("close", ["escape", "q"])
     #keyboard.bind("exit", ["escape", "q"])
-    keyboard.bind("restart", "y")
+    #keyboard.bind("restart", "r")
     keyboard.bind("toggleDebug", ["escape", "d"])
-    keyboard.bind("upTurnSpeed", "t")
-    keyboard.bind("downTurnSpeed", "g")
-    keyboard.bind("increaseBananas", "w")
-    keyboard.bind("decreaseBananas", "s")
+    #keyboard.bind("increaseDist", ["shift", "up"])
+    #keyboard.bind("decreaseDist", ["shift", "down"])
+    keyboard.bind("increaseDist", "q")
+    keyboard.bind("decreaseDist", "a")
+    #keyboard.bind("increaseBananas", "w")
+    #keyboard.bind("decreaseBananas", "s")
+    keyboard.bind("increase_js_goal", "e")
+    keyboard.bind("decrease_js_goal", "d")
+    keyboard.bind("increaseInt", "w")
+    keyboard.bind("decreaseInt", "s")
+    keyboard.bind("changeLeft", "l")
+    keyboard.bind("changeRight", "r")
+    keyboard.bind("changeForward", "f")
+    keyboard.bind("pause", "p")
     keyboard.bind("reward", "space")

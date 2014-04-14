@@ -18,6 +18,7 @@ try:
 except ImportError:
     print 'Not using PyDaq'
 
+
 class TrainBananas:
     def __init__(self):
         """
@@ -38,15 +39,17 @@ class TrainBananas:
         # variables dynamically
         self.numBeeps = config['numBeeps']
         self.extra = config['extra']
-        self.fullTurningSpeed = config['fullTurningSpeed']
-        self.fullForwardSpeed = config['fullForwardSpeed']
+        #self.fullTurningSpeed = config['fullTurningSpeed']
+        #self.fullForwardSpeed = config['fullForwardSpeed']
         if config['trainingDirection'] == 'Left':
             self.trainDir = 'turnLeft'
+            self.multiplier = 1
         elif config['trainingDirection'] == 'Right':
             self.trainDir = 'turnRight'
+            self.multiplier = -1
         elif config['trainingDirection'] == 'Forward':
             self.trainDir = 'moveForward'
-
+        self.new_dir = None
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props
@@ -101,17 +104,22 @@ class TrainBananas:
         # Load environment
         self.load_environment(config)
 
-        #self.banana_models = Bananas(config)
+        self.banana_models = Bananas(config)
         self.x_start_p = config['xStartPos']
+        self.x_start_p[0] *= self.multiplier
+        print self.x_start_p
         self.x_alpha = config['xHairAlpha']
-        self.x_start_c = (1, 1, 1, self.x_alpha)
-        self.x_stop_c = (0, 1, 0, self.x_alpha)
-        self.cross = Text("cross", '+', Point3(self.x_start_p), config['instructSize'], Point4(self.x_start_c))
+        self.x_start_c = Point4(1, 1, 1, self.x_alpha)
+        self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
+        self.cross = Text("cross", '+', self.x_start_p, config['instructSize'], self.x_start_c)
         #self.cross = Model("cross", "smiley", Point3(self.x_start_p))
-        print(dir(self.cross))
-        self.x_stop_p = (0, 0, 0)
+        #print(dir(self.cross))
+        self.x_stop_p = Point3(0, 0, 0)
+        self.cross_move_int = config['xHairDist']
         self.training = config['training']
         self.yay_reward = False
+        self.delay = 4  # number of updates to wait for new "trial" (200ms per update)
+        self.t_delay = 0
         # set up reward system
         if config['reward']:
             self.reward = pydaq.GiveReward()
@@ -134,56 +142,98 @@ class TrainBananas:
                        Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
         vr.inputListen("close", self.close)
         vr.inputListen("reward", self.give_reward)
-        vr.inputListen("upTurnSpeed", self.upTurnSpeed)
-        vr.inputListen("downTurnSpeed", self.downTurnSpeed)
+        vr.inputListen("increaseDist", self.x_inc_start)
+        vr.inputListen("decreaseDist", self.x_dec_start)
+        vr.inputListen("increaseInt", self.inc_interval)
+        vr.inputListen("decreaseInt", self.dec_interval)
+        vr.inputListen("changeLeft", self.change_left)
+        vr.inputListen("changeRight", self.change_right)
+        vr.inputListen("changeForward", self.change_forward)
+        # Can't change levels, since that involves changing the task,
+        # may eventually be able to do this, if end up using same time
+        # increment for tasks.
+        #vr.inputListen("increaseLevel", self.inc_level)
+        #vr.inputListen("decreaseLevel", self.dec_level)
         #vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
         #vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
         vr.inputListen("restart", self.restart)
+        vr.inputListen("pause", self.pause)
         # set up task to be performed between frames
-        vr.addTask(Task("checkReward",
-                        lambda taskInfo:
-                        self.check_reward(),
-                        config['pulseInterval']))
         if self.training == 0:
+            vr.inputListen("increaseTouch", self.inc_js_goal)
+            vr.inputListen("decreaseTouch", self.dec_js_goal)
+            self.js_count = 0
+            # eventually may want start goal in config file
+            self.js_goal = 1  # start out just have to hit joystick
             vr.addTask(Task("checkJS",
                             lambda taskInfo:
                             self.check_js()))
-
-    def give_reward(self, inputEvent):
-        print('beep')
-        self.reward.pumpOut()
+        else:
+            vr.addTask(Task("checkReward",
+                        lambda taskInfo:
+                        self.check_reward(),
+                        config['pulseInterval']))
 
     def check_js(self):
-        joy_push = self.js.getEvents()
-        if joy_push:
-            self.yay_reward = True
-            print joy_push.keys()
-            self.x_change_color(self.x_stop_c)
+        # not moving crosshair, just push joystick to get reward,
+        # longer and longer intervals
+        if self.t_delay == self.delay:
+            joy_push = self.js.getEvents()
+            if joy_push:
+                self.js_count += 1
+            if self.js_count == self.js_goal:
+                self.yay_reward = True
+                print joy_push.keys()
+                self.x_change_color(self.x_stop_c)
+                self.js_count = 0
+                self.t_delay = 0
+        else:
+            self.t_delay += 1
 
     def check_reward(self):
-
         # Runs every 200 ms
         # check to see if crosshair is in center, if so, stop it, give reward
 
-        # move the crosshair
-        old_pos = self.cross.getPos()
-        old_pos[0] += 1
-        self.cross.setPos(old_pos)
-        test = self.js.getEvents()
-        if test:
-            print test.keys()
+        # move the crosshair, multiply by the multiplier to get the absolute value, essentially
+        #print('neg=right', self.multiplier)
+        old_pos = self.cross.getPos()[0]
+        old_pos *= self.multiplier
+        stop_x = self.multiplier * self.x_stop_p[0]
 
-        if self.trainDir in test.keys():
-            self.reward.pumpOut()
+        #print('old', old_pos)
+        #print('greater than', self.x_stop_p[0])
+        if old_pos <= stop_x:
+            self.yay_reward = True
+        else:
+            old_pos -= self.cross_move_int
+            # go back to original direction
+            old_pos *= self.multiplier
+            new_pos = self.cross.getPos()
+            new_pos[0] = old_pos
+            #print('new', new_pos)
+            self.cross.setPos(new_pos)
+
+        # test joystick direction
+        #test = self.js.getEvents()
+        #if self.trainDir in test.keys():
+        #    self.reward.pumpOut()
 
         # Runs every 200ms, same rate as pump rate
         # check to see if crosshair is in center, if so, stop it, give reward
         #if self.training == 0:
         #    self.check_js()
         #elif self.training == 1:
+        # way it is currently configured, will "give reward" whenever paused
         if self.yay_reward:
             print 'reward'
-            self.yay_reward = False
+            self.x_change_color(self.x_stop_c)
+            # delay could also be number of reward beeps, if just want to wait for reward,
+            # and then restart, or could be a combination of delay and beeps.
+            if self.t_delay == self.delay:
+                self.restart()
+            else:
+                self.t_delay += 1
+                print self.t_delay
         #if self.trainDir in test.keys():
         #    self.reward.pumpOut()
         #    print 'reward'
@@ -203,7 +253,69 @@ class TrainBananas:
 
     def x_change_color(self, color):
         #print self.cross.getColor()
-        self.cross.setColor(Point4(1, 0, 0, 1))
+        self.cross.setColor(color)
+        #self.cross.setColor(Point4(1, 0, 0, 1))
+
+    def give_reward(self, inputEvent):
+        print('beep')
+        self.reward.pumpOut()
+
+    def pause(self, inputEvent):
+        # if we are less than the usual delay (so in delay or delay is over),
+        # make it a giant delay,
+        # otherwise end the delay period.
+        if self.t_delay < self.delay:
+            self.t_delay = 1000000
+        else:
+            self.t_delay = 0
+
+    def x_inc_start(self, inputEvent):
+        self.x_start_p[0] *= 1.5
+        if self.x_start_p[0] > 0.9:
+            self.x_start_p[0] = 0.9
+        print('new pos', self.x_start_p)
+
+    def x_dec_start(self, inputEvent):
+        self.x_start_p[0] *= 0.5
+        if self.x_start_p[0] < 0:
+            self.x_start_p = 0
+        print('new pos', self.x_start_p)
+
+    def inc_level(self, inputEvent):
+        self.level += 1
+        print('new level', self.level)
+
+    def dec_level(self, inputEvent):
+        self.level -= 1
+        print('new level', self.level)
+
+    def inc_js_goal(self, inputEvent):
+        self.js_goal += 1
+        print('new goal', self.js_goal)
+
+    def dec_js_goal(self, inputEvent):
+        self.js_goal -= 1
+        print('new goal', self.js_goal)
+
+    def inc_interval(self, inputEvent):
+        self.delay += 1
+        print('new delay', self.delay)
+
+    def dec_interval(self, inputEvent):
+        self.delay -= 1
+        print('new delay', self.delay)
+
+    def change_left(self, inputEvent):
+        self.new_dir = 1
+        print('new dir: left')
+
+    def change_right(self, inputEvent):
+        self.new_dir = -1
+        print('new dir: right')
+
+    def change_forward(self, inputEvent):
+        self.new_dir = 0
+        print('new dir: forward')
 
     def load_environment(self, config):
         if config['environ'] is None:
@@ -228,23 +340,23 @@ class TrainBananas:
                 model.setH(item.head)
                 self.envModels.append(model)
 
-    def upTurnSpeed(self, inputEvent):
-        avatar = Avatar.getInstance()
-        self.fullTurningSpeed += 0.1
-        if avatar.getMaxTurningSpeed() > 0:
-            avatar.setMaxTurningSpeed(self.fullTurningSpeed)
-        print("fullTurningSpeed: " + str(self.fullTurningSpeed))
-
-    def downTurnSpeed(self, inputEvent):
-        avatar = Avatar.getInstance()
-        self.fullTurningSpeed -= 0.1
-        if avatar.getMaxTurningSpeed() > 0:
-            avatar.setMaxTurningSpeed(self.fullTurningSpeed)
-        print("fullTurningSpeed: " + str(self.fullTurningSpeed))
-
-    def restart(self, inputEvent):
+    def restart(self):
         #print 'restarted'
-        self.banana_models.replenishBananas()
+        #self.banana_models.replenishBananas()
+        self.yay_reward = False
+        self.t_delay = 0
+        self.x_change_position(self.x_start_p)
+        self.x_change_color(self.x_start_c)
+        if self.new_dir is not None:
+            if self.new_dir == 1:
+                self.trainDir = 'turnLeft'
+                self.multiplier = 1
+            elif self.new_dir == -1:
+                self.trainDir = 'turnRight'
+                self.multiplier = -1
+            else:
+                self.trainDir = 'moveForward'
+            self.new_dir = None
 
     def start(self):
         """

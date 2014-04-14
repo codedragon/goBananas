@@ -23,6 +23,16 @@ Start the game:
 ppython goBananas.py --no-eeg --resolution=1280x1024 -sTest
 use --no-fs for small window
 
+
+TrainBananas:
+basic idea for starting: cross is off-center, move to center. (learn moving joystick moves crosshair)
+
+Now put banana in center, and move to banana (learn to associate destination with banana)
+
+Then start changing starting position of banana, so not always going to center.
+(disassociate center with destination)
+
+
 Config file training variable:
 
 1.x = Left-Right Training.  No background.  Crosshairs in center of screen, and banana appears on left or right of crosshairs.  Subject has to push joystick to right or left to align the crosshairs with the banana.  Once the crosshairs hit the banana, the position is locked in place until all the reward is dispensed.  Then the tasks restarts with the banana in a new random location.
