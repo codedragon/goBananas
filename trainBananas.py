@@ -1,7 +1,7 @@
 # cringe #
 from pandaepl.common import *
 from pandaepl import Joystick
-#from pandaepl import Model, MovingObject
+from pandaepl import Model, MovingObject
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
 #from panda3d.core import CollisionNode, CollisionSphere
@@ -103,7 +103,13 @@ class TrainBananas:
                                               False)
         # Load environment
         self.load_environment(config)
+        #self.cross = Model.Model("square",
+        #                          "models/squares/plane.egg",
+        #                          Point3(0, 5, 1))
 
+        #print dir(self.cross)
+        #self.cross.setScale(0.05)
+        #self.create_square(config['SQUARE_SCALE']*17)
         #self.banana_models = Bananas(config)
         self.x_start_p = config['xStartPos']
         self.x_start_p[0] *= self.multiplier
@@ -179,23 +185,24 @@ class TrainBananas:
     def check_js(self):
         # not moving crosshair, just push joystick to get reward,
         # longer and longer intervals
+        # delay determines how long before cross re-appears
         if self.t_delay == self.delay:
             joy_push = self.js.getEvents()
             if joy_push:
+                print 'touched js'
                 self.js_count += 1
-            if self.js_count == 0:
-                #print 'ok'
+                if self.js_count == self.js_goal:
+                    self.x_change_color(self.x_stop_c)
+                    self.reward.pumpOut()
+                    #self.yay_reward = True
+                    #print joy_push.keys()
+                    print('touched for', self.js_count)
+                    self.js_count = 0
+                    self.t_delay = 0
+            elif self.js_count > 0:
+                print 'start over'
                 self.x_change_color(self.x_start_c)
-            if self.js_count == self.js_goal:
-                #if self.reward_n == self.reward_t:
-                self.x_change_color(self.x_stop_c)
-                #else:
-                self.reward.pumpOut()
-                #self.yay_reward = True
-                print joy_push.keys()
                 self.js_count = 0
-                self.t_delay = 0
-
         else:
             self.t_delay += 1
 

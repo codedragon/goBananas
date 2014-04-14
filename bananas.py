@@ -66,7 +66,6 @@ class Bananas():
         self.collision = True
         print 'on screen?'
 
-
     def createBananas(self):
         #print 'create bananas'
         # Randomly assign where bananas go and return a banana bananaModel.
