@@ -3,7 +3,7 @@ from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
-training = 1
+training = 0
 
 # models are in goBananas directory by default
 path_models = ''
@@ -24,12 +24,12 @@ environ = None
 #environ = 'original'
 
 # Are we giving rewards? not if not using pydaq
-reward = False
-#reward = True
+#reward = False
+reward = True
 
 # Are we collecting eye data?
-#eyeData = True
-eyeData = False
+eyeData = True
+#eyeData = False
 
 # 3d?
 # framebuffer-stereo 1
@@ -100,17 +100,17 @@ xHairAlpha = 1
 xHairDist = 0.01
 # starting distance from center (range 0-1), use positive numbers,
 # direction determined by trainingDirection.
-xStartPos = Point3(0.2, 0, 0)
+xStartPos = Point3(0, 0, 0)
 
 # Bananas.
 numBananas = 2
-posBananas = [0, 5]
+posBananas = [-0.2, 5]
 #posBananas = [0, 0, 1, 0]
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 #bananaScale = .5
-bananaScale = 3
+bananaScale = 5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
 tooClose = 2  # 1.7

@@ -38,7 +38,7 @@ class Bananas():
                                   Point3(x0, y0, 1),
                                   self.collideBanana)
         bananaModel0.setScale(self.scale)
-        bananaModel0.setH(1) # can be 0 to 360
+        bananaModel0.setH(0) # can be 0 to 360
         # make collision sphere around banana really small
         bananaModel0.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
         # uncomment to see collision sphere around bananas

@@ -104,7 +104,7 @@ class TrainBananas:
         # Load environment
         self.load_environment(config)
 
-        self.banana_models = Bananas(config)
+        #self.banana_models = Bananas(config)
         self.x_start_p = config['xStartPos']
         self.x_start_p[0] *= self.multiplier
         print self.x_start_p
@@ -118,11 +118,12 @@ class TrainBananas:
         self.cross_move_int = config['xHairDist']
         self.training = config['training']
         self.yay_reward = False
-        self.delay = 4  # number of updates to wait for new "trial" (200ms per update)
+        self.delay = 0  # number of updates to wait for new "trial" (200ms per update)
         self.t_delay = 0
         # set up reward system
         if config['reward']:
             self.reward = pydaq.GiveReward()
+            print 'pydaq'
         else:
             self.reward = None
 
@@ -167,7 +168,8 @@ class TrainBananas:
             self.js_goal = 1  # start out just have to hit joystick
             vr.addTask(Task("checkJS",
                             lambda taskInfo:
-                            self.check_js()))
+                            self.check_js(),
+                            200))
         else:
             vr.addTask(Task("checkReward",
                         lambda taskInfo:
@@ -181,12 +183,19 @@ class TrainBananas:
             joy_push = self.js.getEvents()
             if joy_push:
                 self.js_count += 1
+            if self.js_count == 0:
+                #print 'ok'
+                self.x_change_color(self.x_start_c)
             if self.js_count == self.js_goal:
-                self.yay_reward = True
-                print joy_push.keys()
+                #if self.reward_n == self.reward_t:
                 self.x_change_color(self.x_stop_c)
+                #else:
+                self.reward.pumpOut()
+                #self.yay_reward = True
+                print joy_push.keys()
                 self.js_count = 0
                 self.t_delay = 0
+
         else:
             self.t_delay += 1
 
