@@ -18,9 +18,11 @@ manual = False
 environ = 'original'
 # Are we giving rewards?
 reward = True
+#reward = False
 
 # Are we collecting eye data?
 eyeData = True
+#eyeData = False
 
 # 3d?
 # framebuffer-stereo 1
