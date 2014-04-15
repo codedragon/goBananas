@@ -2,20 +2,27 @@ Needs the following to work:
 1) recent version of Python 2.x
 2) Panda3D
 3) PandaEPL
+for joystick:
+4) Pygame
+for getting/receiving data from National Instrument card:
+5) PyDAQmx
 
 For projector: set resolution for 1280 x 720, refresh 120hz
+National Instruments card (NiDAQ): ni pci-6221
 
-On the Windows machine, we are running:
+On the Windows machine used for actual experiments, we are running:
 Python 2.7.3, installed by Panda3d, and located in the Panda3d folder
 Panda3d 1.8.1 located in c:\Panda3D-1.8.1
 PandaEPL 0.9 is also located in Panda3d folder in python/lib/site-packages/pandaepl
+Pygame 1.9.1 (joystick support) also in python/lib/site-packages/
+PyDAQmx PyDAQmx-1.2.5.2-py2.7 (National Instrument board support)
+          also in python/lib/site-packages/
 
-On my Mac (OS 10.7.5), we are running:
+On my Mac (OS 10.7.5), I am running for testing purposes:
 Python 2.7.2 system python -> use arch -i386 ppython
 Panda3d 1.8.1 is installed in /Developer/Panda3d
 PandEPL 0.9 is installed in /Library/Python/2.7/site-packages/pandaepl
 
-Nidaq card: ni pci-6221
 
 Guiseppe log: Computer/Research Share (R:)/Buffalo Lab/Log files
 
