@@ -197,7 +197,10 @@ class GoBananas:
         load_models()
         # Models must be attached to self
         self.envModels = []
+        #print config['environ']
         for item in PlaceModels._registry:
+            #print item.group
+            #print item.name
             if config['environ'] in item.group:
             #if 'better' in item.group:
                 #print item.name
