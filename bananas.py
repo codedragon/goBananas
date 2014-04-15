@@ -12,6 +12,9 @@ class Bananas():
         self.scale = config['bananaScale']
         self.manual = config['manual']
         self.bananaModels = []
+        self.stashed = self.numBananas
+        self.beeps = None
+        self.collision = True
         if self.manual:
             self.posBananas = config['posBananas']
             self.createManualBananas()
@@ -20,63 +23,44 @@ class Bananas():
 
     def createManualBananas(self):
         # don't assign bananas randomly, place exactly where we want them
-
-        # this is really klugey, fix when I have time.
-        if len(self.posBananas) == 4:
-            x0, y0, x1, y1 = self.posBananas
-        else:
-            x0, y0 = self.posBananas
-            x1 = []
-        #x0 = 0
-        #y0 = 2
-        #x1 = 0.05
-        #y1 = 2
-        print 'help'
-        bananaModel0 = Model.Model("banana00",
-                                  os.path.join(self.dir,
-                                  "banana.bam"),
-                                  Point3(x0, y0, 1),
-                                  self.collideBanana)
-        bananaModel0.setScale(self.scale)
-        bananaModel0.setH(0) # can be 0 to 360
-        # make collision sphere around banana really small
-        bananaModel0.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
-        # uncomment to see collision sphere around bananas
-        #bananaModel0.retrNodePath().getChild(0).getChild(0).getChild(0).show()
-        self.bananaModels.append(bananaModel0)
-        self.bananaModels[0].setStashed(False)
-        print self.bananaModels[0].getPos()
-        if x1:
-            bananaModel1 = Model.Model("banana01",
-                                       os.path.join(self.dir,
-                                       "banana.bam"),
-                                       Point3(x1, y1, 1),
-                                       self.collideBanana)
-            bananaModel1.setScale(self.scale)
-            bananaModel1.setH(180) # can be 0 to 360
+        # accoring to config file. Technically, could do more than 2 bananas,
+        # but have never needed to.
+        for i in range(self.numBananas):
+            # pop okay, since only doing this for a list of max 4 items
+            x = self.posBananas.pop(0)
+            y = self.posBananas.pop(0)
+            bananaModel = Model.Model("banana" + "%02d" % i,
+                                os.path.join(self.dir,
+                                "banana.bam"),
+                                Point3(x, y, 1),
+                                self.collideBanana)
+            bananaModel.setScale(self.scale)
+            # could make this static instead
+            bananaModel.setH(random.randint(0, 361))
             # make collision sphere around banana really small
-            bananaModel1.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
+            bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
             # uncomment to see collision sphere around bananas
-            bananaModel1.retrNodePath().getChild(0).getChild(0).getChild(0).show()
-            self.bananaModels.append(bananaModel1)
-            self.bananaModels[1].setStashed(False)
+            #bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
+            self.bananaModels.append(bananaModel)
+            # if true, object is removed from the environment, but not destroyed
+            # so start with not stashed
+            self.bananaModels[i].setStashed(False)
 
-        self.stashed = self.numBananas
-        self.beeps = None
-        self.collision = True
         print 'on screen?'
 
-    def createBananas(self):
+    def createBananas(self, start=None):
+
         #print 'create bananas'
         # Randomly assign where bananas go and return a banana bananaModel.
-
+        if start is None:
+            start = 0
         #print 'numBananas', self.numBananas
         pList = []
         # get current position of avatar, so bananas not too close.
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         #print avatarXY
-        for i, j in enumerate(range(0, self.numBananas)):
+        for i, j in enumerate(range(start, self.numBananas)):
             (x, y) = mb.setXY(pList, avatarXY)
             #print i,j
             pList += [(x, y)]
@@ -99,9 +83,7 @@ class Bananas():
             # so start with not stashed
             self.bananaModels[i].setStashed(False)
 
-        self.stashed = self.numBananas
-        self.beeps = None
-        self.collision = True
+
         #self.byeBanana = []
         #print 'end load bananas'
         #print pList
