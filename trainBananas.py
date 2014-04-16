@@ -49,6 +49,11 @@ class TrainBananas:
             self.multiplier = -1
         elif config['trainingDirection'] == 'Forward':
             self.trainDir = 'moveForward'
+
+        self.cross_move_int = config['xHairDist']
+        self.x_alpha = config['xHairAlpha']
+        self.training = config['training']
+        # variable used to notify when changing direction
         self.new_dir = None
         # get rid of cursor
         win_props = WindowProperties()
@@ -111,18 +116,20 @@ class TrainBananas:
         #self.cross.setScale(0.05)
         #self.create_square(config['SQUARE_SCALE']*17)
         #self.banana_models = Bananas(config)
-        self.x_start_p = config['xStartPos']
+        if self.training != 0:
+            self.x_start_p = config['xStartPos']
+        else:
+            self.x_start_p =  Point3(0, 0, 0)
         self.x_start_p[0] *= self.multiplier
         print self.x_start_p
-        self.x_alpha = config['xHairAlpha']
+
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
         self.cross = Text("cross", '+', self.x_start_p, config['instructSize'], self.x_start_c)
         #self.cross = Model("cross", "smiley", Point3(self.x_start_p))
         #print(dir(self.cross))
         self.x_stop_p = Point3(0, 0, 0)
-        self.cross_move_int = config['xHairDist']
-        self.training = config['training']
+
         self.yay_reward = False
         self.delay = 0  # number of updates to wait for new "trial" (200ms per update)
         self.t_delay = 0
@@ -210,7 +217,13 @@ class TrainBananas:
         # Runs every 200 ms
         # check to see if crosshair is in center, if so, stop it, give reward
 
-        # move the crosshair, multiply by the multiplier to get the absolute value, essentially
+        # if touches the joystick, move the crosshair,
+        # multiply by the multiplier to get the absolute value,
+        # essentially
+        # test joystick direction
+        #test = self.js.getEvents()
+        #if self.trainDir in test.keys():
+        #    self.reward.pumpOut()
         #print('neg=right', self.multiplier)
         old_pos = self.cross.getPos()[0]
         old_pos *= self.multiplier
@@ -229,10 +242,7 @@ class TrainBananas:
             #print('new', new_pos)
             self.cross.setPos(new_pos)
 
-        # test joystick direction
-        #test = self.js.getEvents()
-        #if self.trainDir in test.keys():
-        #    self.reward.pumpOut()
+
 
         # Runs every 200ms, same rate as pump rate
         # check to see if crosshair is in center, if so, stop it, give reward

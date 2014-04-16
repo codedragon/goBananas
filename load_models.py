@@ -52,7 +52,7 @@ def load_models():
     courtyard.group = 'better'
     courtyard.name = 'terrain'
     #courtyard.model = 'models/play_space/courtyard.bam'
-    courtyard.model = '../play_environ/models/courtyard_5.egg'
+    courtyard.model = '../play_environ/models/courtyard_one.egg'
     courtyard.scale = 1
     courtyard.location = Point3(0, 0, 0)
     courtyard.callback = 'MovingObject.handleRepelCollision'

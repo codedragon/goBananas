@@ -3,14 +3,14 @@ from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
-training = 0
+training = 1
 
 # models are in goBananas directory by default
 path_models = ''
 
 # direction subject has to push the joystick
-trainingDirection = 'Right'
-#trainingDirection = 'Left'
+#trainingDirection = 'Right'
+trainingDirection = 'Left'
 
 # manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
@@ -100,7 +100,7 @@ xHairAlpha = 1
 xHairDist = 0.01
 # starting distance from center (range 0-1), use positive numbers,
 # direction determined by trainingDirection.
-xStartPos = Point3(0, 0, 0)
+xStartPos = Point3(0.2, 0, 0)
 
 # Bananas.
 numBananas = 2
