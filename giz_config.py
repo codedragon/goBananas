@@ -35,10 +35,13 @@ extra = 2
 pulseInterval = 200 # in ms
 
 # eye position calibration information
-# must be entered before every experiment from
-# presentation callibration
-gain = (100, 100)  #(x, y)
-offset = (1, 1)  #(x,y)
+# since we are getting voltage from IScan of -5:5
+# gain of 100 gives us a range of 1000, which is
+# close enough to the number of pixels we are using.
+# if increase resolution beyond 1024, should probably
+# adjust this
+gain = (100, 100)  # (x, y)
+offset = (1, 1)  # (x,y)
 
 #### Core PandaEPL settings ####
 

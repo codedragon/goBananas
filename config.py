@@ -3,7 +3,7 @@ from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
-training = 0
+training = 1
 
 # models are in goBananas directory by default
 path_models = ''
@@ -40,6 +40,15 @@ numBeeps = 3
 extra = 2
 # for activating reward system
 pulseInterval = 200  # in ms
+
+# eye position calibration information
+# since we are getting voltage from IScan of -5:5
+# gain of 100 gives us a range of 1000, which is
+# close enough to the number of pixels we are using.
+# if increase resolution beyond 1024, should probably
+# adjust this
+gain = (100, 100)  # (x, y)
+offset = (1, 1)  # (x,y)
 
 #### Core PandaEPL settings ####
 
