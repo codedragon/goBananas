@@ -13,8 +13,10 @@ import sys
 try:
     sys.path.insert(1, '../pydaq')
     import pydaq
+    LOADED_PYDAQ = True
     #print 'loaded PyDaq'
 except ImportError:
+    LOADED_PYDAQ = False
     print 'Not using PyDaq'
 
 
@@ -119,13 +121,13 @@ class GoBananas:
                         config['pulseInterval']))
 
         # set up reward system
-        if config['reward']:
+        if config['reward'] and LOADED_PYDAQ:
             self.reward = pydaq.GiveReward()
         else:
             self.reward = None
 
         # start recording eye position
-        if config['eyeData']:
+        if config['eyeData'] and LOADED_PYDAQ:
             self.gain = config['gain']
             self.offset = config['offset']
             self.task = pydaq.EOGTask()

@@ -3,14 +3,14 @@ from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
-training = 1
+training = 0
 
 # models are in goBananas directory by default
 path_models = ''
 
 # direction subject has to push the joystick
-#trainingDirection = 'Right'
-trainingDirection = 'Left'
+trainingDirection = 'Right'
+#trainingDirection = 'Left'
 
 # manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
@@ -39,13 +39,7 @@ numBeeps = 3
 # factor to increase reward for last banana
 extra = 2
 # for activating reward system
-pulseInterval = 200 # in ms
-
-# eye position calibration information
-# must be entered before every experiment from
-# presentation callibration
-gain = (262, 236)  #(x, y)
-offset = (-55, -46)  #(x,y)
+pulseInterval = 200  # in ms
 
 #### Core PandaEPL settings ####
 
@@ -185,14 +179,14 @@ if 'Keyboard' in globals():
     keyboard.bind("toggleDebug", ["escape", "d"])
     #keyboard.bind("increaseDist", ["shift", "up"])
     #keyboard.bind("decreaseDist", ["shift", "down"])
-    keyboard.bind("increaseDist", "q")
-    keyboard.bind("decreaseDist", "a")
+    keyboard.bind("increaseDist", "w")
+    keyboard.bind("decreaseDist", "s")
     #keyboard.bind("increaseBananas", "w")
     #keyboard.bind("decreaseBananas", "s")
     keyboard.bind("increaseTouch", "e")
     keyboard.bind("decreaseTouch", "d")
-    keyboard.bind("increaseInt", "w")
-    keyboard.bind("decreaseInt", "s")
+    keyboard.bind("increaseInt", "u")
+    keyboard.bind("decreaseInt", "j")
     keyboard.bind("changeLeft", "l")
     keyboard.bind("changeRight", "r")
     keyboard.bind("changeForward", "f")

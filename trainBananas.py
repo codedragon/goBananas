@@ -14,8 +14,10 @@ import sys
 try:
     sys.path.insert(1, '../pydaq')
     import pydaq
+    LOADED_PYDAQ = True
     #print 'loaded PyDaq'
 except ImportError:
+    LOADED_PYDAQ = False
     print 'Not using PyDaq'
 
 
@@ -41,6 +43,7 @@ class TrainBananas:
         self.extra = config['extra']
         #self.fullTurningSpeed = config['fullTurningSpeed']
         #self.fullForwardSpeed = config['fullForwardSpeed']
+        print config['trainingDirection']
         if config['trainingDirection'] == 'Left':
             self.trainDir = 'turnLeft'
             self.multiplier = 1
@@ -49,7 +52,7 @@ class TrainBananas:
             self.multiplier = -1
         elif config['trainingDirection'] == 'Forward':
             self.trainDir = 'moveForward'
-
+        print self.multiplier
         self.cross_move_int = config['xHairDist']
         self.x_alpha = config['xHairAlpha']
         self.training = config['training']
@@ -75,6 +78,7 @@ class TrainBananas:
         vr = Vr.getInstance()
         #vr.cTrav.showCollisions(render)
         self.js = Joystick.Joystick.getInstance()
+        print self.js
         # not using experiment state currently
         #if not exp.getState():
             #bananas = []
@@ -131,17 +135,17 @@ class TrainBananas:
         self.x_stop_p = Point3(0, 0, 0)
 
         self.yay_reward = False
-        self.delay = 0  # number of updates to wait for new "trial" (200ms per update)
-        self.t_delay = 0
+        self.delay = 1  # number of updates to wait for new "trial" (200ms per update)
+        self.t_delay = 0  # keeps track of updates waiting for new "trial"
         # set up reward system
-        if config['reward']:
+        if config['reward'] and LOADED_PYDAQ:
             self.reward = pydaq.GiveReward()
             print 'pydaq'
         else:
             self.reward = None
 
         # start recording eye position
-        if config['eyeData']:
+        if config['eyeData'] and LOADED_PYDAQ:
             self.gain = config['gain']
             self.offset = config['offset']
             self.task = pydaq.EOGTask()
@@ -219,21 +223,23 @@ class TrainBananas:
 
         # if touches the joystick, move the crosshair,
         # multiply by the multiplier to get the absolute value,
-        # essentially
-        # test joystick direction
-        #test = self.js.getEvents()
-        #if self.trainDir in test.keys():
-        #    self.reward.pumpOut()
-        #print('neg=right', self.multiplier)
+        # so we can test if we are at the stopping position.
+        # will have to change this when the stopping position is
+        # no longer zero...
+        # check for joystick movement
+        test = self.js.getEvents()
         old_pos = self.cross.getPos()[0]
         old_pos *= self.multiplier
-        stop_x = self.multiplier * self.x_stop_p[0]
-
+        stop_x = abs(self.x_stop_p[0])
+        if test:
+            print self.trainDir
+            print test.keys()
         #print('old', old_pos)
         #print('greater than', self.x_stop_p[0])
         if old_pos <= stop_x:
             self.yay_reward = True
-        else:
+        elif self.trainDir in test.keys():
+            # move closer to zero
             old_pos -= self.cross_move_int
             # go back to original direction
             old_pos *= self.multiplier
@@ -241,9 +247,6 @@ class TrainBananas:
             new_pos[0] = old_pos
             #print('new', new_pos)
             self.cross.setPos(new_pos)
-
-
-
         # Runs every 200ms, same rate as pump rate
         # check to see if crosshair is in center, if so, stop it, give reward
         #if self.training == 0:
@@ -252,6 +255,7 @@ class TrainBananas:
         # way it is currently configured, will "give reward" whenever paused
         if self.yay_reward:
             print 'reward'
+            self.give_reward()
             self.x_change_color(self.x_stop_c)
             # delay could also be number of reward beeps, if just want to wait for reward,
             # and then restart, or could be a combination of delay and beeps.
@@ -282,9 +286,11 @@ class TrainBananas:
         self.cross.setColor(color)
         #self.cross.setColor(Point4(1, 0, 0, 1))
 
-    def give_reward(self, inputEvent):
+    def give_reward(self, inputEvent=None):
+        # used for task where cross moves
         print('beep')
-        self.reward.pumpOut()
+        if self.reward:
+            self.reward.pumpOut()
 
     def pause(self, inputEvent):
         # if we are less than the usual delay (so in delay or delay is over),
@@ -297,14 +303,15 @@ class TrainBananas:
 
     def x_inc_start(self, inputEvent):
         self.x_start_p[0] *= 1.5
-        if self.x_start_p[0] > 0.9:
-            self.x_start_p[0] = 0.9
+        if abs(self.x_start_p[0]) > 0.9:
+            self.x_start_p[0] = self.multiplier * 0.9
         print('new pos', self.x_start_p)
 
     def x_dec_start(self, inputEvent):
         self.x_start_p[0] *= 0.5
-        if self.x_start_p[0] < 0:
-            self.x_start_p = 0
+        # don't go too crazy getting infinitely close to zero. :)
+        if self.x_start_p[0] < 0.01:
+            self.x_start_p[0] = 0.01
         print('new pos', self.x_start_p)
 
     def inc_level(self, inputEvent):
@@ -371,8 +378,6 @@ class TrainBananas:
         #self.banana_models.replenishBananas()
         self.yay_reward = False
         self.t_delay = 0
-        self.x_change_position(self.x_start_p)
-        self.x_change_color(self.x_start_c)
         if self.new_dir is not None:
             if self.new_dir == 1:
                 self.trainDir = 'turnLeft'
@@ -383,6 +388,10 @@ class TrainBananas:
             else:
                 self.trainDir = 'moveForward'
             self.new_dir = None
+            self.x_start_p[0] = abs(self.x_start_p[0]) * self.multiplier
+        print(self.x_start_p)
+        self.x_change_position(self.x_start_p)
+        self.x_change_color(self.x_start_c)
 
     def start(self):
         """

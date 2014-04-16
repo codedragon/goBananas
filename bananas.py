@@ -10,7 +10,12 @@ class Bananas():
         self.numBananas = config['numBananas']
         self.dir = config['bananaDir']
         self.scale = config['bananaScale']
-        self.manual = config['manual']
+        try:
+            self.manual = config['manual']
+        except KeyError:
+            print 'default'
+            self.manual = False
+        print self.manual
         self.bananaModels = []
         self.stashed = self.numBananas
         self.beeps = None

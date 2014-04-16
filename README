@@ -22,7 +22,7 @@ On my Mac (OS 10.7.5), I am running for testing purposes:
 Python 2.7.2 system python -> use arch -i386 ppython
 Panda3d 1.8.1 is installed in /Developer/Panda3d
 PandEPL 0.9 is installed in /Library/Python/2.7/site-packages/pandaepl
-
+ (see below for fix for deprecation warning in pandaEPL)
 
 Guiseppe log: Computer/Research Share (R:)/Buffalo Lab/Log files
 
@@ -66,3 +66,12 @@ Config file training variable:
 5.x = More bananas come in.
 * 5.1 = Same as 4.25, except now there are multiple bananas that he has to go around and pick up.  Position resets to the center and faces the original 0-header position after gathering each batch of bananas.
 * 5.2 = A given number of bananas appear on the field and you have to go gather them all, then a new set appears.  Position doesn't reset, neither does header direction.
+
+In the following files, line numbers, delete the .asList() part. For example in
+ModelBase.py, line 60
+change:
+for nodePath in self.retrNodePath().findAllMatches("**/" + str(tag) + "/**").asList():
+to:
+for nodePath in self.retrNodePath().findAllMatches("**/" + str(tag) + "/**"):
+Vr.py, line 206
+VrObject.py, line 86
