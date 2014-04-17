@@ -43,7 +43,7 @@ class TrainBananas:
         self.extra = config['extra']
         #self.fullTurningSpeed = config['fullTurningSpeed']
         #self.fullForwardSpeed = config['fullForwardSpeed']
-        print config['trainingDirection']
+       #print config['trainingDirection']
         if config['trainingDirection'] == 'Left':
             self.trainDir = 'turnLeft'
             self.multiplier = 1
@@ -52,15 +52,20 @@ class TrainBananas:
             self.multiplier = -1
         elif config['trainingDirection'] == 'Forward':
             self.trainDir = 'moveForward'
-        print self.multiplier
+        #print self.multiplier
         self.cross_move_int = config['xHairDist']
         self.x_alpha = config['xHairAlpha']
         self.training = config['training']
+        self.js_count = 0
+        # eventually may want start goal in config file
+        self.js_goal = 1  # start out just have to hit joystick
         # default is to reward for backward movement. May want
         # to make this a configuration option instead.
         self.backward = True
-        # variable used to notify when changing direction
+        # variable used to notify when changing direction of new target
         self.new_dir = None
+        # variable to notify when changing levels
+        self.change_level = False
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props
@@ -70,30 +75,12 @@ class TrainBananas:
         # base is global, used by pandaepl from panda3d
         base.win.requestProperties(win_props)
 
-        # Get vr environment object
-        #print Vr
-        #print Options
-        #options = Options.getInstance()
-        #print Joystick
-        #print options.__dict__.keys()
-        #print options.option_list
-        #print options.values
         vr = Vr.getInstance()
-        #vr.cTrav.showCollisions(render)
-        self.js = Joystick.Joystick.getInstance()
-        print self.js
-        # not using experiment state currently
-        #if not exp.getState():
-            #bananas = []
 
-        # Get avatar object
-        #avatar = Avatar.getInstance()
-        #collisionNode = avatar.retrNodePath().find('**/+CollisionNode')
-        #collisionNode.show()
-        #collisionNode.setTwoSided(True)
+        self.js = Joystick.Joystick.getInstance()
+        #print self.js
 
         # Register Custom Log Entries
-
         # This one corresponds to colliding with a banana
         Log.getInstance().addType("Yummy", [("BANANA", basestring)],
                                   False)
@@ -115,21 +102,13 @@ class TrainBananas:
                                               False)
         # Load environment
         self.load_environment(config)
-        #self.cross = Model.Model("square",
-        #                          "models/squares/plane.egg",
-        #                          Point3(0, 5, 1))
-
-        #print dir(self.cross)
-        #self.cross.setScale(0.05)
-        #self.create_square(config['SQUARE_SCALE']*17)
         #self.banana_models = Bananas(config)
         if self.training != 0:
             self.x_start_p = config['xStartPos']
         else:
             self.x_start_p =  Point3(0, 0, 0)
         self.x_start_p[0] *= self.multiplier
-        print self.x_start_p
-
+        print('start pos', self.x_start_p)
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
         self.cross = Text("cross", '+', self.x_start_p, config['instructSize'], self.x_start_c)
@@ -176,54 +155,60 @@ class TrainBananas:
         # Can't change levels, since that involves changing the task,
         # may eventually be able to do this, if end up using same time
         # increment for tasks.
-        #vr.inputListen("increaseLevel", self.inc_level)
-        #vr.inputListen("decreaseLevel", self.dec_level)
+        vr.inputListen("increaseLevel", self.inc_level)
+        vr.inputListen("decreaseLevel", self.dec_level)
         #vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
         #vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
         vr.inputListen("restart", self.restart)
         vr.inputListen("pause", self.pause)
-        # set up task to be performed between frames
-        if self.training == 0:
-            vr.inputListen("increaseTouch", self.inc_js_goal)
-            vr.inputListen("decreaseTouch", self.dec_js_goal)
-            self.js_count = 0
-            # eventually may want start goal in config file
-            self.js_goal = 1  # start out just have to hit joystick
-            vr.addTask(Task("checkJS",
+        vr.inputListen("increaseTouch", self.inc_js_goal)
+        vr.inputListen("decreaseTouch", self.dec_js_goal)
+        # set up task to be performed between frames, do at reward interval
+        # set by pump. This ends up to be pretty good. currently 200 ms
+        vr.addTask(Task("checkJS",
                             lambda taskInfo:
-                            self.check_js(),
-                            200))
+                            self.tasks(),
+                            config['pulseInterval']))
+        # vr.addTask(Task("checkReward",
+        #                 lambda taskInfo:
+        #                 self.check_reward(),
+        #                 config['pulseInterval']))
+
+    def tasks(self):
+        #print 'doing task'
+        if self.training == 0:
+            #print 'check_js'
+            self.check_js()
         else:
-            vr.addTask(Task("checkReward",
-                        lambda taskInfo:
-                        self.check_reward(),
-                        config['pulseInterval']))
+            self.check_position()
 
     def check_js(self):
         # not moving crosshair, just push joystick to get reward,
         # longer and longer intervals
         # delay determines how long before cross re-appears
+        #print 'in check_js'
         if self.t_delay == self.delay:
             joy_push = self.js.getEvents()
-            if self.backward:
-                # if rewarding for backward, then pushing joystick
-                # always get reward
-                js_good = True
-            elif 'moveBackward' not in joy_push.keys():
-                # if not rewarding for backward, check to see if
-                # backward was pushed before rewarding
-                js_good = True
-            else:
-                js_good = False
+            js_good = False
+            if joy_push:
+                if self.backward:
+                    # if rewarding for backward, then pushing joystick
+                    # always get reward
+                    js_good = True
+                elif 'moveBackward' not in joy_push.keys():
+                    # if not rewarding for backward, check to see if
+                    # backward was pushed before rewarding
+                    js_good = True
             if js_good:
-                print 'touched js'
+                #print 'touched js'
+                #print joy_push
                 self.js_count += 1
                 if self.js_count == self.js_goal:
                     self.x_change_color(self.x_stop_c)
-                    self.reward.pumpOut()
+                    self.give_reward()
                     #self.yay_reward = True
-                    #print joy_push.keys()
-                    print('touched for', self.js_count)
+                    print joy_push.keys()
+                    #print('touched for', self.js_count)
                     self.js_count = 0
                     self.t_delay = 0
             elif self.js_count >= 0:
@@ -233,10 +218,8 @@ class TrainBananas:
         else:
             self.t_delay += 1
 
-    def check_reward(self):
-        # Runs every 200 ms
+    def check_position(self):
         # check to see if crosshair is in center, if so, stop it, give reward
-
         # if touches the joystick, move the crosshair,
         # multiply by the multiplier to get the absolute value,
         # so we can test if we are at the stopping position.
@@ -285,19 +268,6 @@ class TrainBananas:
                 self.x_change_color(self.x_stop_c)
                 self.give_reward()
 
-            # delay could also be number of reward beeps, if just want to wait for reward,
-            # and then restart, or could be a combination of delay and beeps.
-
-
-
-        #if self.trainDir in test.keys():
-        #    self.reward.pumpOut()
-        #    print 'reward'
-
-        #if self.cross.getPos() == Point3(0, 0, 0):
-        #    print 'reward'
-        #    self.x_change_position(self.x_star_p)
-
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
         VLQ.getInstance().writeLine("EyeData",
@@ -341,12 +311,14 @@ class TrainBananas:
         print('new pos', self.x_start_p)
 
     def inc_level(self, inputEvent):
-        self.level += 1
-        print('new level', self.level)
+        self.change_level = self.training + 1
+        print('new level', self.change_level)
 
     def dec_level(self, inputEvent):
-        self.level -= 1
-        print('new level', self.level)
+        self.change_level = self.training - 1
+        if self.change_level < 0:
+            self.change_level = 0
+        print('new level', self.change_level)
 
     def inc_js_goal(self, inputEvent):
         self.js_goal += 1
@@ -378,6 +350,7 @@ class TrainBananas:
 
     def allow_backward(self, inputEvent):
         self.backward = not self.backward
+        print('backward allowed:', self.backward)
 
     def load_environment(self, config):
         if config['environ'] is None:
@@ -421,6 +394,8 @@ class TrainBananas:
         print(self.x_start_p)
         self.x_change_position(self.x_start_p)
         self.x_change_color(self.x_start_c)
+        if self.change_level is not None:
+            self.training = self.change_level
 
     def start(self):
         """

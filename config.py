@@ -28,8 +28,8 @@ reward = False
 #reward = True
 
 # Are we collecting eye data?
-eyeData = True
-#eyeData = False
+eyeData = False
+#eyeData = True
 
 # 3d?
 # framebuffer-stereo 1
@@ -199,5 +199,6 @@ if 'Keyboard' in globals():
     keyboard.bind("changeLeft", "l")
     keyboard.bind("changeRight", "r")
     keyboard.bind("changeForward", "f")
+    keyboard.bind("allowBackward", "b")
     keyboard.bind("pause", "p")
     keyboard.bind("reward", "space")
