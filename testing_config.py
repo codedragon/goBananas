@@ -24,8 +24,8 @@ environ = None
 #environ = 'original'
 
 # Are we giving rewards? not if not using pydaq
-#reward = False
-reward = True
+reward = False
+#reward = True
 
 # Are we collecting eye data?
 eyeData = True
@@ -199,5 +199,6 @@ if 'Keyboard' in globals():
     keyboard.bind("changeLeft", "l")
     keyboard.bind("changeRight", "r")
     keyboard.bind("changeForward", "f")
+    keyboard.bind("allowBackward", "b")
     keyboard.bind("pause", "p")
     keyboard.bind("reward", "space")

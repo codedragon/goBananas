@@ -56,6 +56,9 @@ class TrainBananas:
         self.cross_move_int = config['xHairDist']
         self.x_alpha = config['xHairAlpha']
         self.training = config['training']
+        # default is to reward for backward movement. May want
+        # to make this a configuration option instead.
+        self.backward = True
         # variable used to notify when changing direction
         self.new_dir = None
         # get rid of cursor
@@ -137,6 +140,8 @@ class TrainBananas:
         self.yay_reward = False
         self.delay = 1  # number of updates to wait for new "trial" (200ms per update)
         self.t_delay = 0  # keeps track of updates waiting for new "trial"
+        self.reward_count = 0
+        self.reward_total = config['numBeeps']
         # set up reward system
         if config['reward'] and LOADED_PYDAQ:
             self.reward = pydaq.GiveReward()
@@ -167,6 +172,7 @@ class TrainBananas:
         vr.inputListen("changeLeft", self.change_left)
         vr.inputListen("changeRight", self.change_right)
         vr.inputListen("changeForward", self.change_forward)
+        vr.inputListen("allowBackward", self.allow_backward)
         # Can't change levels, since that involves changing the task,
         # may eventually be able to do this, if end up using same time
         # increment for tasks.
@@ -199,7 +205,17 @@ class TrainBananas:
         # delay determines how long before cross re-appears
         if self.t_delay == self.delay:
             joy_push = self.js.getEvents()
-            if joy_push:
+            if self.backward:
+                # if rewarding for backward, then pushing joystick
+                # always get reward
+                js_good = True
+            elif 'moveBackward' not in joy_push.keys():
+                # if not rewarding for backward, check to see if
+                # backward was pushed before rewarding
+                js_good = True
+            else:
+                js_good = False
+            if js_good:
                 print 'touched js'
                 self.js_count += 1
                 if self.js_count == self.js_goal:
@@ -210,8 +226,8 @@ class TrainBananas:
                     print('touched for', self.js_count)
                     self.js_count = 0
                     self.t_delay = 0
-            elif self.js_count > 0:
-                print 'start over'
+            elif self.js_count >= 0:
+                #print 'start over'
                 self.x_change_color(self.x_start_c)
                 self.js_count = 0
         else:
@@ -252,18 +268,28 @@ class TrainBananas:
         #if self.training == 0:
         #    self.check_js()
         #elif self.training == 1:
-        # way it is currently configured, will "give reward" whenever paused
+        # once delay is over, makes sure not touching joystick
+        # before new trial
         if self.yay_reward:
-            print 'reward'
-            self.give_reward()
-            self.x_change_color(self.x_stop_c)
+            if self.reward_count == self.reward_total:
+                self.x_change_color(self.x_start_c)
+                if self.t_delay == self.delay:
+                    if not test:
+                        self.restart()
+                else:
+                    self.t_delay += 1
+                    print self.t_delay
+            else:
+                self.reward_count += 1
+                print 'reward'
+                self.x_change_color(self.x_stop_c)
+                self.give_reward()
+
             # delay could also be number of reward beeps, if just want to wait for reward,
             # and then restart, or could be a combination of delay and beeps.
-            if self.t_delay == self.delay:
-                self.restart()
-            else:
-                self.t_delay += 1
-                print self.t_delay
+
+
+
         #if self.trainDir in test.keys():
         #    self.reward.pumpOut()
         #    print 'reward'
@@ -349,6 +375,9 @@ class TrainBananas:
     def change_forward(self, inputEvent):
         self.new_dir = 0
         print('new dir: forward')
+
+    def allow_backward(self, inputEvent):
+        self.backward = not self.backward
 
     def load_environment(self, config):
         if config['environ'] is None:

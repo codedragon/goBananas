@@ -24,8 +24,8 @@ environ = None
 #environ = 'original'
 
 # Are we giving rewards? not if not using pydaq
-#reward = False
-reward = True
+reward = False
+#reward = True
 
 # Are we collecting eye data?
 eyeData = True
