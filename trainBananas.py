@@ -106,7 +106,7 @@ class TrainBananas:
         if self.training != 0:
             self.x_start_p = config['xStartPos']
         else:
-            self.x_start_p =  Point3(0, 0, 0)
+            self.x_start_p = Point3(0, 0, 0)
         self.x_start_p[0] *= self.multiplier
         print('start pos', self.x_start_p)
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
@@ -191,6 +191,8 @@ class TrainBananas:
             joy_push = self.js.getEvents()
             js_good = False
             if joy_push:
+                size_test = len(joy_push.keys())
+                print 'pushed'
                 if self.backward:
                     # if rewarding for backward, then pushing joystick
                     # always get reward
@@ -199,15 +201,16 @@ class TrainBananas:
                     # if not rewarding for backward, check to see if
                     # backward was pushed before rewarding
                     js_good = True
+                elif 'moveBackward' in joy_push.keys() and size_test > 1:
+                    js_good = True
             if js_good:
-                #print 'touched js'
-                #print joy_push
+                print 'counts for reward'
+                print joy_push.keys()
                 self.js_count += 1
                 if self.js_count == self.js_goal:
                     self.x_change_color(self.x_stop_c)
                     self.give_reward()
                     #self.yay_reward = True
-                    print joy_push.keys()
                     #print('touched for', self.js_count)
                     self.js_count = 0
                     self.t_delay = 0

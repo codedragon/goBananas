@@ -28,8 +28,8 @@ environ = None
 reward = True
 
 # Are we collecting eye data?
-eyeData = True
-#eyeData = False
+eyeData = False
+#eyeData = True
 
 # 3d?
 # framebuffer-stereo 1
@@ -39,13 +39,16 @@ numBeeps = 3
 # factor to increase reward for last banana
 extra = 2
 # for activating reward system
-pulseInterval = 200 # in ms
+pulseInterval = 200  # in ms
 
 # eye position calibration information
-# must be entered before every experiment from
-# presentation callibration
-gain = (262, 236)  #(x, y)
-offset = (-55, -46)  #(x,y)
+# since we are getting voltage from IScan of -5:5
+# gain of 100 gives us a range of 1000, which is
+# close enough to the number of pixels we are using.
+# if increase resolution beyond 1024, should probably
+# adjust this
+gain = (100, 100)  # (x, y)
+offset = (1, 1)  # (x,y)
 
 #### Core PandaEPL settings ####
 
@@ -99,8 +102,8 @@ xHairAlpha = 1
 # how far to travel per joystick push
 xHairDist = 0.01
 # starting distance from center (range 0-1), use positive numbers,
-# direction determined by trainingDirection.
-xStartPos = Point3(0, 0, 0)
+# direction determined by trainingDirection. Not used in training = 0
+xStartPos = Point3(0.2, 0, 0)
 
 # Bananas.
 numBananas = 2
@@ -140,41 +143,6 @@ maxFwDistance = 7
 #	targetHwinL = 2  #1.2 is sort of the boundary.
 #	targetHwinR = 2  #1.2 is sort of the boundary.
 
-# Terrain, sky
-terrainModel = './models/towns/field.bam'
-terrainCenter = Point3(0, 0, 0)
-skyModel = './models/sky/sky.bam'
-skyScale = 1.6
-
-# Eventually want landmarks in state, and load directory full of
-# landmarks, randomly placed in background.
-
-treeModel = './models/trees/palmTree.bam'
-treeLoc = Point3(13, 13, 0)
-treeScale = .0175
-
-skyScraperModel = './models/skyscraper/skyscraper.bam'
-skyScraperLoc = Point3(-13, -13, 0)
-skyScraperScale = .3
-
-stLightModel = './models/streetlight/streetlight.bam'
-stLightLoc = Point3(-13, 13, 0)
-stLightScale = .75
-
-# bananarchy was using amill.bam, but I couldn't load that file,
-# and the original amill.egg was not in the folder.
-windmillModel = './models/windmill/amill.bam'
-windmillLoc = Point3(13, -13, 0)
-windmillScale = .2
-windmillH = 45
-
-# Load 2 bananas for testing, know where they are!
-bananaModel = './models/bananas/banana.bam'
-bananaLoc = Point3(5, 3, 1)
-bananaScale = 0.5
-bananaH = 0
-bananaLoc2 = Point3(5.5, 3, 1)
-
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common
 if 'Keyboard' in globals():
@@ -185,16 +153,17 @@ if 'Keyboard' in globals():
     keyboard.bind("toggleDebug", ["escape", "d"])
     #keyboard.bind("increaseDist", ["shift", "up"])
     #keyboard.bind("decreaseDist", ["shift", "down"])
-    keyboard.bind("increaseDist", "q")
-    keyboard.bind("decreaseDist", "a")
+    keyboard.bind("increaseDist", "w")
+    keyboard.bind("decreaseDist", "s")
     #keyboard.bind("increaseBananas", "w")
     #keyboard.bind("decreaseBananas", "s")
     keyboard.bind("increaseTouch", "e")
     keyboard.bind("decreaseTouch", "d")
-    keyboard.bind("increaseInt", "w")
-    keyboard.bind("decreaseInt", "s")
+    keyboard.bind("increaseInt", "u")
+    keyboard.bind("decreaseInt", "j")
     keyboard.bind("changeLeft", "l")
     keyboard.bind("changeRight", "r")
     keyboard.bind("changeForward", "f")
+    keyboard.bind("allowBackward", "b")
     keyboard.bind("pause", "p")
     keyboard.bind("reward", "space")
