@@ -91,7 +91,7 @@ class TrainBananas:
         Log.getInstance().addType("Finished", [("BANANA", basestring)],
                                   False)
         # New Trial
-        Log.getInstance().addType("NewTrial", [("Trial", int)],
+        Log.getInstance().addType("NewTrial", [("Trial", int)]
                                   False)
         # Log First Trial
         self.trial_num = 1
@@ -102,9 +102,11 @@ class TrainBananas:
                                               False)
         # Load environment
         self.load_environment(config)
-        #self.banana_models = Bananas(config)
+
         if self.training != 0:
             self.x_start_p = config['xStartPos']
+            if self.training == 2:
+                self.banana_models = Bananas(config)
         else:
             self.x_start_p = Point3(0, 0, 0)
         self.x_start_p[0] *= self.multiplier
@@ -179,8 +181,10 @@ class TrainBananas:
         if self.training == 0:
             #print 'check_js'
             self.check_js()
-        else:
+        elif self.training == 1:
             self.check_position()
+        else:
+            self.check_banana()
 
     def check_js(self):
         # not moving crosshair, just push joystick to get reward,
@@ -202,6 +206,9 @@ class TrainBananas:
                     # backward was pushed before rewarding
                     js_good = True
                 elif 'moveBackward' in joy_push.keys() and size_test > 1:
+                    # this is really a bit silly, since it only disallows
+                    # straight back. Doesn't seem to be a way to distinguish from
+                    # left with a little backward from left with a lot of backward.
                     js_good = True
             if js_good:
                 print 'counts for reward'
@@ -256,6 +263,25 @@ class TrainBananas:
         #elif self.training == 1:
         # once delay is over, makes sure not touching joystick
         # before new trial
+        if self.yay_reward:
+            if self.reward_count == self.reward_total:
+                self.x_change_color(self.x_start_c)
+                if self.t_delay == self.delay:
+                    if not test:
+                        self.restart()
+                else:
+                    self.t_delay += 1
+                    print self.t_delay
+            else:
+                self.reward_count += 1
+                print 'reward'
+                self.x_change_color(self.x_stop_c)
+                self.give_reward()
+
+    def check_banana(self):
+        # check to see if crosshair is over banana, if so, stop it, give reward
+
+
         if self.yay_reward:
             if self.reward_count == self.reward_total:
                 self.x_change_color(self.x_start_c)

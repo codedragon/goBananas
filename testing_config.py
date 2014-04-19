@@ -3,7 +3,7 @@ from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
-training = 1
+training = 2
 
 # models are in goBananas directory by default
 path_models = ''
@@ -106,7 +106,7 @@ xHairDist = 0.01
 xStartPos = Point3(0.2, 0, 0)
 
 # Bananas.
-numBananas = 2
+numBananas = 1
 posBananas = [-0.2, 5]
 #posBananas = [0, 0, 1, 0]
 #numBananas = 25
