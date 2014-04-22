@@ -1,10 +1,11 @@
 # cringe #
 from pandaepl.common import *
 from pandaepl import Joystick
-from pandaepl import Model, MovingObject
+from pandaepl import Model, ModelBase
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
-#from panda3d.core import CollisionNode, CollisionSphere
+from panda3d.core import CollisionNode, CollisionRay, GeomNode
+from panda3d.core import CollisionTraverser, CollisionHandlerQueue
 from load_models import load_models
 from environment import PlaceModels
 from bananas import Bananas
@@ -91,7 +92,7 @@ class TrainBananas:
         Log.getInstance().addType("Finished", [("BANANA", basestring)],
                                   False)
         # New Trial
-        Log.getInstance().addType("NewTrial", [("Trial", int)]
+        Log.getInstance().addType("NewTrial", [("Trial", int)],
                                   False)
         # Log First Trial
         self.trial_num = 1
@@ -103,10 +104,33 @@ class TrainBananas:
         # Load environment
         self.load_environment(config)
 
-        if self.training != 0:
+        if self.training == 1:
             self.x_start_p = config['xStartPos']
-            if self.training == 2:
-                self.banana_models = Bananas(config)
+        elif self.training == 2:
+            self.banana_models = Bananas(config)
+            self.collTrav = CollisionTraverser()
+            self.rayColQueue = CollisionHandlerQueue()
+            xhairNode = CollisionNode('avatarRay')
+            #cam = Camera.defaultInstance
+            #print cam
+            #camNode = Camera.defaultInstance.retrNodePath()
+            #print camNode
+            #print camNode.getChild()
+            #print camNode.retrNodePath()
+            #xhairNP = cam.attachNewNode(xhairNode)
+            #xhairNode.setFromCollideMask(GeomNode.getDefaultCollideMask())
+            avatar = Avatar.getInstance()
+            print avatar.getModel()
+            #detachNode
+            xhairNP = avatar.retrNodePath().attachNewNode(xhairNode)
+            xhairRay = CollisionRay(0, 0, 0, 0, 1, 0)
+            xhairNode.addSolid(xhairRay)
+            #xhairRay.setFromLens(lensNode, 0, 0)
+            xhairNP.show()
+            self.collTrav.addCollider(xhairNP, self.rayColQueue)
+            self.collTrav.traverse(render)
+            # if using crosshair as real crosshair, always in center
+            self.x_start_p = Point3(0, 0, 0)
         else:
             self.x_start_p = Point3(0, 0, 0)
         self.x_start_p[0] *= self.multiplier
@@ -141,9 +165,9 @@ class TrainBananas:
             self.task = False
 
         # Handle keyboard events
-        vr.inputListen('toggleDebug',
-                       lambda inputEvent:
-                       Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
+        #vr.inputListen('toggleDebug',
+        #               lambda inputEvent:
+        #               Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
         vr.inputListen("close", self.close)
         vr.inputListen("reward", self.give_reward)
         vr.inputListen("increaseDist", self.x_inc_start)
@@ -280,7 +304,10 @@ class TrainBananas:
 
     def check_banana(self):
         # check to see if crosshair is over banana, if so, stop it, give reward
-
+        self.rayColQueue.sortEntries()
+        for i in range(self.rayColQueue.getNumEntries()):
+            entry = self.rayColQueue.getEntry(i)
+            print entry
 
         if self.yay_reward:
             if self.reward_count == self.reward_total:

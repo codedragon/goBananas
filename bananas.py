@@ -45,7 +45,7 @@ class Bananas():
             # make collision sphere around banana really small
             bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
             # uncomment to see collision sphere around bananas
-            #bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
+            bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
             self.bananaModels.append(bananaModel)
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
