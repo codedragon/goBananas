@@ -8,7 +8,6 @@ except ImportError:
     print 'Pygame not found, necessary for joystick use'
 
 
-
 class JoystickHandler(DirectObject):
     def __init__(self, tolerance=None):
         if not PYGAME_LOADED:
@@ -56,5 +55,7 @@ class JoystickHandler(DirectObject):
                             js_input = 'js_up'
                     messenger.send(js_input, [abs(ev.value)])
                     #print '%s: %s' % (pygame.event.event_name(ev.type), ev.dict)
+                else:
+                    messenger.send('let_go', [0])
         return task.cont
 

@@ -1,6 +1,4 @@
 import unittest
-from mock import patch
-import mock
 from crossBanana import CrossBanana
 from direct.showbase.MessengerGlobal import messenger
 from panda3d.core import loadPrcFileData
@@ -16,9 +14,10 @@ class CrossBananaTests(unittest.TestCase):
         cls.cb = CrossBanana()
 
     def setUp(self):
-
-        self.config = {}
-        execfile('testing_config.py', self.config)
+        # re-initialize variables before each test
+        self.cb.set_variables()
+        #self.config = {}
+        #execfile('testing_config.py', self.config)
 
     def test_move_joystick_right(self):
         """
@@ -27,7 +26,32 @@ class CrossBananaTests(unittest.TestCase):
         #with patch.object(self.cb, 'check_js') as mock:
         messenger.send('js_right', [1])
         #mock.assert_called_with(42)
-        self.assertTrue()
+        self.assertTrue(self.cb.yay_reward)
+
+    def test_hold_joystick_right(self):
+        """
+        test that if required to hold for reward, actually requires hold
+        """
+        self.cb.inc_js_goal()
+
+        messenger.send('js_right', [1])
+        self.assertFalse(self.cb.yay_reward)
+        messenger.send('js_right', [1])
+        self.assertTrue(self.cb.yay_reward)
+
+    def test_hold_release_joystick_no_reward(self):
+        """
+        test that if we are required to hold, but don't hold long enough,
+        and release instead, no reward.
+        """
+        # make goal longer
+        self.cb.inc_js_goal()
+        messenger.send('js_right', [1])
+        self.assertFalse(self.cb.yay_reward)
+        messenger.send('let_go', [0])
+        self.assertFalse(self.cb.yay_reward)
+        messenger.send('js_right', [1])
+        self.assertFalse(self.cb.yay_reward)
 
     def test_move_crosshair(self):
         """
