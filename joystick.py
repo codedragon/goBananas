@@ -1,0 +1,60 @@
+from direct.showbase.DirectObject import DirectObject
+from direct.showbase.MessengerGlobal import messenger
+PYGAME_LOADED = True
+try:
+    import pygame
+except ImportError:
+    PYGAME_LOADED = False
+    print 'Pygame not found, necessary for joystick use'
+
+
+
+class JoystickHandler(DirectObject):
+    def __init__(self, tolerance=None):
+        if not PYGAME_LOADED:
+            return
+        if not tolerance:
+            self.threshold = 0.2
+        else:
+            self.threshold = tolerance
+        print self.threshold
+        pygame.init()
+        pygame.joystick.init()
+        #print pygame.joystick.get_count()
+        # do I want to load more than one?
+        self.joystick_found = True
+        self.js = pygame.joystick.Joystick(0)
+        self.js.init()
+        taskMgr.add(self.joystick_polling, 'Joystick Polling')
+
+    def destroy(self):
+        pygame.quit()
+
+    def get_joysticks(self):
+        return self.js
+
+    def get_count(self):
+        return len(self.js)
+
+    def joystick_polling(self, task):
+        #print 'poll'
+        js_input = None
+        for ev in pygame.event.get():
+            if ev.type is pygame.JOYAXISMOTION:
+                #print 'move'
+                #name = 'joystick%d-axis%d' % (ev.joy, ev.axis)
+                if abs(ev.value) > self.threshold:
+                    if ev.axis == 0:
+                        if ev.value < 0:
+                            js_input = 'js_left'
+                        elif ev.value > 0:
+                            js_input = 'js_right'
+                    elif ev.axis == 1:
+                        if ev.value > 0:
+                            js_input = 'js_down'
+                        elif js_input < 0:
+                            js_input = 'js_up'
+                    messenger.send(js_input, [abs(ev.value)])
+                    #print '%s: %s' % (pygame.event.event_name(ev.type), ev.dict)
+        return task.cont
+

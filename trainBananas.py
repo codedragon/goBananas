@@ -57,6 +57,7 @@ class TrainBananas:
         self.cross_move_int = config['xHairDist']
         self.x_alpha = config['xHairAlpha']
         self.training = config['training']
+        # variables for counting how long to hold joystick
         self.js_count = 0
         # eventually may want start goal in config file
         self.js_goal = 1  # start out just have to hit joystick
@@ -132,7 +133,7 @@ class TrainBananas:
             # if using crosshair as real crosshair, always in center
             self.x_start_p = Point3(0, 0, 0)
         else:
-            self.x_start_p = Point3(0, 0, 0)
+           self.x_start_p = Point3(0, 0, 0)
         self.x_start_p[0] *= self.multiplier
         print('start pos', self.x_start_p)
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
