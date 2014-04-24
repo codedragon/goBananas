@@ -1,10 +1,11 @@
-# configuration file for testing goBananas
+# change individual config files, and have script copy to config.py
+# configuration file for goBananas
 from panda3d.core import Point3, Point4
 
 subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 1
+training = 0
 
 # models are in goBananas directory by default
 path_models = ''
@@ -25,8 +26,8 @@ environ = None
 #environ = 'original'
 
 # Are we giving rewards? not if not using pydaq
-reward = False
-#reward = True
+#reward = False
+reward = True
 
 # Are we collecting eye data?
 eyeData = False
@@ -82,7 +83,7 @@ initialPos = Point3(0, 0, 1)
 # further distance, change this, but does no good if 
 # thing running into has huge radius
 #avatarRadius = 0.3
-avatarRadius = 0.05
+avatarRadius = 0.2
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4 #0.4
@@ -104,7 +105,7 @@ xHairAlpha = 1
 xHairDist = 0.01
 # starting distance from center (range 0-1), use positive numbers,
 # direction determined by trainingDirection.
-xStartPos = Point3(0.01, 0, 0)
+xStartPos = Point3(0.05, 0, 0)
 
 # Bananas.
 numBananas = 1

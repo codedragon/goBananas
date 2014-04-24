@@ -47,10 +47,10 @@ class TrainBananas:
        #print config['trainingDirection']
         if config['trainingDirection'] == 'Left':
             self.trainDir = 'turnLeft'
-            self.multiplier = 1
+            self.multiplier = -1
         elif config['trainingDirection'] == 'Right':
             self.trainDir = 'turnRight'
-            self.multiplier = -1
+            self.multiplier = 1
         elif config['trainingDirection'] == 'Forward':
             self.trainDir = 'moveForward'
         #print self.multiplier
@@ -63,7 +63,7 @@ class TrainBananas:
         self.js_goal = 1  # start out just have to hit joystick
         # default is to reward for backward movement. May want
         # to make this a configuration option instead.
-        self.backward = True
+        self.backward = False
         # variable used to notify when changing direction of new target
         self.new_dir = None
         # variable to notify when changing levels
@@ -362,7 +362,7 @@ class TrainBananas:
             self.t_delay = 0
 
     def x_inc_start(self, inputEvent):
-        self.x_start_p[0] *= 1.5
+        self.x_start_p[0] *= 2
         if abs(self.x_start_p[0]) > 0.9:
             self.x_start_p[0] = self.multiplier * 0.9
         print('new pos', self.x_start_p)

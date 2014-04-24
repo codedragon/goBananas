@@ -1,6 +1,8 @@
-# configuration file for testing goBananas
+# change individual config files, and have script copy to config.py
+# configuration file for goBananas
 from panda3d.core import Point3, Point4
 
+subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
 training = 0
@@ -81,7 +83,7 @@ initialPos = Point3(0, 0, 1)
 # further distance, change this, but does no good if 
 # thing running into has huge radius
 #avatarRadius = 0.3
-avatarRadius = 0.05
+avatarRadius = 0.2
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4 #0.4
@@ -102,11 +104,11 @@ xHairAlpha = 1
 # how far to travel per joystick push
 xHairDist = 0.01
 # starting distance from center (range 0-1), use positive numbers,
-# direction determined by trainingDirection. Not used in training = 0
-xStartPos = Point3(0.2, 0, 0)
+# direction determined by trainingDirection.
+xStartPos = Point3(0.05, 0, 0)
 
 # Bananas.
-numBananas = 2
+numBananas = 1
 posBananas = [-0.2, 5]
 #posBananas = [0, 0, 1, 0]
 #numBananas = 25
@@ -142,6 +144,41 @@ maxFwDistance = 7
 #else:
 #	targetHwinL = 2  #1.2 is sort of the boundary.
 #	targetHwinR = 2  #1.2 is sort of the boundary.
+
+# Terrain, sky
+terrainModel = './models/towns/field.bam'
+terrainCenter = Point3(0, 0, 0)
+skyModel = './models/sky/sky.bam'
+skyScale = 1.6
+
+# Eventually want landmarks in state, and load directory full of
+# landmarks, randomly placed in background.
+
+treeModel = './models/trees/palmTree.bam'
+treeLoc = Point3(13, 13, 0)
+treeScale = .0175
+
+skyScraperModel = './models/skyscraper/skyscraper.bam'
+skyScraperLoc = Point3(-13, -13, 0)
+skyScraperScale = .3
+
+stLightModel = './models/streetlight/streetlight.bam'
+stLightLoc = Point3(-13, 13, 0)
+stLightScale = .75
+
+# bananarchy was using amill.bam, but I couldn't load that file,
+# and the original amill.egg was not in the folder.
+windmillModel = './models/windmill/amill.bam'
+windmillLoc = Point3(13, -13, 0)
+windmillScale = .2
+windmillH = 45
+
+# Load 2 bananas for testing, know where they are!
+bananaModel = './models/bananas/banana.bam'
+bananaLoc = Point3(5, 3, 1)
+bananaScale = 0.5
+bananaH = 0
+bananaLoc2 = Point3(5.5, 3, 1)
 
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common
