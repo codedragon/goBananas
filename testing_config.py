@@ -4,7 +4,7 @@ from panda3d.core import Point3, Point4
 subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 2
+training = 1
 
 # models are in goBananas directory by default
 path_models = ''
@@ -104,7 +104,7 @@ xHairAlpha = 1
 xHairDist = 0.01
 # starting distance from center (range 0-1), use positive numbers,
 # direction determined by trainingDirection.
-xStartPos = Point3(0.2, 0, 0)
+xStartPos = Point3(0.01, 0, 0)
 
 # Bananas.
 numBananas = 1

@@ -202,7 +202,7 @@ class TrainBananas:
         #                 config['pulseInterval']))
 
     def tasks(self):
-        #print 'doing task'
+        #print('doing task', self.training)
         if self.training == 0:
             #print 'check_js'
             self.check_js()
@@ -264,10 +264,11 @@ class TrainBananas:
         test = self.js.getEvents()
         old_pos = self.cross.getPos()[0]
         old_pos *= self.multiplier
+        #print old_pos
         stop_x = abs(self.x_stop_p[0])
-        if test:
-            print self.trainDir
-            print test.keys()
+        #if test:
+            #print self.trainDir
+            #print test.keys()
         #print('old', old_pos)
         #print('greater than', self.x_stop_p[0])
         if old_pos <= stop_x:
@@ -289,17 +290,21 @@ class TrainBananas:
         # once delay is over, makes sure not touching joystick
         # before new trial
         if self.yay_reward:
+            #print 'yay_reward is true'
+            #print self.reward_count
             if self.reward_count == self.reward_total:
                 self.x_change_color(self.x_start_c)
                 if self.t_delay == self.delay:
+                    # if let go of joystick, can start over
                     if not test:
                         self.restart()
+                        self.reward_count = 0
                 else:
                     self.t_delay += 1
-                    print self.t_delay
+                    #print self.t_delay
             else:
                 self.reward_count += 1
-                print 'reward'
+                #print 'reward'
                 self.x_change_color(self.x_stop_c)
                 self.give_reward()
 
@@ -309,12 +314,14 @@ class TrainBananas:
         for i in range(self.rayColQueue.getNumEntries()):
             entry = self.rayColQueue.getEntry(i)
             print entry
-
+        test = True
         if self.yay_reward:
             if self.reward_count == self.reward_total:
                 self.x_change_color(self.x_start_c)
                 if self.t_delay == self.delay:
+                    # if let go of joystick, can start over
                     if not test:
+                        self.reward_count = 0
                         self.restart()
                 else:
                     self.t_delay += 1
@@ -451,8 +458,10 @@ class TrainBananas:
         print(self.x_start_p)
         self.x_change_position(self.x_start_p)
         self.x_change_color(self.x_start_c)
-        if self.change_level is not None:
+        if self.change_level:
+            print 'change level'
             self.training = self.change_level
+            self.change_level = False
 
     def start(self):
         """
