@@ -63,7 +63,10 @@ class TrainBananas:
         self.js_goal = 1  # start out just have to hit joystick
         # default is to reward for backward movement. May want
         # to make this a configuration option instead.
-        self.backward = True
+        # zero, all backward allowed
+        # one, straight backward not rewarded
+        # two, no backward rewarded
+        self.backward = 0
         # variable used to notify when changing direction of new target
         self.new_dir = None
         # variable to notify when changing levels
@@ -220,24 +223,26 @@ class TrainBananas:
             joy_push = self.js.getEvents()
             js_good = False
             if joy_push:
-                size_test = len(joy_push.keys())
-                print 'pushed'
-                if self.backward:
+                keys = joy_push.keys()
+                size_test = len(keys)
+                #print 'pushed'
+                back = 'moveBackward' in keys
+                print keys
+                #print back
+                if self.backward == 0:
                     # if rewarding for backward, then pushing joystick
                     # always get reward
                     js_good = True
-                elif 'moveBackward' not in joy_push.keys():
-                    # if not rewarding for backward, check to see if
-                    # backward was pushed before rewarding
-                    js_good = True
-                elif 'moveBackward' in joy_push.keys() and size_test > 1:
-                    # this is really a bit silly, since it only disallows
-                    # straight back. Doesn't seem to be a way to distinguish from
-                    # left with a little backward from left with a lot of backward.
+                elif self.backward == 1:
+                    if not back or size_test > 1:
+                        # if not rewarding for straight backward, check to see if
+                        # backward was (only) pushed before rewarding
+                        js_good = True
+                elif self.backward == 2 and not back:
                     js_good = True
             if js_good:
                 print 'counts for reward'
-                print joy_push.keys()
+                #print joy_push.keys()
                 self.js_count += 1
                 if self.js_count == self.js_goal:
                     self.x_change_color(self.x_stop_c)
@@ -413,7 +418,9 @@ class TrainBananas:
         print('new dir: forward')
 
     def allow_backward(self, inputEvent):
-        self.backward = not self.backward
+        self.backward += 1
+        if self.backward > 2:
+            self.backward = 0
         print('backward allowed:', self.backward)
 
     def load_environment(self, config):

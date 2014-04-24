@@ -4,7 +4,7 @@ from panda3d.core import Point3, Point4
 subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 1
+training = 2
 
 # models are in goBananas directory by default
 path_models = ''
