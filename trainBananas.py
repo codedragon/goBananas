@@ -110,6 +110,7 @@ class TrainBananas:
 
         if self.training == 1:
             self.x_start_p = config['xStartPos']
+            self.config_x = config['beginning_x']
         elif self.training == 2:
             self.banana_models = Bananas(config)
             self.collTrav = CollisionTraverser()
@@ -259,6 +260,7 @@ class TrainBananas:
             self.t_delay += 1
 
     def check_position(self):
+        # move crosshair
         # check to see if crosshair is in center, if so, stop it, give reward
         # if touches the joystick, move the crosshair,
         # multiply by the multiplier to get the absolute value,
@@ -278,15 +280,28 @@ class TrainBananas:
         #print('greater than', self.x_stop_p[0])
         if old_pos <= stop_x:
             self.yay_reward = True
+            # if this is the original distance,
+            # only one push of the joystick gets
+            # us to center, no matter how far we are
         elif self.trainDir in test.keys():
-            # move closer to zero
-            old_pos -= self.cross_move_int
-            # go back to original direction
-            old_pos *= self.multiplier
-            new_pos = self.cross.getPos()
-            new_pos[0] = old_pos
-            #print('new', new_pos)
-            self.cross.setPos(new_pos)
+            #print old_pos
+            #print abs(self.config_x[0])
+            #print round(old_pos, 2)
+            if round(old_pos, 2) == abs(round(self.config_x[0], 2)) == abs(round(self.x_start_p[0], 2)):
+                print('jump!')
+                self.cross.setPos(Point3(0, 0, 0))
+                self.yay_reward = True
+            else:
+                print('move')
+                # move closer to zero
+                old_pos -= self.cross_move_int
+                # go back to original direction
+                old_pos *= self.multiplier
+                # now change the position
+                new_pos = self.cross.getPos()
+                new_pos[0] = old_pos
+                #print('new', new_pos)
+                self.cross.setPos(new_pos)
         # Runs every 200ms, same rate as pump rate
         # check to see if crosshair is in center, if so, stop it, give reward
         #if self.training == 0:
@@ -367,10 +382,12 @@ class TrainBananas:
             self.t_delay = 0
 
     def x_inc_start(self, inputEvent):
+        print self.config_x
         self.x_start_p[0] *= 2
         if abs(self.x_start_p[0]) > 0.9:
             self.x_start_p[0] = self.multiplier * 0.9
         print('new pos', self.x_start_p)
+        print self.config_x
 
     def x_dec_start(self, inputEvent):
         self.x_start_p[0] *= 0.5

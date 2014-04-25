@@ -70,6 +70,12 @@ state between runs of the experiment, in case the subject doesn't finish the
 experiment, we know where he/she left off. I don't think this is necessary for
 us, but may want to implement it later.
 
+I don't know what Pandaepl is doing, but this behavior is bizarre:
+if I initiate two variables with the same key in the config dictionary:
+x = config['x_start']
+y = config['x_start']
+this somehow links x and y, so that if I now change x, y will also change. WTF?
+
 Globals:
 LogException = <class 'pandaepl.Exceptions.LogException'>
 Log = pandaepl.Log.Log
