@@ -5,7 +5,7 @@ from pandaepl import Model, ModelBase
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
 from panda3d.core import CollisionNode, CollisionRay, GeomNode
-from panda3d.core import CollisionTraverser, CollisionHandlerQueue
+from panda3d.core import CollisionTraverser, CollisionHandlerQueue, BitMask32
 from load_models import load_models
 from environment import PlaceModels
 from bananas import Bananas
@@ -111,11 +111,15 @@ class TrainBananas:
         if self.training == 1:
             self.x_start_p = config['xStartPos']
             self.config_x = config['beginning_x']
+            print('start pos', self.x_start_p)
         elif self.training == 2:
+            self.banana_pos = config['startBanana']
             self.banana_models = Bananas(config)
-            self.collTrav = CollisionTraverser()
-            self.rayColQueue = CollisionHandlerQueue()
-            xhairNode = CollisionNode('avatarRay')
+            print('banana position', self.banana_pos)
+            base.cTrav = CollisionTraverser()
+            self.collHandler = CollisionHandlerQueue()
+
+            #self.pointerNode = render.attachNewNode('CrossHairRay')
             #cam = Camera.defaultInstance
             #print cam
             #camNode = Camera.defaultInstance.retrNodePath()
@@ -125,21 +129,32 @@ class TrainBananas:
             #xhairNP = cam.attachNewNode(xhairNode)
             #xhairNode.setFromCollideMask(GeomNode.getDefaultCollideMask())
             avatar = Avatar.getInstance()
-            print avatar.getModel()
-            #detachNode
-            xhairNP = avatar.retrNodePath().attachNewNode(xhairNode)
-            xhairRay = CollisionRay(0, 0, 0, 0, 1, 0)
-            xhairNode.addSolid(xhairRay)
+            print 'avatar'
+            print avatar.retrNodePath().getChild(0).node().setIntoCollideMask(0)
+            print avatar.retrNodePath().getChild(0).node().getFromCollideMask()
+            print avatar.retrNodePath().getChild(0).node().getIntoCollideMask()
+            self.pointerNode = avatar.retrNodePath().attachNewNode('CrossHairRay')
+            # ray that comes straight out from the camera
+            raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
+            mainAimingNP = self.makeCollisionNodePath(self.pointerNode, raySolid)
+            self.mainAimingNode = mainAimingNP.node()
+            self.mainAimingNode.setIntoCollideMask(0)
+            print 'ray'
+            print self.mainAimingNode.getFromCollideMask()
+            print self.mainAimingNode.getIntoCollideMask()
+            base.cTrav.addCollider(mainAimingNP, self.collHandler)
+            base.cTrav.showCollisions(render)
+            self.fullTurningSpeed = config['fullTurningSpeed']
+            #raySolid.setFromLens(lensNode, 0, 0)
             #xhairRay.setFromLens(lensNode, 0, 0)
-            xhairNP.show()
-            self.collTrav.addCollider(xhairNP, self.rayColQueue)
-            self.collTrav.traverse(render)
+            #xhairNP.show()
+            #self.collTrav.addCollider(xhairNP, self.rayColQueue)
+            #self.collTrav.traverse(render)
             # if using crosshair as real crosshair, always in center
             self.x_start_p = Point3(0, 0, 0)
         else:
-           self.x_start_p = Point3(0, 0, 0)
+            self.x_start_p = Point3(0, 0, 0)
         self.x_start_p[0] *= self.multiplier
-        print('start pos', self.x_start_p)
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
         self.cross = Text("cross", '+', self.x_start_p, config['instructSize'], self.x_start_c)
@@ -313,16 +328,20 @@ class TrainBananas:
             #print 'yay_reward is true'
             #print self.reward_count
             if self.reward_count == self.reward_total:
+                # reward over
                 self.x_change_color(self.x_start_c)
+                # delay before next trial?
                 if self.t_delay == self.delay:
                     # if let go of joystick, can start over
                     if not test:
-                        self.restart()
+                        self.t_delay = 0
                         self.reward_count = 0
+                        self.restart()
                 else:
                     self.t_delay += 1
                     #print self.t_delay
             else:
+                # giving reward
                 self.reward_count += 1
                 #print 'reward'
                 self.x_change_color(self.x_stop_c)
@@ -330,23 +349,44 @@ class TrainBananas:
 
     def check_banana(self):
         # check to see if crosshair is over banana, if so, stop it, give reward
-        self.rayColQueue.sortEntries()
-        for i in range(self.rayColQueue.getNumEntries()):
-            entry = self.rayColQueue.getEntry(i)
-            print entry
-        test = True
+        #self.rayColQueue.sortEntries()
+        #for i in range(self.rayColQueue.getNumEntries()):
+        #    entry = self.rayColQueue.getEntry(i)
+        #    print entry
+        if self.collHandler.getNumEntries() > 0:
+            # the only object we can be running into is the banana, so there you go...
+            self.yay_reward = True
+
+
+            #self.collHandler.sortEntries()
+            #pickedObj = self.collHandler.getEntry(0).getIntoNodePath()
+            #print pickedObj
+
+        #self.collHandler.sortEntries()
+        #for i in range(self.collHandler.getNumEntries()):
+        #    entry = self.collHandler.getEntry(i)
+        #    print entry
+            #if 'banana00' in entry:
+            #    print 'yes'
+        test = self.js.getEvents()
         if self.yay_reward:
             if self.reward_count == self.reward_total:
                 self.x_change_color(self.x_start_c)
                 if self.t_delay == self.delay:
                     # if let go of joystick, can start over
                     if not test:
+                        self.t_delay = 0
+                        #print dir(self.banana_models.bananaModels[0])
+                        self.banana_models.bananaModels[0].setPos(self.banana_pos)
+                        Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
                         self.reward_count = 0
                         self.restart()
                 else:
                     self.t_delay += 1
                     print self.t_delay
             else:
+                # stop the avatar during reward
+                Avatar.getInstance().setMaxTurningSpeed(0)
                 self.reward_count += 1
                 print 'reward'
                 self.x_change_color(self.x_stop_c)
@@ -439,6 +479,21 @@ class TrainBananas:
         if self.backward > 2:
             self.backward = 0
         print('backward allowed:', self.backward)
+
+    def makeCollisionNodePath(self, nodepath, solid):
+        '''
+        Creates a collision node and attaches the collision solid to the
+        supplied NodePath. Returns the nodepath of the collision node.
+
+        '''
+        # Creates a collision node named after the name of the NodePath.
+        collNode = CollisionNode("%s c_node" % nodepath.getName())
+        collNode.addSolid(solid)
+        collisionNodepath = nodepath.attachNewNode(collNode)
+        # Show the collision node, which makes the solids show up.
+        collisionNodepath.show()
+
+        return collisionNodepath
 
     def load_environment(self, config):
         if config['environ'] is None:

@@ -5,7 +5,7 @@ from panda3d.core import Point3, Point4
 subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 1
+training = 2
 
 # models are in goBananas directory by default
 path_models = ''
@@ -73,8 +73,9 @@ elif training >= 2:
 #fullTurningSpeed = 20
 else:
     fullTurningSpeed = 200
+
 turningLinearSpeed = 2  #Kiril has this as a factor, 
-# with min and max, eventually implement
+# with min and max, eventually implement?
 
 # Point3 is global from panda3d.core
 initialPos = Point3(0, 0, 1)
@@ -110,7 +111,10 @@ beginning_x = Point3(0.05, 0, 0)
 
 # Bananas.
 numBananas = 1
-posBananas = [-0.2, 5]
+posBananas = [4, -3]
+# ack so bloody annoying!!!!
+startBanana = Point3(4, 3, 1)
+# posBananas = [0, 5]  # banana in center
 #posBananas = [0, 0, 1, 0]
 #numBananas = 25
 bananaDir = './models/bananas/'

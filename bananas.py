@@ -5,6 +5,7 @@ import moBananas as mb
 import os
 import random
 
+
 class Bananas():
     def __init__(self, config):
         self.numBananas = config['numBananas']
@@ -46,12 +47,21 @@ class Bananas():
             bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
             # uncomment to see collision sphere around bananas
             bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
+            # what the hell is up with so many banana children?
+            #print 'banana'
+            #print bananaModel.retrNodePath()
+            #print bananaModel.retrNodePath().getChild(0)
+            #print bananaModel.retrNodePath().getChild(0).getChild(0)
+            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0)
+            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node()
+            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node().getFromCollideMask()
+            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node().getIntoCollideMask()
             self.bananaModels.append(bananaModel)
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
             self.bananaModels[i].setStashed(False)
 
-        print 'on screen?'
+        #print 'on screen?'
 
     def createBananas(self, start=None):
 
@@ -100,6 +110,7 @@ class Bananas():
         @param collisionInfoList:
         @return:
         """
+        print 'collision'
         # which banana we ran into
         self.byeBanana = collisionInfoList[0].getInto().getIdentifier()
         # check to see if the banana was in the camera view when collided,
