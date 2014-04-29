@@ -22,8 +22,8 @@ manual = True
 # 'training'
 # 'original'
 # None gives you nothing
-#environ = None
-environ = 'original'
+environ = None
+#environ = 'original'
 
 # Are we giving rewards? not if not using pydaq
 #reward = False
@@ -109,6 +109,11 @@ xHairDist = 0.01
 # direction determined by trainingDirection.
 xStartPos = Point3(0.05, 0, 0)
 beginning_x = Point3(0.05, 0, 0)
+
+# zero, all backward allowed
+# one, straight backward not rewarded
+# two, no backward rewarded
+backward = 0
 
 # Bananas.
 numBananas = 1

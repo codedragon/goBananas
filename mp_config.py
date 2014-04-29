@@ -107,6 +107,11 @@ xHairDist = 0.01
 # direction determined by trainingDirection.
 xStartPos = Point3(0.05, 0, 0)
 
+# zero, all backward allowed
+# one, straight backward not rewarded
+# two, no backward rewarded
+backward = 0
+
 # Bananas.
 numBananas = 1
 posBananas = [-0.2, 5]

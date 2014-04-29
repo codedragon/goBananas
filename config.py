@@ -22,8 +22,8 @@ manual = True
 # 'training'
 # 'original'
 # None gives you nothing
-#environ = None
-environ = 'original'
+environ = None
+#environ = 'original'
 
 # Are we giving rewards? not if not using pydaq
 #reward = False
@@ -110,14 +110,19 @@ xHairDist = 0.01
 xStartPos = Point3(0.05, 0, 0)
 beginning_x = Point3(0.05, 0, 0)
 
+# zero, all backward allowed
+# one, straight backward not rewarded
+# two, no backward rewarded
+backward = 0
+
 # Bananas.
 numBananas = 1
 # if training direction is right, both x and y should be positive
-posBananas = [2, 4.6]
-#posBananas = [0.5, 4.975]
+#posBananas = [2, 4.6]
+posBananas = [0.5, 4.975]
 # ack so bloody annoying!!!!
-startBanana = Point3(2, 4.6, 1)
-#startBanana = Point3(0.5, 4.975, 1)
+#startBanana = Point3(2, 4.6, 1)
+startBanana = Point3(0.5, 4.975, 1)
 # posBananas = [0, 5]  # banana in center
 #posBananas = [0, 0, 1, 0]
 #numBananas = 25
