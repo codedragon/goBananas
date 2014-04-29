@@ -22,8 +22,8 @@ manual = True
 # 'training'
 # 'original'
 # None gives you nothing
-environ = None
-#environ = 'original'
+#environ = None
+environ = 'original'
 
 # Are we giving rewards? not if not using pydaq
 #reward = False
@@ -91,7 +91,8 @@ friction = 0.4 #0.4
 movementType = 'walking' # car | walking
 
 # needed for joystick (instructions)
-instructSize = 0.1
+#instructSize = 0.1
+instructSize = 0.2
 instructFont = '/c/Windows/Fonts/times.ttf'
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
@@ -111,16 +112,19 @@ beginning_x = Point3(0.05, 0, 0)
 
 # Bananas.
 numBananas = 1
-posBananas = [4, -3]
+# if training direction is right, both x and y should be positive
+#posBananas = [2, 4.6]
+posBananas = [0.5, 4.975]
 # ack so bloody annoying!!!!
-startBanana = Point3(4, 3, 1)
+#startBanana = Point3(2, 4.6, 1)
+startBanana = Point3(0.5, 4.975, 1)
 # posBananas = [0, 5]  # banana in center
 #posBananas = [0, 0, 1, 0]
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 #bananaScale = .5
-bananaScale = 5
+bananaScale = 2
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
 tooClose = 2  # 1.7

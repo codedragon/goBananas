@@ -42,9 +42,10 @@ class Bananas():
                                 self.collideBanana)
             bananaModel.setScale(self.scale)
             # could make this static instead
-            bananaModel.setH(random.randint(0, 361))
+            #bananaModel.setH(random.randint(0, 361))
+            bananaModel.setH(135)
             # make collision sphere around banana really small
-            bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
+            bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.3)
             # uncomment to see collision sphere around bananas
             bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
             # what the hell is up with so many banana children?
