@@ -181,6 +181,8 @@ class TrainBananas:
         vr.inputListen("decreaseDist", self.x_dec_start)
         vr.inputListen("increaseInt", self.inc_interval)
         vr.inputListen("decreaseInt", self.dec_interval)
+        vr.inputListen("increaseReward", self.inc_reward)
+        vr.inputListen("decreaseReward", self.dec_reward)
         vr.inputListen("changeLeft", self.change_left)
         vr.inputListen("changeRight", self.change_right)
         vr.inputListen("changeForward", self.change_forward)
@@ -341,7 +343,7 @@ class TrainBananas:
 
     def check_collisions(self):
         # This is checked every fricking frame, which means we go through this loop
-        # many times per collision.
+        # many times per collision, except when I want it to. :/
         # check to see if crosshair is over banana, if so, stop turning, move it to centered, give reward
         if self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
@@ -534,6 +536,12 @@ class TrainBananas:
             #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
             self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
             print('new pos', self.banana_pos)
+
+    def inc_reward(self, inputEvent):
+        self.reward_total += 1
+
+    def dec_reward(self, inputEvent):
+        self.reward_total -= 1
 
     def inc_level(self, inputEvent):
         self.change_level = self.training + 1
