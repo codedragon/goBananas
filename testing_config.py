@@ -157,6 +157,8 @@ if 'Keyboard' in globals():
     #keyboard.bind("decreaseBananas", "s")
     keyboard.bind("increaseTouch", "e")
     keyboard.bind("decreaseTouch", "d")
+    keyboard.bind("increaseReward", "t")
+    keyboard.bind("decreaseReward", "g")
     keyboard.bind("increaseInt", "u")
     keyboard.bind("decreaseInt", "j")
     keyboard.bind("changeLeft", "l")

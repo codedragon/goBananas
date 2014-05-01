@@ -5,7 +5,7 @@ from panda3d.core import Point3, Point4
 subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 0
+training = 2
 
 # models are in goBananas directory by default
 path_models = ''
@@ -130,7 +130,7 @@ bananaDir = './models/bananas/'
 #bananaZ = 1
 #bananaScale = .5
 bananaScale = 0.5
-#bananaRotation = 0  # Rotation speed in degrees/frame.
+
 # how close is too close together?
 tooClose = 2  # 1.7
 
@@ -157,6 +157,8 @@ if 'Keyboard' in globals():
     #keyboard.bind("decreaseBananas", "s")
     keyboard.bind("increaseTouch", "e")
     keyboard.bind("decreaseTouch", "d")
+    keyboard.bind("increaseReward", "t")
+    keyboard.bind("decreaseReward", "g")
     keyboard.bind("increaseInt", "u")
     keyboard.bind("decreaseInt", "j")
     keyboard.bind("changeLeft", "l")

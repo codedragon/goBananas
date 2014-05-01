@@ -5,7 +5,7 @@ from panda3d.core import Point3, Point4
 subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 0
+training = 2
 
 # models are in goBananas directory by default
 path_models = ''
@@ -157,6 +157,8 @@ if 'Keyboard' in globals():
     #keyboard.bind("decreaseBananas", "s")
     keyboard.bind("increaseTouch", "e")
     keyboard.bind("decreaseTouch", "d")
+    keyboard.bind("increaseReward", "t")
+    keyboard.bind("decreaseReward", "g")
     keyboard.bind("increaseInt", "u")
     keyboard.bind("decreaseInt", "j")
     keyboard.bind("changeLeft", "l")
