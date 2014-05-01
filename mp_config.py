@@ -73,8 +73,9 @@ elif training >= 2:
 #fullTurningSpeed = 20
 else:
     fullTurningSpeed = 200
+
 turningLinearSpeed = 2  #Kiril has this as a factor, 
-# with min and max, eventually implement
+# with min and max, eventually implement?
 
 # Point3 is global from panda3d.core
 initialPos = Point3(0, 0, 1)
@@ -90,7 +91,8 @@ friction = 0.4 #0.4
 movementType = 'walking' # car | walking
 
 # needed for joystick (instructions)
-instructSize = 0.1
+#instructSize = 0.1
+instructSize = 0.2
 instructFont = '/c/Windows/Fonts/times.ttf'
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
@@ -106,6 +108,7 @@ xHairDist = 0.01
 # starting distance from center (range 0-1), use positive numbers,
 # direction determined by trainingDirection.
 xStartPos = Point3(0.05, 0, 0)
+beginning_x = Point3(0.05, 0, 0)
 
 # zero, all backward allowed
 # one, straight backward not rewarded
@@ -114,13 +117,19 @@ backward = 0
 
 # Bananas.
 numBananas = 1
-posBananas = [-0.2, 5]
+# if training direction is right, both x and y should be positive
+#posBananas = [2, 4.6]
+posBananas = [0.5, 4.975]
+# ack so bloody annoying!!!!
+#startBanana = Point3(2, 4.6, 1)
+startBanana = Point3(0.5, 4.975, 1)
+# posBananas = [0, 5]  # banana in center
 #posBananas = [0, 0, 1, 0]
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 #bananaScale = .5
-bananaScale = 5
+bananaScale = 0.5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
 tooClose = 2  # 1.7

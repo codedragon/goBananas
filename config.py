@@ -129,7 +129,7 @@ startBanana = Point3(0.5, 4.975, 1)
 bananaDir = './models/bananas/'
 #bananaZ = 1
 #bananaScale = .5
-bananaScale = 2
+bananaScale = 0.5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
 tooClose = 2  # 1.7
@@ -163,5 +163,6 @@ if 'Keyboard' in globals():
     keyboard.bind("changeRight", "r")
     keyboard.bind("changeForward", "f")
     keyboard.bind("allowBackward", "b")
+    keyboard.bind("override", "o")
     keyboard.bind("pause", "p")
     keyboard.bind("reward", "space")

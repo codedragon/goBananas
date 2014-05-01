@@ -139,6 +139,8 @@ class TrainBananas:
             self.js_count = 0
             # eventually may want start goal in config file
             self.js_goal = 1  # start out just have to hit joystick
+            self.stop_reward = False
+            self.old_joy = False
         self.x_start_p[0] *= self.multiplier
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
@@ -176,7 +178,7 @@ class TrainBananas:
         #               lambda inputEvent:
         #               Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
         vr.inputListen("close", self.close)
-        vr.inputListen("reward", self.give_reward)
+        vr.inputListen("reward", self.give_extra_reward)
         vr.inputListen("increaseDist", self.x_inc_start)
         vr.inputListen("decreaseDist", self.x_dec_start)
         vr.inputListen("increaseInt", self.inc_interval)
@@ -192,6 +194,7 @@ class TrainBananas:
         vr.inputListen("decreaseLevel", self.dec_level)
         #vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
         #vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
+        vr.inputListen("override", self.override)
         vr.inputListen("restart", self.restart)
         vr.inputListen("pause", self.pause)
         vr.inputListen("increaseTouch", self.inc_js_goal)
@@ -230,6 +233,36 @@ class TrainBananas:
         if self.t_delay == self.delay:
             joy_push = self.js.getEvents()
             js_good = False
+            #print joy_push.keys()
+            #for key in joy_push.keys():
+            #    print joy_push[key]
+            if self.stop_reward:
+                self.x_change_color(self.x_start_c)
+                #print 'stop'
+                # if we are exactly the same as last time, we are still getting false positives.
+                test = False
+                for key in joy_push.keys():
+                    now_key = joy_push[key]
+                    try:
+                        old_keys = self.old_joy
+                        #print old_keys[key]
+                        old_key = old_keys[key]
+                    except KeyError:
+                        old_key = None
+                    #print now_key
+                    #print old_key
+                    try:
+                        test = now_key == old_key
+                    except AttributeError:
+                        test = False
+                        #print 'test true'
+                if test:
+                    self.old_joy = joy_push
+                    joy_push = None
+                else:
+                    self.stop_reward = False
+            else:
+                self.old_joy = joy_push
             if joy_push:
                 keys = joy_push.keys()
                 size_test = len(keys)
@@ -484,11 +517,20 @@ class TrainBananas:
         self.cross.setColor(color)
         #self.cross.setColor(Point4(1, 0, 0, 1))
 
-    def give_reward(self, inputEvent=None):
-        # used for task where cross moves
+    def give_reward(self):
+        # used for task where cross moves (or anytime single reward is wanted)
         print('beep')
         if self.reward:
             self.reward.pumpOut()
+
+    def give_extra_reward(self, inputEvent):
+        self.x_change_color(self.x_start_c)
+        self.give_reward()
+        self.x_change_color(self.x_stop_c)
+
+    def override(self, inputEvent):
+        # sometimes we get a signal from the joystick when it is not being touched
+        self.stop_reward = True
 
     def pause(self, inputEvent):
         # if we are less than the usual delay (so in delay or delay is over),

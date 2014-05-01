@@ -43,6 +43,7 @@ class GoBananas:
         self.fullTurningSpeed = config['fullTurningSpeed']
         self.fullForwardSpeed = config['fullForwardSpeed']
 
+
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props

@@ -21,6 +21,7 @@ class Bananas():
         self.stashed = self.numBananas
         self.beeps = None
         self.collision = True
+        self.pList = []
         if self.manual:
             self.posBananas = config['posBananas']
             self.createManualBananas()
@@ -79,7 +80,8 @@ class Bananas():
         for i, j in enumerate(range(start, self.numBananas)):
             (x, y) = mb.setXY(pList, avatarXY)
             #print i,j
-            pList += [(x, y)]
+            #pList += [(x, y)]
+            pList.append((x, y))
             # Model is a global from pandaepl
             # Point3 is a global from Panda3d
 
@@ -111,7 +113,7 @@ class Bananas():
         @param collisionInfoList:
         @return:
         """
-        print 'collision'
+        #print 'collision'
         # which banana we ran into
         self.byeBanana = collisionInfoList[0].getInto().getIdentifier()
         # check to see if the banana was in the camera view when collided,
@@ -136,17 +138,24 @@ class Bananas():
             self.beeps = 0
             self.collision = False
 
-    def replenishBananas(self):
-        pList = []
+    def replenishBananas(self, repeat=None):
+        if repeat is not None and self.pList:
+            pList = self.pList
+        else:
+            pList = []
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         # print 'avatar pos', avatarXY
         for i in range(self.numBananas):
+            #print pList
             (x, y) = mb.setXY(pList, avatarXY)
+            pList.append((x, y))
             self.bananaModels[i].setPos(Point3(x, y, 1))
             # make new bananas visible
             self.bananaModels[i].setStashed(False)
             # start count again
+        if repeat is not None and not self.pList:
+            self.pList = pList
         self.stashed = self.numBananas
 
     def goneBanana(self, trialNum):

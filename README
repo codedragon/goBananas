@@ -67,6 +67,14 @@ Config file training variable:
 * 5.1 = Same as 4.25, except now there are multiple bananas that he has to go around and pick up.  Position resets to the center and faces the original 0-header position after gathering each batch of bananas.
 * 5.2 = A given number of bananas appear on the field and you have to go gather them all, then a new set appears.  Position doesn't reset, neither does header direction.
 
+Bug in joystick implementation:
+Add the word float in line 85, Joystick.py:
+change:
+self.threshold = Options.getInstance().get().js_zero_threshold
+to:
+self.threshold = float(Options.getInstance().get().js_zero_threshold)
+otherwise the threshold option will not work.
+
 In the following files, line numbers, delete the .asList() part. For example in
 ModelBase.py, line 60
 change:
