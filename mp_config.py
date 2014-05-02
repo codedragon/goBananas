@@ -130,7 +130,7 @@ bananaDir = './models/bananas/'
 #bananaZ = 1
 #bananaScale = .5
 bananaScale = 0.5
-#bananaRotation = 0  # Rotation speed in degrees/frame.
+
 # how close is too close together?
 tooClose = 2  # 1.7
 
