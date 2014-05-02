@@ -10,10 +10,27 @@ class CrossBanana(JoystickHandler):
         threshold = 0
         JoystickHandler.__init__(self, threshold)
         self.setup_inputs()
+        self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
+        self.frameTask.delay = 0
+        self.delay = False
+        self.delay_time = 0.2
+
+    def frame_loop(self, task):
+        print task.time
+        if self.delay:
+            task.delay = task.time + self.delay_time
+            self.delay = False
+            print('time now', task.time)
+            print('delay until', task.delay)
+        if task.time > task.delay:
+            print "new delay"
+            self.delay = True
+        else:
+            pass
+        return task.cont
 
     def move(self, js_input, js_dir):
-        print js_dir
-        print js_input
+        print(js_dir, js_input)
 
     def setup_inputs(self):
         self.accept('js_up', self.move, ['up'])

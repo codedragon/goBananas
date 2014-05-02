@@ -120,6 +120,11 @@ class GoBananas:
                         lambda taskInfo:
                         self.check_reward(),
                         config['pulseInterval']))
+        # send avatar position to blackrock/plexon
+        if config['sendData'] and LOADED_PYDAQ:
+            vr.addTask(Task("sendAvatar",
+                            lambda taskInfo:
+                            self.check_avatar()))
 
         # set up reward system
         if config['reward'] and LOADED_PYDAQ:
@@ -131,11 +136,26 @@ class GoBananas:
         if config['eyeData'] and LOADED_PYDAQ:
             self.gain = config['gain']
             self.offset = config['offset']
-            self.task = pydaq.EOGTask()
-            self.task.SetCallback(self.get_eye_data)
-            self.task.StartTask()
+            self.eye_task = pydaq.EOGTask()
+            self.eye_task.SetCallback(self.get_eye_data)
+            self.eye_task.StartTask()
         else:
-            self.task = False
+            self.eye_task = False
+
+        # send digital signals to blackrock or plexon
+        if config['sendData'] and LOADED_PYDAQ:
+            self.send_pos_task = pydaq.OutputAvatarPos()
+            self.send_events = pydaq.OutputEvents()
+        else:
+            self.send_pos_task = None
+            self.send_events = None
+
+    def check_avatar(self):
+        avatar = Avatar.Avatar.getInstance()
+        avatar_x, avatar_y = (avatar.getPos()[0], avatar.getPos()[1])
+        self.send_pos_task.send_signal(avatar_x)
+        self.send_pos_task.send_signal(avatar_y)
+
 
     def check_reward(self):
         # Runs every flip of screen
@@ -163,6 +183,8 @@ class GoBananas:
         #collisionInfoList[0]
         #byeBanana = collisionInfoList[0].getInto().getIdentifier()
         VLQ.getInstance().writeLine('Beeps', [int(self.banana_models.beeps)])
+        if self.send_events:
+            self.send_events.send_signal('Beeps')
         # increment reward
         self.banana_models.beeps += 1
         
@@ -246,9 +268,9 @@ class GoBananas:
         Experiment.getInstance().start()
 
     def close(self, inputEvent):
-        if self.task:
-            self.task.StopTask()
-            self.task.ClearTask()
+        if self.eye_task:
+            self.eye_task.StopTask()
+            self.eye_task.ClearTask()
         Experiment.getInstance().stop()
 
 if __name__ == '__main__':

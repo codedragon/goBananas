@@ -17,7 +17,12 @@ class CrossBanana(JoystickHandler):
         config = {}
         execfile('cross_config.py', config)
         threshold = config['threshold']
+        #try:
         JoystickHandler.__init__(self, threshold)
+
+        #except pygame.error:
+        #    "Need to plug in a joystick"
+        #    self.close()
         print('Subject is', config['subject'])
         # set up reward system
         if config['reward'] and PYDAQ_LOADED:
@@ -52,8 +57,7 @@ class CrossBanana(JoystickHandler):
         self.backward = True
         #self.delay = 0  # keeps track of updates waiting for new "trial"
         #self.t_delay = 0  # number of updates to wait for new "trial" (200ms per update)
-        self.poll_js = True  # start with no delays
-        self.yay_reward = False
+        #self.poll_js = True  # start with no delays
         self.reward_delay = False
         self.reward_time = 0.2  # 200 ms
         self.cont_reward = False
@@ -64,57 +68,62 @@ class CrossBanana(JoystickHandler):
         #print task.time
         if self.reward_delay:
             task.delay = task.time + self.reward_time
+            print('time now', task.time)
             print('delay until', task.delay)
             self.reward_delay = False
         if task.time > task.delay:
-            print 'poll'
+            #print 'delay over'
             if self.cont_reward:
                 self.give_reward()
-            self.poll_js = True
+            #self.poll_js = True
         else:
-            self.poll_js = False
+            # no reward, until delay is over
+            pass
+            #self.poll_js = False
         return task.cont
 
     def check_js(self, magnitude, direction):
-        print direction
+        #print direction
         # not moving crosshair, just push joystick to get reward,
         # longer and longer intervals
         # delay determines how long before cross re-appears
         #print 'in check_js'
-        self.yay_reward = False
         js_good = False
-        # if we are in delay, either because we are paused, or because
-        # we just gave reward and have to wait 200ms, don't check joystick
-        if self.poll_js:
-            print 'check joystick'
-            if self.backward:
-                # if rewarding for backward, then pushing joystick
-                # always get reward
-                js_good = True
-            elif direction != 'backward':
-                # if not rewarding for backward, check to see if
-                # backward was pushed before rewarding
-                js_good = True
-            if js_good:
+
+        #if self.poll_js:
+        #print 'check joystick'
+        if self.backward:
+            # if rewarding for backward, then pushing joystick
+            # always get reward
+            js_good = True
+        elif direction != 'backward':
+            # if not rewarding for backward, check to see if
+            # backward was pushed before rewarding
+            js_good = True
+        # okay, direction is good for reward. Check magnitude to see if
+        # we are giving continuous reward or not
+        if js_good:
+            self.cont_reward = False
+            if magnitude > self.threshold:
+                print 'ok for continuous reward'
+                self.cont_reward = True
+            else:
+                print 'nogo for continuous reward'
                 self.cont_reward = False
-                if magnitude > self.threshold:
-                    self.cont_reward = True
-                print 'counts for reward'
-                self.js_count += 1
-                if self.js_count == self.js_goal:
-                    print('reward')
-                    #self.x_change_color(self.x_stop_c)
-                    self.yay_reward = True
-                    self.give_reward()
-                    #print('touched for', self.js_count)
-                    self.js_count = 0
-                    self.delay = 0
-            elif self.js_count >= 0:
+            # regardless of whether we are doing continuous reward,
+            # should give a reward now if we aren't in reward delay
+            if not self.reward_delay:
+                #self.js_count += 1
+                #if self.js_count == self.js_goal:
+                print('reward')
+                #self.x_change_color(self.x_stop_c)
+                self.give_reward()
+                #self.js_count = 0
+                #self.delay = 0
+                #elif self.js_count >= 0:
                 #print 'start over'
                 #self.x_change_color(self.x_start_c)
-                self.js_count = 0
-        else:
-            print 'pause'
+                #self.js_count = 0
 
     def give_reward(self):
         print('beep')
@@ -123,34 +132,9 @@ class CrossBanana(JoystickHandler):
         # must now wait for 200ms.
         self.reward_delay = True
 
-    def move(self, js_input, js_dir):
-        print js_dir
-        print js_input
+    def move(self, js_dir, js_input):
+        print(js_dir, js_input)
         self.check_js(js_input, js_dir)
-
-    def go_left(self, js_input):
-        direction = 'left'
-        #print direction
-        print js_input
-        self.check_js(direction)
-
-    def go_right(self, js_input):
-        direction = 'right'
-        #print direction
-        #print js_input
-        self.check_js(direction)
-
-    def go_forward(self, js_input):
-        direction = 'forward'
-        #print direction
-        #print js_input
-        self.check_js(direction)
-
-    def go_backward(self, js_input):
-        direction = 'backward'
-        #print direction
-        #print js_input
-        self.check_js(direction)
 
     def let_go(self, js_input):
         self.js_count = 0
@@ -225,15 +209,10 @@ class CrossBanana(JoystickHandler):
         self.accept('js_left', self.move, ['left'])
         self.accept('js_right', self.move, ['right'])
         #self.accept('let_go', self.let_go)
-        #self.accept('js_up', self.go_forward, )
-        #self.accept('js_down', self.go_backward)
-        #self.accept('js_left', self.go_left)
-        #self.accept('js_right', self.go_right)
-        #self.accept('let_go', self.let_go)
-        self.accept('arrow_up', self.go_forward, [2])
-        self.accept('arrow_down', self.go_backward, [2])
-        self.accept('arrow_left', self.go_left, [2])
-        self.accept('arrow_right', self.go_right, [2])
+        self.accept('arrow_up', self.move, [2, 'up'])
+        self.accept('arrow_down', self.move, [2, 'down'])
+        self.accept('arrow_left', self.move, [2, 'left'])
+        self.accept('arrow_right', self.move, [2, 'right'])
         self.accept('q', self.close)
         self.accept('w', self.inc_x_start)
         self.accept('s', self.dec_x_start)

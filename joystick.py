@@ -23,9 +23,13 @@ class JoystickHandler(DirectObject):
         #print pygame.joystick.get_count()
         # do I want to load more than one?
         self.joystick_found = True
-        self.js = pygame.joystick.Joystick(0)
-        self.js.init()
-        taskMgr.add(self.joystick_polling, 'Joystick Polling')
+        try:
+            self.js = pygame.joystick.Joystick(0)
+            self.js.init()
+            taskMgr.add(self.joystick_polling, 'Joystick Polling')
+        except pygame.error, message:
+            "Need to plug in a joystick"
+            raise SystemExit(message)
 
     def destroy(self):
         pygame.quit()
