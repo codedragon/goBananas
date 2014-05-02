@@ -1,5 +1,6 @@
 from direct.showbase.ShowBase import ShowBase
-from  joystick import JoystickHandler
+from joystick import JoystickHandler
+from panda3d.core import Point3
 import sys
 PYDAQ_LOADED = True
 try:
@@ -13,9 +14,10 @@ except ImportError:
 class CrossBanana(JoystickHandler):
     def __init__(self):
         self.base = ShowBase()
-        JoystickHandler.__init__(self)
         config = {}
-        execfile('testing_config.py', config)
+        execfile('cross_config.py', config)
+        threshold = config['threshold']
+        JoystickHandler.__init__(self, threshold)
         print('Subject is', config['subject'])
         # set up reward system
         if config['reward'] and PYDAQ_LOADED:
@@ -32,13 +34,14 @@ class CrossBanana(JoystickHandler):
         # sort of silly to reload the config file, but no need to keep it in memory,
         # so might as well.
         config = {}
-        execfile('testing_config.py', config)
+        execfile('cross_config.py', config)
         self.training = config['training']
         if self.training == 0:
             self.x_start_p = Point3(0, 0, 0)
         else:
             self.cross_pos = config['xStartPos']
         self.cross_move = config['xHairDist']
+        self.threshold = config['confidence']
         # variables for counting how long to hold joystick
         self.js_count = 0
         # eventually may want start goal in config file
@@ -53,21 +56,27 @@ class CrossBanana(JoystickHandler):
         self.yay_reward = False
         self.reward_delay = False
         self.reward_time = 0.2  # 200 ms
+        self.cont_reward = False
         self.frameTask.delay = 0
         print 'initialized'
 
     def frame_loop(self, task):
+        #print task.time
         if self.reward_delay:
             task.delay = task.time + self.reward_time
-            #print('delay until', task.delay)
+            print('delay until', task.delay)
             self.reward_delay = False
         if task.time > task.delay:
+            print 'poll'
+            if self.cont_reward:
+                self.give_reward()
             self.poll_js = True
         else:
             self.poll_js = False
         return task.cont
 
-    def check_js(self, direction):
+    def check_js(self, magnitude, direction):
+        print direction
         # not moving crosshair, just push joystick to get reward,
         # longer and longer intervals
         # delay determines how long before cross re-appears
@@ -77,6 +86,7 @@ class CrossBanana(JoystickHandler):
         # if we are in delay, either because we are paused, or because
         # we just gave reward and have to wait 200ms, don't check joystick
         if self.poll_js:
+            print 'check joystick'
             if self.backward:
                 # if rewarding for backward, then pushing joystick
                 # always get reward
@@ -86,6 +96,9 @@ class CrossBanana(JoystickHandler):
                 # backward was pushed before rewarding
                 js_good = True
             if js_good:
+                self.cont_reward = False
+                if magnitude > self.threshold:
+                    self.cont_reward = True
                 print 'counts for reward'
                 self.js_count += 1
                 if self.js_count == self.js_goal:
@@ -110,10 +123,15 @@ class CrossBanana(JoystickHandler):
         # must now wait for 200ms.
         self.reward_delay = True
 
+    def move(self, js_input, js_dir):
+        print js_dir
+        print js_input
+        self.check_js(js_input, js_dir)
+
     def go_left(self, js_input):
         direction = 'left'
         #print direction
-        #print js_input
+        print js_input
         self.check_js(direction)
 
     def go_right(self, js_input):
@@ -202,11 +220,16 @@ class CrossBanana(JoystickHandler):
         print('backward allowed:', self.backward)
 
     def setup_inputs(self):
-        self.accept('js_up', self.go_forward, )
-        self.accept('js_down', self.go_backward)
-        self.accept('js_left', self.go_left)
-        self.accept('js_right', self.go_right)
-        self.accept('let_go', self.let_go)
+        self.accept('js_up', self.move, ['up'])
+        self.accept('js_down', self.move, ['down'])
+        self.accept('js_left', self.move, ['left'])
+        self.accept('js_right', self.move, ['right'])
+        #self.accept('let_go', self.let_go)
+        #self.accept('js_up', self.go_forward, )
+        #self.accept('js_down', self.go_backward)
+        #self.accept('js_left', self.go_left)
+        #self.accept('js_right', self.go_right)
+        #self.accept('let_go', self.let_go)
         self.accept('arrow_up', self.go_forward, [2])
         self.accept('arrow_down', self.go_backward, [2])
         self.accept('arrow_left', self.go_left, [2])

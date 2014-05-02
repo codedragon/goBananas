@@ -12,7 +12,8 @@ class JoystickHandler(DirectObject):
     def __init__(self, tolerance=None):
         if not PYGAME_LOADED:
             return
-        if not tolerance:
+        print tolerance
+        if tolerance is None:
             self.threshold = 0.2
         else:
             self.threshold = tolerance
@@ -36,10 +37,12 @@ class JoystickHandler(DirectObject):
         return len(self.js)
 
     def joystick_polling(self, task):
-        #print 'poll'
+        # if joystick is not moving, does not send an event, but may be holding steady...
+        #print 'task poll'
         js_input = None
         for ev in pygame.event.get():
             if ev.type is pygame.JOYAXISMOTION:
+                #print ev.value
                 #print 'move'
                 #name = 'joystick%d-axis%d' % (ev.joy, ev.axis)
                 if abs(ev.value) > self.threshold:
