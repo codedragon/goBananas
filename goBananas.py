@@ -144,18 +144,17 @@ class GoBananas:
 
         # send digital signals to blackrock or plexon
         if config['sendData'] and LOADED_PYDAQ:
-            self.send_pos_task = pydaq.OutputAvatarPos()
+            self.send_x_pos_task = pydaq.OutputAvatarXPos()
+            self.send_y_pos_task = pydaq.OutputAvatarYPos()
             self.send_events = pydaq.OutputEvents()
         else:
             self.send_pos_task = None
             self.send_events = None
 
     def check_avatar(self):
-        avatar = Avatar.Avatar.getInstance()
-        avatar_x, avatar_y = (avatar.getPos()[0], avatar.getPos()[1])
-        self.send_pos_task.send_signal(avatar_x)
-        self.send_pos_task.send_signal(avatar_y)
-
+        avatar = Avatar.getInstance()
+        self.send_x_pos_task.send_signal(avatar.getPos()[0])
+        self.send_y_pos_task.send_signal(avatar.getPos()[1])
 
     def check_reward(self):
         # Runs every flip of screen

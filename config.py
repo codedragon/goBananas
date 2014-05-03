@@ -26,7 +26,7 @@ eyeData = True
 
 # are we sending data to plexon or blackrock?
 sendData = True
-# sendData = False
+#sendData = False
 
 # 3d?
 # framebuffer-stereo 1
