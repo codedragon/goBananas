@@ -47,9 +47,11 @@ class JoystickHandler(DirectObject):
         for ev in pygame.event.get():
             if ev.type is pygame.JOYAXISMOTION:
                 #print ev.value
+                #print self.threshold
                 #print 'move'
                 #name = 'joystick%d-axis%d' % (ev.joy, ev.axis)
                 if abs(ev.value) > self.threshold:
+                    #print 'made threshold'
                     if ev.axis == 0:
                         if ev.value < 0:
                             js_input = 'js_left'

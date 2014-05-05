@@ -18,7 +18,7 @@ class CrossBanana(JoystickHandler):
         execfile('cross_config.py', config)
         threshold = config['threshold']
         #try:
-        #JoystickHandler.__init__(self, threshold)
+        JoystickHandler.__init__(self, threshold)
 
         #except pygame.error:
         #    "Need to plug in a joystick"
@@ -46,7 +46,7 @@ class CrossBanana(JoystickHandler):
         else:
             self.cross_pos = config['xStartPos']
         self.cross_move = config['xHairDist']
-        self.threshold = config['confidence']
+        self.confidence = config['confidence']
         # variables for counting how long to hold joystick
         self.js_count = 0
         # eventually may want start goal in config file
@@ -72,14 +72,15 @@ class CrossBanana(JoystickHandler):
         #print task.time
         if self.reward_delay:
             task.delay = task.time + self.reward_time
-            print('time now', task.time)
-            print('delay until', task.delay)
+            #print('time now', task.time)
+            #print('delay until', task.delay)
             self.reward_delay = False
         if task.time > task.delay:
             #print 'delay over'
             if self.cont_reward:
                 self.give_reward()
             else:
+                #print 'stop reward'
                 self.crosshair.setTextColor(1, 1, 1, 1)
             #self.poll_js = True
         else:
@@ -111,7 +112,7 @@ class CrossBanana(JoystickHandler):
         if js_good:
             self.crosshair.setTextColor(1, 0, 0, 1)
             self.cont_reward = False
-            if magnitude > self.threshold:
+            if magnitude > self.confidence:
                 print 'ok for continuous reward'
                 self.cont_reward = True
             else:

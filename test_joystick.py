@@ -3,7 +3,7 @@ from joystick import JoystickHandler
 from panda3d.core import Point3
 import sys
 
-class CrossBanana(JoystickHandler):
+class TestJoystick(JoystickHandler):
     def __init__(self):
         self.base = ShowBase()
         # want to see all joystick output
@@ -16,22 +16,22 @@ class CrossBanana(JoystickHandler):
         self.delay_time = 0.2
 
     def frame_loop(self, task):
-        print task.time
+        #print task.time
         if self.delay:
             task.delay = task.time + self.delay_time
             self.delay = False
-            print('time now', task.time)
-            print('delay until', task.delay)
+            #print('time now', task.time)
+            #print('delay until', task.delay)
         if task.time > task.delay:
-            print "new delay"
+            #print "new delay"
             self.delay = True
         else:
             pass
         return task.cont
 
     def move(self, js_input, js_dir):
-        print(js_dir, js_input)
-        self.do_somthing_else(js_dir)
+        #print(js_dir, js_input)
+        self.do_something_else(js_dir)
 
     def do_something_else(self, direction):
         if direction == 'backward':
@@ -50,5 +50,5 @@ class CrossBanana(JoystickHandler):
         sys.exit()
 
 if __name__ == "__main__":
-    CB = CrossBanana()
+    TestJoystick()
     run()
