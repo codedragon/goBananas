@@ -31,6 +31,13 @@ class CrossBanana(JoystickHandler):
 
     def move(self, js_input, js_dir):
         print(js_dir, js_input)
+        self.do_somthing_else(js_dir)
+
+    def do_something_else(self, direction):
+        if direction == 'backward':
+            print 'nope'
+        else:
+            print 'yup'
 
     def setup_inputs(self):
         self.accept('js_up', self.move, ['up'])

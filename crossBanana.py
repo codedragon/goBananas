@@ -1,6 +1,6 @@
 from direct.showbase.ShowBase import ShowBase
 from joystick import JoystickHandler
-from panda3d.core import Point3
+from panda3d.core import Point3, TextNode
 import sys
 PYDAQ_LOADED = True
 try:
@@ -18,7 +18,7 @@ class CrossBanana(JoystickHandler):
         execfile('cross_config.py', config)
         threshold = config['threshold']
         #try:
-        JoystickHandler.__init__(self, threshold)
+        #JoystickHandler.__init__(self, threshold)
 
         #except pygame.error:
         #    "Need to plug in a joystick"
@@ -62,6 +62,10 @@ class CrossBanana(JoystickHandler):
         self.reward_time = 0.2  # 200 ms
         self.cont_reward = False
         self.frameTask.delay = 0
+        self.crosshair = TextNode('crosshair')
+        self.crosshair.setText('+')
+        textNodePath = aspect2d.attachNewNode(self.crosshair)
+        textNodePath.setScale(0.2)
         print 'initialized'
 
     def frame_loop(self, task):
@@ -75,6 +79,8 @@ class CrossBanana(JoystickHandler):
             #print 'delay over'
             if self.cont_reward:
                 self.give_reward()
+            else:
+                self.crosshair.setTextColor(1, 1, 1, 1)
             #self.poll_js = True
         else:
             # no reward, until delay is over
@@ -103,6 +109,7 @@ class CrossBanana(JoystickHandler):
         # okay, direction is good for reward. Check magnitude to see if
         # we are giving continuous reward or not
         if js_good:
+            self.crosshair.setTextColor(1, 0, 0, 1)
             self.cont_reward = False
             if magnitude > self.threshold:
                 print 'ok for continuous reward'
@@ -124,8 +131,11 @@ class CrossBanana(JoystickHandler):
                 #print 'start over'
                 #self.x_change_color(self.x_start_c)
                 #self.js_count = 0
+        else:
+            self.crosshair.setTextColor(1, 1, 1, 1)
 
     def give_reward(self):
+        self.crosshair.setTextColor(1, 0, 0, 1)
         print('beep')
         if self.reward:
             self.reward.pumpOut()
