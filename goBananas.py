@@ -93,9 +93,6 @@ class GoBananas:
         # New Trial
         Log.getInstance().addType("NewTrial", [("Trial", int)],
                                   False)
-        # Log First Trial
-        self.trial_num = 1
-        VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
 
         Log.getInstance().addType("EyeData", [("X", float),
                                                   ("Y", float)],
@@ -114,7 +111,8 @@ class GoBananas:
         vr.inputListen("downTurnSpeed", self.downTurnSpeed)
         vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
         vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
-        vr.inputListen("restart", self.restart)
+        #vr.inputListen("restart", self.restart)
+        vr.inputListen("NewTrial", self.new_trial)
         # set up task to be performed between frames, checks at interval of pump
         vr.addTask(Task("checkReward",
                         lambda taskInfo:
@@ -147,17 +145,18 @@ class GoBananas:
             self.send_x_pos_task = pydaq.OutputAvatarXPos()
             self.send_y_pos_task = pydaq.OutputAvatarYPos()
             self.send_events = pydaq.OutputEvents()
+            #self.send_events = None
         else:
             self.send_pos_task = None
             self.send_events = None
 
-    def check_avatar(self):
-        avatar = Avatar.getInstance()
-        self.send_x_pos_task.send_signal(avatar.getPos()[0])
-        self.send_y_pos_task.send_signal(avatar.getPos()[1])
+        # Log First Trial
+        self.trial_num = 1
+        VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
+        self.new_trial()
 
     def check_reward(self):
-        # Runs every flip of screen
+        # Runs every 200ms
         # checks to see if we are giving reward. If we are, there
         # was a collision, and avatar can't move and banana hasn't
         # disappeared yet.
@@ -183,10 +182,10 @@ class GoBananas:
         #byeBanana = collisionInfoList[0].getInto().getIdentifier()
         VLQ.getInstance().writeLine('Beeps', [int(self.banana_models.beeps)])
         if self.send_events:
-            self.send_events.send_signal('Beeps')
+            self.send_events.send_signal(201)
         # increment reward
         self.banana_models.beeps += 1
-        
+
         # If done, get rid of banana
         #print 'beeps', self.banana_models.beeps
         #print 'extra', self.extra
@@ -205,6 +204,7 @@ class GoBananas:
                     # reset the increased reward for last banana
                     config = Conf.getInstance().getConfig()  # Get configuration dictionary.
                     self.extra = config['extra']
+                    self.new_trial()
                 # avatar can move
                 Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
                 Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
@@ -216,6 +216,16 @@ class GoBananas:
         VLQ.getInstance().writeLine("EyeData",
                                 [((eye_data[0] * self.gain[0]) - self.offset[0]),
                                 ((eye_data[1] * self.gain[1]) - self.offset[1])])
+
+    def check_avatar(self):
+        avatar = Avatar.getInstance()
+        self.send_x_pos_task.send_signal(avatar.getPos()[0])
+        self.send_y_pos_task.send_signal(avatar.getPos()[1])
+
+    def new_trial(self):
+        #print 'new trial'
+        if self.send_events:
+            self.send_events.send_signal(100)
 
     def load_environment(self, config):
         load_models()

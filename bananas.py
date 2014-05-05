@@ -1,6 +1,7 @@
 #from direct.directbase.DirectStart import base
 from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
 from panda3d.core import Point3
+#from goBananas import new_trial
 import moBananas as mb
 import os
 import random
@@ -176,6 +177,7 @@ class Bananas():
             self.replenishBananas()
             trialNum += 1
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
+            #new_trial()
         return trialNum
 
     def increaseBananas(self, inputEvent):
