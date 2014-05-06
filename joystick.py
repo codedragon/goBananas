@@ -46,25 +46,30 @@ class JoystickHandler(DirectObject):
         js_input = None
         for ev in pygame.event.get():
             if ev.type is pygame.JOYAXISMOTION:
+                if ev.axis == 0:
+                    axis = 'x_axis'
+                else:
+                    axis = 'y_axis'
+                messenger.send(axis, [ev.value])
                 #print ev.value
                 #print self.threshold
                 #print 'move'
                 #name = 'joystick%d-axis%d' % (ev.joy, ev.axis)
-                if abs(ev.value) > self.threshold:
-                    #print 'made threshold'
-                    if ev.axis == 0:
-                        if ev.value < 0:
-                            js_input = 'js_left'
-                        elif ev.value > 0:
-                            js_input = 'js_right'
-                    elif ev.axis == 1:
-                        if ev.value > 0:
-                            js_input = 'js_down'
-                        elif js_input < 0:
-                            js_input = 'js_up'
-                    messenger.send(js_input, [abs(ev.value)])
-                    #print '%s: %s' % (pygame.event.event_name(ev.type), ev.dict)
-                else:
-                    messenger.send('let_go', [0])
+                # if abs(ev.value) > self.threshold:
+                #     #print 'made threshold'
+                #     if ev.axis == 0:
+                #         if ev.value < 0:
+                #             js_input = 'js_left'
+                #         elif ev.value > 0:
+                #             js_input = 'js_right'
+                #     elif ev.axis == 1:
+                #         if ev.value > 0:
+                #             js_input = 'js_down'
+                #         elif js_input < 0:
+                #             js_input = 'js_up'
+                #     messenger.send(js_input, [ev.value])
+                #     #print '%s: %s' % (pygame.event.event_name(ev.type), ev.dict)
+                # else:
+                #     messenger.send('let_go', [0])
         return task.cont
 

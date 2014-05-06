@@ -23,7 +23,7 @@ eyeData = False
 # Joystick thresholds, first one depends a single reward,
 # second one is how far to assume it was an intentional
 # hold and reward continuously, limits are 0 to 1
-threshold = 0.03
+threshold = 0.04
 confidence = 0.3
 # # reward
 # numBeeps = 3

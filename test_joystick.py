@@ -29,9 +29,16 @@ class TestJoystick(JoystickHandler):
             pass
         return task.cont
 
-    def move(self, js_input, js_dir):
-        #print(js_dir, js_input)
-        self.do_something_else(js_dir)
+    #def move(self, js_input, js_dir):
+    #    #print(js_dir, js_input)
+    #    self.do_something_else(js_dir)
+
+    def move(self, js_dir, js_input):
+        print(js_dir, js_input)
+        if js_dir == 'x':
+            self.x_mag = js_input
+        else:
+            self.y_mag = js_input
 
     def do_something_else(self, direction):
         if direction == 'backward':
@@ -40,6 +47,8 @@ class TestJoystick(JoystickHandler):
             print 'yup'
 
     def setup_inputs(self):
+        self.accept('x_axis', self.move, ['x'])
+        self.accept('y_axis', self.move, ['y'])
         self.accept('js_up', self.move, ['up'])
         self.accept('js_down', self.move, ['down'])
         self.accept('js_left', self.move, ['left'])

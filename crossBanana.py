@@ -1,6 +1,7 @@
 from direct.showbase.ShowBase import ShowBase
 from joystick import JoystickHandler
 from panda3d.core import Point3, TextNode
+from math import sqrt
 import sys
 PYDAQ_LOADED = True
 try:
@@ -45,6 +46,8 @@ class CrossBanana(JoystickHandler):
             self.x_start_p = Point3(0, 0, 0)
         else:
             self.cross_pos = config['xStartPos']
+        self.x_mag = 0
+        self.y_mag = 0
         self.cross_move = config['xHairDist']
         self.confidence = config['confidence']
         # variables for counting how long to hold joystick
@@ -58,9 +61,11 @@ class CrossBanana(JoystickHandler):
         #self.delay = 0  # keeps track of updates waiting for new "trial"
         #self.t_delay = 0  # number of updates to wait for new "trial" (200ms per update)
         #self.poll_js = True  # start with no delays
+        self.delay_start = False
         self.reward_delay = False
         self.reward_time = 0.2  # 200 ms
         self.cont_reward = False
+        self.current_dir = None
         self.frameTask.delay = 0
         self.crosshair = TextNode('crosshair')
         self.crosshair.setText('+')
@@ -70,23 +75,29 @@ class CrossBanana(JoystickHandler):
 
     def frame_loop(self, task):
         #print task.time
-        if self.reward_delay:
+        if self.delay_start:
             task.delay = task.time + self.reward_time
             #print('time now', task.time)
             #print('delay until', task.delay)
-            self.reward_delay = False
+            self.delay_start = False
+            #self.reward_delay = True
+            return task.cont
         if task.time > task.delay:
-            #print 'delay over'
-            if self.cont_reward:
+            dist = sqrt(self.x_mag**2 + self.y_mag**2)
+            #print dist
+            if dist > 0.1 or self.cont_reward:
+                self.crosshair.setTextColor(1, 0, 0, 1)
                 self.give_reward()
             else:
-                #print 'stop reward'
                 self.crosshair.setTextColor(1, 1, 1, 1)
-            #self.poll_js = True
-        else:
-            # no reward, until delay is over
-            pass
-            #self.poll_js = False
+            #print task.time
+            #print 'delay over'
+            #if self.cont_reward:
+            #    self.give_reward()
+            #else:
+            #    #print 'stop reward'
+            #    self.reward_delay = False
+            #    self.crosshair.setTextColor(1, 1, 1, 1)
         return task.cont
 
     def check_js(self, magnitude, direction):
@@ -96,7 +107,6 @@ class CrossBanana(JoystickHandler):
         # delay determines how long before cross re-appears
         #print 'in check_js'
         js_good = False
-
         #if self.poll_js:
         #print 'check joystick'
         if self.backward:
@@ -109,29 +119,24 @@ class CrossBanana(JoystickHandler):
             js_good = True
         # okay, direction is good for reward. Check magnitude to see if
         # we are giving continuous reward or not
+        # what if we keep track of all directions, keep magnitudes wherever they
+        # were last update. Take distance of current direction from center to determine
+        # if we have crossed threshold
         if js_good:
             self.crosshair.setTextColor(1, 0, 0, 1)
             self.cont_reward = False
             if magnitude > self.confidence:
-                print 'ok for continuous reward'
+                # 'ok for continuous reward'
                 self.cont_reward = True
+                self.current_dir = direction
             else:
-                print 'nogo for continuous reward'
-                self.cont_reward = False
-            # regardless of whether we are doing continuous reward,
-            # should give a reward now if we aren't in reward delay
-            if not self.reward_delay:
-                #self.js_count += 1
-                #if self.js_count == self.js_goal:
-                print('reward')
-                #self.x_change_color(self.x_stop_c)
-                self.give_reward()
-                #self.js_count = 0
-                #self.delay = 0
-                #elif self.js_count >= 0:
-                #print 'start over'
-                #self.x_change_color(self.x_start_c)
-                #self.js_count = 0
+                if self.current_dir == direction:
+                    #print 'nogo for continuous reward'
+                    self.cont_reward = False
+                    self.current_dir = None
+                if not self.reward_delay:
+                    print('single reward')
+                    self.give_reward()
         else:
             self.crosshair.setTextColor(1, 1, 1, 1)
 
@@ -141,11 +146,20 @@ class CrossBanana(JoystickHandler):
         if self.reward:
             self.reward.pumpOut()
         # must now wait for 200ms.
-        self.reward_delay = True
+        self.delay_start = True
 
     def move(self, js_dir, js_input):
         print(js_dir, js_input)
-        self.check_js(js_input, js_dir)
+        if js_dir == 'x':
+            self.x_mag = js_input
+        else:
+            self.y_mag = js_input
+
+    def start_reward(self):
+        self.cont_reward = True
+
+    def stop_reward(self):
+        self.cont_reward = False
 
     def let_go(self, js_input):
         self.js_count = 0
@@ -215,10 +229,12 @@ class CrossBanana(JoystickHandler):
         print('backward allowed:', self.backward)
 
     def setup_inputs(self):
-        self.accept('js_up', self.move, ['up'])
-        self.accept('js_down', self.move, ['down'])
-        self.accept('js_left', self.move, ['left'])
-        self.accept('js_right', self.move, ['right'])
+        self.accept('x_axis', self.move, ['x'])
+        self.accept('y_axis', self.move, ['y'])
+        # self.accept('js_up', self.move, ['up'])
+        # self.accept('js_down', self.move, ['down'])
+        # self.accept('js_left', self.move, ['left'])
+        # self.accept('js_right', self.move, ['right'])
         #self.accept('let_go', self.let_go)
         self.accept('arrow_up', self.move, [2, 'up'])
         self.accept('arrow_down', self.move, [2, 'down'])
@@ -233,7 +249,8 @@ class CrossBanana(JoystickHandler):
         self.accept('j', self.dec_interval)
         self.accept('b', self.allow_backward)
         self.accept('p', self.pause)
-        self.accept('space', self.give_reward)
+        self.accept('space', self.start_reward)
+        self.accept('space-up', self.stop_reward)
 
     def close(self):
         sys.exit()
