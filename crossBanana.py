@@ -17,13 +17,7 @@ class CrossBanana(JoystickHandler):
         self.base = ShowBase()
         config = {}
         execfile('cross_config.py', config)
-        threshold = config['threshold']
-        #try:
-        JoystickHandler.__init__(self, threshold)
-
-        #except pygame.error:
-        #    "Need to plug in a joystick"
-        #    self.close()
+        JoystickHandler.__init__(self)
         print('Subject is', config['subject'])
         # set up reward system
         if config['reward'] and PYDAQ_LOADED:
@@ -33,23 +27,8 @@ class CrossBanana(JoystickHandler):
             self.reward = None
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         self.setup_inputs()
-        self.set_variables()
-
-    def set_variables(self):
-        # best to have stuff here that we want to be able to re-initialize if need be.
-        # sort of silly to reload the config file, but no need to keep it in memory,
-        # so might as well.
-        config = {}
-        execfile('cross_config.py', config)
-        self.training = config['training']
-        if self.training == 0:
-            self.x_start_p = Point3(0, 0, 0)
-        else:
-            self.cross_pos = config['xStartPos']
         self.x_mag = 0
         self.y_mag = 0
-        self.cross_move = config['xHairDist']
-        self.confidence = config['confidence']
         # variables for counting how long to hold joystick
         self.js_count = 0
         # eventually may want start goal in config file
@@ -57,14 +36,16 @@ class CrossBanana(JoystickHandler):
         # (count increases before checking for goal match)
         # default is to reward for backward movement. May want
         # to make this a configuration option instead.
-        self.backward = True
-        #self.delay = 0  # keeps track of updates waiting for new "trial"
-        #self.t_delay = 0  # number of updates to wait for new "trial" (200ms per update)
-        #self.poll_js = True  # start with no delays
+        # zero, all backward allowed
+        # one, straight backward not rewarded
+        # two, no backward rewarded
+        self.backward = config['backward']
+        # all kinds of start defaults
         self.delay_start = False
         self.reward_delay = False
-        self.reward_time = 0.2  # 200 ms
-        self.cont_reward = False
+        self.reward_time = config['pulseInterval']  # 200 ms
+        self.reward_override = False
+        self.reward_on = True
         self.current_dir = None
         self.frameTask.delay = 0
         self.crosshair = TextNode('crosshair')
@@ -83,69 +64,60 @@ class CrossBanana(JoystickHandler):
             #self.reward_delay = True
             return task.cont
         if task.time > task.delay:
-            dist = sqrt(self.x_mag**2 + self.y_mag**2)
+            self.reward_on = True
+            if self.backward > 0:
+                #print 'check backward'
+                # if we are not allowing backward, need to check y dir.
+                # y_mag starts at exactly 0.0, but then zero becomes a slightly
+                # negative number
+                x_test = -0.2 < self.x_mag < 0.2
+                #print x_test
+                if self.y_mag == 0.0:
+                    pass
+                    #print 'nope'
+                elif self.y_mag > -0.102:
+                    #print 'check backward'
+                    # 1 means only straight backward not rewarded, so if x is
+                    if self.backward == 1 and x_test:
+                        self.reward_on = False
+                    elif self.backward == 2:
+                        self.reward_on = False
+                    #print 'backward'
+                    #print self.y_mag
+
             #print dist
-            if dist > 0.1 or self.cont_reward:
+            if self.reward_on:
+                dist = sqrt(self.x_mag**2 + self.y_mag**2)
+                #print dist
+                if dist > 0.1:
+                    # eligible for reward. if not getting reward,
+                    # need to turn on reward_delay so wait proper amount
+                    #print 'ok for reward'
+                    self.js_count += 1
+                    if self.js_count != self.js_goal:
+                        self.delay_start = True
+                        self.reward_on = False
+                        #print 'counts for reward'
+                else:
+                    #print 'no reward'
+                    self.reward_on = False
+                    self.js_count = 0
+            # actual reward condition
+            if self.reward_on or self.reward_override:
+                #print 'reward'
+                #print self.y_mag
                 self.crosshair.setTextColor(1, 0, 0, 1)
                 self.give_reward()
+                self.js_count = 0
             else:
                 self.crosshair.setTextColor(1, 1, 1, 1)
-            #print task.time
-            #print 'delay over'
-            #if self.cont_reward:
-            #    self.give_reward()
-            #else:
-            #    #print 'stop reward'
-            #    self.reward_delay = False
-            #    self.crosshair.setTextColor(1, 1, 1, 1)
         return task.cont
 
-    def check_js(self, magnitude, direction):
-        #print direction
-        # not moving crosshair, just push joystick to get reward,
-        # longer and longer intervals
-        # delay determines how long before cross re-appears
-        #print 'in check_js'
-        js_good = False
-        #if self.poll_js:
-        #print 'check joystick'
-        if self.backward:
-            # if rewarding for backward, then pushing joystick
-            # always get reward
-            js_good = True
-        elif direction != 'backward':
-            # if not rewarding for backward, check to see if
-            # backward was pushed before rewarding
-            js_good = True
-        # okay, direction is good for reward. Check magnitude to see if
-        # we are giving continuous reward or not
-        # what if we keep track of all directions, keep magnitudes wherever they
-        # were last update. Take distance of current direction from center to determine
-        # if we have crossed threshold
-        if js_good:
-            self.crosshair.setTextColor(1, 0, 0, 1)
-            self.cont_reward = False
-            if magnitude > self.confidence:
-                # 'ok for continuous reward'
-                self.cont_reward = True
-                self.current_dir = direction
-            else:
-                if self.current_dir == direction:
-                    #print 'nogo for continuous reward'
-                    self.cont_reward = False
-                    self.current_dir = None
-                if not self.reward_delay:
-                    print('single reward')
-                    self.give_reward()
-        else:
-            self.crosshair.setTextColor(1, 1, 1, 1)
-
     def give_reward(self):
-        self.crosshair.setTextColor(1, 0, 0, 1)
-        print('beep')
         if self.reward:
             self.reward.pumpOut()
-        # must now wait for 200ms.
+        print('beep')
+        # must now wait for pump delay.
         self.delay_start = True
 
     def move(self, js_dir, js_input):
@@ -156,99 +128,38 @@ class CrossBanana(JoystickHandler):
             self.y_mag = js_input
 
     def start_reward(self):
-        self.cont_reward = True
+        self.reward_override = True
 
     def stop_reward(self):
-        self.cont_reward = False
+        self.reward_override = False
 
-    def let_go(self, js_input):
-        self.js_count = 0
-
-    def pause(self, inputEvent):
-        # if we are less than the usual delay (so in delay or delay is over),
-        # make it a giant delay,
-        # otherwise end the delay period.
-        if self.t_delay < self.delay:
-            self.t_delay = 1000000
-        else:
-            self.t_delay = 0
-
-    def inc_x_start(self, inputEvent):
-        self.x_start_p[0] *= 1.5
-        if abs(self.x_start_p[0]) > 0.9:
-            self.x_start_p[0] = self.multiplier * 0.9
-        print('new pos', self.x_start_p)
-
-    def dec_x_start(self, inputEvent):
-        self.x_start_p[0] *= 0.5
-        # don't go too crazy getting infinitely close to zero. :)
-        if self.x_start_p[0] < 0.01:
-            self.x_start_p[0] = 0.01
-        print('new pos', self.x_start_p)
-
-    def inc_level(self, inputEvent):
-        self.change_level = self.training + 1
-        print('new level', self.change_level)
-
-    def dec_level(self, inputEvent):
-        self.change_level = self.training - 1
-        if self.change_level < 0:
-            self.change_level = 0
-        print('new level', self.change_level)
-
-    def inc_js_goal(self, inputEvent=None):
+    def inc_js_goal(self):
         self.js_goal += 1
         print('new goal', self.js_goal)
 
-    def dec_js_goal(self, inputEvent=None):
+    def dec_js_goal(self):
         self.js_goal -= 1
+        if self.js_goal < 1:
+            self.js_goal = 1
         print('new goal', self.js_goal)
 
-    def inc_interval(self, inputEvent):
-        self.delay += 1
-        print('new delay', self.delay)
-
-    def dec_interval(self, inputEvent):
-        self.delay -= 1
-        print('new delay', self.delay)
-
-    def change_left(self, inputEvent):
-        self.new_dir = 1
-        print('new dir: left')
-
-    def change_right(self, inputEvent):
-        self.new_dir = -1
-        print('new dir: right')
-
-    def change_forward(self, inputEvent):
-        self.new_dir = 0
-        print('new dir: forward')
-
-    def allow_backward(self, inputEvent):
-        self.backward = not self.backward
+    def allow_backward(self):
+        self.backward += 1
+        if self.backward > 2:
+            self.backward = 0
         print('backward allowed:', self.backward)
 
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
         self.accept('y_axis', self.move, ['y'])
-        # self.accept('js_up', self.move, ['up'])
-        # self.accept('js_down', self.move, ['down'])
-        # self.accept('js_left', self.move, ['left'])
-        # self.accept('js_right', self.move, ['right'])
-        #self.accept('let_go', self.let_go)
         self.accept('arrow_up', self.move, [2, 'up'])
         self.accept('arrow_down', self.move, [2, 'down'])
         self.accept('arrow_left', self.move, [2, 'left'])
         self.accept('arrow_right', self.move, [2, 'right'])
         self.accept('q', self.close)
-        self.accept('w', self.inc_x_start)
-        self.accept('s', self.dec_x_start)
         self.accept('e', self.inc_js_goal)
         self.accept('d', self.dec_js_goal)
-        self.accept('u', self.inc_interval)
-        self.accept('j', self.dec_interval)
         self.accept('b', self.allow_backward)
-        self.accept('p', self.pause)
         self.accept('space', self.start_reward)
         self.accept('space-up', self.stop_reward)
 
