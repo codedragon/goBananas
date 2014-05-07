@@ -15,7 +15,7 @@ class CrossBananaTests(unittest.TestCase):
 
     def setUp(self):
         # re-initialize variables before each test
-        self.cb.set_variables()
+        self.cb.reset_variables()
         #self.config = {}
         #execfile('testing_config.py', self.config)
 
@@ -24,9 +24,10 @@ class CrossBananaTests(unittest.TestCase):
         test that gets reward for pushing the joystick
         """
         #with patch.object(self.cb, 'check_js') as mock:
-        messenger.send('js_right', [1])
+        messenger.send('x_axis', [1])
         #mock.assert_called_with(42)
-        self.assertTrue(self.cb.yay_reward)
+        print 'messenger sent'
+        self.assertTrue(self.cb.reward_on)
 
     def test_hold_joystick_right(self):
         """
@@ -34,10 +35,10 @@ class CrossBananaTests(unittest.TestCase):
         """
         self.cb.inc_js_goal()
 
-        messenger.send('js_right', [1])
-        self.assertFalse(self.cb.yay_reward)
-        messenger.send('js_right', [1])
-        self.assertTrue(self.cb.yay_reward)
+        messenger.send('x_axis', [1])
+        self.assertFalse(self.cb.reward_on)
+        messenger.send('x_axis', [1])
+        self.assertTrue(self.cb.reward_on)
 
     def test_hold_release_joystick_no_reward(self):
         """
@@ -46,23 +47,12 @@ class CrossBananaTests(unittest.TestCase):
         """
         # make goal longer
         self.cb.inc_js_goal()
-        messenger.send('js_right', [1])
-        self.assertFalse(self.cb.yay_reward)
-        messenger.send('let_go', [0])
-        self.assertFalse(self.cb.yay_reward)
-        messenger.send('js_right', [1])
-        self.assertFalse(self.cb.yay_reward)
-
-    def test_move_crosshair(self):
-        """
-        test we move the crosshair by direction and amount we expect
-        """
-        dist = self.config['xHairDist']
-        start = self.config['xStartPos']
-        # send max from joystick
-        messenger.send('js_right', [1])
-        t_dist = start[0] + dist
-        self.assertEquals(self.cb.xHairPos[0] - start[0], t_dist)
+        messenger.send('x_axis', [1])
+        self.assertFalse(self.cb.reward_on)
+        messenger.send('x_axis', [0])
+        self.assertFalse(self.cb.reward_on)
+        messenger.send('x_axis', [1])
+        self.assertFalse(self.cb.reward_on)
 
     @classmethod
     def tearDownClass(cls):
