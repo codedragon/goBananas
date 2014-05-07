@@ -4,8 +4,8 @@ from pandaepl import Joystick
 from pandaepl import Model, ModelBase
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
-from panda3d.core import CollisionNode, CollisionRay, GeomNode
-from panda3d.core import CollisionTraverser, CollisionHandlerQueue, BitMask32
+#from panda3d.core import CollisionNode, CollisionRay, GeomNode
+#from panda3d.core import CollisionTraverser, CollisionHandlerQueue, BitMask32
 from load_models import load_models
 from environment import PlaceModels
 from bananas import Bananas
@@ -99,11 +99,13 @@ class TrainBananas:
         self.load_environment(config)
 
         if self.training == 1:
+            # moving crosshair
             self.cross_move_int = config['xHairDist']
             self.x_start_p = config['xStartPos']
             self.config_x = config['beginning_x']
             #print('start pos', self.x_start_p)
         elif self.training > 1:
+            # move to put banana under crosshair
             self.banana_pos = config['startBanana']
             self.banana_models = Bananas(config)
             #print('banana position', self.banana_pos)
@@ -133,14 +135,6 @@ class TrainBananas:
             # if using crosshair as real crosshair, always in center
             self.x_start_p = Point3(0, 0, 0)
             self.collide_banana = False
-        else:
-            self.x_start_p = Point3(0, 0, 0)
-            # variables for counting how long to hold joystick
-            self.js_count = 0
-            # eventually may want start goal in config file
-            self.js_goal = 1  # start out just have to hit joystick
-            self.stop_reward = False
-            self.old_joy = False
         self.x_start_p[0] *= self.multiplier
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
@@ -181,8 +175,8 @@ class TrainBananas:
         vr.inputListen("reward", self.give_extra_reward)
         vr.inputListen("increaseDist", self.x_inc_start)
         vr.inputListen("decreaseDist", self.x_dec_start)
-        vr.inputListen("increaseInt", self.inc_interval)
-        vr.inputListen("decreaseInt", self.dec_interval)
+        #vr.inputListen("increaseInt", self.inc_interval)
+        #vr.inputListen("decreaseInt", self.dec_interval)
         vr.inputListen("increaseReward", self.inc_reward)
         vr.inputListen("decreaseReward", self.dec_reward)
         vr.inputListen("changeLeft", self.change_left)
@@ -199,8 +193,6 @@ class TrainBananas:
         vr.inputListen("override", self.override)
         vr.inputListen("restart", self.restart)
         vr.inputListen("pause", self.pause)
-        vr.inputListen("increaseTouch", self.inc_js_goal)
-        vr.inputListen("decreaseTouch", self.dec_js_goal)
         # set up task to be performed between frames, do at reward interval
         # set by pump. This ends up to be pretty good. currently 200 ms
         vr.addTask(Task("checkJS",
@@ -219,87 +211,10 @@ class TrainBananas:
 
     def tasks(self):
         #print('doing task', self.training)
-        if self.training == 0:
-            #print 'check_js'
-            self.check_js()
-        elif self.training == 1:
+        if self.training == 1:
             self.check_position()
         else:
             self.check_reward()
-
-    def check_js(self):
-        # not moving crosshair, just push joystick to get reward,
-        # longer and longer intervals
-        # delay determines how long before cross re-appears
-        #print 'in check_js'
-        if self.t_delay == self.delay:
-            joy_push = self.js.getEvents()
-            js_good = False
-            #print joy_push.keys()
-            #for key in joy_push.keys():
-            #    print joy_push[key]
-            if self.stop_reward:
-                self.x_change_color(self.x_start_c)
-                #print 'stop'
-                # if we are exactly the same as last time, we are still getting false positives.
-                test = False
-                for key in joy_push.keys():
-                    now_key = joy_push[key]
-                    try:
-                        old_keys = self.old_joy
-                        #print old_keys[key]
-                        old_key = old_keys[key]
-                    except KeyError:
-                        old_key = None
-                    #print now_key
-                    #print old_key
-                    try:
-                        test = now_key == old_key
-                    except AttributeError:
-                        test = False
-                        #print 'test true'
-                if test:
-                    self.old_joy = joy_push
-                    joy_push = None
-                else:
-                    self.stop_reward = False
-            else:
-                self.old_joy = joy_push
-            if joy_push:
-                keys = joy_push.keys()
-                size_test = len(keys)
-                #print 'pushed'
-                back = 'moveBackward' in keys
-                print keys
-                #print back
-                if self.backward == 0:
-                    # if rewarding for backward, then pushing joystick
-                    # always get reward
-                    js_good = True
-                elif self.backward == 1:
-                    if not back or size_test > 1:
-                        # if not rewarding for straight backward, check to see if
-                        # backward was (only) pushed before rewarding
-                        js_good = True
-                elif self.backward == 2 and not back:
-                    js_good = True
-            if js_good:
-                print 'counts for reward'
-                #print joy_push.keys()
-                self.js_count += 1
-                if self.js_count == self.js_goal:
-                    self.x_change_color(self.x_stop_c)
-                    self.give_reward()
-                    #self.yay_reward = True
-                    #print('touched for', self.js_count)
-                    self.js_count = 0
-                    self.t_delay = 0
-            elif self.js_count >= 0:
-                #print 'start over'
-                self.x_change_color(self.x_start_c)
-                self.js_count = 0
-        else:
-            self.t_delay += 1
 
     def check_position(self):
         # move crosshair
@@ -594,14 +509,6 @@ class TrainBananas:
         if self.change_level < 0:
             self.change_level = 0
         print('new level', self.change_level)
-
-    def inc_js_goal(self, inputEvent):
-        self.js_goal += 1
-        print('new goal', self.js_goal)
-
-    def dec_js_goal(self, inputEvent):
-        self.js_goal -= 1
-        print('new goal', self.js_goal)
 
     def inc_interval(self, inputEvent):
         self.delay += 1

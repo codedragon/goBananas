@@ -11,6 +11,10 @@ logs when subject collides with banana ('Yummy')
 logs every time gets a reward ('Beep')
 logs when reward is over and banana disappears ('Finished')
 
+aspectRatio  gobananas : 1.333  bananarchy:  1.25
+resolution       1024x768          1280x1024
+FOV              60:46.82          60:49.58
+
 I think we are recording enough information about the virtual world to know what we are looking at.
 Likely suspects for figuring out what the subject sees:
 VROBJECT_HEADING, especially for avatar (or VROBJECT_HDR for PandaEPL_defaultCamera - seem to be
