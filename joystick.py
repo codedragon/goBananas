@@ -43,6 +43,7 @@ class JoystickHandler(DirectObject):
         # second sample from y is always maxed out instead of zero, why?
         # don't send first 5 samples for now. (Gives y a chance to come back to center,
         # seems to work
+
         for ev in pygame.event.get():
             if ev.type is pygame.JOYAXISMOTION:
                 if self.count < 5:
@@ -51,8 +52,9 @@ class JoystickHandler(DirectObject):
                 else:
                     if ev.axis == 0:
                         axis = 'x_axis'
-                    else:
+                        messenger.send(axis, [ev.value])
+                    elif ev.axis == 1:
                         axis = 'y_axis'
-                    messenger.send(axis, [ev.value])
+                        messenger.send(axis, [ev.value])
         return task.cont
 
