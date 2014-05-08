@@ -4,8 +4,8 @@ from pandaepl import Joystick
 from pandaepl import Model, ModelBase
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
-#from panda3d.core import CollisionNode, CollisionRay, GeomNode
-#from panda3d.core import CollisionTraverser, CollisionHandlerQueue, BitMask32
+from panda3d.core import CollisionNode, CollisionRay
+from panda3d.core import CollisionTraverser, CollisionHandlerQueue
 from load_models import load_models
 from environment import PlaceModels
 from bananas import Bananas
@@ -106,7 +106,10 @@ class TrainBananas:
             #print('start pos', self.x_start_p)
         elif self.training > 1:
             # move to put banana under crosshair
-            self.banana_pos = config['startBanana']
+            if self.training == 2:
+                self.banana_pos = config['sideBanana']
+            elif self.training == 3:
+                self.banana_pos = config['forwardBanana']
             self.banana_models = Bananas(config)
             #print('banana position', self.banana_pos)
             #print('banana', self.banana_models.bananaModels[0].getPos())
@@ -132,8 +135,13 @@ class TrainBananas:
                 self.fullTurningSpeed = config['fullTurningSpeed']
             else:
                 self.fullForwardSpeed = config['fullForwardSpeed']
-            # if using crosshair as real crosshair, always in center
-            self.x_start_p = Point3(0, 0, 0)
+            # if using crosshair as real crosshair, always in center,
+            # need it to be in same place as collisionRay is, but it appears that center is
+            # at the bottom left of the collisionRay, and the top right of the text, so they
+            # don't have center in the same place. Makes more sense to move text than ray.
+            # These numbers were scientifically determined. JK, moved around until the cross looked
+            # centered on the ray
+            self.x_start_p = Point3(-0.043, 0, 0.051)
             self.collide_banana = False
         self.x_start_p[0] *= self.multiplier
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
@@ -226,6 +234,7 @@ class TrainBananas:
         # no longer zero...
         # check for joystick movement
         test = self.js.getEvents()
+        #print test
         old_pos = self.cross.getPos()[0]
         old_pos *= self.multiplier
         #print old_pos
@@ -296,9 +305,10 @@ class TrainBananas:
         if self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
             self.collide_banana = True
-            #print self.collHandler.getEntries()
+            print self.collHandler.getEntries()
         if self.collide_banana:
             test = self.js.getEvents()
+            print test
             if self.reward_count == self.reward_total:
                 #print 'change xhair color to white'
                 self.x_change_color(self.x_start_c)
@@ -323,11 +333,13 @@ class TrainBananas:
                 #print('mulitplier', self.multiplier)
                 if self.multiplier == 1:
                     # left
-                    avatar_change = -0.5
+                    #avatar_change = -0.5
+                    avatar_change = 0
                 else:
                     #right
-                    avatar_change = 3
-                Avatar.getInstance().setH(Avatar.getInstance().getH() + avatar_change)
+                    #avatar_change = 3
+                    avatar_change = 0
+                #Avatar.getInstance().setH(Avatar.getInstance().getH() + avatar_change)
                 #print Avatar.getInstance().getH()
                 #print 'change xhair color to red'
                 self.x_change_color(self.x_stop_c)

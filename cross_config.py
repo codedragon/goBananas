@@ -1,7 +1,8 @@
 # change individual config files, and have script copy to config.py
 # configuration file for goBananas
 #
-subject = 'Test'
+#subject = 'Test'
+subject = 'MP'
 
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
 #reward = False

@@ -119,7 +119,10 @@ backward = 0
 numBananas = 1
 # if training direction is right, both x and y should be positive
 #posBananas = [2, 4.6]
+# banana close to center for right/left training
 posBananas = [0.5, 4.975]
+# banana in distance for forward training
+#posBananas = [0, 7]
 # ack so bloody annoying!!!!
 #startBanana = Point3(2, 4.6, 1)
 startBanana = Point3(0.5, 4.975, 1)

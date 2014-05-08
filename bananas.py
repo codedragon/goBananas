@@ -31,7 +31,7 @@ class Bananas():
 
     def createManualBananas(self):
         # don't assign bananas randomly, place exactly where we want them
-        # accoring to config file. Technically, could do more than 2 bananas,
+        # according to config file. Technically, could do more than 2 bananas,
         # but have never needed to.
         for i in range(self.numBananas):
             # pop okay, since only doing this for a list of max 4 items
