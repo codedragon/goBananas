@@ -51,14 +51,14 @@ class Bananas():
             # uncomment to see collision sphere around bananas
             #bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
             # what the hell is up with so many banana children?
-            #print 'banana'
+            print 'banana'
             #print bananaModel.retrNodePath()
             #print bananaModel.retrNodePath().getChild(0)
             #print bananaModel.retrNodePath().getChild(0).getChild(0)
             #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0)
             #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node()
-            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node().getFromCollideMask()
-            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node().getIntoCollideMask()
+            print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node().getFromCollideMask()
+            print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node().getIntoCollideMask()
             self.bananaModels.append(bananaModel)
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
@@ -101,8 +101,6 @@ class Bananas():
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
             self.bananaModels[i].setStashed(False)
-
-
         #self.byeBanana = []
         #print 'end load bananas'
         #print pList
@@ -114,7 +112,7 @@ class Bananas():
         @param collisionInfoList:
         @return:
         """
-        #print 'collision'
+        print 'collision'
         # which banana we ran into
         self.byeBanana = collisionInfoList[0].getInto().getIdentifier()
         # check to see if the banana was in the camera view when collided,
@@ -128,7 +126,7 @@ class Bananas():
         if camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath)) and self.collision:
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", [self.byeBanana])
             #print 'logged'
-            #print self.byeBanana
+            print self.byeBanana
             # cannot run inside of banana
             MovingObject.MovingObject.handleRepelCollision(collisionInfoList)
             #print 'stop moving'
@@ -137,6 +135,7 @@ class Bananas():
             Avatar.Avatar.getInstance().setMaxForwardSpeed(0)
             #VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", ['stop moving!'])
             self.beeps = 0
+            print self.beeps
             self.collision = False
 
     def replenishBananas(self, repeat=None):
@@ -161,7 +160,7 @@ class Bananas():
 
     def goneBanana(self, trialNum):
         # make banana disappear
-        #print 'banana should go away'
+        print 'banana should go away'
         # make banana go away
         #print self.bananaModels[1].getH()
         #print self.byeBanana[-2:]
@@ -173,7 +172,7 @@ class Bananas():
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.byeBanana])
         self.collision = True
         if self.stashed == 0:
-            #print 'last banana'
+            print 'last banana'
             self.replenishBananas()
             trialNum += 1
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])

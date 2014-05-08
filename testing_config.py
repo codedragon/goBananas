@@ -5,7 +5,7 @@ from panda3d.core import Point3, Point4
 subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 2
+training = 3
 
 # models are in goBananas directory by default
 path_models = ''
@@ -120,12 +120,10 @@ numBananas = 1
 # if training direction is right, both x and y should be positive
 #posBananas = [2, 4.6]
 # banana close to center for right/left training
-posBananas = [0.5, 4.975]
+#posBananas = [0.5, 4.975]
 # banana in distance for forward training
-#posBananas = [0, 7]
+posBananas = [0, 7]
 # ack so bloody annoying!!!!
-#startBanana = Point3(2, 4.6, 1)
-startBanana = Point3(0.5, 4.975, 1)
 # posBananas = [0, 5]  # banana in center
 #posBananas = [0, 0, 1, 0]
 #numBananas = 25

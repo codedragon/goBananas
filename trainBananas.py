@@ -106,28 +106,26 @@ class TrainBananas:
             #print('start pos', self.x_start_p)
         elif self.training > 1:
             # move to put banana under crosshair
-            if self.training == 2:
-                self.banana_pos = config['sideBanana']
-            elif self.training == 3:
-                self.banana_pos = config['forwardBanana']
             self.banana_models = Bananas(config)
-            #print('banana position', self.banana_pos)
+            self.banana_pos = self.banana_models.bananaModels[0].getPos()
+            print('banana position', self.banana_pos)
             #print('banana', self.banana_models.bananaModels[0].getPos())
             base.cTrav = CollisionTraverser()
             self.collHandler = CollisionHandlerQueue()
             avatar = Avatar.getInstance()
             avatar.retrNodePath().getChild(0).node().setIntoCollideMask(0)
-            #print avatar.retrNodePath().getChild(0).node().getFromCollideMask()
-            #print avatar.retrNodePath().getChild(0).node().getIntoCollideMask()
+            print 'avatar'
+            print avatar.retrNodePath().getChild(0).node().getFromCollideMask()
+            print avatar.retrNodePath().getChild(0).node().getIntoCollideMask()
             pointerNode = avatar.retrNodePath().attachNewNode('CrossHairRay')
             # ray that comes straight out from the camera
             raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
             mainAimingNP = self.makeCollisionNodePath(pointerNode, raySolid)
             mainAimingNode = mainAimingNP.node()
             mainAimingNode.setIntoCollideMask(0)
-            #print 'ray'
-            #print mainAimingNode.getFromCollideMask()
-            #print mainAimingNode.getIntoCollideMask()
+            print 'ray'
+            print mainAimingNode.getFromCollideMask()
+            print mainAimingNode.getIntoCollideMask()
             base.cTrav.addCollider(mainAimingNP, self.collHandler)
             #base.cTrav.showCollisions(render)
             #mainAimingNP.show()
@@ -211,7 +209,10 @@ class TrainBananas:
             vr.addTask(Task("checkCollisions",
                             lambda taskInfo:
                             self.check_collisions()))
-
+        elif self.training == 3:
+            vr.addTask(Task("checkForward",
+                            lambda taskInfo:
+                            self.check_forward()))
         # vr.addTask(Task("checkReward",
         #                 lambda taskInfo:
         #                 self.check_reward(),
@@ -305,10 +306,10 @@ class TrainBananas:
         if self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
             self.collide_banana = True
-            print self.collHandler.getEntries()
+            #print self.collHandler.getEntries()
         if self.collide_banana:
             test = self.js.getEvents()
-            print test
+            #print test
             if self.reward_count == self.reward_total:
                 #print 'change xhair color to white'
                 self.x_change_color(self.x_start_c)
@@ -344,6 +345,39 @@ class TrainBananas:
                 #print 'change xhair color to red'
                 self.x_change_color(self.x_stop_c)
                 self.yay_reward = True
+
+    def check_forward(self):
+        # This is checked every fricking frame, which means we go through this loop
+        # many times per collision, except when I want it to. :/
+        # check to see if crosshair is over banana, if so, stop turning, move it to centered, give reward
+        # if self.collHandler.getNumEntries() > 0:
+        #     # the only object we can be running into is the banana, so there you go...
+        #     self.collide_banana = True
+        #     #print self.collHandler.getEntries()
+        # if self.collide_banana:
+        #     #print 'collide'
+        #     self.collide_banana = False
+        if self.banana_models.beeps is None:
+            return
+
+        # Still here? Give reward!
+        #print 'still here?'
+        #print self.banana_models.beeps
+        if self.banana_models.beeps < self.reward_total:
+            self.x_change_color(self.x_stop_c)
+            print 'reward'
+            self.yay_reward = True
+            self.reward_count = self.banana_models.beeps
+            self.banana_models.beeps += 1
+        elif self.banana_models.beeps == self.numBeeps:
+            # banana disappears
+            self.trial_num = self.banana_models.goneBanana(self.trial_num)
+            # avatar can move
+            #Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
+            self.x_change_color(self.x_start_c)
+            Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
+            # reward is over
+            self.banana_models.beeps = None
 
     def check_reward(self):
         if self.yay_reward and self.reward_count < self.reward_total:
