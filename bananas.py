@@ -23,6 +23,7 @@ class Bananas():
         self.beeps = None
         self.collision = True
         self.pList = []
+        self.repeat = True
         if self.manual:
             self.posBananas = config['posBananas']
             self.createManualBananas()
@@ -33,10 +34,12 @@ class Bananas():
         # don't assign bananas randomly, place exactly where we want them
         # according to config file. Technically, could do more than 2 bananas,
         # but have never needed to.
+        self.pList = self.posBananas
         for i in range(self.numBananas):
             # pop okay, since only doing this for a list of max 4 items
-            x = self.posBananas.pop(0)
-            y = self.posBananas.pop(0)
+            #x = self.posBananas.pop(0)
+            #y = self.posBananas.pop(0)
+            x, y = self.pList[i]
             bananaModel = Model.Model("banana" + "%02d" % i,
                                 os.path.join(self.dir,
                                 "banana.bam"),
@@ -65,6 +68,7 @@ class Bananas():
             self.bananaModels[i].setStashed(False)
 
         #print 'on screen?'
+        print self.pList
 
     def createBananas(self, start=None):
 
@@ -103,7 +107,7 @@ class Bananas():
             self.bananaModels[i].setStashed(False)
         #self.byeBanana = []
         #print 'end load bananas'
-        #print pList
+        print pList
         #return bananaModels
 
     def collideBanana(self, collisionInfoList):
@@ -139,22 +143,33 @@ class Bananas():
             self.collision = False
 
     def replenishBananas(self, repeat=None):
+        # Eventually have a different code in repeat to signify
+        # if using a previous set or saving a new set.
         if repeat is not None and self.pList:
             pList = self.pList
         else:
             pList = []
+        print pList
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         # print 'avatar pos', avatarXY
         for i in range(self.numBananas):
             #print pList
-            (x, y) = mb.setXY(pList, avatarXY)
-            pList.append((x, y))
+            if repeat is not None:
+                (x, y) = pList[i]
+            else:
+                (x, y) = mb.setXY(pList, avatarXY)
+                pList.append((x, y))
+            print x, y
             self.bananaModels[i].setPos(Point3(x, y, 1))
             # make new bananas visible
             self.bananaModels[i].setStashed(False)
             # start count again
-        if repeat is not None and not self.pList:
+        if repeat is not None:
+            # save a new list of random banans,
+            # if we are just on repeat every trial,
+            # this will save the same bananas we've
+            # been showing
             self.pList = pList
         self.stashed = self.numBananas
 
@@ -173,7 +188,7 @@ class Bananas():
         self.collision = True
         if self.stashed == 0:
             print 'last banana'
-            self.replenishBananas()
+            self.replenishBananas(self.repeat)
             trialNum += 1
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
             #new_trial()

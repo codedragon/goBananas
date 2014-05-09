@@ -43,20 +43,21 @@ class TrainBananas:
         # variables dynamically
         self.numBeeps = config['numBeeps']
         #print config['trainingDirection']
+        # for bananas, changing the angle from avatar to banana, so left is positive
+        # right is negative. for moving crosshair, it is the opposite, so have to
+        # invert
         if config['trainingDirection'] == 'Left':
             self.trainDir = 'turnLeft'
-            self.multiplier = -1
+            self.multiplier = 1
         elif config['trainingDirection'] == 'Right':
             self.trainDir = 'turnRight'
-            self.multiplier = 1
+            self.multiplier = -1
         elif config['trainingDirection'] == 'Forward':
             self.trainDir = 'moveForward'
         #print('multiplier', self.multiplier)
         # not changing now, but may eventually...
         self.x_alpha = config['xHairAlpha']
         self.training = config['training']
-        # should we reward backward pulls?
-        self.backward = config['backward']
         # variable used to notify when changing direction of new target
         self.new_dir = None
         # variable to notify when changing levels
@@ -105,7 +106,7 @@ class TrainBananas:
             self.config_x = config['beginning_x']
             #print('start pos', self.x_start_p)
         elif self.training > 1:
-            # move to put banana under crosshair
+            # goal is to move to put banana under crosshair
             self.banana_models = Bananas(config)
             self.banana_pos = self.banana_models.bananaModels[0].getPos()
             print('banana position', self.banana_pos)
@@ -130,6 +131,8 @@ class TrainBananas:
             #base.cTrav.showCollisions(render)
             #mainAimingNP.show()
             if self.training == 2:
+                self.avatar_h = 4
+                avatar.setH(self.multiplier * self.avatar_h)
                 self.fullTurningSpeed = config['fullTurningSpeed']
             else:
                 self.fullForwardSpeed = config['fullForwardSpeed']
@@ -139,7 +142,9 @@ class TrainBananas:
             # don't have center in the same place. Makes more sense to move text than ray.
             # These numbers were scientifically determined. JK, moved around until the cross looked
             # centered on the ray
-            self.x_start_p = Point3(-0.043, 0, 0.051)
+            #self.x_start_p = Point3(0, 0, 0)
+            #self.x_start_p = Point3(-0.043, 0, 0.051)
+            self.x_start_p = Point3(-0.05, 0, 0.051)
             self.collide_banana = False
         self.x_start_p[0] *= self.multiplier
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
@@ -153,7 +158,7 @@ class TrainBananas:
         self.delay = 1  # number of updates to wait for new "trial" (200ms per update)
         self.t_delay = 0  # keeps track of updates waiting for new "trial"
         self.reward_count = 0
-        self.reward_total = config['numBeeps']
+
         # set up reward system
         if config['reward'] and LOADED_PYDAQ:
             self.reward = pydaq.GiveReward()
@@ -188,7 +193,6 @@ class TrainBananas:
         vr.inputListen("changeLeft", self.change_left)
         vr.inputListen("changeRight", self.change_right)
         vr.inputListen("changeForward", self.change_forward)
-        vr.inputListen("allowBackward", self.allow_backward)
         # Can't change levels, since that involves changing the task,
         # may eventually be able to do this, if end up using same time
         # increment for tasks.
@@ -205,18 +209,11 @@ class TrainBananas:
                             lambda taskInfo:
                             self.tasks(),
                             config['pulseInterval']))
-        if self.training == 2:
+
+        if self.training > 1:
             vr.addTask(Task("checkCollisions",
                             lambda taskInfo:
                             self.check_collisions()))
-        elif self.training == 3:
-            vr.addTask(Task("checkForward",
-                            lambda taskInfo:
-                            self.check_forward()))
-        # vr.addTask(Task("checkReward",
-        #                 lambda taskInfo:
-        #                 self.check_reward(),
-        #                 config['pulseInterval']))
 
     def tasks(self):
         #print('doing task', self.training)
@@ -224,6 +221,12 @@ class TrainBananas:
             self.check_position()
         else:
             self.check_reward()
+
+    def check_collisions(self):
+        if self.training == 2:
+            self.check_x_banana()
+        else:
+            self.check_y_banana()
 
     def check_position(self):
         # move crosshair
@@ -237,7 +240,8 @@ class TrainBananas:
         test = self.js.getEvents()
         #print test
         old_pos = self.cross.getPos()[0]
-        old_pos *= self.multiplier
+        # actually invert the multiplier, since the default setting is for the banana task
+        old_pos *= -self.multiplier
         #print old_pos
         stop_x = abs(self.x_stop_p[0])
         #if test:
@@ -263,7 +267,7 @@ class TrainBananas:
                 # move closer to zero
                 old_pos -= self.cross_move_int
                 # go back to original direction
-                old_pos *= self.multiplier
+                old_pos *= -self.multiplier
                 # now change the position
                 new_pos = self.cross.getPos()
                 new_pos[0] = old_pos
@@ -279,7 +283,7 @@ class TrainBananas:
         if self.yay_reward:
             #print 'yay_reward is true'
             #print self.reward_count
-            if self.reward_count == self.reward_total:
+            if self.reward_count == self.numBeeps:
                 # reward over
                 self.x_change_color(self.x_start_c)
                 # delay before next trial?
@@ -299,10 +303,12 @@ class TrainBananas:
                 self.x_change_color(self.x_stop_c)
                 self.give_reward()
 
-    def check_collisions(self):
+    def check_x_banana(self):
         # This is checked every fricking frame, which means we go through this loop
         # many times per collision, except when I want it to. :/
-        # check to see if crosshair is over banana, if so, stop turning, move it to centered, give reward
+        # check to see if crosshair is over banana, if so, stop turning, give reward
+        # next stage is just slowing down after crosshair changes color, so he can go
+        # past and has to turn back.
         if self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
             self.collide_banana = True
@@ -310,7 +316,7 @@ class TrainBananas:
         if self.collide_banana:
             test = self.js.getEvents()
             #print test
-            if self.reward_count == self.reward_total:
+            if self.reward_count == self.numBeeps:
                 #print 'change xhair color to white'
                 self.x_change_color(self.x_start_c)
                 if self.t_delay == self.delay:
@@ -330,23 +336,14 @@ class TrainBananas:
                 # stop the avatar during reward
                 #print 'stop avatar'
                 Avatar.getInstance().setMaxTurningSpeed(0)
-                #print Avatar.getInstance().getH()
-                #print('mulitplier', self.multiplier)
-                if self.multiplier == 1:
-                    # left
-                    #avatar_change = -0.5
-                    avatar_change = 0
-                else:
-                    #right
-                    #avatar_change = 3
-                    avatar_change = 0
+                print Avatar.getInstance().getH()
                 #Avatar.getInstance().setH(Avatar.getInstance().getH() + avatar_change)
                 #print Avatar.getInstance().getH()
                 #print 'change xhair color to red'
                 self.x_change_color(self.x_stop_c)
                 self.yay_reward = True
 
-    def check_forward(self):
+    def check_y_banana(self):
         # This is checked every fricking frame, which means we go through this loop
         # many times per collision, except when I want it to. :/
         # check to see if crosshair is over banana, if so, stop turning, move it to centered, give reward
@@ -363,51 +360,48 @@ class TrainBananas:
         # Still here? Give reward!
         #print 'still here?'
         #print self.banana_models.beeps
-        if self.banana_models.beeps < self.reward_total:
+        if self.reward_count < self.numBeeps:
             self.x_change_color(self.x_stop_c)
-            print 'reward'
+            #print 'reward'
             self.yay_reward = True
-            self.reward_count = self.banana_models.beeps
-            self.banana_models.beeps += 1
-        elif self.banana_models.beeps == self.numBeeps:
+        elif self.reward_count == self.numBeeps:
             # banana disappears
             self.trial_num = self.banana_models.goneBanana(self.trial_num)
             # avatar can move
             #Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
             self.x_change_color(self.x_start_c)
+            Avatar.getInstance().setPos(Point3(0, 0, 1))
+            Avatar.getInstance().setH(0)
             Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
             # reward is over
             self.banana_models.beeps = None
+            self.yay_reward = False
+            self.reward_count = 0
 
     def check_reward(self):
-        if self.yay_reward and self.reward_count < self.reward_total:
+        if self.yay_reward and self.reward_count < self.numBeeps:
             #print 'reward'
             self.reward_count += 1
             self.give_reward()
 
     def restart(self):
         #print 'restarted'
-        #self.banana_models.replenishBananas()
         self.yay_reward = False
         self.t_delay = 0
         if self.new_dir is not None:
             if self.new_dir == 1:
                 self.trainDir = 'turnRight'
-                self.multiplier = 1
+                self.multiplier = -1
             elif self.new_dir == -1:
                 self.trainDir = 'turnLeft'
-                self.multiplier = -1
+                self.multiplier = 1
             else:
                 self.trainDir = 'moveForward'
             self.new_dir = None
-            self.x_start_p[0] = abs(self.x_start_p[0]) * self.multiplier
+            self.x_start_p[0] = abs(self.x_start_p[0]) * -self.multiplier
         print('xhair position', self.x_start_p)
         self.x_change_position(self.x_start_p)
         self.x_change_color(self.x_start_c)
-        if self.change_level:
-            print 'change level'
-            self.training = self.change_level
-            self.change_level = False
 
     def restart_bananas(self):
         #print 'restarted'
@@ -426,37 +420,35 @@ class TrainBananas:
             if self.new_dir == 1:
                 # banana on left side, x = negative
                 self.trainDir = 'turnRight'
-                self.multiplier = 1
+                self.multiplier = -1
             elif self.new_dir == -1:
                 # banana on right side, x = positive
                 self.trainDir = 'turnLeft'
-                self.multiplier = -1
+                self.multiplier = 1
             else:
                 self.trainDir = 'moveForward'
             self.new_dir = None
             #print('change direction')
             #print('old position', self.banana_pos)
             #print('actual position', self.banana_models.bananaModels[0].getPos())
-            self.banana_pos[0] = abs(self.banana_pos[0]) * self.multiplier
-            #self.x_start_p[0] = abs(self.x_start_p[0]) * self.multiplier
-        #print('xhair position', self.x_start_p)
-        #print('banana position', self.banana_pos)
-        #self.x_change_position(self.x_start_p)
+            #self.banana_pos[0] = abs(self.banana_pos[0]) * self.multiplier
+
         self.x_change_color(self.x_start_c)
         if self.change_level:
             print 'change level'
             self.training = self.change_level
             self.change_level = False
-        if self.multiplier == 1:
-            self.banana_models.bananaModels[0].setH(280)
-        else:
-            self.banana_models.bananaModels[0].setH(290)
+        #if self.multiplier == 1:
+        #    self.banana_models.bananaModels[0].setH(280)
+        #else:
+        #    self.banana_models.bananaModels[0].setH(290)
         #print 'move avatar back to center, facing original direction'
         Avatar.getInstance().setPos(Point3(0, 0, 1))
-        Avatar.getInstance().setH(0)
+        Avatar.getInstance().setH(self.multiplier * self.avatar_h)
 
         # make sure banana in correct position
-        self.banana_models.bananaModels[0].setPos(self.banana_pos)
+        # banana does not move, avatar moves or rotates
+        #self.banana_models.bananaModels[0].setPos(self.banana_pos)
         # unhide banana
         self.banana_models.bananaModels[0].setStashed(False)
         #print Avatar.getInstance().getPos()
@@ -509,51 +501,59 @@ class TrainBananas:
             #print self.config_x
             self.x_start_p[0] *= 2
             if abs(self.x_start_p[0]) > 0.9:
-                self.x_start_p[0] = self.multiplier * 0.9
+                self.x_start_p[0] = -self.multiplier * 0.9
             print('new pos', self.x_start_p)
             #print self.config_x
         elif self.training == 2:
-            print 'increase distance'
-            #print('old pos', self.banana_pos)
-            #self.banana_pos[0] = self.banana_pos[0] * 1.5
-            self.banana_pos[0] *= 1.5
-            if abs(self.banana_pos[0]) > 2:
-                self.banana_pos[0] = self.multiplier * 2
+            print 'increase angle'
+            #print('old pos', self.avatar_h)
+            #self.avatar_h[0] = self.avatar_h[0] * 1.5
+            self.avatar_h *= 1.5
+            if abs(self.avatar_h) > 30:
+                self.avatar_h = self.multiplier * 30
             # y is always going to be positive
-            self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
-            print('new pos', self.banana_pos)
+            #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
+            print('new pos', self.avatar_h)
 
     def x_dec_start(self, inputEvent):
         if self.training == 1:
             self.x_start_p[0] *= 0.5
             # don't go too crazy getting infinitely close to zero. :)
-            if self.x_start_p[0] < 0.01:
-                self.x_start_p[0] = 0.01
+            if abs(self.x_start_p[0]) < 0.01:
+                self.x_start_p[0] = -self.multiplier * 0.01
             print('new pos', self.x_start_p)
         elif self.training == 2:
-            print 'decrease distance'
-            #print('old pos', self.banana_pos)
-            self.banana_pos[0] /= 1.5
-            if abs(self.banana_pos[0]) < 0.5:
-                self.banana_pos[0] = self.multiplier * 0.5
+            print 'decrease angle'
+            #print('old pos', self.avatar_h)
+            self.avatar_h /= 1.5
+            if abs(self.avatar_h) < 0.3:
+                self.avatar_h = self.multiplier * 0.3
             #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
-            self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
-            print('new pos', self.banana_pos)
+            #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
+            print('new pos', self.avatar_h)
 
     def inc_reward(self, inputEvent):
-        self.reward_total += 1
+        self.numBeeps += 1
 
     def dec_reward(self, inputEvent):
-        self.reward_total -= 1
+        self.numBeeps -= 1
 
     def inc_level(self, inputEvent):
-        self.change_level = self.training + 1
+        # cannot change into or out of level 1, only higher levels,
+        # currently level 3 is highest
+        if self.training == 1 or self.training == 3:
+            self.change_level = self.training
+            print 'cannot increase level'
+        else:
+            self.change_level = self.training + 1
         print('new level', self.change_level)
 
     def dec_level(self, inputEvent):
-        self.change_level = self.training - 1
-        if self.change_level < 0:
-            self.change_level = 0
+        if self.training == 1 or self.training == 2:
+            self.change_level = self.training
+            print 'cannot decrease level'
+        else:
+            self.change_level = self.training - 1
         print('new level', self.change_level)
 
     def inc_interval(self, inputEvent):
@@ -565,22 +565,16 @@ class TrainBananas:
         print('new delay', self.delay)
 
     def change_left(self, inputEvent):
-        self.new_dir = -1
+        self.new_dir = 1
         print('new dir: left')
 
     def change_right(self, inputEvent):
-        self.new_dir = 1
+        self.new_dir = -1
         print('new dir: right')
 
     def change_forward(self, inputEvent):
         self.new_dir = 0
         print('new dir: forward')
-
-    def allow_backward(self, inputEvent):
-        self.backward += 1
-        if self.backward > 2:
-            self.backward = 0
-        print('backward allowed:', self.backward)
 
     def makeCollisionNodePath(self, nodepath, solid):
         '''

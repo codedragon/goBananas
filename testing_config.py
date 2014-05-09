@@ -5,14 +5,14 @@ from panda3d.core import Point3, Point4
 subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 3
+training = 2
 
 # models are in goBananas directory by default
 path_models = ''
 
 # direction subject has to push the joystick
-trainingDirection = 'Right'
-#trainingDirection = 'Left'
+#trainingDirection = 'Right'
+trainingDirection = 'Left'
 
 # manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
@@ -101,6 +101,8 @@ instructSeeAll = False
 
 # Experiment-specific settings
 
+# stuff for just moving the crosshair to the center
+# (task we never actually plan to do...)
 # starting alpha for crosshair
 xHairAlpha = 1
 # how far to travel per joystick push
@@ -110,22 +112,17 @@ xHairDist = 0.01
 xStartPos = Point3(0.05, 0, 0)
 beginning_x = Point3(0.05, 0, 0)
 
-# zero, all backward allowed
-# one, straight backward not rewarded
-# two, no backward rewarded
-backward = 0
-
 # Bananas.
 numBananas = 1
 # if training direction is right, both x and y should be positive
-#posBananas = [2, 4.6]
-# banana close to center for right/left training
-#posBananas = [0.5, 4.975]
+#posBananas = [(2, 4.6)]
+# banana close to center for right/left training# #
+#posBananas = [(0.5, 4.975)]
 # banana in distance for forward training
-posBananas = [0, 7]
+#posBananas = [(0, 7)]
 # ack so bloody annoying!!!!
-# posBananas = [0, 5]  # banana in center
-#posBananas = [0, 0, 1, 0]
+posBananas = [(0, 5)]  # banana in center
+#posBananas = [(0, 0), (1, 0)]
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
@@ -154,6 +151,8 @@ if 'Keyboard' in globals():
     #keyboard.bind("decreaseDist", ["shift", "down"])
     keyboard.bind("increaseDist", "w")
     keyboard.bind("decreaseDist", "s")
+    keyboard.bind("increaseLevel", "e")
+    keyboard.bind("decreaseLevel", "d")
     #keyboard.bind("increaseBananas", "w")
     #keyboard.bind("decreaseBananas", "s")
     keyboard.bind("increaseReward", "t")
