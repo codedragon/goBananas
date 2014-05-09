@@ -76,9 +76,18 @@ us, but may want to implement it later.
 
 I don't know what Pandaepl is doing, but this behavior is bizarre:
 if I initiate two variables with the same key in the config dictionary:
-x = config['x_start']
-y = config['x_start']
+x = config['my_default']
+y = config['my_default']
 this somehow links x and y, so that if I now change x, y will also change. WTF?
+Bad use of scope!
+
+PandaEPL is doing something funny with the joystick input. I have tested the input from
+pygame, and the joystick numbers are quite accurate, but I get events in PandaEPL from
+the joystick of magnitude over 0.2 (the default threshold) when the joystick is not being
+touched. I think the signal is not being cleared, (maybe because of the threshold?). The
+signal is always are the same magnitude, until the joystick is touched again, and I never
+see this directly from pygame. It sometimes causes the view to 'skip' when the joystick
+is not being touched.
 
 Globals:
 LogException = <class 'pandaepl.Exceptions.LogException'>

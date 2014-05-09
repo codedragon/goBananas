@@ -128,6 +128,8 @@ class TrainBananas:
             print mainAimingNode.getFromCollideMask()
             print mainAimingNode.getIntoCollideMask()
             base.cTrav.addCollider(mainAimingNP, self.collHandler)
+            self.js_check = 0
+            self.js_pos = 0
             #base.cTrav.showCollisions(render)
             #mainAimingNP.show()
             if self.training == 2:
@@ -136,6 +138,7 @@ class TrainBananas:
                 self.fullTurningSpeed = config['fullTurningSpeed']
             else:
                 self.fullForwardSpeed = config['fullForwardSpeed']
+            self.avatar_pos = config['initialPos']
             # if using crosshair as real crosshair, always in center,
             # need it to be in same place as collisionRay is, but it appears that center is
             # at the bottom left of the collisionRay, and the top right of the text, so they
@@ -315,15 +318,37 @@ class TrainBananas:
             #print self.collHandler.getEntries()
         if self.collide_banana:
             test = self.js.getEvents()
-            #print test
+            print test
+            print test.keys()
+            if 'turnRight' in test.keys():
+                print test['turnRight']
+                mag_test = test.keys()
+                print test[mag_test[0]]
+                print test[mag_test[0]]
             if self.reward_count == self.numBeeps:
                 #print 'change xhair color to white'
                 self.x_change_color(self.x_start_c)
+                # hide the banana
+                self.banana_models.bananaModels[0].setStashed(True)
                 if self.t_delay == self.delay:
                     #print 'delay over'
                     #print 'please let go of joystick'
                     # if let go of joystick, can start over
-                    if not test:
+                    # pandaepl is doing something screwy, and I sometimes get
+                    # signals from the joystick after it has been released, these
+                    # are always exactly the same signal over and over, so check
+                    # for the same signal for a few frames.
+                    mag_test = test.keys()
+                    # meh. how do I just get the number out of this dictionary!
+                    # InputEvent: turnRight, mag:0.464705343791
+                    if mag_test:
+                        print test[mag_test[0][1]]
+                        if self.js_pos == test[mag_test[0]]:
+                            self.js_check += 1
+                        else:
+                            self.js_pos = test[mag_test[0]]
+
+                    if not test or self.js_check == 2:
                         #print 'did let go of joystick'
                         self.restart_bananas()
                         #print 'end conditional'
@@ -336,7 +361,10 @@ class TrainBananas:
                 # stop the avatar during reward
                 #print 'stop avatar'
                 Avatar.getInstance().setMaxTurningSpeed(0)
-                print Avatar.getInstance().getH()
+                h = Avatar.getInstance().getH()
+                print('avatar heading', h)
+                if h != 0:
+                    Avatar.getInstance().setH(0)
                 #Avatar.getInstance().setH(Avatar.getInstance().getH() + avatar_change)
                 #print Avatar.getInstance().getH()
                 #print 'change xhair color to red'
@@ -405,8 +433,6 @@ class TrainBananas:
 
     def restart_bananas(self):
         #print 'restarted'
-        # first hide the banana
-        self.banana_models.bananaModels[0].setStashed(True)
         #self.banana_models.replenishBananas()
         # reset a couple of variables
         self.yay_reward = False
@@ -442,10 +468,10 @@ class TrainBananas:
         #    self.banana_models.bananaModels[0].setH(280)
         #else:
         #    self.banana_models.bananaModels[0].setH(290)
-        #print 'move avatar back to center, facing original direction'
-        Avatar.getInstance().setPos(Point3(0, 0, 1))
+        print('rotate avatar back so at correct angle:', self.avatar_h)
+        Avatar.getInstance().setPos(self.avatar_pos)
         Avatar.getInstance().setH(self.multiplier * self.avatar_h)
-
+        print('avatar heading', Avatar.getInstance().getH())
         # make sure banana in correct position
         # banana does not move, avatar moves or rotates
         #self.banana_models.bananaModels[0].setPos(self.banana_pos)
@@ -510,10 +536,10 @@ class TrainBananas:
             #self.avatar_h[0] = self.avatar_h[0] * 1.5
             self.avatar_h *= 1.5
             if abs(self.avatar_h) > 30:
-                self.avatar_h = self.multiplier * 30
+                self.avatar_h = 30
             # y is always going to be positive
             #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
-            print('new pos', self.avatar_h)
+            print('new heading', self.avatar_h)
 
     def x_dec_start(self, inputEvent):
         if self.training == 1:
@@ -527,10 +553,10 @@ class TrainBananas:
             #print('old pos', self.avatar_h)
             self.avatar_h /= 1.5
             if abs(self.avatar_h) < 0.3:
-                self.avatar_h = self.multiplier * 0.3
+                self.avatar_h = 0.3
             #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
             #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
-            print('new pos', self.avatar_h)
+            print('new heading', self.avatar_h)
 
     def inc_reward(self, inputEvent):
         self.numBeeps += 1

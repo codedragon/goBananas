@@ -78,6 +78,7 @@ turningLinearSpeed = 2  #Kiril has this as a factor,
 # with min and max, eventually implement?
 
 # Point3 is global from panda3d.core
+# initial position of avatar
 initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
@@ -121,7 +122,7 @@ numBananas = 1
 # banana in distance for forward training
 #posBananas = [(0, 7)]
 # ack so bloody annoying!!!!
-posBananas = [(0, 5)]  # banana in center
+posBananas = [(0, 2.5)]  # banana in center
 #posBananas = [(0, 0), (1, 0)]
 #numBananas = 25
 bananaDir = './models/bananas/'
