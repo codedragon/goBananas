@@ -129,7 +129,7 @@ class TrainBananas:
             print mainAimingNode.getIntoCollideMask()
             base.cTrav.addCollider(mainAimingNP, self.collHandler)
             self.js_check = 0
-            self.js_pos = 0
+            self.js_pos = None
             #base.cTrav.showCollisions(render)
             #mainAimingNP.show()
             if self.training == 2:
@@ -342,13 +342,15 @@ class TrainBananas:
                     # meh. how do I just get the number out of this dictionary!
                     # InputEvent: turnRight, mag:0.464705343791
                     if mag_test:
-                        print test[mag_test[0][1]]
-                        if self.js_pos == test[mag_test[0]]:
+                        print test[mag_test[0]]
+                        if self.js_pos is test[mag_test[0]]:
                             self.js_check += 1
+                            print 'um, yeah'
                         else:
                             self.js_pos = test[mag_test[0]]
 
-                    if not test or self.js_check == 2:
+                    #if not test or self.js_check == 2:
+                    if not test:
                         #print 'did let go of joystick'
                         self.restart_bananas()
                         #print 'end conditional'
