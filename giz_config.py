@@ -60,15 +60,17 @@ else:
     fullForwardSpeed = 0
 fullBackwardSpeed = 0
 #turningAcceleration = 30
-turningAcceleration = 130
+#turningAcceleration = 130
+turningAcceleration = 110
 if training == 3.1:
     fullTurningSpeed = 0
 elif training >= 2:
-    fullTurningSpeed = 55
+    #fullTurningSpeed = 55
+    fullTurningSpeed = 45
 #fullTurningSpeed = 20
 else:
     fullTurningSpeed = 200
-turningLinearSpeed = 2  #Kiril has this as a factor, 
+#turningLinearSpeed = 2  #Kiril has this as a factor,
 # with min and max, eventually implement
 
 # Point3 is global from panda3d.core
