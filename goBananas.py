@@ -145,6 +145,7 @@ class GoBananas:
             self.send_x_pos_task = pydaq.OutputAvatarXPos()
             self.send_y_pos_task = pydaq.OutputAvatarYPos()
             self.send_events = pydaq.OutputEvents()
+            self.send_strobe = pydaq.StrobeEvents()
             #self.send_events = None
         else:
             self.send_pos_task = None
@@ -183,6 +184,7 @@ class GoBananas:
         VLQ.getInstance().writeLine('Beeps', [int(self.banana_models.beeps)])
         if self.send_events:
             self.send_events.send_signal(201)
+            self.send_strobe.send_signal()
         # increment reward
         self.banana_models.beeps += 1
 
@@ -219,13 +221,17 @@ class GoBananas:
 
     def check_avatar(self):
         avatar = Avatar.getInstance()
-        self.send_x_pos_task.send_signal(avatar.getPos()[0])
-        self.send_y_pos_task.send_signal(avatar.getPos()[1])
+        # max voltage is 5 volts. Kiril's courtyard is not actually square,
+        # 10 in one direction, 11 in the other, so multiply avatar position by 0.4
+        # to send voltage
+        self.send_x_pos_task.send_signal(avatar.getPos()[0] * 0.4)
+        self.send_y_pos_task.send_signal(avatar.getPos()[0] * 0.4)
 
     def new_trial(self):
-        #print 'new trial'
+        print('new trial', self.trial_num)
         if self.send_events:
-            self.send_events.send_signal(100)
+            self.send_events.send_signal(1000 + self.trial_num)
+            self.send_strobe.send_signal()
 
     def load_environment(self, config):
         load_models()

@@ -1,8 +1,8 @@
 # change individual config files, and have script copy to config.py
 # configuration file for goBananas
 #
-#subject = 'Test'
-subject = 'MP'
+subject = 'Test'
+#subject = 'MP'
 
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
 #reward = False
@@ -21,6 +21,6 @@ pulseInterval = 0.2  # in seconds
 #
 # start rewarding backward?
 # zero, all backward allowed
-# one, straight backward not rewarded
-# two, no backward rewarded
+# one, straight backward not rewarded (actually small angle backward not rewarded)
+# two, backward in general not rewarded (actually just a much large angle backward not rewarded)
 backward = 0

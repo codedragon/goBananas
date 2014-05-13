@@ -2,36 +2,31 @@
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
 
-subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 2
+training = 5.2
 
 # models are in goBananas directory by default
 path_models = ''
-
-# direction subject has to push the joystick
-#trainingDirection = 'Right'
-trainingDirection = 'Left'
-
 # manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
-manual = True
+manual = False
 
 # environ types available:
 # 'training'
 # 'original'
-# None gives you nothing
-environ = None
-#environ = 'original'
-
-# Are we giving rewards? not if not using pydaq
-#reward = False
+environ = 'original'
+# Are we giving rewards?
 reward = True
+#reward = False
 
 # Are we collecting eye data?
-eyeData = False
-#eyeData = True
+eyeData = True
+#eyeData = False
+
+# are we sending data to plexon or blackrock?
+sendData = True
+#sendData = False
 
 # 3d?
 # framebuffer-stereo 1
@@ -41,7 +36,7 @@ numBeeps = 3
 # factor to increase reward for last banana
 extra = 2
 # for activating reward system
-pulseInterval = 200  # in ms
+pulseInterval = 200 # in ms
 
 # eye position calibration information
 # since we are getting voltage from IScan of -5:5
@@ -65,20 +60,20 @@ else:
     fullForwardSpeed = 0
 fullBackwardSpeed = 0
 #turningAcceleration = 30
-turningAcceleration = 130
+#turningAcceleration = 130
+turningAcceleration = 110
 if training == 3.1:
     fullTurningSpeed = 0
 elif training >= 2:
-    fullTurningSpeed = 55
+    #fullTurningSpeed = 55
+    fullTurningSpeed = 45
 #fullTurningSpeed = 20
 else:
     fullTurningSpeed = 200
-
-turningLinearSpeed = 2  #Kiril has this as a factor, 
-# with min and max, eventually implement?
+#turningLinearSpeed = 2  #Kiril has this as a factor,
+# with min and max, eventually implement
 
 # Point3 is global from panda3d.core
-# initial position of avatar
 initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
@@ -88,12 +83,10 @@ initialPos = Point3(0, 0, 1)
 avatarRadius = 0.2
 
 cameraPos = Point3(0, 0, 0)
-friction = 0.4 #0.4
-movementType = 'walking' # car | walking
+friction = 0.4  # 0.4
+movementType = 'walking'  # car | walking
 
-# needed for joystick (instructions)
-#instructSize = 0.1
-instructSize = 0.2
+instructSize = 0.1
 instructFont = '/c/Windows/Fonts/times.ttf'
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
@@ -102,36 +95,15 @@ instructSeeAll = False
 
 # Experiment-specific settings
 
-# stuff for just moving the crosshair to the center
-# (task we never actually plan to do...)
-# starting alpha for crosshair
-xHairAlpha = 1
-# how far to travel per joystick push
-xHairDist = 0.01
-# starting distance from center (range 0-1), use positive numbers,
-# direction determined by trainingDirection.
-xStartPos = Point3(0.05, 0, 0)
-beginning_x = Point3(0.05, 0, 0)
-
 # Bananas.
-numBananas = 1
-# if training direction is right, both x and y should be positive
-#posBananas = [(2, 4.6)]
-# banana close to center for right/left training# #
-#posBananas = [(0.5, 4.975)]
-# banana in distance for forward training
-#posBananas = [(0, 7)]
-# ack so bloody annoying!!!!
-posBananas = [(0, 2.5)]  # banana in center
-#posBananas = [(0, 0), (1, 0)]
+numBananas = 10
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
-#bananaScale = .5
-bananaScale = 0.5
+bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 2  # 1.7
+tooClose = 2.2  # 1.7
 
 # Banana Positions
 minDistance = -7
@@ -140,30 +112,68 @@ minFwDistance = -7
 maxFwDistance = 7
 #fwDistanceIncrement = .1
 
+# if not fully trained, do one banana at a time
+#if (training > 0) and (training < 5):
+#	numBananas = 1
+#	distance = .15
+#	bananaLocs[0] = [initialPos[0] - distance, initialPos[1] + 2, 90]
+
+# Target Ray
+#targetRayWindow = .45
+#fovRayVecX = 30
+
+# Target header window, to the left and right
+#if (training > 2) & (training < 2.5):
+#	targetHwinL = 4 - (((training - 2) * 10) - 1)
+#	targetHwinR = 4 - (((training - 2) * 10) - 1)
+#else:
+#	targetHwinL = 2  #1.2 is sort of the boundary.
+#	targetHwinR = 2  #1.2 is sort of the boundary.
+
+# Terrain, sky
+terrainModel = './models/towns/field.bam'
+terrainCenter = Point3(0, 0, 0)
+skyModel = './models/sky/sky.bam'
+skyScale = 1.6
+
+# Eventually want landmarks in state, and load directory full of
+# landmarks, randomly placed in background.
+
+treeModel = './models/trees/palmTree.bam'
+treeLoc = Point3(13, 13, 0)
+treeScale = .0175
+
+skyScraperModel = './models/skyscraper/skyscraper.bam'
+skyScraperLoc = Point3(-13, -13, 0)
+skyScraperScale = .3
+
+stLightModel = './models/streetlight/streetlight.bam'
+stLightLoc = Point3(-13, 13, 0)
+stLightScale = .75
+
+# bananarchy was using amill.bam, but I couldn't load that file,
+# and the original amill.egg was not in the folder.
+windmillModel = './models/windmill/amill.bam'
+windmillLoc = Point3(13, -13, 0)
+windmillScale = .2
+windmillH = 45
+
+# Load 2 bananas for testing, know where they are!
+bananaModel = './models/bananas/banana.bam'
+bananaLoc = Point3(5, 3, 1)
+bananaScale = 0.5
+bananaH = 0
+bananaLoc2 = Point3(5.5, 3, 1)
+
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common
 if 'Keyboard' in globals():
     keyboard = Keyboard.getInstance()
     keyboard.bind("close", ["escape", "q"])
     #keyboard.bind("exit", ["escape", "q"])
-    #keyboard.bind("restart", "r")
+    keyboard.bind("restart", "y")
     keyboard.bind("toggleDebug", ["escape", "d"])
-    #keyboard.bind("increaseDist", ["shift", "up"])
-    #keyboard.bind("decreaseDist", ["shift", "down"])
-    keyboard.bind("increaseDist", "w")
-    keyboard.bind("decreaseDist", "s")
-    keyboard.bind("increaseLevel", "e")
-    keyboard.bind("decreaseLevel", "d")
-    #keyboard.bind("increaseBananas", "w")
-    #keyboard.bind("decreaseBananas", "s")
-    keyboard.bind("increaseReward", "t")
-    keyboard.bind("decreaseReward", "g")
-    keyboard.bind("increaseInt", "u")
-    keyboard.bind("decreaseInt", "j")
-    keyboard.bind("changeLeft", "l")
-    keyboard.bind("changeRight", "r")
-    keyboard.bind("changeForward", "f")
-    keyboard.bind("allowBackward", "b")
-    keyboard.bind("override", "o")
-    keyboard.bind("pause", "p")
-    keyboard.bind("reward", "space")
+    keyboard.bind("upTurnSpeed", "t")
+    keyboard.bind("downTurnSpeed", "g")
+    keyboard.bind("increaseBananas", "w")
+    keyboard.bind("decreaseBananas", "s")
