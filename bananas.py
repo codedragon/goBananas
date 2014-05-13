@@ -129,7 +129,6 @@ class Bananas():
         # to keep track of whether this is the first collision
         if camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath)) and self.collision:
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", [self.byeBanana])
-            #print 'logged'
             #print self.byeBanana
             # cannot run inside of banana
             MovingObject.MovingObject.handleRepelCollision(collisionInfoList)

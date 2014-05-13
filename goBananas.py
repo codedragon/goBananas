@@ -167,7 +167,12 @@ class GoBananas:
 
         if self.banana_models.beeps is None:
             return
-        
+        elif self.banana_models.beeps == 0:
+            #print 'logged'
+            if self.send_events:
+                self.send_events.send_signal(200)
+                self.send_strobe.send_signal()
+
         # Still here? Give reward!
         if self.reward:
             self.reward.pumpOut()
