@@ -230,7 +230,7 @@ class GoBananas:
         # 10 in one direction, 11 in the other, so multiply avatar position by 0.4
         # to send voltage
         self.send_x_pos_task.send_signal(avatar.getPos()[0] * 0.4)
-        self.send_y_pos_task.send_signal(avatar.getPos()[0] * 0.4)
+        self.send_y_pos_task.send_signal(avatar.getPos()[1] * 0.4)
 
     def new_trial(self):
         print('new trial', self.trial_num)
