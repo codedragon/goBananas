@@ -51,7 +51,9 @@ class CrossBanana(JoystickHandler):
         # one, straight backward not rewarded
         # two, no backward rewarded
         self.backward = config['backward']
-        self.forward = 0
+        self.forward = True
+        self.right = True
+        self.left = True
         # all kinds of start defaults
         self.delay_start = False
         self.reward_delay = False
@@ -74,15 +76,12 @@ class CrossBanana(JoystickHandler):
             return task.cont
         if task.time > task.delay:
             self.reward_on = True
-            if self.backward > 0 or self.forward > 0:
-                #print 'check backward'
-                # if we are not allowing backward, need to check y dir.
+            if self.backward > 0 or not self.forward:
+                #print 'check y axis'
+                # if we are not allowing a y dir, also need to check y dir.
                 x_test = -0.1 < self.x_mag < 0.1
                 #print x_test
                 #print self.y_mag
-                #if self.y_mag == 0.0:
-                #    pass
-                #    #print 'nope'
                 if self.backward == 1 and self.y_mag > 0 and x_test:
                     # don't allow straight back (within x tolerance)
                     self.reward_on = False
@@ -97,6 +96,20 @@ class CrossBanana(JoystickHandler):
                     self.reward_on = False
                 if self.forward == 1 and self.y_mag < 0.1 and x_test:
                     # if going straight forward (within x tolerance)
+                    self.reward_on = False
+            if not self.left or not self.right:
+                #print 'check x axis'
+                # if we are not allowing an x dir, also need to check y dir.
+                y_test = -0.1 < self.y_mag < 0.1
+                #print y_test
+                #print self.x_mag
+                if not self.right and self.x_mag > 0 and y_test:
+                    # don't allow straight right (within y tolerance)
+                    self.reward_on = False
+                    #print 'backward'
+                    #print self.y_mag
+                if not self.left and self.x_mag < 0.1 and y_test:
+                    # if going straight left (within y tolerance)
                     self.reward_on = False
 
             #print dist
@@ -164,10 +177,16 @@ class CrossBanana(JoystickHandler):
         print('backward allowed:', self.backward)
 
     def allow_forward(self):
-        self.forward += 1
-        if self.forward > 1:
-            self.forward = 0
+        self.forward = not self.forward
         print('forward allowed:', self.forward)
+
+    def allow_left(self):
+        self.left = not self.left
+        print('left allowed:')
+
+    def allow_right(self):
+        self.right = not self.right
+        print('right allowed:')
 
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
@@ -177,6 +196,8 @@ class CrossBanana(JoystickHandler):
         self.accept('d', self.dec_js_goal)
         self.accept('b', self.allow_backward)
         self.accept('f', self.allow_forward)
+        self.accept('r', self.allow_right)
+        self.accept('l', self.allow_left)
         self.accept('space', self.start_reward)
         self.accept('space-up', self.stop_reward)
 
