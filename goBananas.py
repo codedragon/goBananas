@@ -169,7 +169,7 @@ class GoBananas:
             return
         elif self.banana_models.beeps == 0:
             VLQ.getInstance().writeLine("Yummy", [self.banana_models.byeBanana])
-            print('logged', self.banana_models.byeBanana)
+            #print('logged', self.banana_models.byeBanana)
             if self.send_events:
                 self.send_events.send_signal(200)
                 self.send_strobe.send_signal()
@@ -239,8 +239,8 @@ class GoBananas:
         if self.send_events:
             self.send_events.send_signal(1000 + self.trial_num)
             self.send_strobe.send_signal()
-            for i in self.banana_models:
-                print i.getPos()
+            for i in self.banana_models.bananaModels:
+                #print i.getPos()
                 self.send_events.send_signal(i.getPos()[0])
                 self.send_events.send_signal(i.getPos()[1])
                 self.send_strobe.send_signal()

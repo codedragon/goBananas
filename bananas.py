@@ -6,14 +6,6 @@ import moBananas as mb
 import os
 import sys
 import random
-try:
-    sys.path.insert(1, '../pydaq')
-    import pydaq
-    LOADED_PYDAQ = True
-    #print 'loaded PyDaq'
-except ImportError:
-    LOADED_PYDAQ = False
-    print 'Not using PyDaq'
 
 
 class Bananas():
