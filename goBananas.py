@@ -239,6 +239,11 @@ class GoBananas:
         if self.send_events:
             self.send_events.send_signal(1000 + self.trial_num)
             self.send_strobe.send_signal()
+            for i in self.banana_models:
+                print i.getPos()
+                self.send_events.send_signal(i.getPos()[0])
+                self.send_events.send_signal(i.getPos()[1])
+                self.send_strobe.send_signal()
 
     def load_environment(self, config):
         load_models()
