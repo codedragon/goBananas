@@ -4,14 +4,14 @@ from panda3d.core import Point3, Point4
 
 # Set Training Level 
 # See README for info about Training Levels
-training = 2
+training = 2.2
 
 # models are in goBananas directory by default
 path_models = ''
 
 # direction subject has to push the joystick
-#trainingDirection = 'Right'
-trainingDirection = 'Left'
+trainingDirection = 'Right'
+#trainingDirection = 'Left'
 
 # manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
@@ -57,23 +57,39 @@ FOV = 60
 
 # Movement
 linearAcceleration = 30
+
+# training 0, different program
+# training 1, move crosshair, not generallly used
+# training 2, move crosshair to banana, left/right
+# training 2.1, move crosshair to banana, must let go of joystick to start next trial
+# training 2.2, subject has to line up crosshair to banana for min. time, slows down if goes past banana
+# training 3, move crosshair to banana, forward
+fullBackwardSpeed = 0
+turningAcceleration = 50
 if training >= 3:
     fullForwardSpeed = 2.8
-#fullForwardSpeed = 0.0
-else:
-    fullForwardSpeed = 0
-fullBackwardSpeed = 0
-#turningAcceleration = 30
-turningAcceleration = 100
-if training == 3.1:
     fullTurningSpeed = 0
 elif training >= 2:
-    fullTurningSpeed = 55
-#fullTurningSpeed = 20
-else:
-    fullTurningSpeed = 200
+    fullForwardSpeed = 0
+    fullTurningSpeed = 40
 
-turningLinearSpeed = 2  #Kiril has this as a factor, 
+#if training >= 3:
+#    fullForwardSpeed = 2.8
+#fullForwardSpeed = 0.0
+#else:
+#    fullForwardSpeed = 0
+
+#turningAcceleration = 30
+
+#if training == 3.1:
+#    fullTurningSpeed = 0
+#elif training >= 2:
+#    fullTurningSpeed = 55
+#fullTurningSpeed = 20
+#else:
+#    fullTurningSpeed = 200
+
+#turningLinearSpeed = 2  #Kiril has this as a factor,
 # with min and max, eventually implement?
 
 # Point3 is global from panda3d.core

@@ -46,11 +46,11 @@ class TrainBananas:
         # for bananas, changing the angle from avatar to banana, so left is positive
         # right is negative. for moving crosshair, it is the opposite, so have to
         # invert
-        if config['trainingDirection'] == 'Left':
-            self.trainDir = 'turnLeft'
-            self.multiplier = 1
-        elif config['trainingDirection'] == 'Right':
+        if config['trainingDirection'] == 'Right':
             self.trainDir = 'turnRight'
+            self.multiplier = 1
+        elif config['trainingDirection'] == 'Left':
+            self.trainDir = 'turnLeft'
             self.multiplier = -1
         elif config['trainingDirection'] == 'Forward':
             self.trainDir = 'moveForward'
@@ -131,14 +131,14 @@ class TrainBananas:
             self.js_check = 0
             self.js_pos = None
             self.js_override = False
-            #base.cTrav.showCollisions(render)
+            base.cTrav.showCollisions(render)
             #mainAimingNP.show()
-            if self.training == 2:
+            if self.training >= 3:
+                self.fullForwardSpeed = config['fullForwardSpeed']
+            elif self.training >= 2:
                 self.avatar_h = 2
                 avatar.setH(self.multiplier * self.avatar_h)
                 self.fullTurningSpeed = config['fullTurningSpeed']
-            else:
-                self.fullForwardSpeed = config['fullForwardSpeed']
             self.avatar_pos = config['initialPos']
             # if using crosshair as real crosshair, always in center,
             # need it to be in same place as collisionRay is, but it appears that center is
@@ -150,6 +150,8 @@ class TrainBananas:
             #self.x_start_p = Point3(-0.043, 0, 0.051)
             self.x_start_p = Point3(-0.05, 0, 0.051)
             self.collide_banana = False
+            self.hold_aim = 0
+            self.goal = 500  # number of frames to hold aim
         self.x_start_p[0] *= self.multiplier
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
@@ -227,10 +229,10 @@ class TrainBananas:
             self.check_reward()
 
     def check_collisions(self):
-        if self.training == 2:
-            self.check_x_banana()
-        else:
+        if self.training >= 3:
             self.check_y_banana()
+        elif self.training >= 2:
+            self.check_x_banana()
 
     def check_position(self):
         # move crosshair
@@ -317,8 +319,23 @@ class TrainBananas:
             # the only object we can be running into is the banana, so there you go...
             self.collide_banana = True
             #print self.collHandler.getEntries()
+        if not self.collide_banana:
+            self.hold_aim = 0
         if self.collide_banana:
-            test = self.js.getEvents()
+            #posibilities after colliding with banana:
+            # automatically just re-plots bananas (2)
+            # requires subject to let go of joystick before re-plotting
+            # subject has to line up crosshair to banana for min. time,
+            # (optional, yet to be implemented, slows down if goes past banana)
+            if self.training == 2.1:
+                test = self.js.getEvents()
+            elif self.training == 2.2:
+                test = False
+                if self.hold_aim < self.goal:
+                    self.hold_aim += 1
+                    return
+            else:
+                test = False
             #print test
             #print test.keys()
             #if 'turnRight' in test.keys():
