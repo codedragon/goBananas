@@ -42,8 +42,8 @@ class CrossBanana(JoystickHandler):
         self.y_mag = 0
         # variables for counting how long to hold joystick
         self.js_count = 0
-        # eventually may want start goal in config file
-        self.js_goal = 1  # start out just have to hit joystick
+        # how much to push joystick before reward
+        self.js_goal = config['goal']
         # (count increases before checking for goal match)
         # default is to reward for backward movement. May want
         # to make this a configuration option instead.

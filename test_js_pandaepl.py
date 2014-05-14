@@ -1,6 +1,6 @@
 from pandaepl.common import *
 from pandaepl import Joystick
-from pandaepl import Model, ModelBase
+from bananas import Bananas
 
 
 class Test_JS_PandaEPL:
@@ -17,10 +17,10 @@ class Test_JS_PandaEPL:
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
 
         vr = Vr.getInstance()
-
+        self.banana_models = Bananas(config)
         self.js = Joystick.Joystick.getInstance()
         #print self.js
-
+        vr.inputListen("close", self.close)
         # set up task to be performed between frames
         vr.addTask(Task("checkJS",
                             lambda taskInfo:
@@ -28,8 +28,9 @@ class Test_JS_PandaEPL:
 
     def check_position(self):
         test = self.js.getEvents()
-        print test
-        print test.keys()
+        if test:
+            print test
+            print test.keys()
         mag_test = test.keys()
         if mag_test:
             print test[mag_test[0]]

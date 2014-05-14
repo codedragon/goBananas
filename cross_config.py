@@ -1,20 +1,12 @@
 # change individual config files, and have script copy to config.py
 # configuration file for goBananas
 #
-subject = 'Test'
-#subject = 'MP'
+#subject = 'Test'
+subject = 'MP'
 
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
 #reward = False
 reward = True
-
-# Are we collecting eye data?
-eyeData = False
-#eyeData = True
-#
-
-# # reward
-# numBeeps = 3
 
 # # for activating reward system
 pulseInterval = 0.2  # in seconds
@@ -24,3 +16,6 @@ pulseInterval = 0.2  # in seconds
 # one, straight backward not rewarded (actually small angle backward not rewarded)
 # two, backward in general not rewarded (actually just a much large angle backward not rewarded)
 backward = 0
+
+# how many ms to hold for reward (then rewards at that interval 2 = 200ms, 4 = 400ms, etc)
+goal = 2

@@ -130,10 +130,11 @@ class TrainBananas:
             base.cTrav.addCollider(mainAimingNP, self.collHandler)
             self.js_check = 0
             self.js_pos = None
+            self.js_override = False
             #base.cTrav.showCollisions(render)
             #mainAimingNP.show()
             if self.training == 2:
-                self.avatar_h = 4
+                self.avatar_h = 2
                 avatar.setH(self.multiplier * self.avatar_h)
                 self.fullTurningSpeed = config['fullTurningSpeed']
             else:
@@ -318,13 +319,13 @@ class TrainBananas:
             #print self.collHandler.getEntries()
         if self.collide_banana:
             test = self.js.getEvents()
-            print test
-            print test.keys()
-            if 'turnRight' in test.keys():
-                print test['turnRight']
-                mag_test = test.keys()
-                print test[mag_test[0]]
-                print test[mag_test[0]]
+            #print test
+            #print test.keys()
+            #if 'turnRight' in test.keys():
+            #print test['turnRight']
+            #mag_test = test.keys()
+            #print test[mag_test[0]]
+            #print test[mag_test[0]]
             if self.reward_count == self.numBeeps:
                 #print 'change xhair color to white'
                 self.x_change_color(self.x_start_c)
@@ -338,19 +339,19 @@ class TrainBananas:
                     # signals from the joystick after it has been released, these
                     # are always exactly the same signal over and over, so check
                     # for the same signal for a few frames.
-                    mag_test = test.keys()
+                    #mag_test = test.keys()
                     # meh. how do I just get the number out of this dictionary!
                     # InputEvent: turnRight, mag:0.464705343791
-                    if mag_test:
-                        print test[mag_test[0]]
-                        if self.js_pos is test[mag_test[0]]:
-                            self.js_check += 1
-                            print 'um, yeah'
-                        else:
-                            self.js_pos = test[mag_test[0]]
+                    # if mag_test:
+                    #     print test[mag_test[0]]
+                    #     if self.js_pos is test[mag_test[0]]:
+                    #         self.js_check += 1
+                    #         print 'um, yeah'
+                    #     else:
+                    #         self.js_pos = test[mag_test[0]]
 
                     #if not test or self.js_check == 2:
-                    if not test:
+                    if not test or self.js_override:
                         #print 'did let go of joystick'
                         self.restart_bananas()
                         #print 'end conditional'
@@ -441,6 +442,7 @@ class TrainBananas:
         self.t_delay = 0
         self.reward_count = 0
         self.collide_banana = False
+        self.js_override = False
         #print self.trainDir
         #print self.multiplier
         # check to see if we are switching the banana to the other side
@@ -512,8 +514,11 @@ class TrainBananas:
         self.x_change_color(self.x_stop_c)
 
     def override(self, inputEvent):
-        # sometimes we get a signal from the joystick when it is not being touched
+        # sometimes we get a signal from the joystick when it is not being touched,
+        # this will either stop a reward out of control, or start the next trial, if
+        # the program wrongly believes subject is still touching joystick
         self.stop_reward = True
+        self.js_override = True
 
     def pause(self, inputEvent):
         # if we are less than the usual delay (so in delay or delay is over),

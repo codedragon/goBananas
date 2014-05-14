@@ -168,16 +168,18 @@ class GoBananas:
         if self.banana_models.beeps is None:
             return
         elif self.banana_models.beeps == 0:
-            #print 'logged'
+            VLQ.getInstance().writeLine("Yummy", [self.banana_models.byeBanana])
+            print('logged', self.banana_models.byeBanana)
             if self.send_events:
                 self.send_events.send_signal(200)
                 self.send_strobe.send_signal()
+
 
         # Still here? Give reward!
         if self.reward:
             self.reward.pumpOut()
         else:
-            print 'beep', self.banana_models.beeps
+            print('beep', self.banana_models.beeps)
 
         #print MovingObject.getCollisionIdentifier(Vr.getInstance())
         #vr = Vr.getInstance()
@@ -233,7 +235,7 @@ class GoBananas:
         self.send_y_pos_task.send_signal(avatar.getPos()[1] * 0.4)
 
     def new_trial(self):
-        print('new trial', self.trial_num)
+        #print('new trial', self.trial_num)
         if self.send_events:
             self.send_events.send_signal(1000 + self.trial_num)
             self.send_strobe.send_signal()

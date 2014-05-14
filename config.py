@@ -61,12 +61,12 @@ else:
 fullBackwardSpeed = 0
 #turningAcceleration = 30
 #turningAcceleration = 130
-turningAcceleration = 110
+turningAcceleration = 50
 if training == 3.1:
     fullTurningSpeed = 0
 elif training >= 2:
     #fullTurningSpeed = 55
-    fullTurningSpeed = 45
+    fullTurningSpeed = 35
 #fullTurningSpeed = 20
 else:
     fullTurningSpeed = 200

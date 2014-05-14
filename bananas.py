@@ -4,7 +4,16 @@ from panda3d.core import Point3
 #from goBananas import new_trial
 import moBananas as mb
 import os
+import sys
 import random
+try:
+    sys.path.insert(1, '../pydaq')
+    import pydaq
+    LOADED_PYDAQ = True
+    #print 'loaded PyDaq'
+except ImportError:
+    LOADED_PYDAQ = False
+    print 'Not using PyDaq'
 
 
 class Bananas():
@@ -128,7 +137,6 @@ class Bananas():
         # Sometimes we collide with a banana multiple times for no damn reason, so setting self.collision
         # to keep track of whether this is the first collision
         if camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath)) and self.collision:
-            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", [self.byeBanana])
             #print self.byeBanana
             # cannot run inside of banana
             MovingObject.MovingObject.handleRepelCollision(collisionInfoList)

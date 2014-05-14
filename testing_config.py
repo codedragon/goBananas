@@ -2,7 +2,6 @@
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
 
-subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
 training = 2
@@ -65,7 +64,7 @@ else:
     fullForwardSpeed = 0
 fullBackwardSpeed = 0
 #turningAcceleration = 30
-turningAcceleration = 130
+turningAcceleration = 100
 if training == 3.1:
     fullTurningSpeed = 0
 elif training >= 2:

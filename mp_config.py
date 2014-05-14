@@ -2,17 +2,16 @@
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
 
-subject = 'Test'
 # Set Training Level 
 # See README for info about Training Levels
-training = 0
+training = 2
 
 # models are in goBananas directory by default
 path_models = ''
 
 # direction subject has to push the joystick
-trainingDirection = 'Right'
-#trainingDirection = 'Left'
+#trainingDirection = 'Right'
+trainingDirection = 'Left'
 
 # manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
@@ -65,7 +64,7 @@ else:
     fullForwardSpeed = 0
 fullBackwardSpeed = 0
 #turningAcceleration = 30
-turningAcceleration = 130
+turningAcceleration = 100
 if training == 3.1:
     fullTurningSpeed = 0
 elif training >= 2:
@@ -78,6 +77,7 @@ turningLinearSpeed = 2  #Kiril has this as a factor,
 # with min and max, eventually implement?
 
 # Point3 is global from panda3d.core
+# initial position of avatar
 initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
@@ -101,6 +101,8 @@ instructSeeAll = False
 
 # Experiment-specific settings
 
+# stuff for just moving the crosshair to the center
+# (task we never actually plan to do...)
 # starting alpha for crosshair
 xHairAlpha = 1
 # how far to travel per joystick push
@@ -110,27 +112,23 @@ xHairDist = 0.01
 xStartPos = Point3(0.05, 0, 0)
 beginning_x = Point3(0.05, 0, 0)
 
-# zero, all backward allowed
-# one, straight backward not rewarded
-# two, no backward rewarded
-backward = 0
-
 # Bananas.
 numBananas = 1
 # if training direction is right, both x and y should be positive
-#posBananas = [2, 4.6]
-posBananas = [0.5, 4.975]
+#posBananas = [(2, 4.6)]
+# banana close to center for right/left training# #
+#posBananas = [(0.5, 4.975)]
+# banana in distance for forward training
+#posBananas = [(0, 7)]
 # ack so bloody annoying!!!!
-#startBanana = Point3(2, 4.6, 1)
-startBanana = Point3(0.5, 4.975, 1)
-# posBananas = [0, 5]  # banana in center
-#posBananas = [0, 0, 1, 0]
+posBananas = [(0, 2.5)]  # banana in center
+#posBananas = [(0, 0), (1, 0)]
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 #bananaScale = .5
 bananaScale = 0.5
-
+#bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
 tooClose = 2  # 1.7
 
@@ -153,10 +151,10 @@ if 'Keyboard' in globals():
     #keyboard.bind("decreaseDist", ["shift", "down"])
     keyboard.bind("increaseDist", "w")
     keyboard.bind("decreaseDist", "s")
+    keyboard.bind("increaseLevel", "e")
+    keyboard.bind("decreaseLevel", "d")
     #keyboard.bind("increaseBananas", "w")
     #keyboard.bind("decreaseBananas", "s")
-    keyboard.bind("increaseTouch", "e")
-    keyboard.bind("decreaseTouch", "d")
     keyboard.bind("increaseReward", "t")
     keyboard.bind("decreaseReward", "g")
     keyboard.bind("increaseInt", "u")
