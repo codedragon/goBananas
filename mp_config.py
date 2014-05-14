@@ -10,8 +10,8 @@ training = 2
 path_models = ''
 
 # direction subject has to push the joystick
-#trainingDirection = 'Right'
-trainingDirection = 'Left'
+trainingDirection = 'Right'
+#trainingDirection = 'Left'
 
 # manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
@@ -56,25 +56,14 @@ offset = (1, 1)  # (x,y)
 FOV = 60
 
 # Movement
-linearAcceleration = 30
+fullBackwardSpeed = 0
+turningAcceleration = 50
 if training >= 3:
     fullForwardSpeed = 2.8
-#fullForwardSpeed = 0.0
-else:
-    fullForwardSpeed = 0
-fullBackwardSpeed = 0
-#turningAcceleration = 30
-turningAcceleration = 100
-if training == 3.1:
     fullTurningSpeed = 0
 elif training >= 2:
-    fullTurningSpeed = 55
-#fullTurningSpeed = 20
-else:
-    fullTurningSpeed = 200
-
-turningLinearSpeed = 2  #Kiril has this as a factor, 
-# with min and max, eventually implement?
+    fullForwardSpeed = 0
+    fullTurningSpeed = 40
 
 # Point3 is global from panda3d.core
 # initial position of avatar
