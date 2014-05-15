@@ -67,6 +67,7 @@ class CrossBanana(JoystickHandler):
 
     def frame_loop(self, task):
         #print task.time
+        # delay_start means we just gave reward and need to set wait time
         if self.delay_start:
             task.delay = task.time + self.reward_time
             #print('time now', task.time)

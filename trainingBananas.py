@@ -1,15 +1,8 @@
-# cringe #
-from pandaepl.common import *
-from pandaepl import Joystick
-from pandaepl import Model, ModelBase
-#noinspection PyUnresolvedReferences
+from direct.showbase.ShowBase import ShowBase
+from joystick import JoystickHandler
 from panda3d.core import WindowProperties
 from panda3d.core import CollisionNode, CollisionRay
 from panda3d.core import CollisionTraverser, CollisionHandlerQueue
-from load_models import load_models
-from environment import PlaceModels
-from bananas import Bananas
-from math import sqrt
 import datetime
 import sys
 # only load pydaq if it's available
@@ -28,24 +21,30 @@ class TrainBananas:
         """
         Initialize the experiment
         """
-        # Get experiment instance.
-        #print 'init'
-        exp = Experiment.getInstance()
-        #exp.setSessionNum(0)
-        # Set session to today's date and time
-        exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
-        print exp.getSessionNum()
-        config = Conf.getInstance().getConfig()  # Get configuration dictionary.
-        #print config['training']
-        #print 'load testing', config['testing']
+        self.base = ShowBase()
+        config = {}
+        execfile('train_config.py', config)
+        JoystickHandler.__init__(self)
+        print('Subject is', config['subject'])
+        # set up reward system
+        if config['reward'] and PYDAQ_LOADED:
+            self.reward = pydaq.GiveReward()
+            print 'pydaq'
+        else:
+            self.reward = None
+        self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
+        if not unittest:
+            wp = WindowProperties()
+            wp.setSize(1024, 768)
+            wp.setOrigin(0, 0)
+            base.win.requestProperties(wp)
         # bring some configuration parameters into memory, so we don't need to
         # reload the config file multiple times, also allows us to change these
         # variables dynamically
         self.numBeeps = config['numBeeps']
         #print config['trainingDirection']
         # for bananas, changing the angle from avatar to banana, so left is negative
-        # right is positive. for moving crosshair, it is the opposite, so have to
-        # invert
+        # right is positive.
         if config['trainingDirection'] == 'Right':
             self.trainDir = 'turnRight'
             self.multiplier = 1
@@ -58,89 +57,47 @@ class TrainBananas:
         # not changing now, but may eventually...
         self.x_alpha = config['xHairAlpha']
         self.training = config['training']
+        print self.training
         # variable used to notify when changing direction of new target
         self.new_dir = None
         # variable to notify when changing levels
         self.change_level = False
-        # get rid of cursor
-        win_props = WindowProperties()
-        #print win_props
-        win_props.setCursorHidden(True)
-        #win_props.setOrigin(20, 20)  # make it so windows aren't on top of each other
-        #win_props.setSize(800, 600)  # normal panda window
-        # base is global, used by pandaepl from panda3d
-        base.win.requestProperties(win_props)
 
-        vr = Vr.getInstance()
-
-        self.js = Joystick.Joystick.getInstance()
-        #print self.js
-
-        # Register Custom Log Entries
-        # This one corresponds to colliding with a banana
-        Log.getInstance().addType("Yummy", [("BANANA", basestring)],
-                                  False)
-        # Reward
-        Log.getInstance().addType('Beeps', [('Reward', int)],
-                                            False)
-        # Done getting reward, banana disappears
-        Log.getInstance().addType("Finished", [("BANANA", basestring)],
-                                  False)
-        # New Trial
-        Log.getInstance().addType("NewTrial", [("Trial", int)],
-                                  False)
-        # Log First Trial
-        self.trial_num = 1
-        VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
-
-        Log.getInstance().addType("EyeData", [("X", float),
-                                              ("Y", float)],
-                                              False)
-        # Load environment
-        self.load_environment(config)
-
-        if self.training == 1:
-            # moving crosshair
-            self.cross_move_int = config['xHairDist']
-            self.x_start_p = config['xStartPos']
-            self.config_x = config['beginning_x']
-            #print('start pos', self.x_start_p)
-        elif self.training > 1:
+        if self.training > 1:
             # goal is to move to put banana under crosshair
-            self.banana_models = Bananas(config)
-            self.banana_pos = self.banana_models.bananaModels[0].getPos()
+            # need to load banana
             #print('banana position', self.banana_pos)
             #print('banana', self.banana_models.bananaModels[0].getPos())
             base.cTrav = CollisionTraverser()
             self.collHandler = CollisionHandlerQueue()
-            avatar = Avatar.getInstance()
-            avatar.retrNodePath().getChild(0).node().setIntoCollideMask(0)
+            #avatar = Avatar.getInstance()
             #print 'avatar'
             #print avatar.retrNodePath().getChild(0).node().getFromCollideMask()
             #print avatar.retrNodePath().getChild(0).node().getIntoCollideMask()
-            pointerNode = avatar.retrNodePath().attachNewNode('CrossHairRay')
+            #pointerNode = avatar.retrNodePath().attachNewNode('CrossHairRay')
             # ray that comes straight out from the camera
-            raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
-            mainAimingNP = self.makeCollisionNodePath(pointerNode, raySolid)
-            mainAimingNode = mainAimingNP.node()
-            mainAimingNode.setIntoCollideMask(0)
+            #raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
+            #mainAimingNP = self.makeCollisionNodePath(pointerNode, raySolid)
+            #mainAimingNode = mainAimingNP.node()
+            #mainAimingNode.setIntoCollideMask(0)
             #print 'ray'
             #print mainAimingNode.getFromCollideMask()
             #print mainAimingNode.getIntoCollideMask()
-            base.cTrav.addCollider(mainAimingNP, self.collHandler)
+            #base.cTrav.addCollider(mainAimingNP, self.collHandler)
             self.js_check = 0
             self.js_pos = None
             self.js_override = False
             #base.cTrav.showCollisions(render)
             #mainAimingNP.show()
             if self.training >= 3:
-                self.fullForwardSpeed = config['fullForwardSpeed']
+                pass
+                #self.fullForwardSpeed = config['fullForwardSpeed']
             elif self.training >= 2:
                 self.avatar_h = 2
-                avatar.setH(self.multiplier * self.avatar_h)
-                self.fullTurningSpeed = config['fullTurningSpeed']
-            self.avatar_pos = config['initialPos']
-            # if using crosshair as real crosshair, always in center,
+                #avatar.setH(self.multiplier * self.avatar_h)
+                #self.fullTurningSpeed = config['fullTurningSpeed']
+            self.avatar_pos = Point3(0, 0, 1)
+            # crosshair is always in center, but
             # need it to be in same place as collisionRay is, but it appears that center is
             # at the bottom left of the collisionRay, and the top right of the text, so they
             # don't have center in the same place. Makes more sense to move text than ray.
@@ -152,17 +109,21 @@ class TrainBananas:
             self.collide_banana = False
             self.hold_aim = 0
             self.goal = 500  # number of frames to hold aim
-        self.x_start_p[0] *= self.multiplier
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
+        self.cross = TextNode('crosshair')
+        self.cross.setText('+')
+        textNodePath = aspect2d.attachNewNode(self.cross)
+        textNodePath.setScale(0.2)
         self.cross = Text("cross", '+', self.x_start_p, config['instructSize'], self.x_start_c)
-        #self.cross = Model("cross", "smiley", Point3(self.x_start_p))
-        #print(dir(self.cross))
-        self.x_stop_p = Point3(0, 0, 0)
 
-        self.yay_reward = False
-        self.delay = 1  # number of updates to wait for new "trial" (200ms per update)
-        self.t_delay = 0  # keeps track of updates waiting for new "trial"
+        self.delay_start = False
+        self.reward_delay = False
+        self.reward_time = config['pulseInterval']  # usually 200ms
+        self.reward_override = False
+        self.reward_on = True
+        self.delay = 1  # number of frames to wait for new "trial"
+        self.t_delay = 0  # keeps track of frames waiting for new "trial"
         self.reward_count = 0
 
         # set up reward system
@@ -171,143 +132,38 @@ class TrainBananas:
             print 'pydaq'
         else:
             self.reward = None
-
-        # start recording eye position
-        if config['eyeData'] and LOADED_PYDAQ:
-            self.gain = config['gain']
-            self.offset = config['offset']
-            self.task = pydaq.EOGTask()
-            self.task.SetCallback(self.get_eye_data)
-            self.task.StartTask()
-        else:
-            self.task = False
-
         #print Camera.defaultInstance.getFov()
-        #Avatar.getInstance().getH()
-        # Handle keyboard events
-        #vr.inputListen('toggleDebug',
-        #               lambda inputEvent:
-        #               Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
-        vr.inputListen("close", self.close)
-        vr.inputListen("reward", self.give_extra_reward)
-        vr.inputListen("increaseDist", self.x_inc_start)
-        vr.inputListen("decreaseDist", self.x_dec_start)
-        #vr.inputListen("increaseInt", self.inc_interval)
-        #vr.inputListen("decreaseInt", self.dec_interval)
-        vr.inputListen("increaseReward", self.inc_reward)
-        vr.inputListen("decreaseReward", self.dec_reward)
-        vr.inputListen("changeLeft", self.change_left)
-        vr.inputListen("changeRight", self.change_right)
-        vr.inputListen("changeForward", self.change_forward)
-        # Can't change levels, since that involves changing the task,
-        # may eventually be able to do this, if end up using same time
-        # increment for tasks.
-        vr.inputListen("increaseLevel", self.inc_level)
-        vr.inputListen("decreaseLevel", self.dec_level)
-        #vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
-        #vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
-        vr.inputListen("override", self.override)
-        vr.inputListen("restart", self.restart)
-        vr.inputListen("pause", self.pause)
-        # set up task to be performed between frames, do at reward interval
-        # set by pump. This ends up to be pretty good. currently 200 ms
-        vr.addTask(Task("checkJS",
-                            lambda taskInfo:
-                            self.tasks(),
-                            config['pulseInterval']))
 
-        if self.training > 1:
-            vr.addTask(Task("checkCollisions",
-                            lambda taskInfo:
-                            self.check_collisions()))
-
-    def tasks(self):
-        #print('doing task', self.training)
-        if self.training == 1:
-            self.check_position()
+    def frame_loop(self, task):
+        # delay_start means we just gave reward and need to set wait time
+        if self.delay_start:
+            task.delay = task.time + self.reward_time
+            #print('time now', task.time)
+            #print('delay until', task.delay)
+            self.delay_start = False
+            #self.reward_delay = True
+            return task.cont
+        if task.time > task.delay:
+            self.reward_on = True
+            # do a bunch of checks, which might turn reward back off
+        if self.reward_on:
+            self.reward_on = False
+        if self.reward_on or self.reward_override:
+            # give reward!
+            self.crosshair.setTextColor(1, 0, 0, 1)
+            self.give_reward()
         else:
-            self.check_reward()
+            self.crosshair.setTextColor(1, 1, 1, 1)
+        #print('doing task', self.training)
+        # if self.training >= 3:
+        #     self.check_y_banana()
+        # elif self.training >= 2:
+        #     self.check_x_banana()
 
-    def check_collisions(self):
-        if self.training >= 3:
-            self.check_y_banana()
-        elif self.training >= 2:
-            self.check_x_banana()
-
-    def check_position(self):
-        # move crosshair
-        # check to see if crosshair is in center, if so, stop it, give reward
-        # if touches the joystick, move the crosshair,
-        # multiply by the multiplier to get the absolute value,
-        # so we can test if we are at the stopping position.
-        # will have to change this when the stopping position is
-        # no longer zero...
-        # check for joystick movement
-        test = self.js.getEvents()
-        #print test
-        old_pos = self.cross.getPos()[0]
-        # actually invert the multiplier, since the default setting is for the banana task
-        old_pos *= -self.multiplier
-        #print old_pos
-        stop_x = abs(self.x_stop_p[0])
-        #if test:
-            #print self.trainDir
-            #print test.keys()
-        #print('old', old_pos)
-        #print('greater than', self.x_stop_p[0])
-        if old_pos <= stop_x:
-            self.yay_reward = True
-            # if this is the original distance,
-            # only one push of the joystick gets
-            # us to center, no matter how far we are
-        elif self.trainDir in test.keys():
-            #print old_pos
-            #print abs(self.config_x[0])
-            #print round(old_pos, 2)
-            if round(old_pos, 2) == abs(round(self.config_x[0], 2)) == abs(round(self.x_start_p[0], 2)):
-                print('jump!')
-                self.cross.setPos(Point3(0, 0, 0))
-                self.yay_reward = True
-            else:
-                print('move')
-                # move closer to zero
-                old_pos -= self.cross_move_int
-                # go back to original direction
-                old_pos *= -self.multiplier
-                # now change the position
-                new_pos = self.cross.getPos()
-                new_pos[0] = old_pos
-                #print('new', new_pos)
-                self.cross.setPos(new_pos)
-        # Runs every 200ms, same rate as pump rate
-        # check to see if crosshair is in center, if so, stop it, give reward
-        #if self.training == 0:
-        #    self.check_js()
-        #elif self.training == 1:
-        # once delay is over, makes sure not touching joystick
-        # before new trial
-        if self.yay_reward:
-            #print 'yay_reward is true'
-            #print self.reward_count
-            if self.reward_count == self.numBeeps:
-                # reward over
-                self.x_change_color(self.x_start_c)
-                # delay before next trial?
-                if self.t_delay == self.delay:
-                    # if let go of joystick, can start over
-                    if not test:
-                        self.t_delay = 0
-                        self.reward_count = 0
-                        self.restart()
-                else:
-                    self.t_delay += 1
-                    #print self.t_delay
-            else:
-                # giving reward
-                self.reward_count += 1
-                #print 'reward'
-                self.x_change_color(self.x_stop_c)
-                self.give_reward()
+    def give_reward(self):
+        print('beep')
+        if self.reward:
+            self.reward.pumpOut()
 
     def check_x_banana(self):
         # This is checked every fricking frame, which means we go through this loop
@@ -433,36 +289,11 @@ class TrainBananas:
             self.yay_reward = False
             self.reward_count = 0
 
-    def check_reward(self):
-        if self.yay_reward and self.reward_count < self.numBeeps:
-            #print 'reward'
-            self.reward_count += 1
-            self.give_reward()
-
-    def restart(self):
-        #print 'restarted'
-        self.yay_reward = False
-        self.t_delay = 0
-        if self.new_dir is not None:
-            if self.new_dir == 1:
-                self.trainDir = 'turnRight'
-                self.multiplier = -1
-            elif self.new_dir == -1:
-                self.trainDir = 'turnLeft'
-                self.multiplier = 1
-            else:
-                self.trainDir = 'moveForward'
-            self.new_dir = None
-            self.x_start_p[0] = abs(self.x_start_p[0]) * -self.multiplier
-        print('xhair position', self.x_start_p)
-        self.x_change_position(self.x_start_p)
-        self.x_change_color(self.x_start_c)
-
     def restart_bananas(self):
         #print 'restarted'
         #self.banana_models.replenishBananas()
         # reset a couple of variables
-        self.yay_reward = False
+        #self.yay_reward = False
         self.t_delay = 0
         self.reward_count = 0
         self.collide_banana = False
@@ -525,12 +356,6 @@ class TrainBananas:
         #print self.cross.getColor()
         self.cross.setColor(color)
         #self.cross.setColor(Point4(1, 0, 0, 1))
-
-    def give_reward(self):
-        # used for task where cross moves (or anytime single reward is wanted)
-        print('beep')
-        if self.reward:
-            self.reward.pumpOut()
 
     def give_extra_reward(self, inputEvent):
         self.x_change_color(self.x_start_c)
