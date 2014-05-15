@@ -2,9 +2,14 @@
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
 
-# Set Training Level 
-# See README for info about Training Levels
-training = 2
+# Set Training Level
+# training 0, different program
+# training 1, move crosshair, not generallly used
+# training 2, move crosshair to banana, left/right
+# training 2.1, move crosshair to banana, must let go of joystick to start next trial
+# training 2.2, subject has to line up crosshair to banana for min. time, slows down if goes past banana
+# training 3, move crosshair to banana, forward
+training = 2.2
 
 # models are in goBananas directory by default
 path_models = ''
@@ -32,9 +37,6 @@ reward = True
 eyeData = False
 #eyeData = True
 
-# 3d?
-# framebuffer-stereo 1
-
 # reward
 numBeeps = 3
 # factor to increase reward for last banana
@@ -56,6 +58,7 @@ offset = (1, 1)  # (x,y)
 FOV = 60
 
 # Movement
+linearAcceleration = 30
 fullBackwardSpeed = 0
 turningAcceleration = 50
 if training >= 3:
@@ -76,7 +79,7 @@ initialPos = Point3(0, 0, 1)
 avatarRadius = 0.2
 
 cameraPos = Point3(0, 0, 0)
-friction = 0.4 #0.4
+friction = 0.4  # 0.4
 movementType = 'walking' # car | walking
 
 # needed for joystick (instructions)
