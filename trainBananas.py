@@ -109,29 +109,29 @@ class TrainBananas:
             # goal is to move to put banana under crosshair
             self.banana_models = Bananas(config)
             self.banana_pos = self.banana_models.bananaModels[0].getPos()
-            print('banana position', self.banana_pos)
+            #print('banana position', self.banana_pos)
             #print('banana', self.banana_models.bananaModels[0].getPos())
             base.cTrav = CollisionTraverser()
             self.collHandler = CollisionHandlerQueue()
             avatar = Avatar.getInstance()
             avatar.retrNodePath().getChild(0).node().setIntoCollideMask(0)
-            print 'avatar'
-            print avatar.retrNodePath().getChild(0).node().getFromCollideMask()
-            print avatar.retrNodePath().getChild(0).node().getIntoCollideMask()
+            #print 'avatar'
+            #print avatar.retrNodePath().getChild(0).node().getFromCollideMask()
+            #print avatar.retrNodePath().getChild(0).node().getIntoCollideMask()
             pointerNode = avatar.retrNodePath().attachNewNode('CrossHairRay')
             # ray that comes straight out from the camera
             raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
             mainAimingNP = self.makeCollisionNodePath(pointerNode, raySolid)
             mainAimingNode = mainAimingNP.node()
             mainAimingNode.setIntoCollideMask(0)
-            print 'ray'
-            print mainAimingNode.getFromCollideMask()
-            print mainAimingNode.getIntoCollideMask()
+            #print 'ray'
+            #print mainAimingNode.getFromCollideMask()
+            #print mainAimingNode.getIntoCollideMask()
             base.cTrav.addCollider(mainAimingNP, self.collHandler)
             self.js_check = 0
             self.js_pos = None
             self.js_override = False
-            base.cTrav.showCollisions(render)
+            #base.cTrav.showCollisions(render)
             #mainAimingNP.show()
             if self.training >= 3:
                 self.fullForwardSpeed = config['fullForwardSpeed']
@@ -319,9 +319,13 @@ class TrainBananas:
             # the only object we can be running into is the banana, so there you go...
             self.collide_banana = True
             #print self.collHandler.getEntries()
-        if not self.collide_banana:
+        else:
+            #print('meh')
+            # start over with holding
             self.hold_aim = 0
+            self.x_change_color(self.x_start_c)
         if self.collide_banana:
+            #print 'collision'
             #posibilities after colliding with banana:
             # automatically just re-plots bananas (2)
             # requires subject to let go of joystick before re-plotting
@@ -329,10 +333,13 @@ class TrainBananas:
             # (optional, yet to be implemented, slows down if goes past banana)
             if self.training == 2.1:
                 test = self.js.getEvents()
-            elif self.training == 2.2:
+            elif self.training == 2.2 and not self.yay_reward:
+                #print 'change xhair color to red'
+                self.x_change_color(self.x_stop_c)
                 test = False
                 if self.hold_aim < self.goal:
                     self.hold_aim += 1
+                    #print('keep holding', self.hold_aim)
                     return
             else:
                 test = False
@@ -344,12 +351,12 @@ class TrainBananas:
             #print test[mag_test[0]]
             #print test[mag_test[0]]
             if self.reward_count == self.numBeeps:
-                #print 'change xhair color to white'
+                print 'change xhair color to white'
                 self.x_change_color(self.x_start_c)
                 # hide the banana
                 self.banana_models.bananaModels[0].setStashed(True)
                 if self.t_delay == self.delay:
-                    #print 'delay over'
+                    print 'delay over'
                     #print 'please let go of joystick'
                     # if let go of joystick, can start over
                     # pandaepl is doing something screwy, and I sometimes get
@@ -369,7 +376,7 @@ class TrainBananas:
 
                     #if not test or self.js_check == 2:
                     if not test or self.js_override:
-                        #print 'did let go of joystick'
+                        print 'did let go of joystick'
                         self.restart_bananas()
                         #print 'end conditional'
                 else:
