@@ -114,7 +114,7 @@ class TrainingBananas(JoystickHandler):
                 pass
                 #self.fullForwardSpeed = config['fullForwardSpeed']
             elif self.training >= 2:
-                self.avatar_h = 2
+                self.avatar_h = 1
                 #avatar.setH(self.multiplier * self.avatar_h)
                 #self.fullTurningSpeed = config['fullTurningSpeed']
             self.avatar_pos = Point3(0, 0, 1)
@@ -167,8 +167,8 @@ class TrainingBananas(JoystickHandler):
         # delay_start means we just gave reward and need to set wait time
         if self.delay_start:
             task.delay = task.time + self.reward_time
-            print('time now', task.time)
-            print('delay until', task.delay)
+            #print('time now', task.time)
+            #print('delay until', task.delay)
             self.delay_start = False
             #self.reward_delay = True
             return task.cont
@@ -192,7 +192,6 @@ class TrainingBananas(JoystickHandler):
                     self.check_y_banana()
                 elif self.training >= 2:
                     self.check_x_banana()
-
         return task.cont
 
     def give_reward(self):
@@ -220,7 +219,7 @@ class TrainingBananas(JoystickHandler):
             self.moving = False
             # move to center
             if self.base.camera.getH != 0:
-                print 'moved camera'
+                #print 'moved camera'
                 self.base.camera.setH(0)
             #print 'change xhair color to red'
             self.x_change_color(self.x_stop_c)
@@ -328,6 +327,11 @@ class TrainingBananas(JoystickHandler):
             js_input = 0
         if js_dir == 'x':
             self.x_mag = js_input
+            if self.training == 2:
+                #print js_input
+                if js_input * self.multiplier < 0:
+                    #print 'no'
+                    self.x_mag = 0
         else:
             self.y_mag = js_input
 
