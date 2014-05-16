@@ -1,6 +1,7 @@
 from direct.showbase.ShowBase import ShowBase
 from joystick import JoystickHandler
-from panda3d.core import WindowProperties
+from panda3d.core import Point3, Point4
+from panda3d.core import TextNode, WindowProperties
 from panda3d.core import CollisionNode, CollisionRay
 from panda3d.core import CollisionTraverser, CollisionHandlerQueue
 import datetime
@@ -9,14 +10,14 @@ import sys
 try:
     sys.path.insert(1, '../pydaq')
     import pydaq
-    LOADED_PYDAQ = True
+    PYDAQ_LOADED = True
     #print 'loaded PyDaq'
 except ImportError:
-    LOADED_PYDAQ = False
+    PYDAQ_LOADED = False
     print 'Not using PyDaq'
 
 
-class TrainBananas:
+class TrainingBananas(JoystickHandler):
     def __init__(self):
         """
         Initialize the experiment
@@ -25,6 +26,7 @@ class TrainBananas:
         config = {}
         execfile('train_config.py', config)
         JoystickHandler.__init__(self)
+        self.base.disableMouse()
         print('Subject is', config['subject'])
         # set up reward system
         if config['reward'] and PYDAQ_LOADED:
@@ -38,6 +40,12 @@ class TrainBananas:
             wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
             base.win.requestProperties(wp)
+
+        # set up banana
+        self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
+        self.banana.setPos(Point3(0, 2.5, 0))
+        self.banana.setScale(0.5)
+        self.banana.reparentTo(render)
         # bring some configuration parameters into memory, so we don't need to
         # reload the config file multiple times, also allows us to change these
         # variables dynamically
@@ -111,12 +119,11 @@ class TrainBananas:
             self.goal = 500  # number of frames to hold aim
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
-        self.cross = TextNode('crosshair')
-        self.cross.setText('+')
-        textNodePath = aspect2d.attachNewNode(self.cross)
+        self.crosshair = TextNode('crosshair')
+        self.crosshair.setText('+')
+        textNodePath = aspect2d.attachNewNode(self.crosshair)
         textNodePath.setScale(0.2)
-        self.cross = Text("cross", '+', self.x_start_p, config['instructSize'], self.x_start_c)
-
+        self.setup_inputs()
         self.delay_start = False
         self.reward_delay = False
         self.reward_time = config['pulseInterval']  # usually 200ms
@@ -125,9 +132,13 @@ class TrainBananas:
         self.delay = 1  # number of frames to wait for new "trial"
         self.t_delay = 0  # keeps track of frames waiting for new "trial"
         self.reward_count = 0
+        self.frameTask.delay = 0
+        self.x_mag = 0
+        self.y_mag = 0
+        self.slow_factor = 0.05  # factor to slow down movement of joystick
 
         # set up reward system
-        if config['reward'] and LOADED_PYDAQ:
+        if config['reward'] and PYDAQ_LOADED:
             self.reward = pydaq.GiveReward()
             print 'pydaq'
         else:
@@ -138,32 +149,39 @@ class TrainBananas:
         # delay_start means we just gave reward and need to set wait time
         if self.delay_start:
             task.delay = task.time + self.reward_time
-            #print('time now', task.time)
-            #print('delay until', task.delay)
+            print('time now', task.time)
+            print('delay until', task.delay)
             self.delay_start = False
             #self.reward_delay = True
             return task.cont
         if task.time > task.delay:
-            self.reward_on = True
-            # do a bunch of checks, which might turn reward back off
-        if self.reward_on:
+            #if abs(self.x_mag) > 0:
+            #    print self.base.camera.getH()
+            #    print self.x_mag
+            self.base.camera.setH(self.base.camera.getH() + (self.x_mag * self.slow_factor))
+            # default is get a reward, and then look for reasons not to give a reward...
             self.reward_on = False
-        if self.reward_on or self.reward_override:
-            # give reward!
-            self.crosshair.setTextColor(1, 0, 0, 1)
-            self.give_reward()
-        else:
-            self.crosshair.setTextColor(1, 1, 1, 1)
-        #print('doing task', self.training)
-        # if self.training >= 3:
-        #     self.check_y_banana()
-        # elif self.training >= 2:
-        #     self.check_x_banana()
+            # do a bunch of checks, which might turn reward back off
+            #if self.reward_on:
+
+            if self.reward_on or self.reward_override:
+                # give reward!
+                self.crosshair.setTextColor(1, 0, 0, 1)
+                self.give_reward()
+            else:
+                self.crosshair.setTextColor(1, 1, 1, 1)
+            #print('doing task', self.training)
+            # if self.training >= 3:
+            #     self.check_y_banana()
+            # elif self.training >= 2:
+            #     self.check_x_banana()
+        return task.cont
 
     def give_reward(self):
         print('beep')
         if self.reward:
             self.reward.pumpOut()
+        self.delay_start = True
 
     def check_x_banana(self):
         # This is checked every fricking frame, which means we go through this loop
@@ -343,31 +361,19 @@ class TrainBananas:
         #print 'avatar can move again'
         Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
 
-    def get_eye_data(self, eye_data):
-        # pydaq calls this function every time it calls back to get eye data
-        VLQ.getInstance().writeLine("EyeData",
-                                [((eye_data[0] * self.gain[0]) - self.offset[0]),
-                                ((eye_data[1] * self.gain[1]) - self.offset[1])])
-
-    def x_change_position(self, position):
-        self.cross.setPos(Point3(position))
-
     def x_change_color(self, color):
-        #print self.cross.getColor()
-        self.cross.setColor(color)
+        #print self.crosshair.getColor()
+        self.crosshair.setColor(color)
         #self.cross.setColor(Point4(1, 0, 0, 1))
 
-    def give_extra_reward(self, inputEvent):
-        self.x_change_color(self.x_start_c)
-        self.give_reward()
-        self.x_change_color(self.x_stop_c)
-
-    def override(self, inputEvent):
-        # sometimes we get a signal from the joystick when it is not being touched,
-        # this will either stop a reward out of control, or start the next trial, if
-        # the program wrongly believes subject is still touching joystick
-        self.stop_reward = True
-        self.js_override = True
+    def move(self, js_dir, js_input):
+        #print(js_dir, js_input)
+        if abs(js_input) < 0.1:
+            js_input = 0
+        if js_dir == 'x':
+            self.x_mag = js_input
+        else:
+            self.y_mag = js_input
 
     def pause(self, inputEvent):
         # if we are less than the usual delay (so in delay or delay is over),
@@ -378,15 +384,8 @@ class TrainBananas:
         else:
             self.t_delay = 0
 
-    def x_inc_start(self, inputEvent):
-        if self.training == 1:
-            #print self.config_x
-            self.x_start_p[0] *= 2
-            if abs(self.x_start_p[0]) > 0.9:
-                self.x_start_p[0] = -self.multiplier * 0.9
-            print('new pos', self.x_start_p)
-            #print self.config_x
-        elif self.training == 2:
+    def inc_distance(self, inputEvent):
+        if self.training == 2:
             print 'increase angle'
             #print('old pos', self.avatar_h)
             #self.avatar_h[0] = self.avatar_h[0] * 1.5
@@ -397,14 +396,8 @@ class TrainBananas:
             #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
             print('new heading', self.avatar_h)
 
-    def x_dec_start(self, inputEvent):
-        if self.training == 1:
-            self.x_start_p[0] *= 0.5
-            # don't go too crazy getting infinitely close to zero. :)
-            if abs(self.x_start_p[0]) < 0.01:
-                self.x_start_p[0] = -self.multiplier * 0.01
-            print('new pos', self.x_start_p)
-        elif self.training == 2:
+    def dec_distance(self, inputEvent):
+        if self.training == 2:
             print 'decrease angle'
             #print('old pos', self.avatar_h)
             self.avatar_h /= 1.5
@@ -430,7 +423,7 @@ class TrainBananas:
             self.change_level = self.training + 1
         print('new level', self.change_level)
 
-    def dec_level(self, inputEvent):
+    def dec_level(self):
         if self.training == 1 or self.training == 2:
             self.change_level = self.training
             print 'cannot decrease level'
@@ -438,25 +431,33 @@ class TrainBananas:
             self.change_level = self.training - 1
         print('new level', self.change_level)
 
-    def inc_interval(self, inputEvent):
+    def inc_interval(self):
         self.delay += 1
         print('new delay', self.delay)
 
-    def dec_interval(self, inputEvent):
+    def dec_interval(self):
         self.delay -= 1
         print('new delay', self.delay)
 
-    def change_left(self, inputEvent):
+    def change_left(self):
         self.new_dir = 1
         print('new dir: left')
 
-    def change_right(self, inputEvent):
+    def change_right(self):
         self.new_dir = -1
         print('new dir: right')
 
-    def change_forward(self, inputEvent):
+    def change_forward(self):
         self.new_dir = 0
         print('new dir: forward')
+
+    def start_extra_reward(self):
+        self.reward_override = True
+        print('reward is: ', self.reward_override)
+
+    def stop_extra_reward(self):
+        self.reward_override = False
+        print('reward is: ', self.reward_override)
 
     def makeCollisionNodePath(self, nodepath, solid):
         '''
@@ -471,55 +472,27 @@ class TrainBananas:
         # Show the collision node, which makes the solids show up.
         # actually, it appears to do nothing...
         #collisionNodepath.show()
-
         return collisionNodepath
 
-    def load_environment(self, config):
-        if config['environ'] is None:
-            return
-        load_models()
-        # Models must be attached to self
-        self.envModels = []
-        for item in PlaceModels._registry:
-            if config['environ'] in item.group:
-            #if 'better' in item.group:
-                #print item.name
-                item.model = config['path_models'] + item.model
-                #print item.model
-                model = Model.Model(item.name, item.model, item.location)
-                if item.callback is not None:
-                    #print 'not none'
-                    model.setCollisionCallback(eval(item.callback))
-                    # white wall is bright, and sometimes hard to see bananas,
-                    # quick fix.
-                    model.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
-                model.setScale(item.scale)
-                model.setH(item.head)
-                self.envModels.append(model)
+    def close(self):
+        sys.exit()
 
-    def start(self):
-        """
-        Start the experiment.
-        """
-        #print 'start'
-        Experiment.getInstance().start()
+    def setup_inputs(self):
+        self.accept('x_axis', self.move, ['x'])
+        self.accept('y_axis', self.move, ['y'])
+        self.accept('q', self.close)
+        self.accept('e', self.inc_distance)
+        self.accept('d', self.dec_distance)
+        self.accept('f', self.change_forward)
+        self.accept('r', self.change_right)
+        self.accept('l', self.change_left)
+        self.accept('space', self.start_extra_reward)
+        self.accept('space-up', self.stop_extra_reward)
 
-    def close(self, inputEvent):
-        if self.task:
-            self.task.StopTask()
-            self.task.ClearTask()
-        Experiment.getInstance().stop()
-
+unittest = False
 if __name__ == '__main__':
     #print 'main?'
-    TrainBananas().start()
+    TB = TrainingBananas()
+    run()
 else:
-    print 'not main?'
-    #import argparse
-    #p = argparse.ArgumentParser()
-    #p.add_argument('-scrap')
-    #import sys
-    #sys.argv.extend(['stest'])
-    #sys.argv = ['goBananas','-stest']
-    #,'--no-eeg','--no-fs']
-    #GoBananas().start()
+    unittest = True

@@ -18,6 +18,7 @@ class CrossBanana(JoystickHandler):
         config = {}
         execfile('cross_config.py', config)
         JoystickHandler.__init__(self)
+        self.base.disableMouse()
         print('Subject is', config['subject'])
         # set up reward system
         if config['reward'] and PYDAQ_LOADED:

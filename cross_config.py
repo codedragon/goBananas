@@ -11,6 +11,7 @@ reward = True
 # # for activating reward system
 pulseInterval = 0.2  # in seconds
 #
+
 # start rewarding backward?
 # zero, all backward allowed
 # one, straight backward not rewarded (actually small angle backward not rewarded)
