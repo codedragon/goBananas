@@ -2,7 +2,7 @@ from direct.showbase.ShowBase import ShowBase
 from joystick import JoystickHandler
 from panda3d.core import Point3, Point4
 from panda3d.core import TextNode, WindowProperties
-from panda3d.core import CollisionNode, CollisionRay
+from panda3d.core import CollisionNode, CollisionRay, CollisionSphere
 from panda3d.core import CollisionTraverser, CollisionHandlerQueue
 import datetime
 import sys
@@ -44,8 +44,19 @@ class TrainingBananas(JoystickHandler):
         # set up banana
         self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
         self.banana.setPos(Point3(0, 2.5, 0))
+        #self.banana.setPos(Point3(0, 0, 0))
+        self.banana.setH(280)
         self.banana.setScale(0.5)
+        collision_node = self.banana.find('**/+CollisionNode')
+        collision_node.setScale(0.2)
+        collision_node.show()
+        #cs = CollisionSphere(0, 0, 0, 1)
+        #cnodePath = self.banana.attachNewNode(CollisionNode('cnode'))
+        #cnodePath.node().addSolid(cs)
+        #cnodePath.setScale(0.1)
+        #cnodePath.show()
         self.banana.reparentTo(render)
+
         # bring some configuration parameters into memory, so we don't need to
         # reload the config file multiple times, also allows us to change these
         # variables dynamically
@@ -83,20 +94,22 @@ class TrainingBananas(JoystickHandler):
             #print avatar.retrNodePath().getChild(0).node().getFromCollideMask()
             #print avatar.retrNodePath().getChild(0).node().getIntoCollideMask()
             #pointerNode = avatar.retrNodePath().attachNewNode('CrossHairRay')
+            pointerNode = self.base.camera.attachNewNode(CollisionNode('CrossHairRay'))
             # ray that comes straight out from the camera
-            #raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
-            #mainAimingNP = self.makeCollisionNodePath(pointerNode, raySolid)
-            #mainAimingNode = mainAimingNP.node()
-            #mainAimingNode.setIntoCollideMask(0)
-            #print 'ray'
-            #print mainAimingNode.getFromCollideMask()
-            #print mainAimingNode.getIntoCollideMask()
-            #base.cTrav.addCollider(mainAimingNP, self.collHandler)
+            raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
+            mainAimingNP = self.makeCollisionNodePath(pointerNode, raySolid)
+            mainAimingNode = mainAimingNP.node()
+            mainAimingNode.setIntoCollideMask(0)
+
+            print 'ray'
+            print mainAimingNode.getFromCollideMask()
+            print mainAimingNode.getIntoCollideMask()
+            base.cTrav.addCollider(mainAimingNP, self.collHandler)
+            base.cTrav.showCollisions(render)
+            mainAimingNP.show()
             self.js_check = 0
             self.js_pos = None
             self.js_override = False
-            #base.cTrav.showCollisions(render)
-            #mainAimingNP.show()
             if self.training >= 3:
                 pass
                 #self.fullForwardSpeed = config['fullForwardSpeed']
@@ -113,7 +126,7 @@ class TrainingBananas(JoystickHandler):
             # centered on the ray
             #self.x_start_p = Point3(0, 0, 0)
             #self.x_start_p = Point3(-0.043, 0, 0.051)
-            self.x_start_p = Point3(-0.05, 0, 0.051)
+            crosshair_pos = Point3(-0.07, 0, -0.05)
             self.collide_banana = False
             self.hold_aim = 0
             self.goal = 500  # number of frames to hold aim
@@ -123,8 +136,11 @@ class TrainingBananas(JoystickHandler):
         self.crosshair.setText('+')
         textNodePath = aspect2d.attachNewNode(self.crosshair)
         textNodePath.setScale(0.2)
+        #print textNodePath.getPos()
+        textNodePath.setPos(crosshair_pos)
         self.setup_inputs()
         self.delay_start = False
+        self.yay_reward = False
         self.reward_delay = False
         self.reward_time = config['pulseInterval']  # usually 200ms
         self.reward_override = False
@@ -163,6 +179,10 @@ class TrainingBananas(JoystickHandler):
             self.reward_on = False
             # do a bunch of checks, which might turn reward back off
             #if self.reward_on:
+            if self.training >= 3:
+                self.reward_on = self.check_y_banana()
+            elif self.training >= 2:
+                self.reward_on = self.check_x_banana()
 
             if self.reward_on or self.reward_override:
                 # give reward!
@@ -171,10 +191,7 @@ class TrainingBananas(JoystickHandler):
             else:
                 self.crosshair.setTextColor(1, 1, 1, 1)
             #print('doing task', self.training)
-            # if self.training >= 3:
-            #     self.check_y_banana()
-            # elif self.training >= 2:
-            #     self.check_x_banana()
+
         return task.cont
 
     def give_reward(self):
@@ -271,6 +288,7 @@ class TrainingBananas(JoystickHandler):
                 #print 'change xhair color to red'
                 self.x_change_color(self.x_stop_c)
                 self.yay_reward = True
+        return self.yay_reward
 
     def check_y_banana(self):
         # This is checked every fricking frame, which means we go through this loop
@@ -306,6 +324,7 @@ class TrainingBananas(JoystickHandler):
             self.banana_models.beeps = None
             self.yay_reward = False
             self.reward_count = 0
+        return self.yay_reward
 
     def restart_bananas(self):
         #print 'restarted'
@@ -363,7 +382,7 @@ class TrainingBananas(JoystickHandler):
 
     def x_change_color(self, color):
         #print self.crosshair.getColor()
-        self.crosshair.setColor(color)
+        self.crosshair.setTextColor(color)
         #self.cross.setColor(Point4(1, 0, 0, 1))
 
     def move(self, js_dir, js_input):
@@ -471,7 +490,7 @@ class TrainingBananas(JoystickHandler):
         collisionNodepath = nodepath.attachNewNode(collNode)
         # Show the collision node, which makes the solids show up.
         # actually, it appears to do nothing...
-        #collisionNodepath.show()
+        collisionNodepath.show()
         return collisionNodepath
 
     def close(self):
@@ -480,6 +499,8 @@ class TrainingBananas(JoystickHandler):
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
         self.accept('y_axis', self.move, ['y'])
+        self.accept('arrow_right', self.move, ['x', 0.1])
+        self.accept('arrow_left', self.move, ['x', -0.1])
         self.accept('q', self.close)
         self.accept('e', self.inc_distance)
         self.accept('d', self.dec_distance)
