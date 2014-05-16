@@ -442,6 +442,8 @@ class TrainingBananas(JoystickHandler):
         self.accept('y_axis', self.move, ['y'])
         self.accept('arrow_right', self.move, ['x', 0.1])
         self.accept('arrow_left', self.move, ['x', -0.1])
+        self.accept('arrow_right-up', self.move, ['x', 0])
+        self.accept('arrow_left-up', self.move, ['x', 0])
         self.accept('q', self.close)
         self.accept('e', self.inc_distance)
         self.accept('d', self.dec_distance)
