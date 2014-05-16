@@ -49,7 +49,7 @@ class TrainingBananas(JoystickHandler):
         self.banana.setScale(0.5)
         collision_node = self.banana.find('**/+CollisionNode')
         collision_node.setScale(0.2)
-        collision_node.show()
+        #collision_node.show()
         #cs = CollisionSphere(0, 0, 0, 1)
         #cnodePath = self.banana.attachNewNode(CollisionNode('cnode'))
         #cnodePath.node().addSolid(cs)
@@ -105,7 +105,7 @@ class TrainingBananas(JoystickHandler):
             print mainAimingNode.getFromCollideMask()
             print mainAimingNode.getIntoCollideMask()
             base.cTrav.addCollider(mainAimingNP, self.collHandler)
-            base.cTrav.showCollisions(render)
+            #base.cTrav.showCollisions(render)
             mainAimingNP.show()
             self.js_check = 0
             self.js_pos = None
@@ -118,6 +118,7 @@ class TrainingBananas(JoystickHandler):
                 #avatar.setH(self.multiplier * self.avatar_h)
                 #self.fullTurningSpeed = config['fullTurningSpeed']
             self.avatar_pos = Point3(0, 0, 1)
+            self.base.camera.setH(self.multiplier * self.avatar_h)
             # crosshair is always in center, but
             # need it to be in same place as collisionRay is, but it appears that center is
             # at the bottom left of the collisionRay, and the top right of the text, so they
@@ -152,6 +153,7 @@ class TrainingBananas(JoystickHandler):
         self.x_mag = 0
         self.y_mag = 0
         self.slow_factor = 0.05  # factor to slow down movement of joystick
+        self.moving = True
 
         # set up reward system
         if config['reward'] and PYDAQ_LOADED:
@@ -171,26 +173,25 @@ class TrainingBananas(JoystickHandler):
             #self.reward_delay = True
             return task.cont
         if task.time > task.delay:
-            #if abs(self.x_mag) > 0:
-            #    print self.base.camera.getH()
-            #    print self.x_mag
-            self.base.camera.setH(self.base.camera.getH() + (self.x_mag * self.slow_factor))
-            # default is get a reward, and then look for reasons not to give a reward...
-            self.reward_on = False
-            # do a bunch of checks, which might turn reward back off
-            #if self.reward_on:
-            if self.training >= 3:
-                self.reward_on = self.check_y_banana()
-            elif self.training >= 2:
-                self.reward_on = self.check_x_banana()
-
-            if self.reward_on or self.reward_override:
-                # give reward!
-                self.crosshair.setTextColor(1, 0, 0, 1)
+            # check for reward
+            if self.yay_reward and self.reward_count < self.numBeeps:
+                #print 'reward'
+                self.reward_count += 1
                 self.give_reward()
-            else:
-                self.crosshair.setTextColor(1, 1, 1, 1)
-            #print('doing task', self.training)
+                return task.cont
+            elif self.yay_reward and self.reward_count == self.numBeeps:
+                self.banana.stash()
+                # hide the banana
+                self.restart_bananas()
+                return task.cont
+            # check to see if we are moving
+            if self.moving:
+                self.base.camera.setH(self.base.camera.getH() + (self.x_mag * self.slow_factor * -self.multiplier))
+                # check for collision:
+                if self.training >= 3:
+                    self.check_y_banana()
+                elif self.training >= 2:
+                    self.check_x_banana()
 
         return task.cont
 
@@ -201,8 +202,6 @@ class TrainingBananas(JoystickHandler):
         self.delay_start = True
 
     def check_x_banana(self):
-        # This is checked every fricking frame, which means we go through this loop
-        # many times per collision, except when I want it to. :/
         # check to see if crosshair is over banana, if so, stop turning, give reward
         # next stage is just slowing down after crosshair changes color, so he can go
         # past and has to turn back.
@@ -210,11 +209,6 @@ class TrainingBananas(JoystickHandler):
             # the only object we can be running into is the banana, so there you go...
             self.collide_banana = True
             #print self.collHandler.getEntries()
-        else:
-            #print('meh')
-            # start over with holding
-            self.hold_aim = 0
-            self.x_change_color(self.x_start_c)
         if self.collide_banana:
             #print 'collision'
             #posibilities after colliding with banana:
@@ -222,73 +216,15 @@ class TrainingBananas(JoystickHandler):
             # requires subject to let go of joystick before re-plotting
             # subject has to line up crosshair to banana for min. time,
             # (optional, yet to be implemented, slows down if goes past banana)
-            if self.training == 2.1:
-                test = self.js.getEvents()
-            elif self.training == 2.2 and not self.yay_reward:
-                #print 'change xhair color to red'
-                self.x_change_color(self.x_stop_c)
-                test = False
-                if self.hold_aim < self.goal:
-                    self.hold_aim += 1
-                    #print('keep holding', self.hold_aim)
-                    return
-            else:
-                test = False
-            #print test
-            #print test.keys()
-            #if 'turnRight' in test.keys():
-            #print test['turnRight']
-            #mag_test = test.keys()
-            #print test[mag_test[0]]
-            #print test[mag_test[0]]
-            if self.reward_count == self.numBeeps:
-                print 'change xhair color to white'
-                self.x_change_color(self.x_start_c)
-                # hide the banana
-                self.banana_models.bananaModels[0].setStashed(True)
-                if self.t_delay == self.delay:
-                    print 'delay over'
-                    #print 'please let go of joystick'
-                    # if let go of joystick, can start over
-                    # pandaepl is doing something screwy, and I sometimes get
-                    # signals from the joystick after it has been released, these
-                    # are always exactly the same signal over and over, so check
-                    # for the same signal for a few frames.
-                    #mag_test = test.keys()
-                    # meh. how do I just get the number out of this dictionary!
-                    # InputEvent: turnRight, mag:0.464705343791
-                    # if mag_test:
-                    #     print test[mag_test[0]]
-                    #     if self.js_pos is test[mag_test[0]]:
-                    #         self.js_check += 1
-                    #         print 'um, yeah'
-                    #     else:
-                    #         self.js_pos = test[mag_test[0]]
-
-                    #if not test or self.js_check == 2:
-                    if not test or self.js_override:
-                        print 'did let go of joystick'
-                        self.restart_bananas()
-                        #print 'end conditional'
-                else:
-                    #print 'wait for delay'
-                    self.t_delay += 1
-                    #print('t_delay', self.t_delay)
-            elif not self.yay_reward:
-                # will do this else statement until reward finished.
-                # stop the avatar during reward
-                #print 'stop avatar'
-                Avatar.getInstance().setMaxTurningSpeed(0)
-                h = Avatar.getInstance().getH()
-                print('avatar heading', h)
-                if h != 0:
-                    Avatar.getInstance().setH(0)
-                #Avatar.getInstance().setH(Avatar.getInstance().getH() + avatar_change)
-                #print Avatar.getInstance().getH()
-                #print 'change xhair color to red'
-                self.x_change_color(self.x_stop_c)
-                self.yay_reward = True
-        return self.yay_reward
+            # stop moving
+            self.moving = False
+            # move to center
+            if self.base.camera.getH != 0:
+                print 'moved camera'
+                self.base.camera.setH(0)
+            #print 'change xhair color to red'
+            self.x_change_color(self.x_stop_c)
+            self.yay_reward = True
 
     def check_y_banana(self):
         # This is checked every fricking frame, which means we go through this loop
@@ -324,13 +260,12 @@ class TrainingBananas(JoystickHandler):
             self.banana_models.beeps = None
             self.yay_reward = False
             self.reward_count = 0
-        return self.yay_reward
 
     def restart_bananas(self):
         #print 'restarted'
         #self.banana_models.replenishBananas()
         # reset a couple of variables
-        #self.yay_reward = False
+        self.yay_reward = False
         self.t_delay = 0
         self.reward_count = 0
         self.collide_banana = False
@@ -365,20 +300,22 @@ class TrainingBananas(JoystickHandler):
         #else:
         #    self.banana_models.bananaModels[0].setH(290)
         print('rotate avatar back so at correct angle:', self.avatar_h)
-        Avatar.getInstance().setPos(self.avatar_pos)
-        Avatar.getInstance().setH(self.multiplier * self.avatar_h)
-        print('avatar heading', Avatar.getInstance().getH())
+        self.base.camera.setH(self.multiplier * self.avatar_h)
+        #Avatar.getInstance().setPos(self.avatar_pos)
+        #Avatar.getInstance().setH(self.multiplier * self.avatar_h)
+        print('avatar heading', self.base.camera.getH())
         # make sure banana in correct position
         # banana does not move, avatar moves or rotates
         #self.banana_models.bananaModels[0].setPos(self.banana_pos)
         # unhide banana
-        self.banana_models.bananaModels[0].setStashed(False)
+        self.banana.unstash()
         #print Avatar.getInstance().getPos()
         #print Camera.defaultInstance.getFov()
         #print self.banana_models.bananaModels[0].getPos()
         #print self.banana_models.bananaModels[0].getH()
         #print 'avatar can move again'
-        Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
+        self.moving = True
+        #Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
 
     def x_change_color(self, color):
         #print self.crosshair.getColor()
@@ -403,7 +340,7 @@ class TrainingBananas(JoystickHandler):
         else:
             self.t_delay = 0
 
-    def inc_distance(self, inputEvent):
+    def inc_distance(self):
         if self.training == 2:
             print 'increase angle'
             #print('old pos', self.avatar_h)
@@ -415,7 +352,7 @@ class TrainingBananas(JoystickHandler):
             #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
             print('new heading', self.avatar_h)
 
-    def dec_distance(self, inputEvent):
+    def dec_distance(self):
         if self.training == 2:
             print 'decrease angle'
             #print('old pos', self.avatar_h)
@@ -426,13 +363,13 @@ class TrainingBananas(JoystickHandler):
             #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
             print('new heading', self.avatar_h)
 
-    def inc_reward(self, inputEvent):
+    def inc_reward(self):
         self.numBeeps += 1
 
-    def dec_reward(self, inputEvent):
+    def dec_reward(self):
         self.numBeeps -= 1
 
-    def inc_level(self, inputEvent):
+    def inc_level(self):
         # cannot change into or out of level 1, only higher levels,
         # currently level 3 is highest
         if self.training == 1 or self.training == 3:
