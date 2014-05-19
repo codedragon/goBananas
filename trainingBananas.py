@@ -41,27 +41,6 @@ class TrainingBananas(JoystickHandler):
             wp.setOrigin(0, 0)
             base.win.requestProperties(wp)
 
-        # set up banana
-        self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
-        self.banana.setPos(Point3(0, 2.5, 0))
-        #self.banana.setPos(Point3(0, 0, 0))
-        self.banana.setH(280)
-        self.banana.setScale(0.5)
-        collision_node = self.banana.find('**/+CollisionNode')
-        collision_node.setScale(0.2)
-        #collision_node.show()
-        #cs = CollisionSphere(0, 0, 0, 1)
-        #cnodePath = self.banana.attachNewNode(CollisionNode('cnode'))
-        #cnodePath.node().addSolid(cs)
-        #cnodePath.setScale(0.1)
-        #cnodePath.show()
-        self.banana.reparentTo(render)
-
-        # bring some configuration parameters into memory, so we don't need to
-        # reload the config file multiple times, also allows us to change these
-        # variables dynamically
-        self.numBeeps = config['numBeeps']
-        #print config['trainingDirection']
         # for bananas, changing the angle from avatar to banana, so left is negative
         # right is positive.
         if config['trainingDirection'] == 'Right':
@@ -72,7 +51,14 @@ class TrainingBananas(JoystickHandler):
             self.multiplier = -1
         elif config['trainingDirection'] == 'Forward':
             self.trainDir = 'moveForward'
+        #print config['trainingDirection']
         #print('multiplier', self.multiplier)
+
+        # bring some configuration parameters into memory, so we don't need to
+        # reload the config file multiple times, also allows us to change these
+        # variables dynamically
+        self.numBeeps = config['numBeeps']
+
         # not changing now, but may eventually...
         self.x_alpha = config['xHairAlpha']
         self.training = config['training']
@@ -82,55 +68,58 @@ class TrainingBananas(JoystickHandler):
         # variable to notify when changing levels
         self.change_level = False
 
-        if self.training > 1:
-            # goal is to move to put banana under crosshair
-            # need to load banana
-            #print('banana position', self.banana_pos)
-            #print('banana', self.banana_models.bananaModels[0].getPos())
-            base.cTrav = CollisionTraverser()
-            self.collHandler = CollisionHandlerQueue()
-            #avatar = Avatar.getInstance()
-            #print 'avatar'
-            #print avatar.retrNodePath().getChild(0).node().getFromCollideMask()
-            #print avatar.retrNodePath().getChild(0).node().getIntoCollideMask()
-            #pointerNode = avatar.retrNodePath().attachNewNode('CrossHairRay')
-            pointerNode = self.base.camera.attachNewNode(CollisionNode('CrossHairRay'))
-            # ray that comes straight out from the camera
-            raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
-            mainAimingNP = self.makeCollisionNodePath(pointerNode, raySolid)
-            mainAimingNode = mainAimingNP.node()
-            mainAimingNode.setIntoCollideMask(0)
+        # set up banana
+        self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
+        self.banana.setPos(Point3(0, 2.5, 0))
+        #self.banana.setPos(Point3(0, 0, 0))
+        self.banana.setH(280)
+        self.banana.setScale(0.5)
+        collision_node = self.banana.find('**/+CollisionNode')
+        collision_node.setScale(0.2)
+        #collision_node.show()
+        #cs = CollisionSphere(0, 0, 0, 1)
+        self.banana.reparentTo(render)
 
-            print 'ray'
-            print mainAimingNode.getFromCollideMask()
-            print mainAimingNode.getIntoCollideMask()
-            base.cTrav.addCollider(mainAimingNP, self.collHandler)
-            #base.cTrav.showCollisions(render)
-            mainAimingNP.show()
-            self.js_check = 0
-            self.js_pos = None
-            self.js_override = False
-            if self.training >= 3:
-                pass
-                #self.fullForwardSpeed = config['fullForwardSpeed']
-            elif self.training >= 2:
-                self.avatar_h = 1
-                #avatar.setH(self.multiplier * self.avatar_h)
-                #self.fullTurningSpeed = config['fullTurningSpeed']
-            self.avatar_pos = Point3(0, 0, 1)
-            self.base.camera.setH(self.multiplier * self.avatar_h)
-            # crosshair is always in center, but
-            # need it to be in same place as collisionRay is, but it appears that center is
-            # at the bottom left of the collisionRay, and the top right of the text, so they
-            # don't have center in the same place. Makes more sense to move text than ray.
-            # These numbers were scientifically determined. JK, moved around until the cross looked
-            # centered on the ray
-            #self.x_start_p = Point3(0, 0, 0)
-            #self.x_start_p = Point3(-0.043, 0, 0.051)
-            crosshair_pos = Point3(-0.07, 0, -0.05)
-            self.collide_banana = False
-            self.hold_aim = 0
-            self.goal = 500  # number of frames to hold aim
+        # set up collision system and collision ray to camera
+        base.cTrav = CollisionTraverser()
+        self.collHandler = CollisionHandlerQueue()
+        pointerNode = self.base.camera.attachNewNode(CollisionNode('CrossHairRay'))
+        # ray that comes straight out from the camera
+        raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
+        mainAimingNP = self.makeCollisionNodePath(pointerNode, raySolid)
+        mainAimingNode = mainAimingNP.node()
+        mainAimingNode.setIntoCollideMask(0)
+
+        #print 'ray'
+        #print mainAimingNode.getFromCollideMask()
+        #print mainAimingNode.getIntoCollideMask()
+        base.cTrav.addCollider(mainAimingNP, self.collHandler)
+        #base.cTrav.showCollisions(render)
+        #mainAimingNP.show()
+        self.js_check = 0
+        self.js_pos = None
+        self.js_override = False
+        if self.training >= 3:
+            pass
+            #self.fullForwardSpeed = config['fullForwardSpeed']
+        elif self.training >= 2:
+            self.avatar_h = 1
+            #avatar.setH(self.multiplier * self.avatar_h)
+            #self.fullTurningSpeed = config['fullTurningSpeed']
+
+        self.avatar_pos = Point3(0, 0, 1)
+        self.base.camera.setH(self.multiplier * self.avatar_h)
+        # crosshair is always in center, but
+        # need it to be in same place as collisionRay is, but it appears that center is
+        # at the bottom left of the collisionRay, and the top right of the text, so they
+        # don't have center in the same place. Makes more sense to move text than ray.
+        # These numbers were scientifically determined. JK, moved around until the cross looked
+        # centered on the ray
+        #self.x_start_p = Point3(0, 0, 0)
+        crosshair_pos = Point3(-0.07, 0, -0.05)
+        self.collide_banana = False
+        self.hold_aim = 0
+        self.goal = 500  # number of frames to hold aim
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
         self.crosshair = TextNode('crosshair')
