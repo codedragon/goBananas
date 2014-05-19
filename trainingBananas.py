@@ -34,7 +34,7 @@ class TrainingBananas(JoystickHandler):
             print 'pydaq'
         else:
             self.reward = None
-        self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
+
         if not unittest:
             wp = WindowProperties()
             wp.setSize(1024, 768)
@@ -96,9 +96,7 @@ class TrainingBananas(JoystickHandler):
         base.cTrav.addCollider(mainAimingNP, self.collHandler)
         #base.cTrav.showCollisions(render)
         #mainAimingNP.show()
-        self.js_check = 0
-        self.js_pos = None
-        self.js_override = False
+
         if self.training >= 3:
             pass
             #self.fullForwardSpeed = config['fullForwardSpeed']
@@ -109,26 +107,36 @@ class TrainingBananas(JoystickHandler):
 
         self.avatar_pos = Point3(0, 0, 1)
         self.base.camera.setH(self.multiplier * self.avatar_h)
-        # crosshair is always in center, but
-        # need it to be in same place as collisionRay is, but it appears that center is
-        # at the bottom left of the collisionRay, and the top right of the text, so they
-        # don't have center in the same place. Makes more sense to move text than ray.
-        # These numbers were scientifically determined. JK, moved around until the cross looked
-        # centered on the ray
-        #self.x_start_p = Point3(0, 0, 0)
-        crosshair_pos = Point3(-0.07, 0, -0.05)
+
         self.collide_banana = False
-        self.hold_aim = 0
-        self.goal = 500  # number of frames to hold aim
+        # aiming only important for 2.2
+        if self.training == 2.2:
+            self.hold_aim = 0
+            self.goal = 500  # number of frames to hold aim
+
+        # Cross hair
+        # color changes for crosshair
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
         self.crosshair = TextNode('crosshair')
         self.crosshair.setText('+')
         textNodePath = aspect2d.attachNewNode(self.crosshair)
         textNodePath.setScale(0.2)
+        # crosshair is always in center, but
+        # need it to be in same place as collisionRay is, but it appears that center is
+        # at the bottom left of the collisionRay, and the top right of the text, so they
+        # don't have center in the same place. Makes more sense to move text than ray.
+        # These numbers were scientifically determined. JK, moved around until the cross looked
+        # centered on the ray
+        #crosshair_pos = Point3(0, 0, 0)
+        crosshair_pos = Point3(-0.07, 0, -0.05)
         #print textNodePath.getPos()
         textNodePath.setPos(crosshair_pos)
+
         self.setup_inputs()
+        self.js_check = 0
+        self.js_pos = None
+        self.js_override = False
         self.delay_start = False
         self.yay_reward = False
         self.reward_delay = False
@@ -138,19 +146,14 @@ class TrainingBananas(JoystickHandler):
         self.delay = 1  # number of frames to wait for new "trial"
         self.t_delay = 0  # keeps track of frames waiting for new "trial"
         self.reward_count = 0
-        self.frameTask.delay = 0
         self.x_mag = 0
         self.y_mag = 0
         self.slow_factor = 0.05  # factor to slow down movement of joystick
         self.moving = True
-
-        # set up reward system
-        if config['reward'] and PYDAQ_LOADED:
-            self.reward = pydaq.GiveReward()
-            print 'pydaq'
-        else:
-            self.reward = None
         #print Camera.defaultInstance.getFov()
+        # set up main loop
+        self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
+        self.frameTask.delay = 0
 
     def frame_loop(self, task):
         # delay_start means we just gave reward and need to set wait time
@@ -169,8 +172,9 @@ class TrainingBananas(JoystickHandler):
                 self.give_reward()
                 return task.cont
             elif self.yay_reward and self.reward_count == self.numBeeps:
-                self.banana.stash()
                 # hide the banana
+                self.banana.stash()
+                # and start things over again
                 self.restart_bananas()
                 return task.cont
             # check to see if we are moving
