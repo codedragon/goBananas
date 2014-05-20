@@ -12,12 +12,13 @@ except ImportError:
     print 'Not using PyDaq'
 
 
-class CrossBanana(JoystickHandler):
+class CrossTraining(JoystickHandler):
     def __init__(self):
         self.base = ShowBase()
         config = {}
         execfile('cross_config.py', config)
-        JoystickHandler.__init__(self)
+        if not unittest:
+            JoystickHandler.__init__(self)
         self.base.disableMouse()
         print('Subject is', config['subject'])
         # set up reward system
@@ -67,7 +68,6 @@ class CrossBanana(JoystickHandler):
         print 'initialized'
 
     def frame_loop(self, task):
-        #print task.time
         # delay_start means we just gave reward and need to set wait time
         if self.delay_start:
             task.delay = task.time + self.reward_time
@@ -150,6 +150,7 @@ class CrossBanana(JoystickHandler):
         self.delay_start = True
 
     def move(self, js_dir, js_input):
+        print('move')
         print(js_dir, js_input)
         if js_dir == 'x':
             self.x_mag = js_input
@@ -204,23 +205,18 @@ class CrossBanana(JoystickHandler):
         self.accept('space-up', self.stop_reward)
 
     def reset_variables(self):
+        print('reset')
+        # reset everything except stuff from config file
         self.x_mag = 0
         self.y_mag = 0
         # variables for counting how long to hold joystick
         self.js_count = 0
         # eventually may want start goal in config file
-        self.js_goal = 1  # start out just have to hit joystick
         # (count increases before checking for goal match)
-        # default is to reward for backward movement. May want
-        # to make this a configuration option instead.
-        # zero, all backward allowed
-        # one, straight backward not rewarded
-        # two, no backward rewarded
-        self.backward = config['backward']
+        self.js_goal = 1  # start out just have to hit joystick
         # all kinds of start defaults
         self.delay_start = False
         self.reward_delay = False
-        self.reward_time = config['pulseInterval']  # 200 ms
         self.reward_override = False
         self.reward_on = True
         self.current_dir = None
@@ -231,7 +227,7 @@ class CrossBanana(JoystickHandler):
 
 unittest = False
 if __name__ == "__main__":
-    CB = CrossBanana()
+    CB = CrossTraining()
     run()
 else:
     unittest = True

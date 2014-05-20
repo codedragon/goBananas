@@ -1,44 +1,41 @@
 import unittest
-from crossBanana import CrossBanana
+from trainingBananas import TrainingBananas
 from direct.showbase.MessengerGlobal import messenger
 from panda3d.core import loadPrcFileData
 from direct.task.TaskManagerGlobal import taskMgr
 
 
-class CrossBananaTests(unittest.TestCase):
+class TrainingBananaTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         loadPrcFileData("", "window-type offscreen")
         #print 'about to load world'
-        cls.cb = CrossBanana()
+        cls.tb = TrainingBananas()
 
     def setUp(self):
+        pass
         # re-initialize variables before each test
-        self.cb.reset_variables()
+        #self.tb.reset_variables()
         #self.config = {}
         #execfile('testing_config.py', self.config)
 
-    def test_move_joystick_right(self):
+    def test_move_joystick_right_gets_reward(self):
         """
         test that gets reward for pushing the joystick
         """
-        #with patch.object(self.cb, 'check_js') as mock:
         messenger.send('x_axis', [1])
-        #mock.assert_called_with(42)
-        print 'messenger sent'
-        self.assertTrue(self.cb.reward_on)
+        self.assertTrue(self.tb.reward_on)
 
     def test_hold_joystick_right(self):
         """
         test that if required to hold for reward, actually requires hold
         """
-        self.cb.inc_js_goal()
-
+        self.tb.inc_js_goal()
         messenger.send('x_axis', [1])
-        self.assertFalse(self.cb.reward_on)
+        self.assertFalse(self.tb.reward_on)
         messenger.send('x_axis', [1])
-        self.assertTrue(self.cb.reward_on)
+        self.assertTrue(self.tb.reward_on)
 
     def test_hold_release_joystick_no_reward(self):
         """
@@ -46,19 +43,19 @@ class CrossBananaTests(unittest.TestCase):
         and release instead, no reward.
         """
         # make goal longer
-        self.cb.inc_js_goal()
+        self.tb.inc_js_goal()
         messenger.send('x_axis', [1])
-        self.assertFalse(self.cb.reward_on)
+        self.assertFalse(self.tb.reward_on)
         messenger.send('x_axis', [0])
-        self.assertFalse(self.cb.reward_on)
+        self.assertFalse(self.tb.reward_on)
         messenger.send('x_axis', [1])
-        self.assertFalse(self.cb.reward_on)
+        self.assertFalse(self.tb.reward_on)
 
     @classmethod
     def tearDownClass(cls):
         taskMgr.remove('Joystick Polling')
-        cls.cb.close()
-        del cls.cb
+        cls.tb.close()
+        del cls.tb
         print 'tore down'
 
 if __name__ == "__main__":

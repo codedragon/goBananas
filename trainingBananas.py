@@ -36,6 +36,7 @@ class TrainingBananas(JoystickHandler):
             self.reward = None
 
         if not unittest:
+            # if doing unittests, there is no window
             wp = WindowProperties()
             wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
@@ -204,31 +205,23 @@ class TrainingBananas(JoystickHandler):
         if self.collide_banana:
             #print 'collision'
             #posibilities after colliding with banana:
-            # automatically just re-plots bananas (2)
-            # requires subject to let go of joystick before re-plotting
-            # subject has to line up crosshair to banana for min. time,
+            # automatically moves to center, gives reward, starts over with banana (2)
+            # requires subject to let go of joystick before re-plotting banana (2.1)
+            # subject has to line up crosshair to banana for min. time (2.2)
             # (optional, yet to be implemented, slows down if goes past banana)
             # stop moving
             self.moving = False
             # move to center
-            if self.base.camera.getH != 0:
-                #print 'moved camera'
-                self.base.camera.setH(0)
-            #print 'change xhair color to red'
-            self.x_change_color(self.x_stop_c)
-            self.yay_reward = True
+            if self.training == 2:
+                if self.base.camera.getH != 0:
+                    #print 'moved camera'
+                    self.base.camera.setH(0)
+                #print 'change xhair color to red'
+                self.x_change_color(self.x_stop_c)
+                self.yay_reward = True
 
     def check_y_banana(self):
-        # This is checked every fricking frame, which means we go through this loop
-        # many times per collision, except when I want it to. :/
-        # check to see if crosshair is over banana, if so, stop turning, move it to centered, give reward
-        # if self.collHandler.getNumEntries() > 0:
-        #     # the only object we can be running into is the banana, so there you go...
-        #     self.collide_banana = True
-        #     #print self.collHandler.getEntries()
-        # if self.collide_banana:
-        #     #print 'collide'
-        #     self.collide_banana = False
+        # for the forward motion, we need to know when the banana is close
         if self.banana_models.beeps is None:
             return
 
