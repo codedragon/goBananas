@@ -31,7 +31,7 @@ class TrainingBananas(JoystickHandler):
         # set up reward system
         if config['reward'] and PYDAQ_LOADED:
             self.reward = pydaq.GiveReward()
-            print 'pydaq'
+            print 'Reward system on'
         else:
             self.reward = None
 
@@ -63,7 +63,7 @@ class TrainingBananas(JoystickHandler):
         # not changing now, but may eventually...
         self.x_alpha = config['xHairAlpha']
         self.training = config['training']
-        print self.training
+        print('training level is', self.training)
         # variable used to notify when changing direction of new target
         self.new_dir = None
         # variable to notify when changing levels
@@ -75,11 +75,11 @@ class TrainingBananas(JoystickHandler):
         #self.banana.setPos(Point3(0, 0, 0))
         self.banana.setH(280)
         self.banana.setScale(0.5)
+        self.banana.reparentTo(render)
         collision_node = self.banana.find('**/+CollisionNode')
         collision_node.setScale(0.2)
         #collision_node.show()
         #cs = CollisionSphere(0, 0, 0, 1)
-        self.banana.reparentTo(render)
 
         # set up collision system and collision ray to camera
         base.cTrav = CollisionTraverser()
@@ -188,7 +188,7 @@ class TrainingBananas(JoystickHandler):
                     #print 'checking x_mag'
                     #print self.x_mag
                     if abs(self.x_mag) > 0:
-                        print('let go!')
+                        #print('let go!')
                         return task.cont
                 # and now we can start things over again
                 #print('start over')
@@ -240,7 +240,7 @@ class TrainingBananas(JoystickHandler):
                             if self.training > 2.2:
                                 self.set_zone_time = True
                             elif self.training >= 2:
-                                print 'yes'
+                                #print 'yes'
                                 # stop moving
                                 self.moving = False
                                 # move to center
@@ -293,7 +293,7 @@ class TrainingBananas(JoystickHandler):
             self.reward_count = 0
 
     def restart_bananas(self):
-        print 'restarted'
+        #print 'restarted'
         #self.banana_models.replenishBananas()
         # reset a couple of variables
         self.yay_reward = False
@@ -322,7 +322,7 @@ class TrainingBananas(JoystickHandler):
             print 'change level'
             self.training = self.change_level
             self.change_level = False
-        print('rotate avatar back so at correct angle:', self.avatar_h)
+        #print('rotate avatar back so at correct angle:', self.avatar_h)
         self.base.camera.setH(self.multiplier * self.avatar_h)
         #Avatar.getInstance().setPos(self.avatar_pos)
         #Avatar.getInstance().setH(self.multiplier * self.avatar_h)
@@ -452,6 +452,8 @@ class TrainingBananas(JoystickHandler):
         self.accept('arrow_left', self.move, ['x', -0.1])
         self.accept('arrow_right-up', self.move, ['x', 0])
         self.accept('arrow_left-up', self.move, ['x', 0])
+        self.accept('arrow_right-repeat', self.move, ['x', 0.1])
+        self.accept('arrow_left-repeat', self.move, ['y', -0.1])
         self.accept('q', self.close)
         self.accept('e', self.inc_distance)
         self.accept('d', self.dec_distance)

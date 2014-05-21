@@ -53,6 +53,7 @@ class GoBananas:
         # base is global, used by pandaepl from panda3d
         base.win.requestProperties(win_props)
         #print base.win.requestProperties(win_props)
+        #base.setFrameRateMeter(True)
 
         # window2 = base.openWindow()
         # win_props.setOrigin(800, 200)  # make it so windows aren't on top of each other
