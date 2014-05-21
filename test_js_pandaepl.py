@@ -1,7 +1,7 @@
 from pandaepl.common import *
 from pandaepl import Joystick
 from bananas import Bananas
-
+from panda3d.core import WindowProperties
 
 class Test_JS_PandaEPL:
     def __init__(self):
@@ -15,6 +15,15 @@ class Test_JS_PandaEPL:
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
         print exp.getSessionNum()
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
+
+        # get rid of cursor
+        win_props = WindowProperties()
+        #print win_props
+        win_props.setCursorHidden(True)
+        #win_props.setOrigin(20, 20)  # make it so windows aren't on top of each other
+        #win_props.setSize(800, 600)  # normal panda window
+        # base is global, used by pandaepl from panda3d
+        base.win.requestProperties(win_props)
 
         vr = Vr.getInstance()
         self.banana_models = Bananas(config)

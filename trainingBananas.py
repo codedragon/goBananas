@@ -109,12 +109,6 @@ class TrainingBananas(JoystickHandler):
         self.avatar_pos = Point3(0, 0, 1)
         self.base.camera.setH(self.multiplier * self.avatar_h)
 
-        self.collide_banana = False
-        # aiming only important for 2.2
-        if self.training == 2.2:
-            self.hold_aim = 0
-            self.goal = 500  # number of frames to hold aim
-
         # Cross hair
         # color changes for crosshair
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
@@ -135,29 +129,33 @@ class TrainingBananas(JoystickHandler):
         textNodePath.setPos(crosshair_pos)
 
         self.setup_inputs()
-        self.js_check = 0
-        self.js_pos = None
-        self.js_override = False
         self.delay_start = False
         self.yay_reward = False
         self.reward_delay = False
         self.reward_time = config['pulseInterval']  # usually 200ms
         self.reward_override = False
         self.reward_on = True
-        self.delay = 1  # number of frames to wait for new "trial"
-        self.t_delay = 0  # keeps track of frames waiting for new "trial"
         self.reward_count = 0
         self.x_mag = 0
         self.y_mag = 0
         self.slow_factor = 0.05  # factor to slow down movement of joystick
         self.moving = True
+        # toggle for making sure stays on banana for min time for 2.3
+        self.set_zone_time = False
+        # amount need to hold crosshair on banana to get reward (2.3)
+        # must be more than zero
+        self.hold_aim = 0.5
+        # keeps track of how long we have held
+        self.hold_time = 0
+        self.check_zone = False
         #print Camera.defaultInstance.getFov()
         # set up main loop
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         self.frameTask.delay = 0
 
     def frame_loop(self, task):
-        # delay_start means we just gave reward and need to set wait time
+        # delay_start means we just gave reward and need to set wait
+        # until reward pump is done to do anything
         if self.delay_start:
             task.delay = task.time + self.reward_time
             #print('time now', task.time)
@@ -165,6 +163,13 @@ class TrainingBananas(JoystickHandler):
             self.delay_start = False
             #self.reward_delay = True
             return task.cont
+        # set_zone_time means we have the crosshair over the banana,
+        # and have to set how long to leave it there
+        if self.set_zone_time:
+            self.hold_time = task.time + self.hold_aim
+            self.set_zone_time = False
+            self.check_zone = True
+        # reward delay is over, on to regularly scheduled program
         if task.time > task.delay:
             # check for reward
             if self.yay_reward and self.reward_count < self.numBeeps:
@@ -173,19 +178,76 @@ class TrainingBananas(JoystickHandler):
                 self.give_reward()
                 return task.cont
             elif self.yay_reward and self.reward_count == self.numBeeps:
+                # done giving reward, time to start over, maybe
                 # hide the banana
                 self.banana.stash()
-                # and start things over again
+                # change the color of the crosshair
+                self.x_change_color(self.x_start_c)
+                # before we can proceed, subject may need to let go of the joystick
+                if 2 < self.training < 2.3:
+                    #print 'checking x_mag'
+                    #print self.x_mag
+                    if abs(self.x_mag) > 0:
+                        print('let go!')
+                        return task.cont
+                # and now we can start things over again
+                #print('start over')
                 self.restart_bananas()
                 return task.cont
             # check to see if we are moving
             if self.moving:
+                #print self.base.camera.getH()
+                #print(self.x_mag * self.slow_factor * -self.multiplier)
                 self.base.camera.setH(self.base.camera.getH() + (self.x_mag * self.slow_factor * -self.multiplier))
                 # check for collision:
                 if self.training >= 3:
                     self.check_y_banana()
                 elif self.training >= 2:
-                    self.check_x_banana()
+                    # if we need to be holding, make sure still in target zone
+                    if self.check_zone:
+                        #print('check hold')
+                        collide_banana = self.check_x_banana()
+                        if collide_banana:
+                            #print('in the zone')
+                            if task.time > self.hold_time:
+                                #print('ok, get reward')
+                                # stop moving and get reward
+                                self.x_change_color(self.x_stop_c)
+                                self.moving = False
+                                self.yay_reward = True
+                                self.check_zone = False
+                            else:
+                                pass
+                                #print('keep holding')
+                                #print('time', task.time)
+                                #print('hold until', self.hold_time)
+                        else:
+                            #print('left zone, wait for another collision')
+                            self.x_change_color(self.x_start_c)
+                            self.set_zone_time = False
+                    else:
+                        collide_banana = self.check_x_banana()
+                        if collide_banana:
+                            #print 'collision'
+                            #posibilities after colliding with banana:
+                            # automatically moves to center, gives reward, starts over with banana (2)
+                            # requires subject to let go of joystick before re-plotting banana (2.1)
+                            # subject has to line up crosshair to banana for min. time (2.3)
+                            # (optional, yet to be implemented, slows down if goes past banana)
+                            # no matter what, change color when colliding.
+                            #print 'change xhair color to red'
+                            self.x_change_color(self.x_stop_c)
+                            if self.training > 2.2:
+                                self.set_zone_time = True
+                            elif self.training >= 2:
+                                print 'yes'
+                                # stop moving
+                                self.moving = False
+                                # move to center
+                                if self.base.camera.getH != 0:
+                                    #print 'moved camera'
+                                    self.base.camera.setH(0)
+                                self.yay_reward = True
         return task.cont
 
     def give_reward(self):
@@ -195,30 +257,14 @@ class TrainingBananas(JoystickHandler):
         self.delay_start = True
 
     def check_x_banana(self):
-        # check to see if crosshair is over banana, if so, stop turning, give reward
-        # next stage is just slowing down after crosshair changes color, so he can go
-        # past and has to turn back.
+        # check to see if crosshair is over banana
         if self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
-            self.collide_banana = True
+            collide_banana = True
             #print self.collHandler.getEntries()
-        if self.collide_banana:
-            #print 'collision'
-            #posibilities after colliding with banana:
-            # automatically moves to center, gives reward, starts over with banana (2)
-            # requires subject to let go of joystick before re-plotting banana (2.1)
-            # subject has to line up crosshair to banana for min. time (2.2)
-            # (optional, yet to be implemented, slows down if goes past banana)
-            # stop moving
-            self.moving = False
-            # move to center
-            if self.training == 2:
-                if self.base.camera.getH != 0:
-                    #print 'moved camera'
-                    self.base.camera.setH(0)
-                #print 'change xhair color to red'
-                self.x_change_color(self.x_stop_c)
-                self.yay_reward = True
+        else:
+            collide_banana = False
+        return collide_banana
 
     def check_y_banana(self):
         # for the forward motion, we need to know when the banana is close
@@ -247,14 +293,12 @@ class TrainingBananas(JoystickHandler):
             self.reward_count = 0
 
     def restart_bananas(self):
-        #print 'restarted'
+        print 'restarted'
         #self.banana_models.replenishBananas()
         # reset a couple of variables
         self.yay_reward = False
         self.t_delay = 0
         self.reward_count = 0
-        self.collide_banana = False
-        self.js_override = False
         #print self.trainDir
         #print self.multiplier
         # check to see if we are switching the banana to the other side
@@ -274,16 +318,10 @@ class TrainingBananas(JoystickHandler):
             #print('old position', self.banana_pos)
             #print('actual position', self.banana_models.bananaModels[0].getPos())
             #self.banana_pos[0] = abs(self.banana_pos[0]) * self.multiplier
-
-        self.x_change_color(self.x_start_c)
         if self.change_level:
             print 'change level'
             self.training = self.change_level
             self.change_level = False
-        #if self.multiplier == 1:
-        #    self.banana_models.bananaModels[0].setH(280)
-        #else:
-        #    self.banana_models.bananaModels[0].setH(290)
         print('rotate avatar back so at correct angle:', self.avatar_h)
         self.base.camera.setH(self.multiplier * self.avatar_h)
         #Avatar.getInstance().setPos(self.avatar_pos)
@@ -312,23 +350,15 @@ class TrainingBananas(JoystickHandler):
         if abs(js_input) < 0.1:
             js_input = 0
         if js_dir == 'x':
-            self.x_mag = js_input
-            if self.training == 2:
+            self.x_mag = js_input * self.multiplier
+            # turn off opposite direction
+            if self.training < 2.2:
                 #print js_input
                 if js_input * self.multiplier < 0:
                     #print 'no'
                     self.x_mag = 0
         else:
             self.y_mag = js_input
-
-    def pause(self, inputEvent):
-        # if we are less than the usual delay (so in delay or delay is over),
-        # make it a giant delay,
-        # otherwise end the delay period.
-        if self.t_delay < self.delay:
-            self.t_delay = 1000000
-        else:
-            self.t_delay = 0
 
     def inc_distance(self):
         if self.training == 2:
@@ -376,14 +406,6 @@ class TrainingBananas(JoystickHandler):
         else:
             self.change_level = self.training - 1
         print('new level', self.change_level)
-
-    def inc_interval(self):
-        self.delay += 1
-        print('new delay', self.delay)
-
-    def dec_interval(self):
-        self.delay -= 1
-        print('new delay', self.delay)
 
     def change_left(self):
         self.new_dir = 1
