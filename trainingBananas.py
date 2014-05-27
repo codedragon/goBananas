@@ -327,6 +327,7 @@ class TrainingBananas(JoystickHandler):
         #Avatar.getInstance().setPos(self.avatar_pos)
         #Avatar.getInstance().setH(self.multiplier * self.avatar_h)
         print('avatar heading', self.base.camera.getH())
+        print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 60)
         # make sure banana in correct position
         # banana does not move, avatar moves or rotates
         #self.banana_models.bananaModels[0].setPos(self.banana_pos)
@@ -371,6 +372,7 @@ class TrainingBananas(JoystickHandler):
             # y is always going to be positive
             #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
             print('new heading', self.avatar_h)
+            print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 60)
 
     def dec_distance(self):
         if self.training == 2:
@@ -382,6 +384,7 @@ class TrainingBananas(JoystickHandler):
             #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
             #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
             print('new heading', self.avatar_h)
+            print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 60)
 
     def inc_reward(self):
         self.numBeeps += 1
@@ -448,12 +451,12 @@ class TrainingBananas(JoystickHandler):
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
         self.accept('y_axis', self.move, ['y'])
-        self.accept('arrow_right', self.move, ['x', 0.1])
-        self.accept('arrow_left', self.move, ['x', -0.1])
+        self.accept('arrow_right', self.move, ['x', 0.5])
+        self.accept('arrow_left', self.move, ['x', -0.5])
         self.accept('arrow_right-up', self.move, ['x', 0])
         self.accept('arrow_left-up', self.move, ['x', 0])
-        self.accept('arrow_right-repeat', self.move, ['x', 0.1])
-        self.accept('arrow_left-repeat', self.move, ['y', -0.1])
+        self.accept('arrow_right-repeat', self.move, ['x', 0.5])
+        self.accept('arrow_left-repeat', self.move, ['y', -0.5])
         self.accept('q', self.close)
         self.accept('e', self.inc_distance)
         self.accept('d', self.dec_distance)
