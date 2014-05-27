@@ -41,8 +41,8 @@ def load_models():
     streetlight.scale = 0.75
 
     windmill = PlaceModels()
-    windmill.group = ['original', 'better']
-    #windmill.group = ['better']
+    #windmill.group = ['original', 'better']
+    windmill.group = ['better']
     windmill.name = 'windmill'
     windmill.model = 'models/windmill/windmill.bam'
     windmill.location = Point3(13, -13, 0)
