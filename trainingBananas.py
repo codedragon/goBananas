@@ -140,6 +140,7 @@ class TrainingBananas(JoystickHandler):
         self.x_mag = 0
         self.y_mag = 0
         self.slow_factor = 0.05  # factor to slow down movement of joystick
+        # toggle for whether moving is allowed or not
         self.moving = True
         # toggle for making sure stays on banana for min time for 2.3
         self.set_zone_time = False
@@ -149,7 +150,9 @@ class TrainingBananas(JoystickHandler):
         # keeps track of how long we have held
         self.hold_time = 0
         self.check_zone = False
-        self.check = 0
+        self.check_time = 0
+        # toggle for when trial begins
+        self.start_trial = True
         print('avatar heading', self.base.camera.getH())
         # frame rate is mostly not actually 120, but that is where it is set
         print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
@@ -199,20 +202,25 @@ class TrainingBananas(JoystickHandler):
                 # and now we can start things over again
                 #print('start over')
                 self.restart_bananas()
-                self.check = task.time
                 return task.cont
             # check to see if we are moving
             if self.moving:
                 # want to create some acceleration, so
-                # every frame we will increase the self.slow_factor by 1/2 the previous self.x_mag
+                # every frame we will increase the self.slow_factor by a very small fraction of the previous self.x_mag
                 # if self.x_mag was zero, than we reset slow_factor to 0.5
                 #print self.base.camera.getH()
                 #print(self.x_mag * self.slow_factor * -self.multiplier)
+                #print self.slow_factor
                 self.base.camera.setH(self.base.camera.getH() + (self.x_mag * self.slow_factor * -self.multiplier))
-                if self.x_mag == 0:
-                    self.slow_factor = 0.5
+                if self.start_trial or self.x_mag == 0:
+                    self.slow_factor = 0.05
                 else:
-                    self.slow_factor += 0.5 * self.x_mag
+                    self.start_trial = False
+                    #self.slow_factor = 0.05
+                    self.slow_factor += 0.001 * self.x_mag
+                    # if self.check is zero, this is the first time we have moved since banana was put out
+                    if self.check_time == 0:
+                        self.check_time = task.time
                 # check for collision:
                 if self.training >= 3:
                     self.check_y_banana()
@@ -242,7 +250,7 @@ class TrainingBananas(JoystickHandler):
                     else:
                         collide_banana = self.check_x_banana()
                         if collide_banana:
-                            print('time took: ', self.check - task.time)
+                            #print('time took: ', task.time - self.check)
                             #print 'collision'
                             #posibilities after colliding with banana:
                             # automatically moves to center, gives reward, starts over with banana (2)
@@ -314,6 +322,8 @@ class TrainingBananas(JoystickHandler):
         self.yay_reward = False
         self.t_delay = 0
         self.reward_count = 0
+        self.check_time = 0
+        self.start_trial = True
         #print self.trainDir
         #print self.multiplier
         # check to see if we are switching the banana to the other side
@@ -345,7 +355,7 @@ class TrainingBananas(JoystickHandler):
         # frame rate is mostly not actually 120, but that is where it is set so
         # technically this is still the minimum time
         # t = sqrt(D/2A)
-        print('min time to reward:', sqrt(self.avatar_h / (2 * 0.5 / 120)))
+        #print('min time to reward:', sqrt(self.avatar_h / (2 * 0.5 / 120)))
         #print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
         # make sure banana in correct position
         # banana does not move, avatar moves or rotates
@@ -386,13 +396,14 @@ class TrainingBananas(JoystickHandler):
             #print('old pos', self.avatar_h)
             #self.avatar_h[0] = self.avatar_h[0] * 1.5
             self.avatar_h *= 1.5
-            if abs(self.avatar_h) > 30:
-                self.avatar_h = 30
+            if abs(self.avatar_h) > 18:
+                self.avatar_h = 18
             # y is always going to be positive
             #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
             print('new heading', self.avatar_h)
             # frame rate is mostly not actually 120, but that is where it is set
-            print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
+            #print('min time to reward:', sqrt(self.avatar_h / (2 * 0.5 / 120)))
+            #print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
 
     def dec_distance(self):
         if self.training == 2:
@@ -405,7 +416,8 @@ class TrainingBananas(JoystickHandler):
             #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
             print('new heading', self.avatar_h)
             # frame rate is mostly not actually 120, but that is where it is set
-            print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
+            #print('min time to reward:', sqrt(self.avatar_h / (2 * 0.5 / 120)))
+            #print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
 
     def inc_reward(self):
         self.numBeeps += 1
