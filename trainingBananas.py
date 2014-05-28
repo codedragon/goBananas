@@ -41,6 +41,7 @@ class TrainingBananas(JoystickHandler):
             wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
             base.win.requestProperties(wp)
+            #base.setFrameRateMeter(True)
 
         # for bananas, changing the angle from avatar to banana, so left is negative
         # right is positive.
@@ -102,7 +103,7 @@ class TrainingBananas(JoystickHandler):
             pass
             #self.fullForwardSpeed = config['fullForwardSpeed']
         elif self.training >= 2:
-            self.avatar_h = 1
+            self.avatar_h = config['avatar_start_h']
             #avatar.setH(self.multiplier * self.avatar_h)
             #self.fullTurningSpeed = config['fullTurningSpeed']
 
@@ -148,6 +149,11 @@ class TrainingBananas(JoystickHandler):
         # keeps track of how long we have held
         self.hold_time = 0
         self.check_zone = False
+
+        print('avatar heading', self.base.camera.getH())
+        # frame rate is mostly not actually 120, but that is where it is set
+        print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
+
         #print Camera.defaultInstance.getFov()
         # set up main loop
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
@@ -334,7 +340,8 @@ class TrainingBananas(JoystickHandler):
         #Avatar.getInstance().setPos(self.avatar_pos)
         #Avatar.getInstance().setH(self.multiplier * self.avatar_h)
         print('avatar heading', self.base.camera.getH())
-        print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 60)
+        # frame rate is mostly not actually 120, but that is where it is set
+        print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
         # make sure banana in correct position
         # banana does not move, avatar moves or rotates
         #self.banana_models.bananaModels[0].setPos(self.banana_pos)
@@ -379,7 +386,8 @@ class TrainingBananas(JoystickHandler):
             # y is always going to be positive
             #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
             print('new heading', self.avatar_h)
-            print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 60)
+            # frame rate is mostly not actually 120, but that is where it is set
+            print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
 
     def dec_distance(self):
         if self.training == 2:
@@ -391,7 +399,8 @@ class TrainingBananas(JoystickHandler):
             #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
             #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
             print('new heading', self.avatar_h)
-            print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 60)
+            # frame rate is mostly not actually 120, but that is where it is set
+            print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
 
     def inc_reward(self):
         self.numBeeps += 1
@@ -458,12 +467,12 @@ class TrainingBananas(JoystickHandler):
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
         self.accept('y_axis', self.move, ['y'])
-        self.accept('arrow_right', self.move, ['x', 0.5])
-        self.accept('arrow_left', self.move, ['x', -0.5])
+        self.accept('arrow_right', self.move, ['x', 0.1])
+        self.accept('arrow_left', self.move, ['x', -0.1])
         self.accept('arrow_right-up', self.move, ['x', 0])
         self.accept('arrow_left-up', self.move, ['x', 0])
-        self.accept('arrow_right-repeat', self.move, ['x', 0.5])
-        self.accept('arrow_left-repeat', self.move, ['y', -0.5])
+        self.accept('arrow_right-repeat', self.move, ['x', 0.1])
+        self.accept('arrow_left-repeat', self.move, ['y', -0.1])
         self.accept('q', self.close)
         self.accept('e', self.inc_distance)
         self.accept('d', self.dec_distance)

@@ -19,6 +19,8 @@ trainingDirection = 'Right'
 # training 3, move crosshair to banana, forward
 training = 2
 
+avatar_start_h = 1.5
+
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
 #reward = False
 reward = True
