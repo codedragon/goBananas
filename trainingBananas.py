@@ -196,9 +196,16 @@ class TrainingBananas(JoystickHandler):
                 return task.cont
             # check to see if we are moving
             if self.moving:
+                # want to create some acceleration, so
+                # every frame we will increase the self.slow_factor by 1/2 the previous self.x_mag
+                # if self.x_mag was zero, than we reset slow_factor to 0.5
                 #print self.base.camera.getH()
                 #print(self.x_mag * self.slow_factor * -self.multiplier)
                 self.base.camera.setH(self.base.camera.getH() + (self.x_mag * self.slow_factor * -self.multiplier))
+                if self.x_mag == 0:
+                    self.slow_factor = 0.5
+                else:
+                    self.slow_factor += 0.5 * self.x_mag
                 # check for collision:
                 if self.training >= 3:
                     self.check_y_banana()
