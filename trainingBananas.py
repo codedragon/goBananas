@@ -4,7 +4,7 @@ from panda3d.core import Point3, Point4
 from panda3d.core import TextNode, WindowProperties
 from panda3d.core import CollisionNode, CollisionRay, CollisionSphere
 from panda3d.core import CollisionTraverser, CollisionHandlerQueue
-import datetime
+from math import sqrt
 import sys
 # only load pydaq if it's available
 try:
@@ -149,7 +149,7 @@ class TrainingBananas(JoystickHandler):
         # keeps track of how long we have held
         self.hold_time = 0
         self.check_zone = False
-
+        self.check = 0
         print('avatar heading', self.base.camera.getH())
         # frame rate is mostly not actually 120, but that is where it is set
         print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
@@ -199,6 +199,7 @@ class TrainingBananas(JoystickHandler):
                 # and now we can start things over again
                 #print('start over')
                 self.restart_bananas()
+                self.check = task.time
                 return task.cont
             # check to see if we are moving
             if self.moving:
@@ -241,6 +242,7 @@ class TrainingBananas(JoystickHandler):
                     else:
                         collide_banana = self.check_x_banana()
                         if collide_banana:
+                            print('time took: ', self.check - task.time)
                             #print 'collision'
                             #posibilities after colliding with banana:
                             # automatically moves to center, gives reward, starts over with banana (2)
@@ -340,8 +342,11 @@ class TrainingBananas(JoystickHandler):
         #Avatar.getInstance().setPos(self.avatar_pos)
         #Avatar.getInstance().setH(self.multiplier * self.avatar_h)
         print('avatar heading', self.base.camera.getH())
-        # frame rate is mostly not actually 120, but that is where it is set
-        print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
+        # frame rate is mostly not actually 120, but that is where it is set so
+        # technically this is still the minimum time
+        # t = sqrt(D/2A)
+        print('min time to reward:', sqrt(self.avatar_h / (2 * 0.5 / 120)))
+        #print('min time to reward:', self.avatar_h * 1 / self.slow_factor * 1 / 120)
         # make sure banana in correct position
         # banana does not move, avatar moves or rotates
         #self.banana_models.bananaModels[0].setPos(self.banana_pos)
