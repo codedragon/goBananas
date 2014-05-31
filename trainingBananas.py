@@ -38,7 +38,7 @@ class TrainingBananas(JoystickHandler):
         if not unittest:
             # if doing unittests, there is no window
             wp = WindowProperties()
-            wp.setSize(1024, 768)
+            wp.setSize(1280, 800)
             wp.setOrigin(0, 0)
             base.win.requestProperties(wp)
             base.setFrameRateMeter(True)
@@ -167,6 +167,7 @@ class TrainingBananas(JoystickHandler):
     def frame_loop(self, task):
         dt = task.time - task.last
         task.last = task.time
+        #print('dt', dt)
         # delay_start means we just gave reward and need to set wait
         # until reward pump is done to do anything
         if self.delay_start:
@@ -179,12 +180,13 @@ class TrainingBananas(JoystickHandler):
         # set_zone_time means we have the crosshair over the banana,
         # and have to set how long to leave it there
         if self.set_zone_time:
-            print 'reset zone time'
+            #print 'reset zone time'
             self.hold_time = task.time + self.hold_aim
             self.set_zone_time = False
             self.check_zone = True
         # reward delay is over, on to regularly scheduled program
         if task.time > task.delay:
+            #print 'ok'
             # check for reward
             if self.yay_reward and self.reward_count < self.numBeeps:
                 #print 'reward'
@@ -213,6 +215,7 @@ class TrainingBananas(JoystickHandler):
                 return task.cont
             # check to see if we are moving
             if self.moving:
+                #print 'moving'
                 # want to create some acceleration, so
                 # every frame we will increase the self.slow_factor by a very small fraction of the previous self.x_mag
                 # if self.x_mag was zero, than we reset slow_factor
@@ -227,8 +230,9 @@ class TrainingBananas(JoystickHandler):
                 else:
                     # use dt so when frame rate changes the rate of movement changes proportionately
                     delta_heading = self.x_mag * self.slow_factor * dt
-                #print new_heading
+                #print('change heading', delta_heading)
                 self.base.camera.setH(heading + delta_heading)
+                #print self.base.camera.getH()
                 # set new speed for next frame, if new trial or subject stopped, reverts to default
                 if self.start_trial or self.x_mag == 0:
                     self.slow_factor = 0.0005
@@ -399,13 +403,14 @@ class TrainingBananas(JoystickHandler):
         if abs(js_input) < 0.1:
             js_input = 0
         if js_dir == 'x':
-            # we are moving in the opposite direction of the joystick
+            #print js_input
+            # we are moving the camera in the opposite direction of the joystick
             self.x_mag = -js_input
             #print('x', self.x_mag)
             # turn off opposite direction
             if self.training < 2.2:
                 #print js_input
-                if self.x_mag * self.multiplier < 0:
+                if self.x_mag * self.multiplier > 0:
                     #print 'no'
                     self.x_mag = 0
         else:
@@ -501,12 +506,12 @@ class TrainingBananas(JoystickHandler):
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
         self.accept('y_axis', self.move, ['y'])
-        self.accept('arrow_right', self.move, ['x', 0.1])
-        self.accept('arrow_left', self.move, ['x', -0.1])
+        self.accept('arrow_right', self.move, ['x', 0.3])
+        self.accept('arrow_left', self.move, ['x', -0.3])
         self.accept('arrow_right-up', self.move, ['x', 0])
         self.accept('arrow_left-up', self.move, ['x', 0])
-        self.accept('arrow_right-repeat', self.move, ['x', 0.1])
-        self.accept('arrow_left-repeat', self.move, ['y', -0.1])
+        self.accept('arrow_right-repeat', self.move, ['x', 0.3])
+        self.accept('arrow_left-repeat', self.move, ['x', -0.3])
         self.accept('q', self.close)
         self.accept('e', self.inc_distance)
         self.accept('d', self.dec_distance)
