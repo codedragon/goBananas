@@ -38,7 +38,8 @@ class TrainingBananas(JoystickHandler):
         if not unittest:
             # if doing unittests, there is no window
             wp = WindowProperties()
-            wp.setSize(1280, 800)
+            #wp.setSize(1280, 800)
+            wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
             base.win.requestProperties(wp)
             base.setFrameRateMeter(True)
@@ -506,12 +507,12 @@ class TrainingBananas(JoystickHandler):
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
         self.accept('y_axis', self.move, ['y'])
-        self.accept('arrow_right', self.move, ['x', 0.3])
-        self.accept('arrow_left', self.move, ['x', -0.3])
+        self.accept('arrow_right', self.move, ['x', 0.5])
+        self.accept('arrow_left', self.move, ['x', -0.5])
         self.accept('arrow_right-up', self.move, ['x', 0])
         self.accept('arrow_left-up', self.move, ['x', 0])
-        self.accept('arrow_right-repeat', self.move, ['x', 0.3])
-        self.accept('arrow_left-repeat', self.move, ['x', -0.3])
+        self.accept('arrow_right-repeat', self.move, ['x', 0.5])
+        self.accept('arrow_left-repeat', self.move, ['x', -0.5])
         self.accept('q', self.close)
         self.accept('e', self.inc_distance)
         self.accept('d', self.dec_distance)
