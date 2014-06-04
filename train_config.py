@@ -12,9 +12,11 @@ trainingDirection = 'Right'
 # training 2, move crosshair to banana, left/right, opposite direction does nothing
 # training 2.1, move crosshair to banana, must let go of joystick to start next trial,
 #               opposite direction still does nothing
-# training 2.2, move crosshair to banana, must let go of joystick to start next trial,
-#               opposite direction allowed
-# training 2.3, subject has to line up crosshair to banana (not go past) for min. time,
+# training 2.2, banana appears randomly on either side, multiple distances. Must let go
+#               of joystick to start next trial, can only move direction towards center
+# training 2.3, banana appears randomly on either side, multiple distances. Must let go
+#               of joystick to start next trial, opposite direction allowed
+# training 2.4, subject has to line up crosshair to banana (not go past) for min. time,
 #               slows down if goes past banana, opposite direction allowed
 # training 3, move crosshair to banana, forward
 training = 2

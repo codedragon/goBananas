@@ -25,7 +25,8 @@ class TrainingBananas(JoystickHandler):
         self.base = ShowBase()
         config = {}
         execfile('train_config.py', config)
-        JoystickHandler.__init__(self)
+        if not unittest:
+            JoystickHandler.__init__(self)
         self.base.disableMouse()
         print('Subject is', config['subject'])
         # set up reward system
@@ -41,6 +42,7 @@ class TrainingBananas(JoystickHandler):
             #wp.setSize(1280, 800)
             wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
+            wp.setCursorHidden(True)
             base.win.requestProperties(wp)
             base.setFrameRateMeter(True)
 
@@ -66,6 +68,10 @@ class TrainingBananas(JoystickHandler):
         self.x_alpha = config['xHairAlpha']
         self.training = config['training']
         print('training level is', self.training)
+        if self.training > 2.1:
+            self.random_banana = True
+        else:
+            self.random_banana = False
         # variable used to notify when changing direction of new target
         self.new_dir = None
         # variable to notify when changing levels
@@ -348,6 +354,9 @@ class TrainingBananas(JoystickHandler):
         self.start_trial = True
         #print self.trainDir
         #print self.multiplier
+        # check to see if banana is on random
+        if self.random_banana:
+            pass
         # check to see if we are switching the banana to the other side
         if self.new_dir is not None:
             if self.new_dir == 1:
@@ -369,6 +378,10 @@ class TrainingBananas(JoystickHandler):
             print 'change level'
             self.training = self.change_level
             self.change_level = False
+            if self.training > 2.1:
+                self.random_banana = True
+            else:
+                self.random_banana = False
         #print('rotate avatar back so at correct angle:', self.avatar_h)
         self.base.camera.setH(self.multiplier * self.avatar_h)
         #Avatar.getInstance().setPos(self.avatar_pos)
@@ -449,21 +462,25 @@ class TrainingBananas(JoystickHandler):
         self.numBeeps -= 1
 
     def inc_level(self):
-        # cannot change into or out of level 1, only higher levels,
+        # in level 2 have 2, 2.1, 2.2, 2.3
         # currently level 3 is highest
-        if self.training == 1 or self.training == 3:
+        if self.training == 3:
             self.change_level = self.training
             print 'cannot increase level'
+        elif self.training == 2.3:
+            self.change_level = 3
         else:
-            self.change_level = self.training + 1
+            self.change_level = self.training + 0.1
         print('new level', self.change_level)
 
     def dec_level(self):
-        if self.training == 1 or self.training == 2:
+        if self.training == 2:
             self.change_level = self.training
             print 'cannot decrease level'
+        elif self.training == 3:
+            self.change_level = 2.3
         else:
-            self.change_level = self.training - 1
+            self.change_level = self.training - 0.1
         print('new level', self.change_level)
 
     def change_left(self):
@@ -500,6 +517,38 @@ class TrainingBananas(JoystickHandler):
         # actually, it appears to do nothing...
         collisionNodepath.show()
         return collisionNodepath
+
+    def reset_variables(self):
+        self.base.taskMgr.remove("frame_loop")
+        # get back to the original state of variables, used for testing
+        self.delay_start = False
+        self.yay_reward = False
+        self.reward_delay = False
+        self.reward_override = False
+        self.reward_on = True
+        self.reward_count = 0
+        self.x_mag = 0
+        self.y_mag = 0
+        # start with a very slow factor, since usually proportional to joystick input,
+        # which we don't have yet, and will be very small
+        self.slow_factor = 0.0005  # factor to slow down movement of joystick and control acceleration
+        # toggle for whether moving is allowed or not
+        self.moving = True
+        # toggle for making sure stays on banana for min time for 2.3
+        self.set_zone_time = False
+        # amount need to hold crosshair on banana to get reward (2.3)
+        # must be more than zero. At 1.5 distance, must be greater than
+        # 0.5 to require stopping
+        self.hold_aim = 0.6
+        # keeps track of how long we have held
+        self.hold_time = 0
+        self.check_zone = False
+        self.check_time = 0
+        # toggle for when trial begins
+        self.start_trial = True
+        self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
+        self.frameTask.delay = 0
+        self.frameTask.last = 0  # task time of the last frame
 
     def close(self):
         sys.exit()

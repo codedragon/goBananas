@@ -14,8 +14,10 @@ class JoystickHandler(DirectObject):
             return
         pygame.init()
         pygame.joystick.init()
-        #print pygame.joystick.get_count()
-        # do I want to load more than one?
+        js_count = pygame.joystick.get_count()
+        if js_count > 1:
+            code = "More than one joystick connected"
+            raise JoystickError(code)
         self.joystick_found = True
         try:
             self.js = pygame.joystick.Joystick(0)
@@ -48,3 +50,9 @@ class JoystickHandler(DirectObject):
                     messenger.send(axis, [ev.value])
         return task.cont
 
+
+class JoystickError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
