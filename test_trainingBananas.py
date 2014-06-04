@@ -10,7 +10,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        loadPrcFileData("", "window-type offscreen")
+        #loadPrcFileData("", "window-type offscreen")
         #print 'about to load world'
         cls.tb = TrainingBananas()
 
@@ -123,6 +123,40 @@ class TrainingBananaTestsT2(unittest.TestCase):
             messenger.send('x_axis', [i])
             taskMgr.step()
         self.assertTrue(self.tb.base.camera.getH() >= 0)
+
+    def test_after_changing_side_joystick_is_no_longer_allowed_to_go_original_direction(self):
+        """
+        test that e key increases the distance from banana to crosshair
+        """
+        self.tb.trainDir = 'turnRight'
+        self.tb.multiplier = 1
+        self.tb.restart_bananas()
+        before = self.tb.base.camera.getH()
+        print before
+        messenger.send('l')
+        print self.tb.base.camera.getH()
+        # go until last reward
+        while self.tb.reward_count < self.tb.numBeeps:
+            messenger.send('x_axis', [2])
+            taskMgr.step()
+        print self.tb.base.camera.getH()
+        # keep going while banana still in center
+        while self.tb.base.camera.getH() == 0:
+            messenger.send('x_axis', [2])
+            taskMgr.step()
+        # should be on left side now.
+        print 'banana on new side now'
+        self.assertTrue(self.tb.multiplier == -1)
+        # should be same distance, but opposite side
+        self.assertTrue(self.tb.base.camera.getH() / before == -1)
+        before = self.tb.base.camera.getH()
+        print before
+        print self.tb.x_mag
+        # now make sure that going right does not move the banana
+        for i in range(10):
+            messenger.send('x_axis', [2])
+            taskMgr.step()
+        self.assertTrue(self.tb.base.camera.getH() == before)
 
     @classmethod
     def tearDownClass(cls):
@@ -426,7 +460,8 @@ class TrainingBananaTestsT2_2(unittest.TestCase):
         while abs(self.tb.base.camera.getH()) > 0:
             messenger.send('x_axis', [2])
             taskMgr.step()
-        # now go until reward is over
+        # once in center can make sure that we stay in the center
+        # until reward is over
         while self.tb.reward_count < self.tb.numBeeps:
             # still at center
             self.assertTrue(self.tb.base.camera.getH() == 0)
@@ -435,8 +470,9 @@ class TrainingBananaTestsT2_2(unittest.TestCase):
         #print 'got reward'
         # step to set delay
         taskMgr.step()
-        # now go until delay is over
+        # now go until last delay is over, should still stay in center
         while self.tb.frameTask.time < self.tb.frameTask.delay:
+            self.assertTrue(self.tb.base.camera.getH() == 0)
             messenger.send('x_axis', [2])
             taskMgr.step()
         # go a few steps while still sending joystick signal
