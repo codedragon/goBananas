@@ -39,12 +39,12 @@ class TrainingBananas(JoystickHandler):
         if not unittest:
             # if doing unittests, there is no window
             wp = WindowProperties()
-            #wp.setSize(1280, 800)
-            wp.setSize(1024, 768)
+            wp.setSize(1280, 800)
+            #wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
             wp.setCursorHidden(True)
             base.win.requestProperties(wp)
-            base.setFrameRateMeter(True)
+            #base.setFrameRateMeter(True)
 
         # for bananas, changing the angle from avatar to banana, so left is negative
         # right is positive.
@@ -164,7 +164,7 @@ class TrainingBananas(JoystickHandler):
         # toggle for when trial begins
         self.start_trial = True
         print('avatar heading', self.base.camera.getH())
-        print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
+        #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
         #print Camera.defaultInstance.getFov()
         # set up main loop
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
@@ -278,7 +278,7 @@ class TrainingBananas(JoystickHandler):
                     else:
                         collide_banana = self.check_x_banana()
                         if collide_banana:
-                            print('time took: ', task.time - self.check_time)
+                            #print('time took: ', task.time - self.check_time)
                             #print 'collision'
                             #posibilities after colliding with banana:
                             # automatically moves to center, gives reward, starts over with banana (2)
@@ -393,7 +393,7 @@ class TrainingBananas(JoystickHandler):
         # dt decreases, so rate should stay the same, and should work out to
         # about 0.05 per 0.01 of a second
         # input max from joystick is 1, so does not enter equation
-        print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
+        #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
         # make sure banana in correct position
         # banana does not move, avatar moves or rotates
         #self.banana_models.bananaModels[0].setPos(self.banana_pos)
@@ -441,7 +441,7 @@ class TrainingBananas(JoystickHandler):
             # y is always going to be positive
             #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
             print('new heading', self.avatar_h)
-            print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
+            #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
 
     def dec_distance(self):
         if 2 <= self.training < 3:
@@ -453,7 +453,7 @@ class TrainingBananas(JoystickHandler):
             #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
             #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
             print('new heading', self.avatar_h)
-            print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
+            #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
 
     def inc_reward(self):
         self.numBeeps += 1

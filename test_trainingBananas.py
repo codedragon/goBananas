@@ -490,10 +490,15 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.restart_bananas()
         before = abs(self.tb.base.camera.getH())
         print before
-        #print(self.tb.frameTask.delay, self.tb.frameTask.time)
-        messenger.send('arrow_right')
-        # have to step at least twice for anything to happen
+        # dt is so small, since not actually writing to the screen,
+        # that we need to do this a couple of times to actually be
+        # a large enough change to register
         taskMgr.step()
+        messenger.send('arrow_right')
+        taskMgr.step()
+        messenger.send('arrow_right')
+        taskMgr.step()
+        messenger.send('arrow_right')
         taskMgr.step()
         # if moving closer to center, getH is getting smaller
         after = abs(self.tb.base.camera.getH())
@@ -512,8 +517,15 @@ class TrainingBananaTestKeys(unittest.TestCase):
         before = abs(self.tb.base.camera.getH())
         print before
         messenger.send('arrow_left')
-        # have to step at least twice for anything to happen
+        # dt is so small, since not actually writing to the screen,
+        # that we need to do this a couple of times to actually be
+        # a large enough change to register
         taskMgr.step()
+        messenger.send('arrow_left')
+        taskMgr.step()
+        messenger.send('arrow_left')
+        taskMgr.step()
+        messenger.send('arrow_left')
         taskMgr.step()
         # if moving closer to center, getH is getting smaller
         after = abs(self.tb.base.camera.getH())
