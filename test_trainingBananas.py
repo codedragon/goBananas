@@ -517,21 +517,16 @@ class TrainingBananaTestsT2_2(unittest.TestCase):
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
 
-    def test_move_joystick_right_moves_banana_left(self):
+    def test_can_move_joystick_direction_of_banana(self):
         """
-        test that moving the joystick to the right moves the banana
-        from the right towards the crosshair in the center, if
-        trainingDirection is right
+        if the training direction is to the right, the banana is on the right,
+        and moving the joystick to the left will move the crosshair to the banana
         """
-        self.tb.trainDir = 'turnRight'
-        self.tb.multiplier = 1
-        # if we change direction, have to restart bananas
-        self.tb.restart_bananas()
         before = abs(self.tb.base.camera.getH())
         print before
         # step once to get past 0 time
         taskMgr.step()
-        messenger.send('x_axis', [2])
+        messenger.send('x_axis', [self.tb.multiplier * 2])
         taskMgr.step()
         # if moving closer to center, getH is getting smaller
         after = abs(self.tb.base.camera.getH())
