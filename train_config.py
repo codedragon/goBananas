@@ -8,7 +8,7 @@ subject = 'MP'
 trainingDirection = 'Right'
 #trainingDirection = 'Left'
 
-training = 2.2
+training = 2.1
 # Set Training Level - only using 2 and above in this program
 # training 2,   left/right, can only move direction towards center
 #               self.free_move = False

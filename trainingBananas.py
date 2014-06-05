@@ -203,6 +203,7 @@ class TrainingBananas(JoystickHandler):
                 self.give_reward()
                 return task.cont
             elif self.yay_reward and self.reward_count == self.num_beeps:
+                #print 'going to restart'
                 # done giving reward, time to start over, maybe
                 # hide the banana
                 self.banana.stash()
@@ -254,7 +255,7 @@ class TrainingBananas(JoystickHandler):
                 # check for collision:
                 if self.go_forward:
                     self.check_y_banana()
-                elif self.require_aim:
+                else:
                     # if we need to be stopping and leaving (holding) crosshair over banana,
                     # make sure still in target zone.
                     if self.check_zone:
