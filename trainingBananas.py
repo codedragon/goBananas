@@ -6,6 +6,8 @@ from panda3d.core import CollisionNode, CollisionRay, CollisionSphere
 from panda3d.core import CollisionTraverser, CollisionHandlerQueue
 import random
 import sys
+import os
+import datetime
 # only load pydaq if it's available
 try:
     sys.path.insert(1, '../pydaq')
@@ -38,13 +40,16 @@ class TrainingBananas(JoystickHandler):
         if not unittest:
             # if doing unittests, there is no window
             wp = WindowProperties()
-            wp.setSize(1280, 800)
-            #wp.setSize(1024, 768)
+            #wp.setSize(1280, 800)
+            wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
             wp.setCursorHidden(True)
             base.win.requestProperties(wp)
             #base.setFrameRateMeter(True)
-
+            # initialize training file name
+            self.data_file_name = ''
+            self.data_file = []
+            self.open_data_file(config)
         # for bananas, changing the angle from avatar to banana, so left is negative
         # right is positive.
         self.train_dir = 'x'
@@ -329,15 +334,15 @@ class TrainingBananas(JoystickHandler):
             self.yay_reward = True
         elif self.reward_count == self.num_beeps:
             # banana disappears
-            self.trial_num = self.banana_models.goneBanana(self.trial_num)
+            #self.trial_num = self.banana_models.goneBanana(self.trial_num)
             # avatar can move
             #Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
             self.x_change_color(self.x_start_c)
-            Avatar.getInstance().setPos(Point3(0, 0, 1))
-            Avatar.getInstance().setH(0)
-            Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
+            #Avatar.getInstance().setPos(Point3(0, 0, 1))
+            #Avatar.getInstance().setH(0)
+            #Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
             # reward is over
-            self.banana_models.beeps = None
+            #self.banana_models.beeps = None
             self.yay_reward = False
             self.reward_count = 0
 
@@ -379,6 +384,11 @@ class TrainingBananas(JoystickHandler):
         #print('rotate avatar back so at correct angle:', self.avatar_h)
         self.base.camera.setH(self.multiplier * self.avatar_h)
         print('avatar heading', self.base.camera.getH())
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'banana position, ' +
+                                 str(self.multiplier * self.avatar_h) + '\n')
+
         #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
         # un-hide banana
         self.banana.unstash()
@@ -391,10 +401,14 @@ class TrainingBananas(JoystickHandler):
         #self.cross.setColor(Point4(1, 0, 0, 1))
 
     def move(self, js_dir, js_input):
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 str(js_dir) + ', ' +
+                                 str(-js_input) + '\n')
         #print(js_dir, js_input)
         if abs(js_input) < 0.1:
             js_input = 0
-        if js_dir == 'x':
+        if js_dir == 'x' or js_dir == 'x_key':
             #print js_input
             # we are moving the camera in the opposite direction of the joystick
             self.x_mag = -js_input
@@ -541,18 +555,35 @@ class TrainingBananas(JoystickHandler):
         if training > 2.9:
             self.go_forward = True
 
+    def open_data_file(self, config):
+        # open file for recording eye data
+        data_dir = 'data/' + config['subject']
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+        self.data_file_name = data_dir + '/t_bananas_' + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
+        print('open', self.data_file_name)
+        # open file for recording eye positions
+        self.data_file = open(self.data_file_name, 'w')
+        self.data_file.write('timestamp, joystick input, for subject: ' + config['subject'] + '\n')
+
+    # Closing methods
+    def close_files(self):
+        self.data_file.close()
+
     def close(self):
+        if not unittest:
+            self.close_files()
         sys.exit()
 
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
         self.accept('y_axis', self.move, ['y'])
-        self.accept('arrow_right', self.move, ['x', 0.7])
-        self.accept('arrow_left', self.move, ['x', -0.7])
-        self.accept('arrow_right-up', self.move, ['x', 0])
-        self.accept('arrow_left-up', self.move, ['x', 0])
-        self.accept('arrow_right-repeat', self.move, ['x', 0.7])
-        self.accept('arrow_left-repeat', self.move, ['x', -0.7])
+        self.accept('arrow_right', self.move, ['x_key', 0.7])
+        self.accept('arrow_left', self.move, ['x_key', -0.7])
+        self.accept('arrow_right-up', self.move, ['x_key', 0])
+        self.accept('arrow_left-up', self.move, ['x_key', 0])
+        self.accept('arrow_right-repeat', self.move, ['x_key', 0.7])
+        self.accept('arrow_left-repeat', self.move, ['x_key', -0.7])
         self.accept('q', self.close)
         self.accept('e', self.inc_distance)
         self.accept('d', self.dec_distance)

@@ -1,8 +1,8 @@
 # change individual config files, and have script copy to config.py
 # configuration file for trainBananas
 #
-#subject = 'Test'
-subject = 'MP'
+subject = 'Test'
+#subject = 'MP'
 
 # direction subject has to push the joystick to get the banana
 trainingDirection = 'Right'
@@ -42,7 +42,7 @@ training = 2
 # training 3, move crosshair to banana, forward
 #               self.go_forward = True
 
-avatar_start_h = 1.5
+avatar_start_h = 1
 
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
 #reward = False
