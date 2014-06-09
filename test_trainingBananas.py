@@ -9,6 +9,7 @@ from direct.task.TaskManagerGlobal import taskMgr
 # many tests are going to be exactly the same for each training, just
 # making sure stuff doesn't that shouldn't change doesn't when switching levels
 
+
 class TrainingBananaTestsT2(unittest.TestCase):
     # training 2, move crosshair to banana, left/right, opposite direction does nothing
 
@@ -842,7 +843,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # make sure at correct training level
         self.tb.set_level_variables(2)
 
-    def test_move_using_right_arrow(self):
+    def test_move_using_right_arrow_key(self):
         """
         test that using the right arrow to the right moves the banana
         from the right towards the crosshair in the center, if
@@ -869,7 +870,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         print after
         self.assertTrue(after < before)
 
-    def test_move_using_left_arrow(self):
+    def test_move_using_left_arrow_key(self):
         """
         test that moving the joystick to the left moves the banana
         from the left towards the crosshair in the center, if
@@ -911,6 +912,33 @@ class TrainingBananaTestKeys(unittest.TestCase):
         after = self.tb.base.camera.getH()
         print after
         self.assertTrue(after > before)
+
+    def test_d_decreases_banana_distance(self):
+        """
+        test that e key increases the distance from banana to crosshair
+        """
+        self.tb.trainDir = 'turnRight'
+        self.tb.multiplier = 1
+        self.tb.restart_bananas()
+        before = self.tb.base.camera.getH()
+        print before
+        messenger.send('d')
+        self.tb.restart_bananas()
+        self.assertTrue(self.tb.base.camera.getH() < before)
+
+    def test_w_increases_reward(self):
+        """
+        test that w key increases reward
+        """
+        before = self.tb.num_beeps
+        print before
+        messenger.send('e')
+        self.tb.restart_bananas()
+        after = self.tb.num_beeps
+        print after
+        self.assertTrue(after > before)
+        # let's make sure this actually translates to new number of beeps
+
 
     def test_d_decreases_banana_distance(self):
         """

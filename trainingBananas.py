@@ -40,8 +40,8 @@ class TrainingBananas(JoystickHandler):
         if not unittest:
             # if doing unittests, there is no window
             wp = WindowProperties()
-            #wp.setSize(1280, 800)
-            wp.setSize(1024, 768)
+            wp.setSize(1280, 800)
+            #wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
             wp.setCursorHidden(True)
             base.win.requestProperties(wp)
@@ -69,8 +69,8 @@ class TrainingBananas(JoystickHandler):
 
         # not changing now, but may eventually...
         self.x_alpha = config['xHairAlpha']
-        training = config['training']
-        print('training level is', training)
+        self.training = config['training']
+        print('training level is', self.training)
         # initialize training variables
         # will be set to proper levels in set_level_variables method
         self.free_move = False
@@ -78,7 +78,7 @@ class TrainingBananas(JoystickHandler):
         self.random_banana = False
         self.require_aim = False
         self.go_forward = False
-        self.set_level_variables(training)
+        self.set_level_variables(self.training)
 
         # variable used to notify when changing direction of new target
         self.new_dir = None
@@ -114,15 +114,15 @@ class TrainingBananas(JoystickHandler):
         #base.cTrav.showCollisions(render)
         #mainAimingNP.show()
 
-        if training >= 3:
+        # set avatar position/heading
+        self.avatar_pos = Point3(0, 0, 1)
+        if self.training >= 3:
             pass
             #self.fullForwardSpeed = config['fullForwardSpeed']
-        elif training >= 2:
+        elif self.training >= 2:
             self.avatar_h = config['avatar_start_h']
             #avatar.setH(self.multiplier * self.avatar_h)
             #self.fullTurningSpeed = config['fullTurningSpeed']
-
-        self.avatar_pos = Point3(0, 0, 1)
         self.base.camera.setH(self.multiplier * self.avatar_h)
 
         # Cross hair
@@ -251,7 +251,7 @@ class TrainingBananas(JoystickHandler):
                 #print('cam', self.base.camera.getH())
                 # set new speed for next frame, if new trial or subject stopped, reverts to default
                 if self.start_trial or self.x_mag == 0:
-                    self.slow_factor = 0.0005
+                    self.slow_factor = 0.05
                     self.start_trial = False
                 else:
                     #self.slow_factor = 1
@@ -578,17 +578,19 @@ class TrainingBananas(JoystickHandler):
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
         self.accept('y_axis', self.move, ['y'])
-        self.accept('arrow_right', self.move, ['x_key', 0.7])
-        self.accept('arrow_left', self.move, ['x_key', -0.7])
+        self.accept('arrow_right', self.move, ['x_key', 2])
+        self.accept('arrow_left', self.move, ['x_key', -2])
         self.accept('arrow_right-up', self.move, ['x_key', 0])
         self.accept('arrow_left-up', self.move, ['x_key', 0])
-        self.accept('arrow_right-repeat', self.move, ['x_key', 0.7])
-        self.accept('arrow_left-repeat', self.move, ['x_key', -0.7])
+        self.accept('arrow_right-repeat', self.move, ['x_key', 2])
+        self.accept('arrow_left-repeat', self.move, ['x_key', -2])
         self.accept('q', self.close)
         self.accept('e', self.inc_distance)
         self.accept('d', self.dec_distance)
         self.accept('w', self.inc_reward)
         self.accept('s', self.dec_reward)
+        self.accept('t', self.inc_level)
+        self.accept('g', self.dec_level)
         self.accept('f', self.change_forward)
         self.accept('r', self.change_right)
         self.accept('l', self.change_left)
