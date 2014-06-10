@@ -10,69 +10,38 @@ from direct.task.TaskManagerGlobal import taskMgr
 # making sure stuff doesn't that shouldn't change doesn't when switching levels
 
 
-class CoreTrainingBananaTests(unittest.TestCase):
-    # these tests are run for all training.
-    # training 2, move crosshair to banana, left/right, opposite direction does nothing
+class TrainingBananaTestsT2(unittest.TestCase):
+    """
+    training 2, move crosshair to banana, left/right, opposite direction does nothing,
+    banana always appears in the same place, unless moved by keypress. Does not have
+    to let go to get new banana, does not have to leave the crosshair over the banana
+    for any particular length of time, just get it there.
+    """
 
     @classmethod
     def setUpClass(cls):
         loadPrcFileData("", "window-type offscreen")
         #print 'about to load world'
+        training = 2
         cls.tb = TrainingBananas()
+        cls.tb.set_level_variables(training)
 
     def setUp(self):
         # this will reset x_mag to zero, clearing any joystick pushes,
         # as well resetting other things
         self.tb.reset_variables()
         # make sure at correct training level
-        self.tb.set_level_variables(2)
+        #self.tb.set_level_variables(2)
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
-
-    def test_can_move_joystick_in_direction_of_banana(self):
-        """
-        if the training direction is to the right, the banana is on the right,
-        and moving the joystick to the left will move the crosshair to the banana
-        True for all training levels. For early levels, may want to test in both
-        directions.
-        """
-        before = abs(self.tb.base.camera.getH())
-        print before
-        # step once to get past 0 time
-        taskMgr.step()
-        messenger.send('x_axis', [self.tb.multiplier * 2])
-        taskMgr.step()
-        # if moving closer to center, getH is getting smaller
-        after = abs(self.tb.base.camera.getH())
-        print after
-        self.assertTrue(after < before)
-
-    def test_cannot_move_joystick_in_direction_of_banana(self):
-        """
-        if the training direction is to the right, the banana is on the right,
-        and moving the joystick to the left will move the crosshair to the banana
-        True for all training levels. For early levels, may want to test in both
-        directions.
-        """
-        before = abs(self.tb.base.camera.getH())
-        print before
-        # step once to get past 0 time
-        taskMgr.step()
-        messenger.send('x_axis', [self.tb.multiplier * -2])
-        taskMgr.step()
-        # since moving opposite direction of multiplier, should
-        # not be moving anywhere
-        after = abs(self.tb.base.camera.getH())
-        print after
-        self.assertTrue(after > before)
 
     def test_move_joystick_right_moves_banana_left(self):
         """
         test that moving the joystick to the right moves the banana
         from the right towards the crosshair in the center, if
-        trainingDirection is right. This test should technically work for all training
-        steps, but
+        trainingDirection is right. Only using this test when random is
+        off, since random overrides the keys. Training 2 and 2.1
         """
         self.tb.trainDir = 'turnRight'
         self.tb.multiplier = 1
@@ -92,7 +61,9 @@ class CoreTrainingBananaTests(unittest.TestCase):
     def test_cannot_move_joystick_left_if_training_right(self):
         """
         test that cannot move joystick to the left if training to the right.
-        This test is true if free_move is false (training 2 through 2.2)
+        This test is true if free_move is false, but we can only using this
+        test when random is off, since random overrides the keys.
+        (training 2 and 2.1)
         """
         self.tb.trainDir = 'turnRight'
         self.tb.multiplier = 1
@@ -109,7 +80,8 @@ class CoreTrainingBananaTests(unittest.TestCase):
         """
         test that moving the joystick to the left moves the banana
         from the left towards the crosshair in the center, if
-        trainingDirection is left. True for all training steps.
+        trainingDirection is left. Only using this test when random is
+        off, since random overrides the keys. Training 2 and 2.1
         """
         self.tb.trainDir = 'turnLeft'
         self.tb.multiplier = -1
@@ -128,7 +100,8 @@ class CoreTrainingBananaTests(unittest.TestCase):
     def test_cannot_move_joystick_right_if_training_left(self):
         """
         test that cannot move joystick to the right if training to the left
-        This test is true if free_move is false (training 2 through 2.2)
+        This test is true if free_move is false (training 2 through 2.2), but
+        once again, can only test if random is False, so 2 and 2.1
         """
         self.tb.trainDir = 'turnLeft'
         self.tb.multiplier = -1
@@ -262,44 +235,12 @@ class CoreTrainingBananaTests(unittest.TestCase):
         taskMgr.step()
         self.assertTrue(abs(self.tb.base.camera.getH()) > 0)
 
-    def test_must_let_go_of_joystick_for_new_banana(self):
-        """
-        test that we have to let go of the joystick before a new banana will appear
-        True if must_release is true, training 2.1 and higher
-        """
-        # get to zero, then keep sending joystick
-        # signal while checking for new banana
-        messenger.send('x_axis', [2 * self.tb.multiplier])
-        while abs(self.tb.base.camera.getH()) > 0:
-            taskMgr.step()
-        # now go until reward is over
-        while self.tb.reward_count < self.tb.num_beeps:
-            # still at center
-            self.assertTrue(self.tb.base.camera.getH() == 0)
-            taskMgr.step()
-        #print 'got reward'
-        # step to set delay
-        taskMgr.step()
-        # now go until delay is over
-        while self.tb.frameTask.time < self.tb.frameTask.delay:
-            self.assertTrue(self.tb.base.camera.getH() == 0)
-            taskMgr.step()
-        # go a few steps while still sending joystick signal
-        # to make sure new banana does not appear yet.
-        for i in range(10):
-            self.assertTrue(self.tb.base.camera.getH() == 0)
-            taskMgr.step()
-        # now release the joystick
-        messenger.send('x_axis', [0])
-        taskMgr.step()
-        #print self.tb.yay_reward
-        self.assertTrue(abs(self.tb.base.camera.getH()) > 0)
-
     def test_reward_when_crosshair_over_banana(self):
         """
         test that rewarded when crosshair is over banana.
         True if require_aim is false, in which case is possible
         to cross over banana too quickly to get a reward.
+        Training 2 through 2.3
         """
         messenger.send('x_axis', [self.tb.multiplier * 2])
         while abs(self.tb.base.camera.getH()) > 0:
@@ -327,13 +268,140 @@ class CoreTrainingBananaTests(unittest.TestCase):
         print self.tb.base.camera.getH()
         self.assertTrue(self.tb.base.camera.getH() == before)
 
+    @classmethod
+    def tearDownClass(cls):
+        print 'tear down'
+        cls.tb.close()
+
+
+class TrainingBananaTestsT2_1(unittest.TestCase):
+    """ Training 2.1, self.must_release is now true, so test that we are letting go
+    of the joystick before we get a new banana
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        loadPrcFileData("", "window-type offscreen")
+        #print 'about to load world'
+        training = 2.1
+        cls.tb = TrainingBananas()
+        cls.tb.set_level_variables(training)
+
+    def setUp(self):
+        # this will reset x_mag to zero, clearing any joystick pushes,
+        # as well resetting other things
+        self.tb.reset_variables()
+        # make sure at correct training level
+        #self.tb.set_level_variables(2)
+        # reset banana - makes sure correct training level, avatar
+        # heading, etc.
+        self.tb.restart_bananas()
+
+    def test_must_let_go_of_joystick_for_new_banana(self):
+        """
+        test that we have to let go of the joystick before a new banana will appear
+        True if must_release is true, training 2.1 and higher
+        """
+        print self.tb.training
+        # get to zero, then keep sending joystick
+        # signal while checking for new banana
+        messenger.send('x_axis', [2 * self.tb.multiplier])
+        while abs(self.tb.base.camera.getH()) > 0:
+            taskMgr.step()
+        # now go until reward is over
+        while self.tb.reward_count < self.tb.num_beeps:
+            # still at center
+            self.assertTrue(self.tb.base.camera.getH() == 0)
+            taskMgr.step()
+        print 'got reward'
+        # step to set delay
+        taskMgr.step()
+        # now go until delay is over
+        while self.tb.frameTask.time < self.tb.frameTask.delay:
+            self.assertTrue(self.tb.base.camera.getH() == 0)
+            taskMgr.step()
+        # go a few steps while still sending joystick signal
+        # to make sure new banana does not appear yet.
+        for i in range(10):
+            self.assertTrue(self.tb.base.camera.getH() == 0)
+            taskMgr.step()
+        # now release the joystick
+        messenger.send('x_axis', [0])
+        taskMgr.step()
+        #print self.tb.yay_reward
+        self.assertTrue(abs(self.tb.base.camera.getH()) > 0)
+
+
+class TrainingBananaTestsT2_2(unittest.TestCase):
+    """Training 2.2, random is now True. This means we have to change the tests for
+    moving the crosshair, since we cannot control which direction we are going. Randomly
+    it should hit both directions, assuming we test frequently, so shouldn't be a big
+    deal. Also have test to change that random is really happening.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        loadPrcFileData("", "window-type offscreen")
+        #print 'about to load world'
+        training = 2.2
+        cls.tb = TrainingBananas()
+        cls.tb.set_level_variables(training)
+
+    def setUp(self):
+        # this will reset x_mag to zero, clearing any joystick pushes,
+        # as well resetting other things
+        self.tb.reset_variables()
+        # make sure at correct training level
+        #self.tb.set_level_variables(2)
+        # reset banana - this is often done in the test, if we want
+        # to ensure a certain direction, but not necessarily
+        self.tb.restart_bananas()
+
+    def test_can_move_joystick_in_direction_of_banana(self):
+        """
+        if the training direction is to the right, the banana is on the right,
+        and moving the joystick to the left will move the crosshair to the banana
+        True for all training levels. For early levels, may want to test in both
+        directions.
+        """
+        before = abs(self.tb.base.camera.getH())
+        print before
+        # step once to get past 0 time
+        taskMgr.step()
+        messenger.send('x_axis', [self.tb.multiplier * 2])
+        taskMgr.step()
+        # if moving closer to center, getH is getting smaller
+        after = abs(self.tb.base.camera.getH())
+        print after
+        self.assertTrue(after < before)
+
+    def test_cannot_move_joystick_in_direction_opposite_of_banana(self):
+        """
+        if the training direction is to the right, the banana is on the right,
+        and moving the joystick to the left will move the crosshair to the banana
+        True for all training levels. For early levels, may want to test in both
+        directions.
+        """
+        before = abs(self.tb.base.camera.getH())
+        print before
+        # step once to get past 0 time
+        taskMgr.step()
+        messenger.send('x_axis', [self.tb.multiplier * -2])
+        taskMgr.step()
+        # since moving opposite direction of multiplier, should
+        # not be moving anywhere
+        after = abs(self.tb.base.camera.getH())
+        print after
+        self.assertTrue(after == before)
+
     def test_new_banana_not_same_side_same_distance(self):
         """
         Test that banana is put down randomly. True if
         random_banana is False, training 2.2 and higher
         """
         # test self.random_bananas = True has effect should have
-        #print 'new random banana test'
+        print 'new random banana test'
+        print self.tb.random_banana
         before = self.tb.base.camera.getH()
         # get reward, then should be in new position
         messenger.send('x_axis', [self.tb.multiplier * 2])
@@ -346,7 +414,6 @@ class CoreTrainingBananaTests(unittest.TestCase):
             taskMgr.step()
         #print self.tb.base.camera.getH()
         self.assertFalse(self.tb.base.camera.getH() == before)
-
 
     @classmethod
     def tearDownClass(cls):
@@ -368,6 +435,8 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.reset_variables()
         # make sure at correct training level
         self.tb.set_level_variables(2)
+        # make sure training level is set
+        self.tb.restart_bananas()
 
     def test_move_using_right_arrow_key(self):
         """
@@ -458,11 +527,24 @@ class TrainingBananaTestKeys(unittest.TestCase):
         """
         before = self.tb.num_beeps
         print before
-        messenger.send('e')
+        messenger.send('w')
         self.tb.restart_bananas()
         after = self.tb.num_beeps
         print after
         self.assertTrue(after > before)
+        # let's make sure this actually translates to new number of beeps
+
+    def test_s_decreases_reward(self):
+        """
+        test that s key decreases reward
+        """
+        before = self.tb.num_beeps
+        print before
+        messenger.send('s')
+        self.tb.restart_bananas()
+        after = self.tb.num_beeps
+        print after
+        self.assertTrue(after < before)
         # let's make sure this actually translates to new number of beeps
 
     def test_d_decreases_banana_distance(self):

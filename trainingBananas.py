@@ -452,10 +452,14 @@ class TrainingBananas(JoystickHandler):
             #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
 
     def inc_reward(self):
+        print 'increase reward'
         self.num_beeps += 1
+        print('new reward', self.num_beeps)
 
     def dec_reward(self):
+        print 'decrease reward'
         self.num_beeps -= 1
+        print('new reward', self.num_beeps)
 
     def inc_level(self):
         # in level 2 have 2, 2.1, 2.2, 2.3
