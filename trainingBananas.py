@@ -543,6 +543,7 @@ class TrainingBananas(JoystickHandler):
 
     def set_level_variables(self, training):
         # default is lowest training level
+        self.training = training
         self.free_move = False
         self.must_release = False
         self.random_banana = False
