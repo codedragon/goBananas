@@ -31,6 +31,7 @@ class TrainingBananas(JoystickHandler):
             JoystickHandler.__init__(self)
         self.base.disableMouse()
         print('Subject is', config['subject'])
+        self.subject = config['subject']
         # set up reward system
         if config['reward'] and PYDAQ_LOADED:
             self.reward = pydaq.GiveReward()
@@ -412,6 +413,14 @@ class TrainingBananas(JoystickHandler):
             #print js_input
             # we are moving the camera in the opposite direction of the joystick
             self.x_mag = -js_input
+            # hack for Mr. Peepers...
+            # barely touch joystick and goes super speedy. speed not dependent
+            # on how hard he touches joystick.
+            if self.subject == 'MP' and js_input != 0:
+                #print 'yes'
+                # need it to be the same direction as js_input
+                self.x_mag = js_input/abs(js_input) * 2
+
             #print('x', self.x_mag)
             # turn off opposite direction, if not allowed to go away from crosshair
             if not self.free_move:
