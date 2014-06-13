@@ -24,6 +24,7 @@ class TestGoBananas(unittest.TestCase):
             #shutil.copy('testing_config.py', 'config.py')
             os.system('arch -i386 ppython goBananas.py -sTest --no-eeg --no-fs')
         else:
+            print 'windows'
             os.system('python goBananas.py -sTest --no-eeg --no-fs')
 
         # Should figure out how to get this from exp.getSessionNum,

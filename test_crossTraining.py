@@ -5,13 +5,13 @@ from panda3d.core import loadPrcFileData
 from direct.task.TaskManagerGlobal import taskMgr
 
 
-class CrossBananaTests(unittest.TestCase):
+class CrossTrainingTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         loadPrcFileData("", "window-type offscreen")
         #print 'about to load world'
-        cls.cb = CrossBanana()
+        cls.cb = CrossTraining()
 
     def setUp(self):
         # re-initialize variables before each test

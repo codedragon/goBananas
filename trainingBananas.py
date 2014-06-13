@@ -406,7 +406,7 @@ class TrainingBananas(JoystickHandler):
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  str(js_dir) + ', ' +
                                  str(-js_input) + '\n')
-        #print(js_dir, js_input)
+        print(js_dir, js_input)
         if abs(js_input) < 0.1:
             js_input = 0
         if js_dir == 'x' or js_dir == 'x_key':
@@ -418,8 +418,8 @@ class TrainingBananas(JoystickHandler):
             # on how hard he touches joystick.
             if self.subject == 'MP' and js_input != 0:
                 #print 'yes'
-                # need it to be the same direction as js_input
-                self.x_mag = js_input/abs(js_input) * 2
+                # need it to be the same direction as negative of js_input
+                self.x_mag = js_input/abs(js_input) * -2
 
             #print('x', self.x_mag)
             # turn off opposite direction, if not allowed to go away from crosshair

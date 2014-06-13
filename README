@@ -1,4 +1,57 @@
-Needs the following to work:
+Contents:
+
+Main program:
+goBananas:      Main program. Move around field, run into bananas for reward.
+
+Training programs:
+crossTraining:  Probably will never be used. Training that involves the crosshair only, no banana.
+                Must just touch the joystick for a reward, crosshair then changes from white to red.
+                Incomplete.
+trainingBananas Training program for teaching monkeys to use a joystick. Progresses through multiple
+                levels with small, incremental changes. Not using Pandaepl.
+
+Secondary programs:
+bananas         Provides the bananas for gobananas
+config          Configuration file for gobananas
+cross_config    Configuration file for crossTraining
+giz_config      Configuration file for Giuseppe for gobananas
+joystick        Interface with joystick/PyGame for TrainingBananas
+LICENSE
+load_models     Loads a PlaceModel object that contains information on models that we might use
+moBananas       Functions for determining random placement of bananas, ensures they are not too
+                close to one another or to another position specified by the user
+myEggToBam      includes functions to convert either a single file or a directory of egg files
+                into bam files for use with Panda3D.
+Notes           Mostly notes to myself about problems I've run into or stuff to do
+README
+testing_config  Config for goBananas for playing around with
+train_config    Config for trainingBananas
+
+Tests:
+test_crossTraining  fails
+test_goBananas  Most ridiculous testing ever. The only way I could figure out how to do any testing
+                with the PandaEPL package was to actually run the game and have someone interact with
+                it to test stuff. Tests should all pass, but take a long time, have to pay attention
+                to which test is running, and actually play the game for varying lengths of time. Ugh!
+
+test_joystick   not a unittest. Plots how joystick movement is interpreted in Panda3D. Useful for
+                testing and troubleshooting joystick hardware issues.
+
+test_js_pandaepl  An unsuccessful attempt to try to get to the bottom of an intermittent problem we
+                were having with joysticks when using pandaepl
+
+* test_moBananas  Unittests for moBananas.
+* test_trainingBananas  Unittests for trainingBananas. Running the bash script goes through all of the
+                tests
+
+* These tests are well-behaved and should be included in a pre-commit hook.
+
+Directories:
+data            Will be created by program(s)
+models          Currently not in git, but required to run
+
+
+Dependencies from external libraries:
 1) recent version of Python 2.x
 2) Panda3D
 3) PandaEPL
@@ -6,9 +59,10 @@ for joystick:
 4) Pygame
 for getting/receiving data from National Instrument card:
 5) PyDAQmx
+6) pydaq - my repository for interfacing with PyDAQmx library
 
-For projector: set resolution for 1280 x 720, refresh 120hz
-National Instruments card (NiDAQ): ni pci-6221
+
+We use National Instruments card (NiDAQ): ni pci-6221
 
 On the Windows machine used for actual experiments, we are running:
 Python 2.7.3, installed by Panda3d, and located in the Panda3d folder
@@ -24,7 +78,7 @@ Panda3d 1.8.1 is installed in /Developer/Panda3d
 PandEPL 0.9 is installed in /Library/Python/2.7/site-packages/pandaepl
  (see below for fix for deprecation warning in pandaEPL)
 
-Guiseppe log: Computer/Research Share (R:)/Buffalo Lab/Log files
+
 
 Start the game:
 ppython goBananas.py --no-eeg --resolution=1280x1024 -sTest
@@ -67,6 +121,8 @@ Config file training variable:
 5.x = More bananas come in.
 * 5.1 = Same as 4.25, except now there are multiple bananas that he has to go around and pick up.  Position resets to the center and faces the original 0-header position after gathering each batch of bananas.
 * 5.2 = A given number of bananas appear on the field and you have to go gather them all, then a new set appears.  Position doesn't reset, neither does header direction.
+
+PandaEPL Bugs and Warnings:
 
 Bug in joystick implementation:
 Add the word float in line 85, Joystick.py:

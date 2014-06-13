@@ -4,8 +4,7 @@ from pandaepl.common import *
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
 #from panda3d.core import CollisionNode, CollisionSphere
-from load_models import load_models
-from environment import PlaceModels
+from load_models import PlaceModels, load_models
 from bananas import Bananas
 import datetime
 import sys

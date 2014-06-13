@@ -644,3 +644,7 @@ if __name__ == "__main__":
     # print(all_suite.countTestCases())
     # unittest.TextTestRunner(verbosity=2).run(all_suite)
     unittest.main(verbosity=2)
+
+# because we cannot close down panda3d properly on windows without calling sys.exit,
+# the best way to run these classes is from a bash script as separate calls,
+# like in test_everything.sh, which is run before every commit.
