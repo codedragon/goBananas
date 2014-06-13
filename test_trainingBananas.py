@@ -3,6 +3,7 @@ from trainingBananas import TrainingBananas
 from direct.showbase.MessengerGlobal import messenger
 from panda3d.core import loadPrcFileData
 from direct.task.TaskManagerGlobal import taskMgr
+import sys
 
 # joystick only sends signal when it has moved, so if holding in one place,
 # self.x_mag stays the same until a new signal is given
@@ -35,6 +36,9 @@ class TrainingBananaTestsT2(unittest.TestCase):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+
+    #def test_purposely_fails(self):
+    #    self.assertTrue(False)
 
     def test_move_joystick_right_moves_banana_left(self):
         """
@@ -630,9 +634,8 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # should be same distance, but opposite side
         self.assertTrue(self.tb.base.camera.getH() / before == -1)
 
-    def test_purposely_fails(self):
-        x = False
-        self.assertTrue(x)
+    #def test_purposely_fails(self):
+    #    self.assertTrue(False)
 
     @classmethod
     def tearDownClass(cls):
@@ -647,7 +650,25 @@ if __name__ == "__main__":
     # all_suite = unittest.TestSuite([suite1, suite3])
     # print(all_suite.countTestCases())
     # unittest.TextTestRunner(verbosity=2).run(all_suite)
-    unittest.main(verbosity=2)
+    if len(sys.argv) == 1:
+        if sys.argv[1] == 0:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2)
+        elif sys.argv[1] == 1:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_1)
+        elif sys.argv[1] == 2:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_2)
+        elif sys.argv[1] == 3:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestKeys)
+        result = unittest.TextTestRunner().run(suite)
+        if not result.wasSuccessful():
+            sys.exit(1)
+    else:
+        unittest.main(verbosity=2)
+
+    #result = unittest.main(verbosity=2)
+    #if not result.wasSuccessful():
+    #    sys.exit(1)
+    #
 
 # because we cannot close down panda3d properly on windows without calling sys.exit,
 # the best way to run these classes is from a bash script as separate calls,
