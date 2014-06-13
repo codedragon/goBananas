@@ -630,6 +630,10 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # should be same distance, but opposite side
         self.assertTrue(self.tb.base.camera.getH() / before == -1)
 
+    def test_purposely_fails(self):
+        x = False
+        self.assertTrue(x)
+
     @classmethod
     def tearDownClass(cls):
         print 'tear down'

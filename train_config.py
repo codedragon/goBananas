@@ -5,8 +5,8 @@
 subject = 'MP'
 
 # direction subject has to push the joystick to get the banana
-#trainingDirection = 'Right'
-trainingDirection = 'Left'
+trainingDirection = 'Right'
+#trainingDirection = 'Left'
 
 training = 2
 # Set Training Level - only using 2 and above in this program
