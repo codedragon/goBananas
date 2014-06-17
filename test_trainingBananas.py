@@ -310,7 +310,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         print 'tear down'
-        cls.tb.close()
+        #cls.tb.close()
 
 
 class TrainingBananaTestsT2_1(unittest.TestCase):
@@ -456,11 +456,6 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2, unittest.TestCase):
             taskMgr.step()
         #print self.tb.base.camera.getH()
         self.assertFalse(self.tb.base.camera.getH() == before)
-
-    @classmethod
-    def tearDownClass(cls):
-        print 'tear down'
-        cls.tb.close()
 
 
 class TrainingBananaTestKeys(unittest.TestCase):
@@ -634,32 +629,33 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # should be same distance, but opposite side
         self.assertTrue(self.tb.base.camera.getH() / before == -1)
 
-    #def test_purposely_fails(self):
-    #    self.assertTrue(False)
-
-    @classmethod
-    def tearDownClass(cls):
-        print 'tear down'
-        cls.tb.close()
+    def test_purposely_fails(self):
+        self.assertTrue(False)
 
 if __name__ == "__main__":
-    # loader = unittest.TestLoader()
-    # suite1 = loader.loadTestsFromTestCase(TrainingBananaTestsT2)
-    # suite2 = loader.loadTestsFromTestCase(TrainingBananaTestsT2_1)
-    # suite3 = loader.loadTestsFromTestCase(TrainingBananaTestKeys)
-    # all_suite = unittest.TestSuite([suite1, suite3])
-    # print(all_suite.countTestCases())
-    # unittest.TextTestRunner(verbosity=2).run(all_suite)
-    if len(sys.argv) == 1:
-        if sys.argv[1] == 0:
+    # Need to actually shut down python between runs, because the ShowBase instance
+    # does not get completely destroyed with just deleting it or the various other
+    # tricks I've tried (was not designed for this, see this discussion:
+    # https://www.panda3d.org/forums/viewtopic.php?t=10867
+    # To get around this, calling a different suite, depending on which number sent
+    # in as a sys.argv
+    print sys.argv
+    print len(sys.argv)
+    if len(sys.argv) == 2:
+        print 'argument worked'
+        print sys.argv[1]
+        if int(sys.argv[1]) == 0:
+            print 'first suite'
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2)
-        elif sys.argv[1] == 1:
+        elif int(sys.argv[1]) == 1:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_1)
-        elif sys.argv[1] == 2:
+        elif int(sys.argv[1]) == 2:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_2)
-        elif sys.argv[1] == 3:
+        elif int(sys.argv[1]) == 3:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestKeys)
+        print 'run suite'
         result = unittest.TextTestRunner().run(suite)
+        print result
         if not result.wasSuccessful():
             sys.exit(1)
     else:

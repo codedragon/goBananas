@@ -33,6 +33,10 @@ class TrainingBananas(JoystickHandler):
         print('Subject is', config['subject'])
         self.subject = config['subject']
         # set up reward system
+        # if unit-testing, pretend like we couldn't
+        # load the module
+        if unittest:
+            PYDAQ_LOADED = False
         if config['reward'] and PYDAQ_LOADED:
             self.reward = pydaq.GiveReward()
             print 'Reward system on'
@@ -615,4 +619,5 @@ if __name__ == '__main__':
     TB = TrainingBananas()
     run()
 else:
+    #print 'test'
     unittest = True

@@ -1,24 +1,16 @@
 #!/bin/bash
 
 arch=$(uname -m)
+OUTPUT="A test has failed, please troubleshoot test suite "
 if [ "$arch" == 'x86_64' ]
 then
-    arch -i386 ppython test_trainingBananas.py TrainingBananaTestsT2 2>&1 /dev/null
-    arch -i386 ppython test_trainingBananas.py TrainingBananaTestsT2_1 2>&1 /dev/null
-    arch -i386 ppython test_trainingBananas.py TrainingBananaTestsT2_2 2>&1 /dev/null
-    arch -i386 ppython test_trainingBananas.py TrainingBananaTestKeys 2>&1 /dev/null
+    for i in {0..3}; do
+        arch -i386 ppython test_trainingBananas.py $i &> /dev/null || echo $OUTPUT $i && exit 1
+    done
 else
-    echo "one"
-    #ppython test_trainingBananas.py 0 &> /dev/null || exit 1 
-    #ppython test_trainingBananas.py TrainingBananaTestsT2 &> /dev/null || exit 1
-    #ppython test_trainingBananas.py TrainingBananaTestsT2_1 2>&1 /dev/null || exit 1
-    #ppython test_trainingBananas.py TrainingBananaTestsT2_2 &> /dev/null || exit 1
-    #echo $?
-    echo "two"
-    #ppython test_trainingBananas.py 1 &> /dev/null || exit 1 
-    #ppython test_trainingBananas.py TrainingBananaTestKeys &> /dev/null || exit 1
-    #echo $?
+    for i in {0..3}; do
+        ppython test_trainingBananas.py $i &> /dev/null || echo $OUTPUT $i && exit 1
+    done
 fi
-echo "three"
-ppython test_moBananas.py &> /dev/null || exit 1
-echo $?
+ppython test_moBananas.py &> /dev/null || echo A test in moBananas failed && exit 1
+
