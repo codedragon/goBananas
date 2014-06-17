@@ -629,8 +629,8 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # should be same distance, but opposite side
         self.assertTrue(self.tb.base.camera.getH() / before == -1)
 
-    def test_purposely_fails(self):
-        self.assertTrue(False)
+    #def test_purposely_fails(self):
+    #    self.assertTrue(False)
 
 if __name__ == "__main__":
     # Need to actually shut down python between runs, because the ShowBase instance
