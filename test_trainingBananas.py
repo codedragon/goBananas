@@ -40,12 +40,13 @@ class TrainingBananaTestsT2(unittest.TestCase):
     #def test_purposely_fails(self):
     #    self.assertTrue(False)
 
-    def test_move_joystick_right_moves_banana_left(self):
+    def test_move_joystick_right_moves_crosshair_right(self):
         """
-        test that moving the joystick to the right moves the banana
-        from the right towards the crosshair in the center, if
-        trainingDirection is right. Only using this test when random is
-        off, since random overrides the keys. Training 2 and 2.1
+        when the banana is to the right, test that moving the joystick
+        to the right turns the camera to the right, so that it appears
+        that the crosshair is moving towards the banana. Only using
+        this test when random is off, since random overrides the direction
+        keys. Training 2 and 2.1
         """
         if self.tb.training < 2.2:
             self.tb.trainDir = 'turnRight'
@@ -86,12 +87,13 @@ class TrainingBananaTestsT2(unittest.TestCase):
             return lambda func: func
         return unittest.skip('skipped test, training > 2.1')
 
-    def test_move_joystick_left_moves_banana_right(self):
+    def test_move_joystick_left_moves_crosshair_left(self):
         """
-        test that moving the joystick to the left moves the banana
-        from the left towards the crosshair in the center, if
-        trainingDirection is left. Only using this test when random is
-        off, since random overrides the keys. Training 2 and 2.1
+        when the banana is to the left, test that moving the joystick
+        to the left turns the camera to the left, so that it appears
+        that the crosshair is moving towards the banana. Only using
+        this test when random is off, since random overrides the direction
+        keys. Training 2 and 2.1
         """
         if self.tb.training < 2.2:
             self.tb.trainDir = 'turnLeft'
@@ -239,7 +241,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
 
     def test_does_not_have_to_let_go_of_joystick_for_new_banana(self):
         """
-        test that we get a new banana even if we contintue to hold the joystick
+        test that we get a new banana even if we continue to hold the joystick
         True if must_release is false, just training = 2
         """
         if self.tb.training == 2:
@@ -400,8 +402,8 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2, unittest.TestCase):
         """
         if the training direction is to the right, the banana is on the right,
         and moving the joystick to the left will move the crosshair to the banana
-        True for all training levels. For early levels, may want to test in both
-        directions.
+        True for all training levels, but testing explicitly each direction when
+        random is not true
         """
         print self.tb.training
         before = abs(self.tb.base.camera.getH())
@@ -419,8 +421,8 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2, unittest.TestCase):
         """
         if the training direction is to the right, the banana is on the right,
         and moving the joystick to the left will move the crosshair to the banana
-        True for all training levels. For early levels, may want to test in both
-        directions.
+        True for all training levels, but testing explicitly each direction when
+        random is not true.
         """
         print self.tb.training
         before = abs(self.tb.base.camera.getH())
@@ -456,6 +458,41 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2, unittest.TestCase):
             taskMgr.step()
         #print self.tb.base.camera.getH()
         self.assertFalse(self.tb.base.camera.getH() == before)
+
+
+class TrainingBananaTestsT2_3(TrainingBananaTestsT2, unittest.TestCase):
+    """Training 2.2, random is now True. This means we have to change the tests for
+    moving the crosshair, since we cannot control which direction we are going. Randomly
+    it should hit both directions, assuming we test frequently, so shouldn't be a big
+    deal. Also have test to change that random is really happening.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        loadPrcFileData("", "window-type offscreen")
+        #print 'about to load world'
+        training = 2.3
+        cls.tb = TrainingBananas()
+        cls.tb.set_level_variables(training)
+
+    def setUp(self):
+        # this will reset x_mag to zero, clearing any joystick pushes,
+        # as well resetting other things
+        self.tb.reset_variables()
+        # make sure at correct training level
+        #self.tb.set_level_variables(2)
+        # reset banana - this is often done in the test, if we want
+        # to ensure a certain direction, but not necessarily
+        self.tb.restart_bananas()
+
+    def test_allowed_to_go_past_banana(self):
+        pass
+
+    def test_max_speed_slows_down_after_passing_banana(self):
+        pass
+
+    def test_speed_returns_to_normal_after_reward(self):
+        pass
 
 
 class TrainingBananaTestKeys(unittest.TestCase):
