@@ -315,7 +315,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         #cls.tb.close()
 
 
-class TrainingBananaTestsT2_1(unittest.TestCase):
+class TrainingBananaTestsT2_1(TrainingBananaTestsT2, unittest.TestCase):
     """ Training 2.1, self.must_release is now true, so test that we are letting go
     of the joystick before we get a new banana
     """
@@ -373,7 +373,7 @@ class TrainingBananaTestsT2_1(unittest.TestCase):
         self.assertTrue(abs(self.tb.base.camera.getH()) > 0)
 
 
-class TrainingBananaTestsT2_2(TrainingBananaTestsT2, unittest.TestCase):
+class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
     """Training 2.2, random is now True. This means we have to change the tests for
     moving the crosshair, since we cannot control which direction we are going. Randomly
     it should hit both directions, assuming we test frequently, so shouldn't be a big
@@ -424,28 +424,33 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2, unittest.TestCase):
         True for all training levels, but testing explicitly each direction when
         random is not true.
         """
-        print self.tb.training
-        before = abs(self.tb.base.camera.getH())
-        print before
-        # step once to get past 0 time
-        taskMgr.step()
-        messenger.send('x_axis', [self.tb.multiplier * -2])
-        taskMgr.step()
-        # since moving opposite direction of multiplier, should
-        # not be moving anywhere
-        after = abs(self.tb.base.camera.getH())
-        print after
-        self.assertTrue(after == before)
+        if self.tb.training < 2.2:
+            print self.tb.training
+            before = abs(self.tb.base.camera.getH())
+            print before
+            # step once to get past 0 time
+            taskMgr.step()
+            messenger.send('x_axis', [self.tb.multiplier * -2])
+            taskMgr.step()
+            # since moving opposite direction of multiplier, should
+            # not be moving anywhere
+            after = abs(self.tb.base.camera.getH())
+            print after
+            self.assertTrue(after == before)
+            return lambda func: func
+        return unittest.skip('skipped test, training > 2.2')
 
     def test_new_banana_not_same_side_same_distance(self):
         """
         Test that banana is put down randomly. True if
         random_banana is False, training 2.2 and higher
+        Possible to get banana in same place, by chance, so
+        run twice and check all three.
         """
-        print self.tb.training
+        #print self.tb.training
         # test self.random_bananas = True has effect should have
-        print 'new random banana test'
-        print self.tb.random_banana
+        #print 'new random banana test'
+        #print self.tb.random_banana
         before = self.tb.base.camera.getH()
         # get reward, then should be in new position
         messenger.send('x_axis', [self.tb.multiplier * 2])
@@ -456,15 +461,23 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2, unittest.TestCase):
         # now go until banana has been reset
         while not self.tb.moving:
             taskMgr.step()
-        #print self.tb.base.camera.getH()
-        self.assertFalse(self.tb.base.camera.getH() == before)
+        next = self.tb.base.camera.getH()
+        # get reward, then should be in new position
+        messenger.send('x_axis', [self.tb.multiplier * 2])
+        while self.tb.reward_count < self.tb.num_beeps:
+            taskMgr.step()
+        # make sure don't move camera after reset
+        messenger.send('x_axis', [0])
+        # now go until banana has been reset
+        while not self.tb.moving:
+            taskMgr.step()
+        last = self.tb.base.camera.getH()
+        self.assertFalse(last == next == before)
 
 
-class TrainingBananaTestsT2_3(TrainingBananaTestsT2, unittest.TestCase):
-    """Training 2.2, random is now True. This means we have to change the tests for
-    moving the crosshair, since we cannot control which direction we are going. Randomly
-    it should hit both directions, assuming we test frequently, so shouldn't be a big
-    deal. Also have test to change that random is really happening.
+class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
+    """Training 2.3, banana appears randomly on either side, multiple distances.
+    Must let go of joystick to start next trial, both directions now allowed
     """
 
     @classmethod
@@ -472,6 +485,42 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2, unittest.TestCase):
         loadPrcFileData("", "window-type offscreen")
         #print 'about to load world'
         training = 2.3
+        cls.tb = TrainingBananas()
+        cls.tb.set_level_variables(training)
+
+    def setUp(self):
+        # this will reset x_mag to zero, clearing any joystick pushes,
+        # as well resetting other things
+        self.tb.reset_variables()
+        # make sure at correct training level
+        #self.tb.set_level_variables(2)
+        # reset banana - this is often done in the test, if we want
+        # to ensure a certain direction, but not necessarily
+        self.tb.restart_bananas()
+
+    def test_allowed_to_go_in_direction_opposite_banana(self):
+        print self.tb.training
+        before = abs(self.tb.base.camera.getH())
+        print before
+        # step once to get past 0 time
+        taskMgr.step()
+        messenger.send('x_axis', [self.tb.multiplier * -2])
+        taskMgr.step()
+        # opposite direction allowed, so should have moved
+        after = abs(self.tb.base.camera.getH())
+        self.assertNotEqual(before, after)
+
+
+class TrainingBananaTestsT2_4(TrainingBananaTestsT2_2, unittest.TestCase):
+    """Training 2.3, subject has to line up crosshair to banana (not go past)
+    for min. time, slows down if goes past banana, both directions allowed
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        loadPrcFileData("", "window-type offscreen")
+        #print 'about to load world'
+        training = 2.4
         cls.tb = TrainingBananas()
         cls.tb.set_level_variables(training)
 
@@ -689,6 +738,8 @@ if __name__ == "__main__":
         elif int(sys.argv[1]) == 2:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_2)
         elif int(sys.argv[1]) == 3:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_3)
+        elif int(sys.argv[1]) == 4:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestKeys)
         print 'run suite'
         result = unittest.TextTestRunner().run(suite)
