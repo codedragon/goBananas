@@ -72,11 +72,16 @@ class TrainingBananas(JoystickHandler):
         # reload the config file multiple times, also allows us to change these
         # variables dynamically
         self.num_beeps = config['numBeeps']
-
         # not changing now, but may eventually...
         self.x_alpha = config['xHairAlpha']
+        self.reward_time = config['pulseInterval']  # usually 200ms
+        # amount need to hold crosshair on banana to get reward (2.3)
+        # must be more than zero. At 1.5 distance, must be greater than
+        # 0.5 to require stopping
+        self.hold_aim = config['hold_aim']
         self.training = config['training']
         print('training level is', self.training)
+
         # initialize training variables
         # will be set to proper levels in set_level_variables method
         self.free_move = False
@@ -149,40 +154,37 @@ class TrainingBananas(JoystickHandler):
         crosshair_pos = Point3(-0.07, 0, -0.05)
         #print textNodePath.getPos()
         textNodePath.setPos(crosshair_pos)
-
+        # setup keyboard/joystick inputs
         self.setup_inputs()
+        # Initialize more variables
+        # These variables are set to their initial states in reset_variables, so
+        # does not matter what they are set to here.
         self.delay_start = False
         self.yay_reward = False
         self.reward_delay = False
-        self.reward_time = config['pulseInterval']  # usually 200ms
         self.reward_on = True
         self.reward_count = 0
         self.x_mag = 0
         self.y_mag = 0
-        # start with a very slow factor, since usually proportional to joystick input,
-        # which we don't have yet, and will be very small
+        # slow_factor starts at initial speed, so doesn't actually matter what we set it to here
         self.slow_factor = 0.001  # factor to slow down movement of joystick and control acceleration
+        self.initial_speed = 0.05
         # toggle for whether moving is allowed or not
         self.moving = True
         # toggle for making sure stays on banana for min time for 2.3
         self.set_zone_time = False
-        # amount need to hold crosshair on banana to get reward (2.3)
-        # must be more than zero. At 1.5 distance, must be greater than
-        # 0.5 to require stopping
-        self.hold_aim = 0.6
         # keeps track of how long we have held
         self.hold_time = 0
         self.check_zone = False
         self.check_time = 0
         # toggle for when trial begins
         self.start_trial = True
-        print('avatar heading', self.base.camera.getH())
-        #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
-        #print Camera.defaultInstance.getFov()
         # set up main loop
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         self.frameTask.delay = 0
         self.frameTask.last = 0  # task time of the last frame
+        # set variables to their actual starting values
+        self.reset_variables()
 
     def frame_loop(self, task):
         #print 'loop'
@@ -251,6 +253,9 @@ class TrainingBananas(JoystickHandler):
                 # if heading is 18.5 or over, and moving away from center, nothing happens
                 if abs(heading) >= 18.5 and self.x_mag * self.multiplier > 0:
                     delta_heading = 0
+                elif self.check_zone == 0:
+                    # if gone past banana target zone, no acceleration
+                    delta_heading = self.x_mag * self.initial_speed * dt
                 else:
                     # use dt so when frame rate changes the rate of movement changes proportionately
                     delta_heading = self.x_mag * self.slow_factor * dt
@@ -259,7 +264,7 @@ class TrainingBananas(JoystickHandler):
                 #print('camera heading', self.base.camera.getH())
                 # set new speed for next frame, if new trial or subject stopped, reverts to default
                 if self.start_trial or self.x_mag == 0:
-                    self.slow_factor = 0.05
+                    self.slow_factor = self.initial_speed
                     self.start_trial = False
                 else:
                     #self.slow_factor = 1
@@ -291,7 +296,7 @@ class TrainingBananas(JoystickHandler):
                         else:
                             print('left zone, wait for another collision')
                             self.x_change_color(self.x_start_c)
-                            self.check_zone = False
+                            self.check_zone = 0
                     else:
                         collide_banana = self.check_x_banana()
                         if collide_banana:
@@ -538,9 +543,9 @@ class TrainingBananas(JoystickHandler):
         self.reward_count = 0
         self.x_mag = 0
         self.y_mag = 0
-        # start with a very slow factor, since usually proportional to joystick input,
-        # which we don't have yet, and will be very small
-        self.slow_factor = 0.0005  # factor to slow down movement of joystick and control acceleration
+        # slow_factor starts at initial_speed, so doesn't actually matter what we set it to here
+        self.slow_factor = 0.5  # factor to slow down movement of joystick and control acceleration
+        self.initial_speed = 0.5
         # toggle for whether moving is allowed or not
         self.moving = True
         # toggle for making sure stays on banana for min time for 2.3

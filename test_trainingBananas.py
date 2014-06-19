@@ -57,7 +57,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         keys. Training 2 and 2.1
         """
         if self.tb.training < 2.2:
-            self.tb.trainDir = 'turnRight'
+            # right is positive multiplier
             self.tb.multiplier = 1
             # if we change direction, have to restart bananas
             self.tb.restart_bananas()
@@ -82,7 +82,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         (training 2 and 2.1)
         """
         if self.tb.training < 2.2:
-            self.tb.trainDir = 'turnRight'
+            # right is positive multiplier
             self.tb.multiplier = 1
             self.tb.restart_bananas()
             before = self.tb.base.camera.getH()
@@ -104,7 +104,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         keys. Training 2 and 2.1
         """
         if self.tb.training < 2.2:
-            self.tb.trainDir = 'turnLeft'
+            # left is negative multiplier
             self.tb.multiplier = -1
             self.tb.restart_bananas()
             before = abs(self.tb.base.camera.getH())
@@ -127,7 +127,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         once again, can only test if random is False, so 2 and 2.1
         """
         if self.tb.training < 2.2:
-            self.tb.trainDir = 'turnLeft'
+            # left is negative multiplier
             self.tb.multiplier = -1
             self.tb.restart_bananas()
             before = self.tb.base.camera.getH()
@@ -169,7 +169,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         """
         #print self.tb.training
         if self.tb.training < 2.2:
-            self.tb.trainDir = 'turnRight'
+            # right is positive multiplier
             self.tb.multiplier = 1
             old_dir = 1
             self.tb.restart_bananas()
@@ -212,7 +212,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         if random_bananas is true, so good for training 2 and 2.1)
         """
         if self.tb.training < 2.2:
-            self.tb.trainDir = 'turnLeft'
+            # left is negative multiplier
             self.tb.multiplier = -1
             self.tb.restart_bananas()
             before = self.tb.base.camera.getH()
@@ -253,7 +253,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         True if must_release is false, just training = 2
         """
         if self.tb.training == 2:
-            self.tb.trainDir = 'turnRight'
+            # right is positive multiplier
             self.tb.multiplier = 1
             self.tb.restart_bananas()
             # get to zero, then keep sending joystick
@@ -633,7 +633,6 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_2, unittest.TestCase):
         else:
             self.assertTrue(self.tb.base.camera.getH() > 0)
 
-
     def test_max_speed_slows_down_after_passing_banana(self):
         pass
 
@@ -664,7 +663,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         from the right towards the crosshair in the center, if
         trainingDirection is right
         """
-        self.tb.trainDir = 'turnRight'
+        # right is positive multiplier
         self.tb.multiplier = 1
         # if we change direction, have to restart bananas
         self.tb.restart_bananas()
@@ -691,7 +690,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         from the left towards the crosshair in the center, if
         trainingDirection is left
         """
-        self.tb.trainDir = 'turnLeft'
+        # left is negative multiplier
         self.tb.multiplier = -1
         self.tb.restart_bananas()
         before = abs(self.tb.base.camera.getH())
@@ -716,7 +715,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         """
         test that e key increases the distance from banana to crosshair
         """
-        self.tb.trainDir = 'turnRight'
+        # right is positive multiplier
         self.tb.multiplier = 1
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
@@ -730,9 +729,9 @@ class TrainingBananaTestKeys(unittest.TestCase):
 
     def test_d_decreases_banana_distance(self):
         """
-        test that e key increases the distance from banana to crosshair
+        test that d key decreases the distance from banana to crosshair
         """
-        self.tb.trainDir = 'turnRight'
+        # right is positive multiplier
         self.tb.multiplier = 1
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
@@ -767,24 +766,11 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.assertTrue(after < before)
         # let's make sure this actually translates to new number of beeps
 
-    def test_d_decreases_banana_distance(self):
-        """
-        test that e key increases the distance from banana to crosshair
-        """
-        self.tb.trainDir = 'turnRight'
-        self.tb.multiplier = 1
-        self.tb.restart_bananas()
-        before = self.tb.base.camera.getH()
-        #print before
-        messenger.send('d')
-        self.tb.restart_bananas()
-        self.assertTrue(self.tb.base.camera.getH() < before)
-
     def test_l_changes_banana_to_left_side(self):
         """
-        test that e key increases the distance from banana to crosshair
+        test that l key changes the direction the subject is going to left
         """
-        self.tb.trainDir = 'turnRight'
+        # right is positive multiplier
         self.tb.multiplier = 1
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
@@ -798,9 +784,9 @@ class TrainingBananaTestKeys(unittest.TestCase):
 
     def test_r_changes_banana_to_right_side(self):
         """
-        test that e key increases the distance from banana to crosshair
+        test that r key changes the direction the subject is going to right
         """
-        self.tb.trainDir = 'turnLeft'
+        # left is negative multiplier
         self.tb.multiplier = -1
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
@@ -811,6 +797,22 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.assertTrue(self.tb.multiplier == 1)
         # should be same distance, but opposite side
         self.assertTrue(self.tb.base.camera.getH() / before == -1)
+
+    def test_f_changes_banana_to_forward(self):
+        """
+        test that f key changes the direction the subject is going to forward
+        """
+        # left is negative multiplier
+        self.tb.multiplier = -1
+        self.tb.restart_bananas()
+        before = self.tb.base.camera.getH()
+        #print before
+        messenger.send('f')
+        self.tb.restart_bananas()
+        # should be on left side now
+        self.assertTrue(self.tb.multiplier == 0)
+        # should be in the middle, far away
+        #self.assertTrue(self.tb.base.camera.getH() / before == -1)
 
     #def test_purposely_fails(self):
     #    self.assertTrue(False)

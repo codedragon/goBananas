@@ -16,7 +16,7 @@ then
 else
     for i in {0..5}; do
         #echo $i
-        ppython test_trainingBananas.py $i &> /dev/null || { echo $OUTPUT $i; exit 1; }
+        ppython test_trainingBananas.py $i > /dev/null || { echo $OUTPUT $i; exit 1; }
     done
     ppython test_moBananas.py &> /dev/null || { echo A test in moBananas failed; exit 1; }
 fi
