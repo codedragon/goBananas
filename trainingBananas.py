@@ -24,6 +24,7 @@ class TrainingBananas(JoystickHandler):
         """
         Initialize the experiment
         """
+        pydaq_loaded = PYDAQ_LOADED
         self.base = ShowBase()
         config = {}
         execfile('train_config.py', config)
@@ -36,8 +37,8 @@ class TrainingBananas(JoystickHandler):
         # if unit-testing, pretend like we couldn't
         # load the module
         if unittest:
-            PYDAQ_LOADED = False
-        if config['reward'] and PYDAQ_LOADED:
+            pydaq_loaded = False
+        if config['reward'] and pydaq_loaded:
             self.reward = pydaq.GiveReward()
             print 'Reward system on'
         else:
@@ -184,6 +185,7 @@ class TrainingBananas(JoystickHandler):
         self.frameTask.last = 0  # task time of the last frame
 
     def frame_loop(self, task):
+        #print 'loop'
         dt = task.time - task.last
         task.last = task.time
         #print('dt', dt)
@@ -205,8 +207,9 @@ class TrainingBananas(JoystickHandler):
             self.check_zone = True
         # reward delay is over, on to regularly scheduled program
         if task.time > task.delay:
-            #print 'ok'
+            #print 'past delay'
             # check for reward
+            #print('beeps so far', self.reward_count)
             if self.yay_reward and self.reward_count < self.num_beeps:
                 #print 'reward'
                 self.reward_count += 1
@@ -224,7 +227,7 @@ class TrainingBananas(JoystickHandler):
                     #print 'checking x_mag'
                     #print self.x_mag
                     if abs(self.x_mag) > 0:
-                        #print('let go!')
+                        print('let go!')
                         return task.cont
                 # and now we can start things over again
                 #print('start over')
@@ -253,7 +256,7 @@ class TrainingBananas(JoystickHandler):
                     delta_heading = self.x_mag * self.slow_factor * dt
                 #print('change heading', delta_heading)
                 self.base.camera.setH(heading + delta_heading)
-                #print('cam', self.base.camera.getH())
+                #print('camera heading', self.base.camera.getH())
                 # set new speed for next frame, if new trial or subject stopped, reverts to default
                 if self.start_trial or self.x_mag == 0:
                     self.slow_factor = 0.05
@@ -316,6 +319,7 @@ class TrainingBananas(JoystickHandler):
         self.delay_start = True
 
     def check_x_banana(self):
+        #print 'check banana'
         # check to see if crosshair is over banana
         if self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
@@ -399,6 +403,7 @@ class TrainingBananas(JoystickHandler):
         self.banana.unstash()
         #print 'avatar can move again'
         self.moving = True
+        #print('yay', self.yay_reward)
 
     def x_change_color(self, color):
         #print self.crosshair.getColor()
@@ -410,7 +415,7 @@ class TrainingBananas(JoystickHandler):
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  str(js_dir) + ', ' +
                                  str(-js_input) + '\n')
-        print(js_dir, js_input)
+            print(js_dir, js_input)
         if abs(js_input) < 0.1:
             js_input = 0
         if js_dir == 'x' or js_dir == 'x_key':
@@ -544,6 +549,8 @@ class TrainingBananas(JoystickHandler):
         # must be more than zero. At 1.5 distance, must be greater than
         # 0.5 to require stopping
         self.hold_aim = 0.6
+        if unittest:
+            self.hold_aim = 0.1
         # keeps track of how long we have held
         self.hold_time = 0
         self.check_zone = False

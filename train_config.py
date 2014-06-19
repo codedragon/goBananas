@@ -1,14 +1,14 @@
 # change individual config files, and have script copy to config.py
 # configuration file for trainBananas
 #
-#subject = 'Testsubject'
-subject = 'MP'
+subject = 'Test'
+#subject = 'MP'
 
 # direction subject has to push the joystick to get the banana
 trainingDirection = 'Right'
 #trainingDirection = 'Left'
 
-training = 2
+training = 2.4
 # Set Training Level - only using 2 and above in this program
 # training 2,   left/right, can only move direction towards center
 #               self.free_move = False

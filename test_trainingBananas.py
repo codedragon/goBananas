@@ -11,6 +11,14 @@ import sys
 # making sure stuff doesn't that shouldn't change doesn't when switching levels
 
 
+def is_int_string(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+
 class TrainingBananaTestsT2(unittest.TestCase):
     """
     training 2, move crosshair to banana, left/right, opposite direction does nothing,
@@ -100,14 +108,14 @@ class TrainingBananaTestsT2(unittest.TestCase):
             self.tb.multiplier = -1
             self.tb.restart_bananas()
             before = abs(self.tb.base.camera.getH())
-            print before
+            #print before
             # step once to get past 0 time
             taskMgr.step()
             messenger.send('x_axis', [-2])
             taskMgr.step()
             # if moving closer to center, getH is getting smaller
             after = abs(self.tb.base.camera.getH())
-            print after
+            #print after
             self.assertTrue(after < before)
             return lambda func: func
         return unittest.skip('skipped test, training > 2.1')
@@ -123,7 +131,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
             self.tb.multiplier = -1
             self.tb.restart_bananas()
             before = self.tb.base.camera.getH()
-            print before
+            #print before
             # step once to get past 0 time
             taskMgr.step()
             messenger.send('x_axis', [2])
@@ -133,10 +141,10 @@ class TrainingBananaTestsT2(unittest.TestCase):
             return lambda func: func
         return unittest.skip('skipped test, training > 2.1')
 
-    def test_cannot_go_past_crosshair(self):
+    def test_cannot_go_past_banana(self):
         """
-         test that even if we move past the crosshair, the camera stops
-         true if require_aim is False, training 2 through 2.3
+         test that even if we move past the banana with the crosshiar,
+         the camera stops. True if require_aim is False, training 2 through 2.3
         """
         if self.tb.training < 2.4:
             # get to zero, then try to go a few steps further
@@ -159,21 +167,21 @@ class TrainingBananaTestsT2(unittest.TestCase):
         This test is true if free_move is false. This is tested with a different test
         if random_bananas is true, so good for training 2 and 2.1)
         """
-        print self.tb.training
+        #print self.tb.training
         if self.tb.training < 2.2:
             self.tb.trainDir = 'turnRight'
             self.tb.multiplier = 1
             old_dir = 1
             self.tb.restart_bananas()
             before = self.tb.base.camera.getH()
-            print before
+            #print before
             messenger.send('l')
-            print self.tb.base.camera.getH()
+            #print self.tb.base.camera.getH()
             # go until last reward
             messenger.send('x_axis', [self.tb.multiplier * 2])
             while self.tb.reward_count < self.tb.num_beeps:
                 taskMgr.step()
-            print self.tb.base.camera.getH()
+            #print self.tb.base.camera.getH()
             # keep going while banana still in center.
             # since in center, send zero signal
             # to make sure trial restarts for certain training levels
@@ -181,18 +189,18 @@ class TrainingBananaTestsT2(unittest.TestCase):
             while self.tb.base.camera.getH() == 0:
                 taskMgr.step()
             # should be on left side now.
-            print 'banana on new side now'
+            #print 'banana on new side now'
             self.assertTrue(self.tb.multiplier == -old_dir)
             # should be same distance, but opposite side
             self.assertTrue(self.tb.base.camera.getH() / before == -1)
             before = self.tb.base.camera.getH()
-            print before
-            print self.tb.x_mag
+            #print before
+            #print self.tb.x_mag
             # now make sure that going right does not move the banana
             messenger.send('x_axis', [2])
             for i in range(10):
                 taskMgr.step()
-            print self.tb.base.camera.getH()
+            #print self.tb.base.camera.getH()
             self.assertTrue(self.tb.base.camera.getH() == before)
             return lambda func: func
         return unittest.skip('skipped test, training > 2.1')
@@ -208,14 +216,14 @@ class TrainingBananaTestsT2(unittest.TestCase):
             self.tb.multiplier = -1
             self.tb.restart_bananas()
             before = self.tb.base.camera.getH()
-            print before
+            #print before
             messenger.send('r')
-            print self.tb.base.camera.getH()
+            #print self.tb.base.camera.getH()
             # go until last reward
             messenger.send('x_axis', [-2])
             while self.tb.reward_count < self.tb.num_beeps:
                 taskMgr.step()
-            print self.tb.base.camera.getH()
+            #print self.tb.base.camera.getH()
             # keep going while banana still in center
             # since in center, send zero signal
             # to make sure trial restarts for certain training levels
@@ -223,18 +231,18 @@ class TrainingBananaTestsT2(unittest.TestCase):
             while self.tb.base.camera.getH() == 0:
                 taskMgr.step()
             # should be on right side now.
-            print 'banana on new side now'
+            #print 'banana on new side now'
             self.assertTrue(self.tb.multiplier == 1)
             # should be same distance, but opposite side
             self.assertTrue(self.tb.base.camera.getH() / before == -1)
             before = self.tb.base.camera.getH()
-            print before
-            print self.tb.x_mag
+            #print before
+            #print self.tb.x_mag
             # now make sure that going right does not move the banana
             messenger.send('x_axis', [-2])
             for i in range(10):
                 taskMgr.step()
-            print self.tb.base.camera.getH()
+            #print self.tb.base.camera.getH()
             self.assertTrue(self.tb.base.camera.getH() == before)
             return lambda func: func
         return unittest.skip('skipped test, training > 2.1')
@@ -300,11 +308,11 @@ class TrainingBananaTestsT2(unittest.TestCase):
                 taskMgr.step()
             # make sure don't move camera after reset
             messenger.send('x_axis', [0])
-            print(self.tb.x_mag)
+            #print(self.tb.x_mag)
             # now go until banana has been reset
             while not self.tb.moving:
                 taskMgr.step()
-            print self.tb.base.camera.getH()
+            #print self.tb.base.camera.getH()
             self.assertTrue(self.tb.base.camera.getH() == before)
             return lambda func: func
         return unittest.skip('skipped test, training > 2.1')
@@ -341,36 +349,56 @@ class TrainingBananaTestsT2_1(TrainingBananaTestsT2, unittest.TestCase):
     def test_must_let_go_of_joystick_for_new_banana(self):
         """
         test that we have to let go of the joystick before a new banana will appear
-        True if must_release is true, training 2.1 and higher
+        True if must_release is true, training 2.1 and higher. Test somewhat meaningless
+        after training 2.3, since require aiming, and have already checked for holding
+        crosshair over banana for x time.
         """
-        print self.tb.training
-        # get to zero, then keep sending joystick
-        # signal while checking for new banana
-        messenger.send('x_axis', [2 * self.tb.multiplier])
-        while abs(self.tb.base.camera.getH()) > 0:
+        if self.tb.training < 2.4:
+            #print self.tb.training
+            #print 'let go for new banana'
+            #print('let go', self.tb.must_release)
+            # get to zero, then keep sending joystick
+            # signal while checking for new banana
+            messenger.send('x_axis', [2 * self.tb.multiplier])
+            # I would use absolute, but then can't tell when we cross over
+            # zero
+            camera_h = self.tb.base.camera.getH()
+            #print camera_h
+            if camera_h > 0:
+                while self.tb.base.camera.getH() > 0:
+                    #print('camera head', self.tb.base.camera.getH())
+                    taskMgr.step()
+            else:
+                while self.tb.base.camera.getH() < 0:
+                    #print('camera head', self.tb.base.camera.getH())
+                    taskMgr.step()
+            #print 'first loop over'
+            # now go until reward is over
+            while self.tb.reward_count < self.tb.num_beeps:
+                taskMgr.step()
+            #print 'got reward'
+
+            # step to set delay
             taskMgr.step()
-        # now go until reward is over
-        while self.tb.reward_count < self.tb.num_beeps:
-            # still at center
-            self.assertTrue(self.tb.base.camera.getH() == 0)
+            # now go until delay is overs
+            while self.tb.frameTask.time < self.tb.frameTask.delay:
+                taskMgr.step()
+            #print 'delay over'
+            # go through once to stash the banana
             taskMgr.step()
-        print 'got reward'
-        # step to set delay
-        taskMgr.step()
-        # now go until delay is over
-        while self.tb.frameTask.time < self.tb.frameTask.delay:
-            self.assertTrue(self.tb.base.camera.getH() == 0)
+            # go a few steps while still sending joystick signal
+            # to make sure new banana does not appear yet.
+            # banana should now be gone
+            for i in range(10):
+                self.assertTrue(self.tb.banana.isStashed())
+                taskMgr.step()
+            # now release the joystick
+            messenger.send('x_axis', [0])
             taskMgr.step()
-        # go a few steps while still sending joystick signal
-        # to make sure new banana does not appear yet.
-        for i in range(10):
-            self.assertTrue(self.tb.base.camera.getH() == 0)
-            taskMgr.step()
-        # now release the joystick
-        messenger.send('x_axis', [0])
-        taskMgr.step()
-        #print self.tb.yay_reward
-        self.assertTrue(abs(self.tb.base.camera.getH()) > 0)
+            #print self.tb.yay_reward
+            self.assertFalse(self.tb.banana.isStashed())
+            return lambda func: func
+        return unittest.skip('skipped test, training > 2.3')
 
 
 class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
@@ -405,16 +433,17 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         True for all training levels, but testing explicitly each direction when
         random is not true
         """
-        print self.tb.training
+        #print self.tb.training
+        #print 'joystick direction banana'
         before = abs(self.tb.base.camera.getH())
-        print before
+        #print before
         # step once to get past 0 time
         taskMgr.step()
         messenger.send('x_axis', [self.tb.multiplier * 2])
         taskMgr.step()
         # if moving closer to center, getH is getting smaller
         after = abs(self.tb.base.camera.getH())
-        print after
+        #print after
         self.assertTrue(after < before)
 
     def test_cannot_move_joystick_in_direction_opposite_of_banana(self):
@@ -425,9 +454,9 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         random is not true.
         """
         if self.tb.training < 2.2:
-            print self.tb.training
+            #print self.tb.training
             before = abs(self.tb.base.camera.getH())
-            print before
+            #print before
             # step once to get past 0 time
             taskMgr.step()
             messenger.send('x_axis', [self.tb.multiplier * -2])
@@ -435,7 +464,7 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
             # since moving opposite direction of multiplier, should
             # not be moving anywhere
             after = abs(self.tb.base.camera.getH())
-            print after
+            #print after
             self.assertTrue(after == before)
             return lambda func: func
         return unittest.skip('skipped test, training > 2.2')
@@ -454,24 +483,58 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         before = self.tb.base.camera.getH()
         # get reward, then should be in new position
         messenger.send('x_axis', [self.tb.multiplier * 2])
+        # I would use absolute position, but then can't tell when
+        # we cross over zero, at which time we need to stop moving
+        camera_h = self.tb.base.camera.getH()
+        #print camera_h
+        if camera_h > 0:
+            while self.tb.base.camera.getH() > 0:
+                #print('camera head', self.tb.base.camera.getH())
+                taskMgr.step()
+        else:
+            while self.tb.base.camera.getH() < 0:
+                #print('camera head', self.tb.base.camera.getH())
+                taskMgr.step()
+        #print 'first loop over'
+
+        # once at center, don't move camera
+        messenger.send('x_axis', [0])
+        # get reward
         while self.tb.reward_count < self.tb.num_beeps:
             taskMgr.step()
-        # make sure don't move camera after reset
-        messenger.send('x_axis', [0])
-        # now go until banana has been reset
+        #print('check camera', self.tb.base.camera.getH())
+        # still in center,
+        # now step until banana has been reset
         while not self.tb.moving:
             taskMgr.step()
         next = self.tb.base.camera.getH()
-        # get reward, then should be in new position
+        # Go again, may by chance have been twice in the same place,
+        # but if really pseudo-random, highly unlikely three times in
+        # the same place.
         messenger.send('x_axis', [self.tb.multiplier * 2])
+        camera_h = self.tb.base.camera.getH()
+        if camera_h > 0:
+            while self.tb.base.camera.getH() > 0:
+                #print('camera head', self.tb.base.camera.getH())
+                taskMgr.step()
+        else:
+            while self.tb.base.camera.getH() < 0:
+                #print('camera head', self.tb.base.camera.getH())
+                taskMgr.step()
+        #print 'first loop over again'
+        # once at center, don't move camera
+        messenger.send('x_axis', [0])
+        # get reward
         while self.tb.reward_count < self.tb.num_beeps:
             taskMgr.step()
-        # make sure don't move camera after reset
-        messenger.send('x_axis', [0])
-        # now go until banana has been reset
+        #print('check camera', self.tb.base.camera.getH())
+        # now step until banana has been reset
         while not self.tb.moving:
             taskMgr.step()
         last = self.tb.base.camera.getH()
+        #print('before', before)
+        #print('next', next)
+        #print('last', last)
         self.assertFalse(last == next == before)
 
 
@@ -499,9 +562,10 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
         self.tb.restart_bananas()
 
     def test_allowed_to_go_in_direction_opposite_banana(self):
-        print self.tb.training
+        #print 'opposite direction of banana'
+        #print self.tb.training
         before = abs(self.tb.base.camera.getH())
-        print before
+        #print before
         # step once to get past 0 time
         taskMgr.step()
         messenger.send('x_axis', [self.tb.multiplier * -2])
@@ -512,7 +576,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
 
 
 class TrainingBananaTestsT2_4(TrainingBananaTestsT2_2, unittest.TestCase):
-    """Training 2.3, subject has to line up crosshair to banana (not go past)
+    """Training 2.4, subject has to line up crosshair to banana (not go past)
     for min. time, slows down if goes past banana, both directions allowed
     """
 
@@ -535,7 +599,40 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_2, unittest.TestCase):
         self.tb.restart_bananas()
 
     def test_allowed_to_go_past_banana(self):
-        pass
+        """
+         test that even if we move past the banana, the camera continues
+         to move, true if require_aim is True, training 2.4 and higher
+        """
+        #print 'go past banana'
+        # get to zero, then try to go a few steps further
+        messenger.send('x_axis', [2 * self.tb.multiplier])
+        # I would use absolute, but then can't tell when we cross over
+        # zero
+        camera_h = self.tb.base.camera.getH()
+        #print camera_h
+        if camera_h > 0:
+            while self.tb.base.camera.getH() > 0:
+                #print('camera head', self.tb.base.camera.getH())
+                taskMgr.step()
+        else:
+            while self.tb.base.camera.getH() < 0:
+                #print('camera head', self.tb.base.camera.getH())
+                taskMgr.step()
+        #print 'first loop over'
+        #print('camera head', self.tb.base.camera.getH())
+        # now go past banana
+        for i in range(10):
+            taskMgr.step()
+        # make sure we were really trying to move
+        self.assertTrue(abs(self.tb.x_mag) == 2)
+        # make sure we were able to go past. if original camera was positive,
+        # heading should now be negative, and vise-versa.
+        #print self.tb.base.camera.getH()
+        if camera_h > 0:
+            self.assertTrue(self.tb.base.camera.getH() < 0)
+        else:
+            self.assertTrue(self.tb.base.camera.getH() > 0)
+
 
     def test_max_speed_slows_down_after_passing_banana(self):
         pass
@@ -572,7 +669,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # if we change direction, have to restart bananas
         self.tb.restart_bananas()
         before = abs(self.tb.base.camera.getH())
-        print before
+        #print before
         # dt is so small, since not actually writing to the screen,
         # that we need to do this a couple of times to actually be
         # a large enough change to register
@@ -585,7 +682,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         taskMgr.step()
         # if moving closer to center, getH is getting smaller
         after = abs(self.tb.base.camera.getH())
-        print after
+        #print after
         self.assertTrue(after < before)
 
     def test_move_using_left_arrow_key(self):
@@ -598,7 +695,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.multiplier = -1
         self.tb.restart_bananas()
         before = abs(self.tb.base.camera.getH())
-        print before
+        #print before
         messenger.send('arrow_left')
         # dt is so small, since not actually writing to the screen,
         # that we need to do this a couple of times to actually be
@@ -612,7 +709,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         taskMgr.step()
         # if moving closer to center, getH is getting smaller
         after = abs(self.tb.base.camera.getH())
-        print after
+        #print after
         self.assertTrue(after < before)
 
     def test_e_increases_banana_distance(self):
@@ -623,12 +720,12 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.multiplier = 1
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
-        print before
+        #print before
         messenger.send('e')
         self.tb.restart_bananas()
         # should be further out now
         after = self.tb.base.camera.getH()
-        print after
+        #print after
         self.assertTrue(after > before)
 
     def test_d_decreases_banana_distance(self):
@@ -639,7 +736,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.multiplier = 1
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
-        print before
+        #print before
         messenger.send('d')
         self.tb.restart_bananas()
         self.assertTrue(self.tb.base.camera.getH() < before)
@@ -649,11 +746,11 @@ class TrainingBananaTestKeys(unittest.TestCase):
         test that w key increases reward
         """
         before = self.tb.num_beeps
-        print before
+        #print before
         messenger.send('w')
         self.tb.restart_bananas()
         after = self.tb.num_beeps
-        print after
+        #print after
         self.assertTrue(after > before)
         # let's make sure this actually translates to new number of beeps
 
@@ -662,11 +759,11 @@ class TrainingBananaTestKeys(unittest.TestCase):
         test that s key decreases reward
         """
         before = self.tb.num_beeps
-        print before
+        #print before
         messenger.send('s')
         self.tb.restart_bananas()
         after = self.tb.num_beeps
-        print after
+        #print after
         self.assertTrue(after < before)
         # let's make sure this actually translates to new number of beeps
 
@@ -678,7 +775,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.multiplier = 1
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
-        print before
+        #print before
         messenger.send('d')
         self.tb.restart_bananas()
         self.assertTrue(self.tb.base.camera.getH() < before)
@@ -691,7 +788,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.multiplier = 1
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
-        print before
+        #print before
         messenger.send('l')
         self.tb.restart_bananas()
         # should be on left side now.
@@ -707,7 +804,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.multiplier = -1
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
-        print before
+        #print before
         messenger.send('r')
         self.tb.restart_bananas()
         # should be on left side now
@@ -725,13 +822,12 @@ if __name__ == "__main__":
     # https://www.panda3d.org/forums/viewtopic.php?t=10867
     # To get around this, calling a different suite, depending on which number sent
     # in as a sys.argv
-    print sys.argv
-    print len(sys.argv)
-    if len(sys.argv) == 2:
-        print 'argument worked'
-        print sys.argv[1]
+    #print sys.argv
+    #print len(sys.argv)
+    if len(sys.argv) == 2 and is_int_string(sys.argv[1]):
+        #print 'argument worked'
         if int(sys.argv[1]) == 0:
-            print 'first suite'
+            #print 'first suite'
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2)
         elif int(sys.argv[1]) == 1:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_1)
@@ -740,8 +836,10 @@ if __name__ == "__main__":
         elif int(sys.argv[1]) == 3:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_3)
         elif int(sys.argv[1]) == 4:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_4)
+        elif int(sys.argv[1]) == 5:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestKeys)
-        print 'run suite'
+        #print 'run suite'
         result = unittest.TextTestRunner().run(suite)
         print result
         if not result.wasSuccessful():
