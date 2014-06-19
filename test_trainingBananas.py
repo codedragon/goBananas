@@ -4,6 +4,7 @@ from direct.showbase.MessengerGlobal import messenger
 from panda3d.core import loadPrcFileData
 from direct.task.TaskManagerGlobal import taskMgr
 import sys
+import time
 
 # joystick only sends signal when it has moved, so if holding in one place,
 # self.x_mag stays the same until a new signal is given
@@ -34,6 +35,10 @@ class TrainingBananaTestsT2(unittest.TestCase):
         training = 2
         cls.tb = TrainingBananas()
         cls.tb.set_level_variables(training)
+        # make defaults so stuff tests as fast as possible, overrides config file
+        cls.tb.reward_time = 0.01
+        cls.tb.num_beeps = 1
+        cls.tb.avatar_h = 1
 
     def setUp(self):
         # this will reset x_mag to zero, clearing any joystick pushes,
@@ -335,6 +340,10 @@ class TrainingBananaTestsT2_1(TrainingBananaTestsT2, unittest.TestCase):
         training = 2.1
         cls.tb = TrainingBananas()
         cls.tb.set_level_variables(training)
+        # make defaults so stuff tests as fast as possible, overrides config file
+        cls.tb.reward_time = 0.01
+        cls.tb.num_beeps = 1
+        cls.tb.avatar_h = 1
 
     def setUp(self):
         # this will reset x_mag to zero, clearing any joystick pushes,
@@ -415,6 +424,11 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         training = 2.2
         cls.tb = TrainingBananas()
         cls.tb.set_level_variables(training)
+        # make defaults so stuff tests as fast as possible, overrides config file
+        cls.tb.reward_time = 0.01
+        cls.tb.num_beeps = 1
+        cls.tb.avatar_h = 1
+        cls.tb.initial_speed = 1
 
     def setUp(self):
         # this will reset x_mag to zero, clearing any joystick pushes,
@@ -425,6 +439,7 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        self.startTime = time.time()
 
     def test_can_move_joystick_in_direction_of_banana(self):
         """
@@ -489,24 +504,35 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         #print camera_h
         if camera_h > 0:
             while self.tb.base.camera.getH() > 0:
-                #print('camera head', self.tb.base.camera.getH())
+                print('camera head', self.tb.base.camera.getH())
                 taskMgr.step()
         else:
             while self.tb.base.camera.getH() < 0:
                 #print('camera head', self.tb.base.camera.getH())
                 taskMgr.step()
         #print 'first loop over'
-
+        t = time.time() - self.startTime
+        print '0'
+        print "%.3f" % t
+        self.startTime = time.time()
         # once at center, don't move camera
         messenger.send('x_axis', [0])
         # get reward
         while self.tb.reward_count < self.tb.num_beeps:
             taskMgr.step()
+        t = time.time() - self.startTime
+        print '1'
+        print "%.3f" % t
+        self.startTime = time.time()
         #print('check camera', self.tb.base.camera.getH())
         # still in center,
         # now step until banana has been reset
         while not self.tb.moving:
             taskMgr.step()
+        t = time.time() - self.startTime
+        print '2'
+        print "%.3f" % t
+        self.startTime = time.time()
         next = self.tb.base.camera.getH()
         # Go again, may by chance have been twice in the same place,
         # but if really pseudo-random, highly unlikely three times in
@@ -521,22 +547,38 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
             while self.tb.base.camera.getH() < 0:
                 #print('camera head', self.tb.base.camera.getH())
                 taskMgr.step()
+        t = time.time() - self.startTime
+        print '3'
+        print "%.3f" % t
+        self.startTime = time.time()
         #print 'first loop over again'
         # once at center, don't move camera
         messenger.send('x_axis', [0])
         # get reward
         while self.tb.reward_count < self.tb.num_beeps:
             taskMgr.step()
+        t = time.time() - self.startTime
+        print '4'
+        print "%.3f" % t
+        self.startTime = time.time()
         #print('check camera', self.tb.base.camera.getH())
         # now step until banana has been reset
         while not self.tb.moving:
             taskMgr.step()
+        t = time.time() - self.startTime
+        print '5'
+        print "%.3f" % t
+        self.startTime = time.time()
         last = self.tb.base.camera.getH()
         #print('before', before)
         #print('next', next)
         #print('last', last)
         self.assertFalse(last == next == before)
 
+    def tearDown(self):
+        t = time.time() - self.startTime
+        print 'tear down'
+        print "%s: %.3f" % (self.id(), t)
 
 class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
     """Training 2.3, banana appears randomly on either side, multiple distances.
@@ -550,6 +592,10 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
         training = 2.3
         cls.tb = TrainingBananas()
         cls.tb.set_level_variables(training)
+        # make defaults so stuff tests as fast as possible, overrides config file
+        cls.tb.reward_time = 0.01
+        cls.tb.num_beeps = 1
+        cls.tb.avatar_h = 1
 
     def setUp(self):
         # this will reset x_mag to zero, clearing any joystick pushes,
@@ -587,6 +633,10 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_2, unittest.TestCase):
         training = 2.4
         cls.tb = TrainingBananas()
         cls.tb.set_level_variables(training)
+        # make defaults so stuff tests as fast as possible, overrides config file
+        cls.tb.reward_time = 0.01
+        cls.tb.num_beeps = 1
+        cls.tb.avatar_h = 1
 
     def setUp(self):
         # this will reset x_mag to zero, clearing any joystick pushes,
@@ -647,6 +697,10 @@ class TrainingBananaTestKeys(unittest.TestCase):
         loadPrcFileData("", "window-type offscreen")
         #print 'about to load world'
         cls.tb = TrainingBananas()
+        # make defaults so stuff tests as fast as possible, overrides config file
+        cls.tb.reward_time = 0.01
+        cls.tb.num_beeps = 1
+        cls.tb.avatar_h = 1
 
     def setUp(self):
         # this will reset x_mag to zero, clearing any joystick pushes,

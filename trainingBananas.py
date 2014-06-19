@@ -75,10 +75,13 @@ class TrainingBananas(JoystickHandler):
         # not changing now, but may eventually...
         self.x_alpha = config['xHairAlpha']
         self.reward_time = config['pulseInterval']  # usually 200ms
+        # random selection used for training 2.3 and above
+        self.random_choices = config['random_choices']
         # amount need to hold crosshair on banana to get reward (2.3)
         # must be more than zero. At 1.5 distance, must be greater than
         # 0.5 to require stopping
         self.hold_aim = config['hold_aim']
+        self.initial_speed = config['initial_speed']
         self.training = config['training']
         print('training level is', self.training)
 
@@ -168,7 +171,6 @@ class TrainingBananas(JoystickHandler):
         self.y_mag = 0
         # slow_factor starts at initial speed, so doesn't actually matter what we set it to here
         self.slow_factor = 0.001  # factor to slow down movement of joystick and control acceleration
-        self.initial_speed = 0.05
         # toggle for whether moving is allowed or not
         self.moving = True
         # toggle for making sure stays on banana for min time for 2.3
@@ -184,7 +186,9 @@ class TrainingBananas(JoystickHandler):
         self.frameTask.delay = 0
         self.frameTask.last = 0  # task time of the last frame
         # set variables to their actual starting values
+        print self.check_zone
         self.reset_variables()
+        print self.check_zone
 
     def frame_loop(self, task):
         #print 'loop'
@@ -252,8 +256,10 @@ class TrainingBananas(JoystickHandler):
                 # edges of screen are like a wall
                 # if heading is 18.5 or over, and moving away from center, nothing happens
                 if abs(heading) >= 18.5 and self.x_mag * self.multiplier > 0:
+                    #print 'hit a wall'
                     delta_heading = 0
-                elif self.check_zone == 0:
+                elif self.check_zone is None:
+                    #print 'went past zone'
                     # if gone past banana target zone, no acceleration
                     delta_heading = self.x_mag * self.initial_speed * dt
                 else:
@@ -296,7 +302,7 @@ class TrainingBananas(JoystickHandler):
                         else:
                             print('left zone, wait for another collision')
                             self.x_change_color(self.x_start_c)
-                            self.check_zone = 0
+                            self.check_zone = None
                     else:
                         collide_banana = self.check_x_banana()
                         if collide_banana:
@@ -387,7 +393,7 @@ class TrainingBananas(JoystickHandler):
         # check to see if banana is on random
         if self.random_banana:
             self.multiplier = random.choice([1, -1])
-            self.avatar_h = random.choice([1.5, 2.3, 3.4, 5, 7.6, 11])
+            self.avatar_h = random.choice(self.random_choices)
             # for some versions, subject could still be holding joystick at this point.
             # this means we x_mag is at a position that might no longer be
             # allowed, so we are going to send the current joystick position
@@ -543,9 +549,6 @@ class TrainingBananas(JoystickHandler):
         self.reward_count = 0
         self.x_mag = 0
         self.y_mag = 0
-        # slow_factor starts at initial_speed, so doesn't actually matter what we set it to here
-        self.slow_factor = 0.5  # factor to slow down movement of joystick and control acceleration
-        self.initial_speed = 0.5
         # toggle for whether moving is allowed or not
         self.moving = True
         # toggle for making sure stays on banana for min time for 2.3

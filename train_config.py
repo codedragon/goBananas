@@ -44,10 +44,18 @@ training = 2.4
 
 avatar_start_h = 1
 
+# random selection used for training 2.3 and above
+random_choices = [1.5, 2, 2.3, 3, 3.4]
+
 # amount need to hold crosshair on banana to get reward (2.3)
 # must be more than zero. At 1.5 distance, must be greater than
 # 0.5 to require stopping
 hold_aim = 0.6
+
+# what speed to start out at this will be multiplied by pressure on joystick
+# and time since last screen refresh
+initial_speed = 0.5
+
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
 #reward = False
 reward = True
