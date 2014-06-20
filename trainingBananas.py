@@ -169,8 +169,7 @@ class TrainingBananas(JoystickHandler):
         self.reward_count = 0
         self.x_mag = 0
         self.y_mag = 0
-        # slow_factor starts at initial speed, so doesn't actually matter what we set it to here
-        self.slow_factor = 0.001  # factor to slow down movement of joystick and control acceleration
+        self.slow_factor = self.initial_speed  # factor to slow down movement of joystick and control acceleration
         # toggle for whether moving is allowed or not
         self.moving = True
         # toggle for making sure stays on banana for min time for 2.3
@@ -253,6 +252,14 @@ class TrainingBananas(JoystickHandler):
                 #print self.slow_factor
                 heading = self.base.camera.getH()
                 #print heading
+                # set new speed, if new trial or subject stopped, reverts to default
+                if self.start_trial or self.x_mag == 0:
+                    self.slow_factor = self.initial_speed
+                    self.start_trial = False
+                else:
+                    #self.slow_factor = 1
+                    self.slow_factor += 0.05 * abs(self.x_mag)
+                #print self.slow_factor
                 # edges of screen are like a wall
                 # if heading is 18.5 or over, and moving away from center, nothing happens
                 if abs(heading) >= 18.5 and self.x_mag * self.multiplier > 0:
@@ -265,17 +272,10 @@ class TrainingBananas(JoystickHandler):
                 else:
                     # use dt so when frame rate changes the rate of movement changes proportionately
                     delta_heading = self.x_mag * self.slow_factor * dt
+                    #print('slow factor', self.slow_factor)
                 #print('change heading', delta_heading)
                 self.base.camera.setH(heading + delta_heading)
                 #print('camera heading', self.base.camera.getH())
-                # set new speed for next frame, if new trial or subject stopped, reverts to default
-                if self.start_trial or self.x_mag == 0:
-                    self.slow_factor = self.initial_speed
-                    self.start_trial = False
-                else:
-                    #self.slow_factor = 1
-                    self.slow_factor += 0.05 * abs(self.x_mag)
-                #print self.slow_factor
                 # check for collision:
                 if self.go_forward:
                     self.check_y_banana()

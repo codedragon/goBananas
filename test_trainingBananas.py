@@ -439,7 +439,6 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
-        self.startTime = time.time()
 
     def test_can_move_joystick_in_direction_of_banana(self):
         """
@@ -511,28 +510,18 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
                 #print('camera head', self.tb.base.camera.getH())
                 taskMgr.step()
         #print 'first loop over'
-        t = time.time() - self.startTime
-        print '0'
-        print "%.3f" % t
-        self.startTime = time.time()
         # once at center, don't move camera
         messenger.send('x_axis', [0])
         # get reward
         while self.tb.reward_count < self.tb.num_beeps:
             taskMgr.step()
-        t = time.time() - self.startTime
-        print '1'
-        print "%.3f" % t
-        self.startTime = time.time()
+
         #print('check camera', self.tb.base.camera.getH())
         # still in center,
         # now step until banana has been reset
         while not self.tb.moving:
             taskMgr.step()
-        t = time.time() - self.startTime
-        print '2'
-        print "%.3f" % t
-        self.startTime = time.time()
+
         next = self.tb.base.camera.getH()
         # Go again, may by chance have been twice in the same place,
         # but if really pseudo-random, highly unlikely three times in
@@ -547,38 +536,25 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
             while self.tb.base.camera.getH() < 0:
                 #print('camera head', self.tb.base.camera.getH())
                 taskMgr.step()
-        t = time.time() - self.startTime
-        print '3'
-        print "%.3f" % t
-        self.startTime = time.time()
+
         #print 'first loop over again'
         # once at center, don't move camera
         messenger.send('x_axis', [0])
         # get reward
         while self.tb.reward_count < self.tb.num_beeps:
             taskMgr.step()
-        t = time.time() - self.startTime
-        print '4'
-        print "%.3f" % t
-        self.startTime = time.time()
+
         #print('check camera', self.tb.base.camera.getH())
         # now step until banana has been reset
         while not self.tb.moving:
             taskMgr.step()
-        t = time.time() - self.startTime
-        print '5'
-        print "%.3f" % t
-        self.startTime = time.time()
+
         last = self.tb.base.camera.getH()
         #print('before', before)
         #print('next', next)
         #print('last', last)
         self.assertFalse(last == next == before)
 
-    def tearDown(self):
-        t = time.time() - self.startTime
-        print 'tear down'
-        print "%s: %.3f" % (self.id(), t)
 
 class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
     """Training 2.3, banana appears randomly on either side, multiple distances.
@@ -684,7 +660,59 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_2, unittest.TestCase):
             self.assertTrue(self.tb.base.camera.getH() > 0)
 
     def test_max_speed_slows_down_after_passing_banana(self):
-        pass
+        """
+        test that after we go past the banana, we go slower.
+        """
+        # get to zero, then try to go a few steps further
+        messenger.send('x_axis', [2 * self.tb.multiplier])
+        # I would use absolute, but then can't tell when we cross over
+        # zero
+        camera_h = self.tb.base.camera.getH()
+        #print camera_h
+        # go a few steps, see how long it takes
+        start = time.time()
+        for i in range(5):
+            taskMgr.step()
+        first_time = time.time() - start
+        #print('time', first_time)
+        #print self.tb.base.camera.getH()
+        first_dist = camera_h - self.tb.base.camera.getH()
+        #print('dist', first_dist)
+        first_speed = abs(first_dist/first_time)
+        #print 'first test over'
+        #print('camera head', self.tb.base.camera.getH())
+        # now go to center
+        if camera_h > 0:
+            while self.tb.base.camera.getH() > 0:
+                #print('camera head', self.tb.base.camera.getH())
+                taskMgr.step()
+        else:
+            while self.tb.base.camera.getH() < 0:
+                #print('camera head', self.tb.base.camera.getH())
+                taskMgr.step()
+        #print 'first loop over'
+        #print('camera head', self.tb.base.camera.getH())
+        # now go past banana
+        while abs(self.tb.base.camera.getH()) < 1:
+            #print('camera head', self.tb.base.camera.getH())
+            taskMgr.step()
+        #print('camera head', self.tb.base.camera.getH())
+        # and test again
+        #print 'test again'
+        start = time.time()
+        avatar_h = self.tb.base.camera.getH()
+        #print avatar_h
+        for i in range(5):
+            taskMgr.step()
+        second_time = time.time() - start
+        #print('time', second_time)
+        #print self.tb.base.camera.getH()
+        second_dist = avatar_h - self.tb.base.camera.getH()
+        #print('dist', second_dist)
+        second_speed = abs(second_dist / second_time)
+        #print('first', first_speed)
+        #print('second', second_speed)
+        self.assertTrue(first_speed > second_speed)
 
     def test_speed_returns_to_normal_after_reward(self):
         pass
