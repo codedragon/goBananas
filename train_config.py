@@ -5,10 +5,10 @@ subject = 'Test'
 #subject = 'MP'
 
 # direction subject has to push the joystick to get the banana
-trainingDirection = 'Right'
-#trainingDirection = 'Left'
+#trainingDirection = 'Right'
+trainingDirection = 'Left'
 
-training = 2.4
+training = 2
 # Set Training Level - only using 2 and above in this program
 # training 2,   left/right, can only move direction towards center
 #               self.free_move = False
@@ -57,8 +57,8 @@ hold_aim = 0.6
 initial_speed = 0.5
 
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
-#reward = False
-reward = True
+reward = False
+#reward = True
 
 # # for activating reward system
 pulseInterval = 0.2  # in seconds

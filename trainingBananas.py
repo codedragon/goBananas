@@ -83,7 +83,8 @@ class TrainingBananas(JoystickHandler):
         self.hold_aim = config['hold_aim']
         self.initial_speed = config['initial_speed']
         self.training = config['training']
-        print('training level is', self.training)
+        if not unittest:
+            print('training level is', self.training)
 
         # initialize training variables
         # will be set to proper levels in set_level_variables method
@@ -182,12 +183,10 @@ class TrainingBananas(JoystickHandler):
         self.start_trial = True
         # set up main loop
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
-        self.frameTask.delay = 0
+        self.frameTask.delay = -0.1  # want initial delay less than zero
         self.frameTask.last = 0  # task time of the last frame
         # set variables to their actual starting values
-        print self.check_zone
         self.reset_variables()
-        print self.check_zone
 
     def frame_loop(self, task):
         #print 'loop'
@@ -259,7 +258,7 @@ class TrainingBananas(JoystickHandler):
                 else:
                     #self.slow_factor = 1
                     self.slow_factor += 0.05 * abs(self.x_mag)
-                #print self.slow_factor
+                #print('slow factor', self.slow_factor)
                 # edges of screen are like a wall
                 # if heading is 18.5 or over, and moving away from center, nothing happens
                 if abs(heading) >= 18.5 and self.x_mag * self.multiplier > 0:
@@ -272,7 +271,9 @@ class TrainingBananas(JoystickHandler):
                 else:
                     # use dt so when frame rate changes the rate of movement changes proportionately
                     delta_heading = self.x_mag * self.slow_factor * dt
-                    #print('slow factor', self.slow_factor)
+                    #print self.slow_factor
+                    #print('dt', dt)
+                    #print('x', self.x_mag)
                 #print('change heading', delta_heading)
                 self.base.camera.setH(heading + delta_heading)
                 #print('camera heading', self.base.camera.getH())
@@ -283,12 +284,12 @@ class TrainingBananas(JoystickHandler):
                     # if we need to be stopping and leaving (holding) crosshair over banana,
                     # make sure still in target zone.
                     if self.check_zone:
-                        print('check hold')
+                        #print('check hold')
                         collide_banana = self.check_x_banana()
                         if collide_banana:
-                            print('in the zone')
+                            #print('in the zone')
                             if task.time > self.hold_time:
-                                print('ok, get reward')
+                                #print('ok, get reward')
                                 # stop moving and get reward
                                 self.x_change_color(self.x_stop_c)
                                 self.moving = False
@@ -296,14 +297,15 @@ class TrainingBananas(JoystickHandler):
                                 self.check_zone = False
                             else:
                                 pass
-                                print('keep holding')
-                                print('time', task.time)
-                                print('hold until', self.hold_time)
+                                #print('keep holding')
+                                #print('time', task.time)
+                                #print('hold until', self.hold_time)
                         else:
                             print('left zone, wait for another collision')
                             self.x_change_color(self.x_start_c)
                             self.check_zone = None
                     else:
+                        #print('camera heading before collision', self.base.camera.getH())
                         collide_banana = self.check_x_banana()
                         if collide_banana:
                             #print('time took: ', task.time - self.check_time)
@@ -331,13 +333,13 @@ class TrainingBananas(JoystickHandler):
 
     def check_x_banana(self):
         #print 'check banana'
+        collide_banana = False
         # check to see if crosshair is over banana
         if self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
             collide_banana = True
             #print self.collHandler.getEntries()
-        else:
-            collide_banana = False
+            #print self.base.camera.getH()
         return collide_banana
 
     def check_y_banana(self):
@@ -449,7 +451,7 @@ class TrainingBananas(JoystickHandler):
                 # if joystick direction and multiplier are same sign,
                 # will be positive and therefor direction to be blocked
                 if self.x_mag * self.multiplier > 0:
-                    #print 'no'
+                    print 'no'
                     self.x_mag = 0
             #print('new x', self.x_mag)
         else:
@@ -566,7 +568,7 @@ class TrainingBananas(JoystickHandler):
         # toggle for when trial begins
         self.start_trial = True
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
-        self.frameTask.delay = 0
+        self.frameTask.delay = -0.1  # want initial delay less than zero
         self.frameTask.last = 0  # task time of the last frame
 
     def set_level_variables(self, training):
