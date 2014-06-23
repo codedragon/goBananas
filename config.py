@@ -35,6 +35,16 @@ sendData = True
 numBeeps = 3
 # factor to increase reward for last banana
 extra = 2
+
+# are we repeating a certain configuration of bananas?
+# one of the first 10 banana configurations will be chosen
+# at random to be repeated.
+bananaRepeat = True
+# How often to repeat the trial (will be one randomized
+# within this number of trials)
+
+repeatNumber = 2
+
 # for activating reward system
 pulseInterval = 200 # in ms
 
@@ -96,7 +106,7 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 10
+numBananas = 3
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
