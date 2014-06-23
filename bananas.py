@@ -15,6 +15,10 @@ class Bananas():
         self.scale = config['bananaScale']
         self.repeat = config['bananaRepeat']
         self.repeat_number = config['repeatNumber']
+        if self.repeat:
+            self.now_repeat = random.sample(range(self.repeat_number))
+        else:
+            self.now_repeat = None
         try:
             self.manual = config['manual']
         except KeyError:
@@ -76,6 +80,8 @@ class Bananas():
 
         #print 'create bananas'
         # Randomly assign where bananas go and return a banana bananaModel.
+        # start allows you to just add new bananas to the bananas already on
+        # the field
         if start is None:
             start = 0
         #print 'numBananas', self.numBananas
@@ -107,12 +113,12 @@ class Bananas():
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
             self.bananaModels[i].setStashed(False)
-        #self.byeBanana = []
         #print 'end load bananas'
-        #print 'repeat these placements'
+        # go ahead and save these banana placements, if we are saving from a different trial,
+        # will just be over-written.
         if self.repeat:
             self.pList = pList
-        #print pList
+        print pList
         #return bananaModels
 
     def collideBanana(self, collisionInfoList):
@@ -168,8 +174,9 @@ class Bananas():
             # make new bananas visible
             self.bananaModels[i].setStashed(False)
             # start count again
-        #print pList
+        print pList
         if repeat == 'new':
+            print 'save new'
             # save the current list of random banana placements
             self.pList = pList
         self.stashed = self.numBananas
@@ -191,13 +198,14 @@ class Bananas():
             #print 'last banana'
             # If doing repeat, every x trials choose a trial to
             # be the repeat test layout.
-            #print('trialNum', trialNum)
-            now_repeat = False
+            print('trialNum', trialNum)
+
+
             if self.repeat and trialNum % self.repeat_number == 0:
-                pass
-                #random.choice
-                print 'chose trial'
-            if now_repeat:
+                self.now_repeat = trialNum + random.choice(range(self.repeat_number))
+                print('chose trial', self.now_repeat)
+            if trialNum == self.now_repeat:
+                print 'repeat'
                 self.replenishBananas('repeat')
             else:
                 self.replenishBananas()

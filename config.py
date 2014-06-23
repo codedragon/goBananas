@@ -17,16 +17,16 @@ manual = False
 # 'original'
 environ = 'original'
 # Are we giving rewards?
-reward = True
-#reward = False
+#reward = True
+reward = False
 
 # Are we collecting eye data?
-eyeData = True
-#eyeData = False
+#eyeData = True
+eyeData = False
 
 # are we sending data to plexon or blackrock?
-sendData = True
-#sendData = False
+#sendData = True
+sendData = False
 
 # 3d?
 # framebuffer-stereo 1
@@ -43,7 +43,7 @@ bananaRepeat = True
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
 
-repeatNumber = 2
+repeatNumber = 3
 
 # for activating reward system
 pulseInterval = 200 # in ms
