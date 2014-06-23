@@ -13,6 +13,8 @@ class Bananas():
         self.numBananas = config['numBananas']
         self.dir = config['bananaDir']
         self.scale = config['bananaScale']
+        self.repeat = config['bananaRepeat']
+        self.repeat_number = config['repeatNumber']
         try:
             self.manual = config['manual']
         except KeyError:
@@ -24,7 +26,6 @@ class Bananas():
         self.beeps = None
         self.collision = True
         self.pList = []
-        self.repeat = True
         if self.manual:
             self.posBananas = config['posBananas']
             self.createManualBananas()
@@ -108,6 +109,9 @@ class Bananas():
             self.bananaModels[i].setStashed(False)
         #self.byeBanana = []
         #print 'end load bananas'
+        #print 'repeat these placements'
+        if self.repeat:
+            self.pList = pList
         #print pList
         #return bananaModels
 
@@ -144,7 +148,7 @@ class Bananas():
     def replenishBananas(self, repeat=None):
         # Eventually have a different code in repeat to signify
         # if using a previous set or saving a new set.
-        if repeat is not None and self.pList:
+        if repeat == 'repeat' and self.pList:
             pList = self.pList
         else:
             pList = []
@@ -164,11 +168,9 @@ class Bananas():
             # make new bananas visible
             self.bananaModels[i].setStashed(False)
             # start count again
-        if repeat is not None:
-            # save a new list of random banans,
-            # if we are just on repeat every trial,
-            # this will save the same bananas we've
-            # been showing
+        #print pList
+        if repeat == 'new':
+            # save the current list of random banana placements
             self.pList = pList
         self.stashed = self.numBananas
 
@@ -187,8 +189,18 @@ class Bananas():
         self.collision = True
         if self.stashed == 0:
             #print 'last banana'
-            #self.replenishBananas(self.repeat)
-            self.replenishBananas()
+            # If doing repeat, every x trials choose a trial to
+            # be the repeat test layout.
+            #print('trialNum', trialNum)
+            now_repeat = False
+            if self.repeat and trialNum % self.repeat_number == 0:
+                pass
+                #random.choice
+                print 'chose trial'
+            if now_repeat:
+                self.replenishBananas('repeat')
+            else:
+                self.replenishBananas()
             trialNum += 1
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
             #new_trial()
