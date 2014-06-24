@@ -1,7 +1,5 @@
-#from direct.directbase.DirectStart import base
 from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
 from panda3d.core import Point3
-#from goBananas import new_trial
 import moBananas as mb
 import os
 import sys
@@ -16,7 +14,8 @@ class Bananas():
         self.repeat = config['bananaRepeat']
         self.repeat_number = config['repeatNumber']
         if self.repeat:
-            self.now_repeat = random.sample(range(self.repeat_number))
+            self.now_repeat = random.choice(range(self.repeat_number))
+            print('collect banana positions from trial', self.now_repeat)
         else:
             self.now_repeat = None
         try:
@@ -164,7 +163,7 @@ class Bananas():
         # print 'avatar pos', avatarXY
         for i in range(self.numBananas):
             #print pList
-            if repeat is not None:
+            if repeat == 'repeat':
                 (x, y) = pList[i]
             else:
                 (x, y) = mb.setXY(pList, avatarXY)
@@ -197,14 +196,18 @@ class Bananas():
         if self.stashed == 0:
             #print 'last banana'
             # If doing repeat, every x trials choose a trial to
-            # be the repeat test layout.
-            print('trialNum', trialNum)
-
-
+            # be the repeat test layout. This will not happen until after
+            # we have gone through the first self.repeat_number amount of
+            # trials, so will not interfere with collecting the initial set
+            # of banana layout for repeat
             if self.repeat and trialNum % self.repeat_number == 0:
                 self.now_repeat = trialNum + random.choice(range(self.repeat_number))
                 print('chose trial', self.now_repeat)
-            if trialNum == self.now_repeat:
+            print('trialNum', trialNum)
+            # collect the set of banana positions that will be repeated
+            if trialNum == self.now_repeat and self.now_repeat < self.repeat_number:
+                self.replenishBananas('new')
+            elif trialNum == self.now_repeat:
                 print 'repeat'
                 self.replenishBananas('repeat')
             else:
