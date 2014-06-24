@@ -1,7 +1,5 @@
-#from direct.directbase.DirectStart import base
 from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
 from panda3d.core import Point3
-#from goBananas import new_trial
 import moBananas as mb
 import os
 import sys
@@ -13,6 +11,13 @@ class Bananas():
         self.numBananas = config['numBananas']
         self.dir = config['bananaDir']
         self.scale = config['bananaScale']
+        self.repeat = config['bananaRepeat']
+        self.repeat_number = config['repeatNumber']
+        if self.repeat:
+            self.now_repeat = random.choice(range(self.repeat_number))
+            print('collect banana positions from trial', self.now_repeat)
+        else:
+            self.now_repeat = None
         try:
             self.manual = config['manual']
         except KeyError:
@@ -24,7 +29,6 @@ class Bananas():
         self.beeps = None
         self.collision = True
         self.pList = []
-        self.repeat = True
         if self.manual:
             self.posBananas = config['posBananas']
             self.createManualBananas()
@@ -75,6 +79,8 @@ class Bananas():
 
         #print 'create bananas'
         # Randomly assign where bananas go and return a banana bananaModel.
+        # start allows you to just add new bananas to the bananas already on
+        # the field
         if start is None:
             start = 0
         #print 'numBananas', self.numBananas
@@ -106,9 +112,12 @@ class Bananas():
             # if true, object is removed from the environment, but not destroyed
             # so start with not stashed
             self.bananaModels[i].setStashed(False)
-        #self.byeBanana = []
         #print 'end load bananas'
-        #print pList
+        # go ahead and save these banana placements, if we are saving from a different trial,
+        # will just be over-written.
+        if self.repeat:
+            self.pList = pList
+        print pList
         #return bananaModels
 
     def collideBanana(self, collisionInfoList):
@@ -144,7 +153,7 @@ class Bananas():
     def replenishBananas(self, repeat=None):
         # Eventually have a different code in repeat to signify
         # if using a previous set or saving a new set.
-        if repeat is not None and self.pList:
+        if repeat == 'repeat' and self.pList:
             pList = self.pList
         else:
             pList = []
@@ -154,7 +163,7 @@ class Bananas():
         # print 'avatar pos', avatarXY
         for i in range(self.numBananas):
             #print pList
-            if repeat is not None:
+            if repeat == 'repeat':
                 (x, y) = pList[i]
             else:
                 (x, y) = mb.setXY(pList, avatarXY)
@@ -164,11 +173,10 @@ class Bananas():
             # make new bananas visible
             self.bananaModels[i].setStashed(False)
             # start count again
-        if repeat is not None:
-            # save a new list of random banans,
-            # if we are just on repeat every trial,
-            # this will save the same bananas we've
-            # been showing
+        print pList
+        if repeat == 'new':
+            print 'save new'
+            # save the current list of random banana placements
             self.pList = pList
         self.stashed = self.numBananas
 
@@ -187,8 +195,23 @@ class Bananas():
         self.collision = True
         if self.stashed == 0:
             #print 'last banana'
-            #self.replenishBananas(self.repeat)
-            self.replenishBananas()
+            # If doing repeat, every x trials choose a trial to
+            # be the repeat test layout. This will not happen until after
+            # we have gone through the first self.repeat_number amount of
+            # trials, so will not interfere with collecting the initial set
+            # of banana layout for repeat
+            if self.repeat and trialNum % self.repeat_number == 0:
+                self.now_repeat = trialNum + random.choice(range(self.repeat_number))
+                print('chose trial', self.now_repeat)
+            print('trialNum', trialNum)
+            # collect the set of banana positions that will be repeated
+            if trialNum == self.now_repeat and self.now_repeat < self.repeat_number:
+                self.replenishBananas('new')
+            elif trialNum == self.now_repeat:
+                print 'repeat'
+                self.replenishBananas('repeat')
+            else:
+                self.replenishBananas()
             trialNum += 1
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
             #new_trial()
