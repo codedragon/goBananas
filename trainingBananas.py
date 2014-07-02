@@ -1,3 +1,4 @@
+from __future__ import division
 from direct.showbase.ShowBase import ShowBase
 from joystick import JoystickHandler
 from panda3d.core import Point3, Point4
