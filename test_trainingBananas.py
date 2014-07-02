@@ -955,6 +955,45 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         self.assertTrue(abs(first_speed - second_speed) < 0.5)
 
 
+class TrainingBananaTestsT3(unittest.TestCase):
+    """Training 2.5, subject has to line up crosshair to banana (not go past)
+    for min. time, slows down if goes past banana, both directions allowed
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        loadPrcFileData("", "window-type offscreen")
+        #print 'about to load world'
+        training = 3
+        cls.tb = TrainingBananas()
+        cls.tb.set_level_variables(training)
+        # make defaults so stuff tests as fast as possible, overrides config file
+        cls.tb.reward_time = 0.01
+        cls.tb.num_beeps = 1
+
+    def setUp(self):
+        # this will reset x_mag to zero, clearing any joystick pushes,
+        # as well resetting other things
+        self.tb.reset_variables()
+        # make sure at correct training level
+        #self.tb.set_level_variables(2)
+        # reset banana - this is often done in the test, if we want
+        # to ensure a certain direction, but not necessarily
+        self.tb.restart_bananas()
+
+    def test_can_move_forward(self):
+        # test can now move forward
+        before = self.tb.base.camera.getPos()
+        print before
+        messenger.send('y_axis', [2])
+        # have to step twice, can't move on the first frame
+        taskMgr.step()
+        taskMgr.step()
+        # opposite direction allowed, so should have moved
+        after = self.tb.base.camera.getPos()
+        self.assertNotEqual(before, after)
+
+
 class TrainingBananaTestKeys(unittest.TestCase):
 
     @classmethod
