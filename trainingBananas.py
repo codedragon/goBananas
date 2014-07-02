@@ -1,3 +1,4 @@
+from __future__ import division
 from direct.showbase.ShowBase import ShowBase
 from joystick import JoystickHandler
 from panda3d.core import Point3, Point4
@@ -275,7 +276,7 @@ class TrainingBananas(JoystickHandler):
                 else:
                     # use dt so when frame rate changes the rate of movement changes proportionately
                     delta_heading = self.x_mag * self.speed * dt
-                    #print self.speed
+                    #print('speed', self.speed)
                     #print('dt', dt)
                     #print('x', self.x_mag)
                 #print('change heading', delta_heading)
@@ -437,8 +438,10 @@ class TrainingBananas(JoystickHandler):
             js_input = 0
         if js_dir == 'x' or js_dir == 'x_key':
             #print js_input
-            # we are moving the camera in the opposite direction of the joystick
+            # we are moving the camera in the opposite direction of the joystick,
+            # so invert signal
             self.x_mag = -js_input
+            #print('x_mag', self.x_mag)
             # hack for Mr. Peepers...
             # barely touch joystick and goes super speedy. speed not dependent
             # on how hard he touches joystick.
@@ -462,7 +465,7 @@ class TrainingBananas(JoystickHandler):
                     self.x_mag = 0
                 elif not self.free_move:
                     print 'slow'
-                    print self.wrong_speed
+                    #print self.wrong_speed
                     self.x_mag /= self.wrong_speed
             #print('new x', self.x_mag)
         else:

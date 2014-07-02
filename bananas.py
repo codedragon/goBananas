@@ -146,6 +146,7 @@ class Bananas():
             Avatar.Avatar.getInstance().setMaxTurningSpeed(0)
             Avatar.Avatar.getInstance().setMaxForwardSpeed(0)
             #VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", ['stop moving!'])
+            # Setting self.beeps to 0 is signal to give reward
             self.beeps = 0
             #print self.beeps
             self.collision = False

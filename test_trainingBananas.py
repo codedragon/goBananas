@@ -605,7 +605,10 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
         before = abs(self.tb.base.camera.getH())
         #print before
         messenger.send('x_axis', [self.tb.multiplier * -2])
-        # have to step twice, can't move on the first frame
+        # move a few times, if slow in opposite direction is
+        # turned way down, takes a while to move
+        taskMgr.step()
+        taskMgr.step()
         taskMgr.step()
         taskMgr.step()
         # opposite direction allowed, so should have moved
