@@ -234,7 +234,7 @@ class TrainingBananas(JoystickHandler):
                     #print 'checking x_mag'
                     #print self.x_mag
                     if abs(self.x_mag) > 0:
-                        print('let go!')
+                        #print('let go!')
                         return task.cont
                 # and now we can start things over again
                 #print('start over')
@@ -459,13 +459,13 @@ class TrainingBananas(JoystickHandler):
                 #print('greater than zero:', self.x_mag * self.multiplier)
                 # None is no movement, False is limited movement
                 if self.free_move is None:
-                    print 'none'
+                    #print 'none'
                     self.x_mag = 0
                 elif not self.free_move:
-                    print 'slow'
+                    #print 'slow'
                     print self.wrong_speed
                     self.x_mag /= self.wrong_speed
-            #print('new x', self.x_mag)
+            print('new x', self.x_mag)
         else:
             self.y_mag = js_input
 
