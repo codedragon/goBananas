@@ -1,14 +1,14 @@
 # change individual config files, and have script copy to config.py
 # configuration file for trainBananas
 #
-#subject = 'Test'
-subject = 'MP'
+subject = 'Test'
+#subject = 'MP'
 
 # direction subject has to push the joystick to get the banana
 #trainingDirection = 'Right'
 trainingDirection = 'Left'
 
-training = 2.3
+training = 2.2
 
 # Set Training Level - only using 2 and above in this program
 # training 2,   left/right, can only move direction towards center
@@ -58,6 +58,8 @@ avatar_start_h = 1.5
 random_choices = [1.5, 2.3, 3, 3.4, 4.2, 5]
 #random_choices = [1.5, 2.3, 3.4, 5, 7.6, 11]
 
+random_bias = True
+
 # amount of time need to hold crosshair on banana to get reward
 # For training 2.3 and higher.
 # must be more than zero. At 1.5 distance, must be greater than
@@ -67,7 +69,7 @@ hold_aim = 0.6
 # what speed to start out at this will be multiplied by pressure on joystick
 # and time since last screen refresh
 #initial_speed = 0.5
-initial_speed = 1
+initial_speed = 2
 
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
 #reward = False

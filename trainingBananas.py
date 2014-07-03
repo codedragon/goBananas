@@ -68,7 +68,8 @@ class TrainingBananas(JoystickHandler):
             self.train_dir = 'y'
         #print config['trainingDirection']
         #print('multiplier', self.multiplier)
-
+        self.last = self.multiplier
+        self.side_bias = config['random_bias']
         # bring some configuration parameters into memory, so we don't need to
         # reload the config file multiple times, also allows us to change these
         # variables dynamically
@@ -399,7 +400,27 @@ class TrainingBananas(JoystickHandler):
             self.change_level = False
         # check to see if banana is on random
         if self.random_banana:
-            self.multiplier = random.choice([1, -1])
+            # make side not entirely random. Don't want too many in a row on one side
+            # for MP, because he is a bit of an idiot.
+            # First check if we care about the next direction
+            if self.side_bias and abs(self.last) > 1:
+                # if there have been two in a row in the same direction, pick the opposite
+                # direction, otherwise choose randomly
+                print 'change, self.last is zero'
+                self.multiplier = - self.multiplier
+            else:
+                print 'random'
+                self.multiplier = random.choice([1, -1])
+            #print('next up', self.multiplier)
+            # multiplier should never be zero
+            # if this gives you a negative 1, than we are switching sides,
+            # and should reset to zero
+            # if we don't care about side_bias, then this doesn't matter
+            if self.last/self.multiplier != 1:
+                print 'reset'
+                self.last = 0
+            self.last += self.multiplier
+            print('last currently', self.last)
             self.avatar_h = random.choice(self.random_choices)
             # for some versions, subject could still be holding joystick at this point.
             # this means we x_mag is at a position that might no longer be
