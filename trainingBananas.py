@@ -16,6 +16,7 @@ try:
     PYDAQ_LOADED = True
     #print 'loaded PyDaq'
 except ImportError:
+    pydaq = None
     PYDAQ_LOADED = False
     print 'Not using PyDaq'
 
@@ -51,11 +52,11 @@ class TrainingBananas(JoystickHandler):
             #wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
             wp.setCursorHidden(True)
-            base.win.requestProperties(wp)
+            self.base.win.requestProperties(wp)
             #base.setFrameRateMeter(True)
             # initialize training file name
             self.data_file_name = ''
-            self.data_file = []
+            self.data_file = None
             self.open_data_file(config)
         # for bananas, changing the angle from avatar to banana, so left is negative
         # right is positive.
@@ -107,33 +108,42 @@ class TrainingBananas(JoystickHandler):
         #self.banana.setPos(Point3(0, 0, 0))
         self.banana.setH(280)
         self.banana.setScale(0.5)
-        self.banana.reparentTo(render)
+        self.banana.reparentTo(self.base.render)
         collision_node = self.banana.find('**/+CollisionNode')
         collision_node.setScale(0.2)
         #collision_node.show()
         #cs = CollisionSphere(0, 0, 0, 1)
 
         # set up collision system and collision ray to camera
-        base.cTrav = CollisionTraverser()
+        self.base.cTrav = CollisionTraverser()
         self.collHandler = CollisionHandlerQueue()
-        pointerNode = self.base.camera.attachNewNode(CollisionNode('CrossHairRay'))
+        ray_node = self.base.camera.attachNewNode(CollisionNode('CrossHairRay'))
         # ray that comes straight out from the camera
-        raySolid = CollisionRay(0, 0, 0, 0, 1, 0)
-        mainAimingNP = self.makeCollisionNodePath(pointerNode, raySolid)
-        mainAimingNode = mainAimingNP.node()
-        mainAimingNode.setIntoCollideMask(0)
+        ray_solid = CollisionRay(0, 0, 0, 0, 1, 0)
+        ray_node_path = self.make_coll_node_path(ray_node, ray_solid)
+        cam_ray_node = ray_node_path.node()
+        cam_ray_node.setIntoCollideMask(0)
+
+        # add collision sphere to camera
+        sphere_node = self.base.camera.attachNewNode(CollisionNode('CollisionSphere'))
+        camera_sphere = CollisionSphere(0, 0, 0, 0.5)
+        sphere_node_path = self.make_coll_node_path(sphere_node, camera_sphere)
+        cam_sphere_node = sphere_node_path.node()
+        cam_sphere_node.setIntoCollideMask(0)
 
         #print 'ray'
-        #print mainAimingNode.getFromCollideMask()
-        #print mainAimingNode.getIntoCollideMask()
-        base.cTrav.addCollider(mainAimingNP, self.collHandler)
-        #base.cTrav.showCollisions(render)
-        #mainAimingNP.show()
+        #print cam_ray_node.getFromCollideMask()
+        #print cam_ray_node.getIntoCollideMask()
+        self.base.cTrav.addCollider(ray_node_path, self.collHandler)
+        self.base.cTrav.addCollider(sphere_node_path, self.collHandler)
+        #self.base.cTrav.showCollisions(self.base.render)
+        #ray_node_path.show()
+        #sphere_node_path.show()
 
         # set avatar position/heading
         self.avatar_pos = Point3(0, 0, 1)
         if self.training >= 3:
-            pass
+            self.avatar_h = 0
             #self.fullForwardSpeed = config['fullForwardSpeed']
         elif self.training >= 2:
             self.avatar_h = config['avatar_start_h']
@@ -147,8 +157,8 @@ class TrainingBananas(JoystickHandler):
         self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
         self.crosshair = TextNode('crosshair')
         self.crosshair.setText('+')
-        textNodePath = aspect2d.attachNewNode(self.crosshair)
-        textNodePath.setScale(0.2)
+        text_node_path = self.base.aspect2d.attachNewNode(self.crosshair)
+        text_node_path.setScale(0.2)
         # crosshair is always in center, but
         # need it to be in same place as collisionRay is, but it appears that center is
         # at the bottom left of the collisionRay, and the top right of the text, so they
@@ -157,8 +167,8 @@ class TrainingBananas(JoystickHandler):
         # centered on the ray
         #crosshair_pos = Point3(0, 0, 0)
         crosshair_pos = Point3(-0.07, 0, -0.05)
-        #print textNodePath.getPos()
-        textNodePath.setPos(crosshair_pos)
+        #print text_node_path.getPos()
+        text_node_path.setPos(crosshair_pos)
         # setup keyboard/joystick inputs
         self.setup_inputs()
         # Initialize more variables
@@ -348,30 +358,17 @@ class TrainingBananas(JoystickHandler):
         return collide_banana
 
     def check_y_banana(self):
-        # for the forward motion, we need to know when the banana is close
-        if self.banana_models.beeps is None:
-            return
-
-        # Still here? Give reward!
-        #print 'still here?'
-        #print self.banana_models.beeps
-        if self.reward_count < self.num_beeps:
-            self.x_change_color(self.x_stop_c)
-            #print 'reward'
-            self.yay_reward = True
-        elif self.reward_count == self.num_beeps:
-            # banana disappears
-            #self.trial_num = self.banana_models.goneBanana(self.trial_num)
-            # avatar can move
-            #Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
-            self.x_change_color(self.x_start_c)
-            #Avatar.getInstance().setPos(Point3(0, 0, 1))
-            #Avatar.getInstance().setH(0)
-            #Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
-            # reward is over
-            #self.banana_models.beeps = None
-            self.yay_reward = False
-            self.reward_count = 0
+        # for the forward motion, we need to know when the banana is close,
+        # use collision sphere around avatar, instead of ray.
+        #print 'check banana'
+        collide_banana = False
+        # check to see if crosshair is over banana
+        if self.collHandler.getNumEntries() > 0:
+            # the only object we can be running into is the banana, so there you go...
+            collide_banana = True
+            #print self.collHandler.getEntries()
+            #print self.base.camera.getH()
+        return collide_banana
 
     def restart_bananas(self):
         #print 'restarted'
@@ -555,21 +552,6 @@ class TrainingBananas(JoystickHandler):
         self.new_dir = 0
         print('new dir: forward')
 
-    def makeCollisionNodePath(self, nodepath, solid):
-        '''
-        Creates a collision node and attaches the collision solid to the
-        supplied NodePath. Returns the nodepath of the collision node.
-
-        '''
-        # Creates a collision node named after the name of the NodePath.
-        collNode = CollisionNode("%s c_node" % nodepath.getName())
-        collNode.addSolid(solid)
-        collisionNodepath = nodepath.attachNewNode(collNode)
-        # Show the collision node, which makes the solids show up.
-        # actually, it appears to do nothing...
-        collisionNodepath.show()
-        return collisionNodepath
-
     def reset_variables(self):
         self.base.taskMgr.remove("frame_loop")
         # get back to the original state of variables, used for testing
@@ -665,11 +647,25 @@ class TrainingBananas(JoystickHandler):
         self.accept('r', self.change_right)
         self.accept('l', self.change_left)
 
+    @staticmethod
+    def make_coll_node_path(node_path, solid):
+        # Creates a collision node and attaches the collision solid to the
+        # supplied NodePath. Returns the nodepath of the collision node.
+
+        # Creates a collision node named after the name of the NodePath.
+        coll_node = CollisionNode("%s c_node" % node_path.getName())
+        coll_node.addSolid(solid)
+        collision_node_path = node_path.attachNewNode(coll_node)
+        # Show the collision node, which makes the solids show up.
+        # actually, it appears to do nothing...
+        #collision_node_path.show()
+        return collision_node_path
+
 unittest = False
 if __name__ == '__main__':
     #print 'main?'
     TB = TrainingBananas()
-    run()
+    TB.base.run()
 else:
     #print 'test'
     unittest = True

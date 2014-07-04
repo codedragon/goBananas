@@ -537,7 +537,7 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         while not self.tb.moving:
             taskMgr.step()
 
-        next = self.tb.base.camera.getH()
+        second = self.tb.base.camera.getH()
         # Go again, may by chance have been twice in the same place,
         # but if really pseudo-random, highly unlikely three times in
         # the same place.
@@ -566,9 +566,9 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
 
         last = self.tb.base.camera.getH()
         #print('before', before)
-        #print('next', next)
+        #print('second', second)
         #print('last', last)
-        self.assertFalse(last == next == before)
+        self.assertFalse(last == second == before)
 
 
 class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
@@ -935,7 +935,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         taskMgr.step()
         taskMgr.step()
         messenger.send('x_axis', [2 * -self.tb.multiplier])
-        avatar_h = self.tb.base.camera.getH()
+        avatar_h = self.tb.base.cmera.getH()
         #print avatar_h
         #print 'test again'
         start = time.time()
@@ -992,7 +992,7 @@ class TrainingBananaTestsT3(unittest.TestCase):
         self.assertNotEqual(before, after)
 
 
-class TrainingBananaTestKeys(unittest.TestCase):
+class TrainingBananaTestsKeys(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -1161,7 +1161,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # left is negative multiplier
         self.tb.multiplier = -1
         self.tb.restart_bananas()
-        before = self.tb.base.camera.getH()
+        #before = self.tb.base.camera.getH()
         #print before
         messenger.send('f')
         self.tb.restart_bananas()
@@ -1184,6 +1184,7 @@ if __name__ == "__main__":
     #print len(sys.argv)
     if len(sys.argv) == 2 and is_int_string(sys.argv[1]):
         #print 'argument worked'
+        suite = []
         if int(sys.argv[1]) == 0:
             #print 'first suite'
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2)
@@ -1196,7 +1197,9 @@ if __name__ == "__main__":
         elif int(sys.argv[1]) == 4:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_4)
         elif int(sys.argv[1]) == 5:
-            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestKeys)
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT3)
+        elif int(sys.argv[1]) == 6:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsKeys)
         #print 'run suite'
         result = unittest.TextTestRunner().run(suite)
         print result
