@@ -173,7 +173,7 @@ class Bananas():
             # make new bananas visible
             self.bananaModels[i].setStashed(False)
             # start count again
-        print pList
+        #print pList
         if repeat == 'new':
             print 'save new'
             # save the current list of random banana placements

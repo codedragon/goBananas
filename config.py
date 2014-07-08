@@ -17,8 +17,8 @@ manual = False
 # 'original'
 environ = 'original'
 # Are we giving rewards?
-#reward = True
-reward = False
+reward = True
+#reward = False
 
 # Are we collecting eye data?
 #eyeData = True
@@ -39,14 +39,13 @@ extra = 2
 # are we repeating a certain configuration of bananas?
 # one of the first 10 banana configurations will be chosen
 # at random to be repeated.
-bananaRepeat = True
+bananaRepeat = False
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
-
-repeatNumber = 3
+repeatNumber = 10
 
 # for activating reward system
-pulseInterval = 200 # in ms
+pulseInterval = 200  # in ms
 
 # eye position calibration information
 # since we are getting voltage from IScan of -5:5
@@ -106,7 +105,7 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 3
+numBananas = 10
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
@@ -116,10 +115,10 @@ bananaScale = .5
 tooClose = 2.2  # 1.7
 
 # Banana Positions
-minDistance = -7
-maxDistance = 7
-minFwDistance = -7
-maxFwDistance = 7
+minDistance = -10
+maxDistance = 10
+minFwDistance = -10
+maxFwDistance = 10
 #fwDistanceIncrement = .1
 
 # if not fully trained, do one banana at a time
