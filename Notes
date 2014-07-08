@@ -32,6 +32,13 @@ myNodePath.setH([h]) heading: right, left (rotate around z axis)
 myNodePath.setP([p]) pitch: climb, dive (rotate around x axis)
 myNodePath.setR([r]) roll: cartwheels  (rotate around y axis)
 
+Normal coordinate system, unlike ActionScript
+       |
+(-, +) | (+, +)
+-------+--------
+(-, -) | (+, -)
+       |
+
 More attributes to investigate:
 DepthOffsetAttrib: Causes the Z-buffer to treat the object as if it were closer or farther
 DeptTestAttrib: Alters teh way the Z-buffer affects the model.
