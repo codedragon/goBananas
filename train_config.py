@@ -8,7 +8,7 @@ subject = 'Test'
 #trainingDirection = 'Right'
 trainingDirection = 'Left'
 
-training = 2.2
+training = 2
 
 # Set Training Level - only using 2 and above in this program
 # training 2,   left/right, can only move direction towards center
@@ -53,9 +53,14 @@ training = 2.2
 
 avatar_start_h = 1.5
 
+# list of all random selections available
+random_lists = [[11], [11, 10], [11, 10, 9]]
+# choose starting number of random_lists.
+random_selection = 1
+
 # random selection used for training 2.3 and above
 #random_choices = [1.5, 2, 2.3, 3, 3.4]
-random_choices = [1.5, 2.3, 3, 3.4, 4.2, 5]
+#random_choices = [1.5, 2.3, 3, 3.4, 4.2, 5]
 #random_choices = [1.5, 2.3, 3.4, 5, 7.6, 11]
 
 random_bias = True

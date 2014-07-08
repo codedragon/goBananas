@@ -34,6 +34,7 @@ class TrainingBananas(JoystickHandler):
         self.base.disableMouse()
         print('Subject is', config['subject'])
         self.subject = config['subject']
+        self.levels_available = [[2, 2.1, 2.2, 2.3, 2.4, 2.5], [3]]
         # set up reward system
         # if unit-testing, pretend like we couldn't
         # load the module
@@ -78,7 +79,9 @@ class TrainingBananas(JoystickHandler):
         self.x_alpha = config['xHairAlpha']
         self.reward_time = config['pulseInterval']  # usually 200ms
         # random selection used for training 2.3 and above
-        self.random_choices = config['random_choices']
+        #self.random_choices = config['random_choices']
+        self.all_random_selections = config['random_lists']
+        self.random_choices = self.all_random_selections[config['random_selection'] - 1]
         # amount need to hold crosshair on banana to get reward (2.3)
         # must be more than zero. At 1.5 distance, must be greater than
         # 0.5 to require stopping
@@ -133,13 +136,15 @@ class TrainingBananas(JoystickHandler):
 
         # set avatar position/heading
         self.avatar_pos = Point3(0, 0, 1)
-        if self.training >= 3:
+        if self.training >= self.levels_available[1][0]:
             pass
             #self.fullForwardSpeed = config['fullForwardSpeed']
-        elif self.training >= 2:
+        elif self.training >= self.levels_available[0][0]:
             self.avatar_h = config['avatar_start_h']
-            #avatar.setH(self.multiplier * self.avatar_h)
-            #self.fullTurningSpeed = config['fullTurningSpeed']
+        # check to see if banana is on random, if so change avatar_start_h
+        if self.random_banana:
+            print 'random'
+            self.avatar_h = random.choice(self.random_choices)
         self.base.camera.setH(self.multiplier * self.avatar_h)
 
         # Cross hair
@@ -165,6 +170,8 @@ class TrainingBananas(JoystickHandler):
         # Initialize more variables
         # These variables are set to their initial states in reset_variables, so
         # does not matter what they are set to here.
+        self.max_angle = None
+        self.min_angle = None
         self.delay_start = False
         self.yay_reward = False
         self.reward_delay = False
@@ -349,33 +356,11 @@ class TrainingBananas(JoystickHandler):
         return collide_banana
 
     def check_y_banana(self):
-        # for the forward motion, we need to know when the banana is close
-        if self.banana_models.beeps is None:
-            return
-
-        # Still here? Give reward!
-        #print 'still here?'
-        #print self.banana_models.beeps
-        if self.reward_count < self.num_beeps:
-            self.x_change_color(self.x_stop_c)
-            #print 'reward'
-            self.yay_reward = True
-        elif self.reward_count == self.num_beeps:
-            # banana disappears
-            #self.trial_num = self.banana_models.goneBanana(self.trial_num)
-            # avatar can move
-            #Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
-            self.x_change_color(self.x_start_c)
-            #Avatar.getInstance().setPos(Point3(0, 0, 1))
-            #Avatar.getInstance().setH(0)
-            #Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
-            # reward is over
-            #self.banana_models.beeps = None
-            self.yay_reward = False
-            self.reward_count = 0
+        pass
 
     def restart_bananas(self):
-        #print 'restarted'
+        print 'restarted'
+        print('training', self.training)
         # reset a couple of variables
         self.yay_reward = False
         self.reward_count = 0
@@ -395,7 +380,7 @@ class TrainingBananas(JoystickHandler):
             self.move('x', -self.x_mag)
             #print('change direction')
         if self.change_level:
-            print 'change level'
+            print 'actually change level now'
             self.set_level_variables(self.change_level)
             self.change_level = False
         # check to see if banana is on random
@@ -496,8 +481,8 @@ class TrainingBananas(JoystickHandler):
             #print('old pos', self.avatar_h)
             #self.avatar_h[0] = self.avatar_h[0] * 1.5
             self.avatar_h *= 1.5
-            if abs(self.avatar_h) > 18:
-                self.avatar_h = 18
+            if abs(self.avatar_h) > self.max_angle:
+                self.avatar_h = self.multiplier * self.max_angle
             # y is always going to be positive
             #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
             print('new heading', self.avatar_h)
@@ -508,8 +493,8 @@ class TrainingBananas(JoystickHandler):
             print 'decrease angle'
             #print('old pos', self.avatar_h)
             self.avatar_h /= 1.5
-            if abs(self.avatar_h) < 0.3:
-                self.avatar_h = 0.3
+            if abs(self.avatar_h) < self.min_angle:
+                self.avatar_h = self.multiplier * self.min_angle
             #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
             #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
             print('new heading', self.avatar_h)
@@ -528,21 +513,28 @@ class TrainingBananas(JoystickHandler):
     def inc_level(self):
         # in level 2 have 2 thru 2.5
         # currently level 3 is highest
-        if self.training == 3:
-            self.change_level = self.training
+        print('training level', self.training)
+        print('largest', self.levels_available[-1][-1])
+        print('switch', self.levels_available[0][-1])
+        print('old value change_level', self.change_level)
+        if self.training == self.levels_available[-1][-1]:
             print 'cannot increase level'
-        elif self.training == 2.5:
-            self.change_level = 3
+            self.change_level = self.training
+        elif self.training == self.levels_available[0][-1]:
+            print 'switch 2 to 3'
+            self.change_level = self.levels_available[1][0]
         else:
+            print 'else'
             self.change_level = self.training + 0.1
         print('new level', self.change_level)
 
     def dec_level(self):
-        if self.training == 2:
+        print('training level', self.training)
+        if self.training == self.levels_available[0][0]:
             self.change_level = self.training
             print 'cannot decrease level'
-        elif self.training == 3:
-            self.change_level = 2.5
+        elif self.training == self.levels_available[-1][0]:
+            self.change_level = self.levels_available[-2][-1]
         else:
             self.change_level = self.training - 0.1
         print('new level', self.change_level)
@@ -563,6 +555,28 @@ class TrainingBananas(JoystickHandler):
         # to decrease speed
         self.wrong_speed += 1
         print('new speed', self.wrong_speed)
+
+    def inc_random(self):
+        print 'increase selection of random bananas'
+        current = len(self.random_choices)
+        if current == len(self.all_random_selections[-1]):
+            print('already at max')
+        else:
+            # current is the current length, which conveniently
+            # enough is the next number to use, because of zero indexing
+            self.random_choices = self.all_random_selections[current]
+        print('selection', self.random_choices)
+
+    def dec_random(self):
+        print 'decrease selection of random bananas'
+        current = len(self.random_choices)
+        if current == 1:
+            print('already at min')
+        else:
+            # current is the current length, so we need to subtract
+            # by two, because of zero indexing
+            self.random_choices = self.all_random_selections[current - 2]
+        print('selection', self.random_choices)
 
     def change_left(self):
         self.new_dir = -1
@@ -593,7 +607,9 @@ class TrainingBananas(JoystickHandler):
 
     def reset_variables(self):
         self.base.taskMgr.remove("frame_loop")
-        # get back to the original state of variables, used for testing
+        # set/reset to the original state of variables
+        self.max_angle = 18
+        self.min_angle = 1.5
         self.delay_start = False
         self.yay_reward = False
         self.reward_delay = False
@@ -682,15 +698,18 @@ class TrainingBananas(JoystickHandler):
         self.accept('g', self.dec_level)
         self.accept('y', self.inc_wrong_speed)
         self.accept('h', self.dec_wrong_speed)
+        self.accept('u', self.inc_random)
+        self.accept('j', self.dec_random)
         self.accept('f', self.change_forward)
         self.accept('r', self.change_right)
         self.accept('l', self.change_left)
+        self.accept('space', self.give_reward)
 
 unittest = False
 if __name__ == '__main__':
     #print 'main?'
     TB = TrainingBananas()
-    run()
+    TB.base.run()
 else:
     #print 'test'
     unittest = True
