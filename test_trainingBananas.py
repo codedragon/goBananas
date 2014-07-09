@@ -340,7 +340,8 @@ class TrainingBananaTestsT2(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        print 'tear down'
+        pass
+        #print 'tear down'
         #cls.tb.close()
 
 
@@ -519,7 +520,7 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         #print camera_h
         if camera_h > 0:
             while self.tb.base.camera.getH() > 0:
-                print('camera head', self.tb.base.camera.getH())
+                #print('camera head', self.tb.base.camera.getH())
                 taskMgr.step()
         else:
             while self.tb.base.camera.getH() < 0:
@@ -619,7 +620,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
         """
         if self.tb.training == 2.3:
             # first two frames get messed up for timing, so go two steps
-            print self.tb.free_move
+            #print self.tb.free_move
             taskMgr.step()
             taskMgr.step()
             messenger.send('x_axis', [2 * -self.tb.multiplier])
@@ -628,7 +629,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
             # go a few steps, see how long it takes
             start = time.time()
             for i in range(30):
-                print self.tb.speed
+                #print self.tb.speed
                 taskMgr.step()
             first_time = time.time() - start
             first_dist = camera_h - self.tb.base.camera.getH()
@@ -637,7 +638,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
             # now stop so speed resets.
             messenger.send('x_axis', [0])
             taskMgr.step()
-            print('before', self.tb.speed)
+            #print('before', self.tb.speed)
             # now go towards center, see how long it takes
             # this should be much faster
             messenger.send('x_axis', [2 * self.tb.multiplier])
@@ -645,7 +646,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
             #print avatar_h
             start = time.time()
             for i in range(30):
-                print self.tb.speed
+                #print self.tb.speed
                 taskMgr.step()
             second_time = time.time() - start
             #print('time', second_time)
@@ -706,7 +707,7 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3, unittest.TestCase):
         test that if we go the wrong direction, we go slower.
         """
         # first two frames get messed up for timing, so go two steps
-        print self.tb.free_move
+        #print self.tb.free_move
         taskMgr.step()
         taskMgr.step()
         # we are randomly placing banana. if close to center, go away from center first
@@ -715,40 +716,40 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3, unittest.TestCase):
             first_direction = 2 * -self.tb.multiplier
         else:
             first_direction = 2 * self.tb.multiplier
-        print first_direction
+        #print first_direction
         messenger.send('x_axis', [first_direction])
         camera_h = self.tb.base.camera.getH()
-        print camera_h
+        #print camera_h
         # go a few steps, see how long it takes
         start = time.time()
         for i in range(30):
-            print self.tb.speed
+            #print self.tb.speed
             taskMgr.step()
         first_time = time.time() - start
         first_dist = camera_h - self.tb.base.camera.getH()
-        print('dist', first_dist)
+        #print('dist', first_dist)
         first_speed = abs(first_dist/first_time)
         # now stop so speed resets.
         messenger.send('x_axis', [0])
         taskMgr.step()
         taskMgr.step()
-        print('before', self.tb.speed)
+        #print('before', self.tb.speed)
         # now go towards center, see how long it takes
         # this should be much faster
         messenger.send('x_axis', [-first_direction])
         avatar_h = self.tb.base.camera.getH()
-        print avatar_h
+        #print avatar_h
         start = time.time()
         for i in range(30):
-            print self.tb.speed
+            #print self.tb.speed
             taskMgr.step()
         second_time = time.time() - start
-        print('time', second_time)
-        print self.tb.base.camera.getH()
+        #print('time', second_time)
+        #print self.tb.base.camera.getH()
         second_dist = avatar_h - self.tb.base.camera.getH()
-        print('dist', second_dist)
+        #print('dist', second_dist)
         second_speed = abs(second_dist / second_time)
-        print('first', first_speed)
+        #print('first', first_speed)
         #print('second', second_speed)
         self.assertTrue(abs(first_speed - second_speed) < 0.5)
 
@@ -979,7 +980,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.set_level_variables(level)
         # make sure training level is set
         self.tb.restart_bananas()
-        print 'end setup'
+        #print 'end setup'
 
     def test_move_using_right_arrow_key(self):
         """
@@ -993,7 +994,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.set_level_variables(2.4)
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
-        print before
+        #print before
         # dt is so small, since not actually writing to the screen,
         # that we need to do this a couple of times to actually be
         # a large enough change to register
@@ -1007,7 +1008,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # moving to the right, always means numbers getting smaller,
         # regardless of starting position
         after = self.tb.base.camera.getH()
-        print after
+        #print after
         self.assertTrue(after < before)
 
     def test_move_using_left_arrow_key(self):
@@ -1022,7 +1023,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.set_level_variables(2.4)
         self.tb.restart_bananas()
         before = self.tb.base.camera.getH()
-        print before
+        #print before
         messenger.send('arrow_left')
         # dt is so small, since not actually writing to the screen,
         # that we need to do this a couple of times to actually be
@@ -1037,7 +1038,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # moving to the left, always means numbers getting larger,
         # regardless of starting position
         after = self.tb.base.camera.getH()
-        print after
+        #print after
         self.assertTrue(after > before)
 
     def test_w_increases_reward(self):
@@ -1074,12 +1075,12 @@ class TrainingBananaTestKeys(unittest.TestCase):
         self.tb.set_level_variables(training)
         self.tb.restart_bananas()
         before = abs(self.tb.base.camera.getH())
-        print before
+        #print before
         messenger.send('e')
         self.tb.restart_bananas()
         # should be further out now
         after = abs(self.tb.base.camera.getH())
-        print after
+        #print after
         # if at max distance, won't work
         if self.tb.avatar_h > self.tb.max_angle:
             self.assertTrue(after == before)
@@ -1123,12 +1124,12 @@ class TrainingBananaTestKeys(unittest.TestCase):
         test that g key decreases the training level
         """
         before = self.tb.training
-        print before
+        #print before
         messenger.send('g')
         self.tb.restart_bananas()
         # can't go below lowest level
         after = self.tb.training
-        print after
+        #print after
         if before == self.tb.levels_available[0][0]:
             self.assertTrue(after == before)
         else:
@@ -1144,13 +1145,46 @@ class TrainingBananaTestKeys(unittest.TestCase):
         """
         test that u key increases the random list.
         """
-        # only makes sense for random levels, 2.2 and greater
+        # only makes sense for random levels, 2.2 and greater,
+        # randomly choose one
         training = random.choice(self.tb.levels_available[0][1:])
+        # usually set to start at the first random list, so change it
+        # to a random one
+        self.tb.current_choice = random.choice(range(len(self.tb.all_random_selections)))
         self.tb.set_level_variables(training)
         self.tb.restart_bananas()
+        # what list are we on now?
+        list_no = self.tb.current_choice
+        # increase it here
+        list_no += 1
+        # increase it in game
+        messenger.send('u')
+        self.tb.restart_bananas()
+        self.assertEqual(self.tb.all_random_selections[list_no], self.tb.random_choices)
 
     def test_j_decreases_choice_of_random_list(self):
-        pass
+        """
+        test that u key increases the random list.
+        """
+        # only makes sense for random levels, 2.2 and greater,
+        # randomly choose one
+        training = random.choice(self.tb.levels_available[0][1:])
+        # usually set to start at the first random list, so change it
+        # to a random one
+        self.tb.current_choice = random.choice(range(len(self.tb.all_random_selections)))
+        self.tb.set_level_variables(training)
+        self.tb.restart_bananas()
+        # what list are we on now?
+        list_no = self.tb.current_choice
+        #print self.tb.all_random_selections[list_no]
+        # increase it here, checking already not zero
+        if list_no is not 0:
+            list_no -= 1
+        #print self.tb.all_random_selections[list_no]
+        # increase it in game
+        messenger.send('j')
+        self.tb.restart_bananas()
+        self.assertEqual(self.tb.all_random_selections[list_no], self.tb.random_choices)
 
     def test_l_changes_banana_to_left_side(self):
         """

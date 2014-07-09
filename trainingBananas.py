@@ -69,7 +69,7 @@ class TrainingBananas(JoystickHandler):
             self.train_dir = 'y'
         #print config['trainingDirection']
         #print('multiplier', self.multiplier)
-        self.last = self.multiplier
+        self.last_multiplier = self.multiplier
         self.side_bias = config['random_bias']
         # bring some configuration parameters into memory, so we don't need to
         # reload the config file multiple times, also allows us to change these
@@ -78,10 +78,7 @@ class TrainingBananas(JoystickHandler):
         # not changing now, but may eventually...
         self.x_alpha = config['xHairAlpha']
         self.reward_time = config['pulseInterval']  # usually 200ms
-        # random selection used for training 2.3 and above
-        #self.random_choices = config['random_choices']
-        self.all_random_selections = config['random_lists']
-        self.random_choices = self.all_random_selections[config['random_selection'] - 1]
+
         # amount need to hold crosshair on banana to get reward (2.3)
         # must be more than zero. At 1.5 distance, must be greater than
         # 0.5 to require stopping
@@ -134,6 +131,11 @@ class TrainingBananas(JoystickHandler):
         #base.cTrav.showCollisions(render)
         #mainAimingNP.show()
 
+        # random selection used for training 2.3 and above
+        #self.random_choices = config['random_choices']
+        self.all_random_selections = config['random_lists']
+        self.current_choice = config['random_selection'] - 1
+        self.random_choices = self.all_random_selections[self.current_choice]
         # set avatar position/heading
         self.avatar_pos = Point3(0, 0, 1)
         if self.training >= self.levels_available[1][0]:
@@ -314,7 +316,7 @@ class TrainingBananas(JoystickHandler):
                                 #print('time', task.time)
                                 #print('hold until', self.hold_time)
                         else:
-                            print('left zone, wait for another collision')
+                            #print('left zone, wait for another collision')
                             self.x_change_color(self.x_start_c)
                             self.check_zone = None
                     else:
@@ -359,8 +361,8 @@ class TrainingBananas(JoystickHandler):
         pass
 
     def restart_bananas(self):
-        print 'restarted'
-        print('training', self.training)
+        #print 'restarted'
+        #print('training', self.training)
         # reset a couple of variables
         self.yay_reward = False
         self.reward_count = 0
@@ -380,7 +382,7 @@ class TrainingBananas(JoystickHandler):
             self.move('x', -self.x_mag)
             #print('change direction')
         if self.change_level:
-            print 'actually change level now'
+            #print 'actually change level now'
             self.set_level_variables(self.change_level)
             self.change_level = False
         # check to see if banana is on random
@@ -388,24 +390,24 @@ class TrainingBananas(JoystickHandler):
             # make side not entirely random. Don't want too many in a row on one side
             # for MP, because he is a bit of an idiot.
             # First check if we care about the next direction
-            if self.side_bias and abs(self.last) > 1:
+            if self.side_bias and abs(self.last_multiplier) > 1:
                 # if there have been two in a row in the same direction, pick the opposite
                 # direction, otherwise choose randomly
-                print 'change, self.last is zero'
+                #print 'change, self.last_multiplier is zero'
                 self.multiplier = - self.multiplier
             else:
-                print 'random'
+                #print 'random'
                 self.multiplier = random.choice([1, -1])
             #print('next up', self.multiplier)
             # multiplier should never be zero
             # if this gives you a negative 1, than we are switching sides,
             # and should reset to zero
             # if we don't care about side_bias, then this doesn't matter
-            if self.last/self.multiplier != 1:
-                print 'reset'
-                self.last = 0
-            self.last += self.multiplier
-            print('last currently', self.last)
+            if self.last_multiplier/self.multiplier != 1:
+                #print 'reset'
+                self.last_multiplier = 0
+            self.last_multiplier += self.multiplier
+            #print('last currently', self.last_multiplier)
             self.avatar_h = random.choice(self.random_choices)
             # for some versions, subject could still be holding joystick at this point.
             # this means we x_mag is at a position that might no longer be
@@ -416,7 +418,7 @@ class TrainingBananas(JoystickHandler):
             self.move('x', -self.x_mag)
         #print('rotate avatar back so at correct angle:', self.avatar_h)
         self.base.camera.setH(self.multiplier * self.avatar_h)
-        print('avatar heading', self.base.camera.getH())
+        #print('avatar heading', self.base.camera.getH())
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'banana position, ' +
@@ -469,9 +471,9 @@ class TrainingBananas(JoystickHandler):
                     self.x_mag = 0
                 elif not self.free_move:
                     #print 'slow'
-                    print self.wrong_speed
+                    #print self.wrong_speed
                     self.x_mag /= self.wrong_speed
-            print('new x', self.x_mag)
+            #print('new x', self.x_mag)
         else:
             self.y_mag = js_input
 
@@ -513,23 +515,22 @@ class TrainingBananas(JoystickHandler):
     def inc_level(self):
         # in level 2 have 2 thru 2.5
         # currently level 3 is highest
-        print('training level', self.training)
-        print('largest', self.levels_available[-1][-1])
-        print('switch', self.levels_available[0][-1])
-        print('old value change_level', self.change_level)
+        print('increase training level')
+        #print('current training level', self.training)
         if self.training == self.levels_available[-1][-1]:
             print 'cannot increase level'
             self.change_level = self.training
         elif self.training == self.levels_available[0][-1]:
-            print 'switch 2 to 3'
+            #print 'switch 2 to 3'
             self.change_level = self.levels_available[1][0]
         else:
-            print 'else'
+            #print 'else'
             self.change_level = self.training + 0.1
         print('new level', self.change_level)
 
     def dec_level(self):
-        print('training level', self.training)
+        print('decrease training level')
+        #print('current training level', self.training)
         if self.training == self.levels_available[0][0]:
             self.change_level = self.training
             print 'cannot decrease level'
@@ -558,24 +559,24 @@ class TrainingBananas(JoystickHandler):
 
     def inc_random(self):
         print 'increase selection of random bananas'
-        current = len(self.random_choices)
-        if current == len(self.all_random_selections[-1]):
+        if self.current_choice == len(self.all_random_selections) - 1:
             print('already at max')
         else:
             # current is the current length, which conveniently
             # enough is the next number to use, because of zero indexing
-            self.random_choices = self.all_random_selections[current]
+            self.current_choice += 1
+            self.random_choices = self.all_random_selections[self.current_choice]
         print('selection', self.random_choices)
 
     def dec_random(self):
         print 'decrease selection of random bananas'
-        current = len(self.random_choices)
-        if current == 1:
+        if self.current_choice == 0:
             print('already at min')
         else:
             # current is the current length, so we need to subtract
             # by two, because of zero indexing
-            self.random_choices = self.all_random_selections[current - 2]
+            self.current_choice -= 1
+            self.random_choices = self.all_random_selections[self.current_choice]
         print('selection', self.random_choices)
 
     def change_left(self):
@@ -638,6 +639,8 @@ class TrainingBananas(JoystickHandler):
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         self.frameTask.delay = -0.1  # want initial delay less than zero
         self.frameTask.last = 0  # task time of the last frame
+        if self.random_banana:
+            self.avatar_h = random.choice(self.random_choices)
 
     def set_level_variables(self, training):
         # default is lowest training level
