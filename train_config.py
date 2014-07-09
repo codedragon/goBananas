@@ -8,7 +8,7 @@ subject = 'Test'
 #trainingDirection = 'Right'
 trainingDirection = 'Left'
 
-training = 2
+training = 2.3
 
 # Set Training Level - only using 2 and above in this program
 # training 2,   left/right, can only move direction towards center
@@ -54,7 +54,7 @@ training = 2
 avatar_start_h = 1.5
 
 # list of all random selections available
-random_lists = [[11], [11, 10], [11, 10, 9]]
+random_lists = [[3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9], [3, 5, 7.5, 8.5, 9.5, 10], [3, 5, 7, 8, 9, 10, 11]]
 # choose starting number of random_lists.
 random_selection = 1
 
@@ -63,6 +63,8 @@ random_selection = 1
 #random_choices = [1.5, 2.3, 3, 3.4, 4.2, 5]
 #random_choices = [1.5, 2.3, 3.4, 5, 7.6, 11]
 
+# random bias means that it is not strictly random, if there are 2 bananas in a row
+# on one side, the next banana will always switch sides.
 random_bias = True
 
 # amount of time need to hold crosshair on banana to get reward
