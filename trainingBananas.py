@@ -35,6 +35,7 @@ class TrainingBananas(JoystickHandler):
         print('Subject is', config['subject'])
         self.subject = config['subject']
         self.levels_available = [[2, 2.1, 2.2, 2.3, 2.4, 2.5], [3]]
+
         # set up reward system
         # if unit-testing, pretend like we couldn't
         # load the module
@@ -45,6 +46,8 @@ class TrainingBananas(JoystickHandler):
             print 'Reward system on'
         else:
             self.reward = None
+
+        # setup windows
         if not unittest:
             # if doing unittests, there is no window
             wp = WindowProperties()
@@ -58,18 +61,20 @@ class TrainingBananas(JoystickHandler):
             self.data_file_name = ''
             self.data_file = []
             self.open_data_file(config)
+
+        # Get initial direction, only matters for manual, random will override later
         # for bananas, changing the angle from avatar to banana, so left is negative
         # right is positive.
-        self.train_dir = 'x'
         if config['trainingDirection'] == 'Right':
             self.multiplier = 1
         elif config['trainingDirection'] == 'Left':
             self.multiplier = -1
         elif config['trainingDirection'] == 'Forward':
-            self.train_dir = 'y'
+            pass
         #print config['trainingDirection']
-        #print('multiplier', self.multiplier)
         self.last_multiplier = self.multiplier
+
+        # get more variables from configuration
         self.side_bias = config['random_bias']
         # bring some configuration parameters into memory, so we don't need to
         # reload the config file multiple times, also allows us to change these
@@ -78,7 +83,6 @@ class TrainingBananas(JoystickHandler):
         # not changing now, but may eventually...
         self.x_alpha = config['xHairAlpha']
         self.reward_time = config['pulseInterval']  # usually 200ms
-
         # amount need to hold crosshair on banana to get reward (2.3)
         # must be more than zero. At 1.5 distance, must be greater than
         # 0.5 to require stopping
@@ -88,6 +92,7 @@ class TrainingBananas(JoystickHandler):
         if not unittest:
             print('training level is', self.training)
 
+        # setup variables related to training levels
         # initialize training variables
         # will be set to proper levels in set_level_variables method
         self.free_move = False
@@ -97,11 +102,21 @@ class TrainingBananas(JoystickHandler):
         self.go_forward = False
         self.set_level_variables(self.training)
 
-        # variable used to notify when changing direction of new target
-        self.new_dir = None
-        # variable to notify when changing levels
-        self.change_level = False
+        # random selection used for training 2.3 and above
+        #self.random_choices = config['random_choices']
+        self.all_random_selections = config['random_lists']
+        self.current_choice = config['random_selection'] - 1
+        self.random_choices = self.all_random_selections[self.current_choice]
+        # set avatar position/heading
+        self.avatar_pos = Point3(0, 0, 1)
+        self.avatar_h = 0
+        if self.training >= self.levels_available[1][0]:
+            pass
+            #self.fullForwardSpeed = config['fullForwardSpeed']
+        elif self.training >= self.levels_available[0][0]:
+            self.avatar_h = config['avatar_start_h']
 
+        #### Setup Graphics
         # set up banana
         self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
         self.banana.setPos(Point3(0, 2.5, 0))
@@ -131,24 +146,6 @@ class TrainingBananas(JoystickHandler):
         #base.cTrav.showCollisions(render)
         #mainAimingNP.show()
 
-        # random selection used for training 2.3 and above
-        #self.random_choices = config['random_choices']
-        self.all_random_selections = config['random_lists']
-        self.current_choice = config['random_selection'] - 1
-        self.random_choices = self.all_random_selections[self.current_choice]
-        # set avatar position/heading
-        self.avatar_pos = Point3(0, 0, 1)
-        if self.training >= self.levels_available[1][0]:
-            pass
-            #self.fullForwardSpeed = config['fullForwardSpeed']
-        elif self.training >= self.levels_available[0][0]:
-            self.avatar_h = config['avatar_start_h']
-        # check to see if banana is on random, if so change avatar_start_h
-        if self.random_banana:
-            print 'random'
-            self.avatar_h = random.choice(self.random_choices)
-        self.base.camera.setH(self.multiplier * self.avatar_h)
-
         # Cross hair
         # color changes for crosshair
         self.x_start_c = Point4(1, 1, 1, self.x_alpha)
@@ -170,8 +167,13 @@ class TrainingBananas(JoystickHandler):
         # setup keyboard/joystick inputs
         self.setup_inputs()
         # Initialize more variables
+
         # These variables are set to their initial states in reset_variables, so
         # does not matter what they are set to here.
+        # variable used to notify when changing direction of new target
+        self.new_dir = None
+        # and variable to notify when changing levels
+        self.change_level = False
         self.max_angle = None
         self.min_angle = None
         self.delay_start = False
@@ -194,7 +196,9 @@ class TrainingBananas(JoystickHandler):
         self.check_time = 0
         # toggle for when trial begins
         self.start_trial = True
-        # set up main loop
+        # set up main loop. this will be removed and added again in reset variables,
+        # which is what happens anyway if we need to reset variables during the task,
+        # so no big deal
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         self.frameTask.delay = -0.1  # want initial delay less than zero
         self.frameTask.last = 0  # task time of the last frame
@@ -418,7 +422,7 @@ class TrainingBananas(JoystickHandler):
             self.move('x', -self.x_mag)
         #print('rotate avatar back so at correct angle:', self.avatar_h)
         self.base.camera.setH(self.multiplier * self.avatar_h)
-        #print('avatar heading', self.base.camera.getH())
+        print('avatar heading', self.base.camera.getH())
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'banana position, ' +
@@ -636,11 +640,13 @@ class TrainingBananas(JoystickHandler):
         self.wrong_speed = 4
         # toggle for when trial begins
         self.start_trial = True
+        if self.random_banana:
+            print('current selections available ', self.random_choices)
+            self.avatar_h = random.choice(self.random_choices)
+        self.base.camera.setH(self.multiplier * self.avatar_h)
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         self.frameTask.delay = -0.1  # want initial delay less than zero
         self.frameTask.last = 0  # task time of the last frame
-        if self.random_banana:
-            self.avatar_h = random.choice(self.random_choices)
 
     def set_level_variables(self, training):
         # default is lowest training level
