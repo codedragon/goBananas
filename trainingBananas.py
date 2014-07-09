@@ -103,7 +103,6 @@ class TrainingBananas(JoystickHandler):
         self.set_level_variables(self.training)
 
         # random selection used for training 2.3 and above
-        #self.random_choices = config['random_choices']
         self.all_random_selections = config['random_lists']
         self.current_choice = config['random_selection'] - 1
         self.random_choices = self.all_random_selections[self.current_choice]
@@ -641,8 +640,10 @@ class TrainingBananas(JoystickHandler):
         # toggle for when trial begins
         self.start_trial = True
         if self.random_banana:
-            print('current selections available ', self.random_choices)
+            self.random_choices = self.all_random_selections[self.current_choice]
             self.avatar_h = random.choice(self.random_choices)
+            print('current angles available ', self.random_choices)
+            #print self.current_choice
         self.base.camera.setH(self.multiplier * self.avatar_h)
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         self.frameTask.delay = -0.1  # want initial delay less than zero

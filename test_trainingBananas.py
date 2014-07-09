@@ -1140,9 +1140,9 @@ class TrainingBananaTestKeys(unittest.TestCase):
         test that if we press y key, speed in direction opposite to banana
         increases
         """
-        # using y and h keys basically let you switch between 2.3. and 2.4
-        # in a continuous fashion. Randomly choose which one you start with.
-        training = random.choice([2.3, 2.4])
+        # using y and h keys basically let you switch from 2.3 to 2.4
+        # in a continuous fashion. Works only from 2.3
+        training = 2.3
         self.tb.set_level_variables(training)
         self.tb.restart_bananas()
         # check initial speed
@@ -1153,7 +1153,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
         taskMgr.step()
         messenger.send('x_axis', [2 * -self.tb.multiplier])
         camera_h = self.tb.base.camera.getH()
-        print('wrong speed', self.tb.wrong_speed)
+        #print('wrong speed', self.tb.wrong_speed)
         #print camera_h
         # go a few steps, see how long it takes
         start = time.time()
@@ -1162,7 +1162,7 @@ class TrainingBananaTestKeys(unittest.TestCase):
             taskMgr.step()
         first_time = time.time() - start
         first_dist = camera_h - self.tb.base.camera.getH()
-        print('dist', first_dist)
+        #print('dist', first_dist)
         first_speed = abs(first_dist/first_time)
         # now change speed
         messenger.send('y')
@@ -1178,14 +1178,14 @@ class TrainingBananaTestKeys(unittest.TestCase):
             #print self.tb.speed
             taskMgr.step()
         second_time = time.time() - start
-        print('time', second_time)
-        print('wrong speed', self.tb.wrong_speed)
+        #print('time', second_time)
+        #print('wrong speed', self.tb.wrong_speed)
         #print self.tb.base.camera.getH()
         second_dist = avatar_h - self.tb.base.camera.getH()
-        print('dist', second_dist)
+        #print('dist', second_dist)
         second_speed = abs(second_dist / second_time)
-        print('first', first_speed)
-        print('second', second_speed)
+        #print('first', first_speed)
+        #print('second', second_speed)
         # if wrong_speed was already the same as the speed in the opposite direction,
         # verify speed is actually the same
         if initial_speed == 1:
@@ -1198,13 +1198,13 @@ class TrainingBananaTestKeys(unittest.TestCase):
         test that if we press h key, speed in direction opposite to banana
         decreases
         """
-        # using y and h keys basically let you switch between 2.3. and 2.4
-        # in a continuous fashion. Randomly choose which one you start with.
-        training = random.choice([2.3, 2.4])
+        # using y and h keys basically let you switch from 2.3 to 2.4
+        # in a continuous fashion. Works only from 2.3
+        training = 2.3
         self.tb.set_level_variables(training)
         self.tb.restart_bananas()
         # check initial speed
-        print('wrong speed', self.tb.wrong_speed)
+        #print('wrong speed', self.tb.wrong_speed)
         # first two frames get messed up for timing, so go two steps
         #print self.tb.free_move
         taskMgr.step()
@@ -1215,17 +1215,19 @@ class TrainingBananaTestKeys(unittest.TestCase):
         # go a few steps, see how long it takes
         start = time.time()
         for i in range(30):
+            #print self.tb.x_mag
             #print self.tb.speed
             taskMgr.step()
         first_time = time.time() - start
+        #print('time', first_time)
         first_dist = camera_h - self.tb.base.camera.getH()
-        print('dist', first_dist)
+        #print('dist', first_dist)
         first_speed = abs(first_dist/first_time)
         # now change speed
         messenger.send('h')
         # have to reset for it to go into effect
         self.tb.restart_bananas()
-        print('wrong speed', self.tb.wrong_speed)
+        #print('wrong speed', self.tb.wrong_speed)
         taskMgr.step()
         taskMgr.step()
         messenger.send('x_axis', [2 * -self.tb.multiplier])
@@ -1233,16 +1235,17 @@ class TrainingBananaTestKeys(unittest.TestCase):
         #print avatar_h
         start = time.time()
         for i in range(30):
+            #print self.tb.x_mag
             #print self.tb.speed
             taskMgr.step()
         second_time = time.time() - start
         #print('time', second_time)
         #print self.tb.base.camera.getH()
         second_dist = avatar_h - self.tb.base.camera.getH()
-        print('dist', second_dist)
+        #print('dist', second_dist)
         second_speed = abs(second_dist / second_time)
-        print('first', first_speed)
-        print('second', second_speed)
+        #print('first', first_speed)
+        #print('second', second_speed)
         self.assertTrue(first_speed > second_speed)
 
     def test_u_increases_choice_of_random_list(self):
@@ -1254,22 +1257,29 @@ class TrainingBananaTestKeys(unittest.TestCase):
         training = random.choice(self.tb.levels_available[0][1:])
         # usually set to start at the first random list, so change it
         # to a random one
-        self.tb.current_choice = random.choice(range(len(self.tb.all_random_selections)))
-        print self.tb.all_random_selections
         self.tb.set_level_variables(training)
+        self.tb.current_choice = random.choice(range(len(self.tb.all_random_selections)))
+        # if changing the random list, need to re-run reset_variables
+        self.tb.reset_variables()
+        #print self.tb.all_random_selections
+        #print 'restart bananas'
         self.tb.restart_bananas()
         # what list are we on now?
         list_no = self.tb.current_choice
-        print list_no
-        print self.tb.random_choices
+        #print list_no
+        #print self.tb.random_choices
+        #print len(self.tb.all_random_selections)
         # increase it here, if there are more lists to be had...
-        if list_no < len(self.tb.all_random_selections) - 2:
+        if list_no < len(self.tb.all_random_selections) - 1:
+            #print 'less than max in test'
             list_no += 1
         # increase it in game
-        print list_no
+        #print list_no
         messenger.send('u')
         self.tb.restart_bananas()
-        print self.tb.random_choices
+        #print('test says', self.tb.all_random_selections[list_no])
+        #print('list_no', list_no)
+        #print self.tb.random_choices
         self.assertEqual(self.tb.all_random_selections[list_no], self.tb.random_choices)
 
     def test_j_decreases_choice_of_random_list(self):
@@ -1342,8 +1352,9 @@ class TrainingBananaTestKeys(unittest.TestCase):
         pass
 
     def test_space_bar_gives_reward(self):
-        pass
-
+        messenger.send('space')
+        # if delay is in effect, gave reward
+        self.assertTrue(self.tb.delay_start)
 
 if __name__ == "__main__":
     # Need to actually shut down python between runs, because the ShowBase instance
