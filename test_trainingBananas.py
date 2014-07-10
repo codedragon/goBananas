@@ -753,6 +753,9 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3, unittest.TestCase):
         #print('second', second_speed)
         self.assertTrue(abs(first_speed - second_speed) < 0.5)
 
+    def test_get_reward_when_over_crosshair_required_amount_of_time(self):
+        pass
+
 
 class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
     """Training 2.5, subject has to line up crosshair to banana (not go past)
@@ -992,6 +995,11 @@ class TrainingBananaTestsT3(unittest.TestCase):
         # opposite direction allowed, so should have moved
         after = self.tb.base.camera.getPos()
         self.assertNotEqual(before, after)
+
+    def test_gets_reward_when_run_into_banana(self):
+        pass
+        #messenger.send('y_axis', [2])
+        #self.assertTrue(self.tb.yay_reward)
 
 
 class TrainingBananaTestsKeys(unittest.TestCase):

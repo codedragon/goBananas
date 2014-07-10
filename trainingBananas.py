@@ -96,7 +96,7 @@ class TrainingBananas(JoystickHandler):
         # setup variables related to training levels
         # initialize training variables
         # will be set to proper levels in set_level_variables method
-        self.free_move = False
+        self.free_move = 0
         self.must_release = False
         self.random_banana = False
         self.require_aim = False
@@ -111,7 +111,11 @@ class TrainingBananas(JoystickHandler):
         #### Setup Graphics
         # set up banana
         self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
-        self.banana.setPos(Point3(0, 2.5, 0))
+        if self.training in self.levels_available[0]:
+            self.banana.setPos(Point3(0, 2.5, 0))
+        else:
+            self.banana.setPos(Point3(config['banana_start_pos']))
+
         #self.banana.setPos(Point3(0, 0, 0))
         self.banana.setH(280)
         self.banana.setScale(0.5)
@@ -217,6 +221,7 @@ class TrainingBananas(JoystickHandler):
         self.frameTask.last = 0  # task time of the last frame
         # set variables to their actual starting values
         self.reset_variables()
+        print self.avatar_h
 
     def frame_loop(self, task):
         #print 'loop'
@@ -272,10 +277,12 @@ class TrainingBananas(JoystickHandler):
                 return task.cont
             # check to see if we are moving
             if self.moving:
-                # moving, forward first
-                position = self.base.camera.getPos()
-                delta_position = self.y_mag * dt
-                self.base.camera.setPos(position + delta_position)
+                # moving, forward first, only moves forward for forward training.
+                if self.training in self.levels_available[1]:
+                    position = self.base.camera.getPos()
+                    #print(position)
+                    position[1] += self.y_mag * dt
+                    self.base.camera.setPos(position)
                 #print 'moving'
                 # want to create some acceleration, so
                 # every frame we will increase the self.speed by a very small fraction of the previous self.x_mag
@@ -496,17 +503,19 @@ class TrainingBananas(JoystickHandler):
             # will be positive and therefor direction to be blocked
             if self.x_mag * self.multiplier > 0:
                 #print('greater than zero:', self.x_mag * self.multiplier)
-                # None is no movement, False is limited movement
-                if self.free_move is None:
+                # 1 is only allowed to go one direction (towards banana),
+                # 2 is both direction, but away from banana is slower
+                if self.free_move == 1:
                     #print 'none'
                     self.x_mag = 0
-                elif not self.free_move:
+                elif self.free_move == 2:
                     #print 'slow'
                     #print self.wrong_speed
                     self.x_mag /= self.wrong_speed
             #print('new x', self.x_mag)
         else:
-            self.y_mag = js_input
+            # y direction is reversed
+            self.y_mag = -js_input
 
     def inc_distance(self):
         if not self.go_forward:
@@ -665,23 +674,26 @@ class TrainingBananas(JoystickHandler):
     def set_level_variables(self, training):
         # default is lowest training level
         self.training = training
-        self.free_move = None
+        self.free_move = 1
         self.must_release = False
         self.random_banana = False
         self.require_aim = False
         self.go_forward = False
-        if training > 2:
+        if training > self.levels_available[0][0]:
             self.must_release = True
-        if training > 2.1:
+        if training > self.levels_available[0][1]:
             self.random_banana = True
-        if training > 2.2:
-            self.free_move = False
-        if training > 2.3:
-            self.free_move = True
-        if training > 2.4:
+        if training > self.levels_available[0][2]:
+            self.free_move = 2
+        if training > self.levels_available[0][3]:
+            self.free_move = 3
+        if training > self.levels_available[0][4]:
             self.require_aim = True
-        if training > 2.9:
+        if training > self.levels_available[0][-1]:
+            # defaults for level 3 training
             self.go_forward = True
+            self.random_banana = False
+            self.free_move = 0
 
     def open_data_file(self, config):
         # open file for recording eye data
