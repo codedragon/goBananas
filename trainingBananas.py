@@ -258,6 +258,10 @@ class TrainingBananas(JoystickHandler):
                 return task.cont
             # check to see if we are moving
             if self.moving:
+                # moving, forward first
+                position = self.base.camera.getPos()
+                delta_position = self.y_mag * dt
+                self.base.camera.setPos(position + delta_position)
                 #print 'moving'
                 # want to create some acceleration, so
                 # every frame we will increase the self.speed by a very small fraction of the previous self.x_mag
