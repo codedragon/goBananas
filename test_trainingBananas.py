@@ -353,6 +353,11 @@ class TrainingBananaTestsT2(unittest.TestCase):
             return lambda func: func
         return unittest.skip('skipped test, training > 2.1')
 
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.check_banana()
+
     @classmethod
     def tearDownClass(cls):
         pass
@@ -440,6 +445,11 @@ class TrainingBananaTestsT2_1(TrainingBananaTestsT2, unittest.TestCase):
             self.assertFalse(self.tb.banana.isStashed())
             return lambda func: func
         return unittest.skip('skipped test, training > 2.3')
+
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.check_banana()
 
 
 class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
@@ -587,6 +597,11 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         #print('last', last)
         self.assertFalse(last == second == before)
 
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.check_banana()
+
 
 class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
     """Training 2.3, banana appears randomly on either side, multiple distances.
@@ -674,6 +689,11 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
             self.assertTrue(first_speed < second_speed)
             return lambda func: func
         return unittest.skip('skipped test, training != 2.3')
+
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.check_banana()
 
 
 class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3, unittest.TestCase):
@@ -770,6 +790,11 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3, unittest.TestCase):
 
     def test_get_reward_when_over_crosshair_required_amount_of_time(self):
         pass
+
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.check_banana()
 
 
 class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
@@ -972,6 +997,11 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         #print('second', second_speed)
         self.assertTrue(abs(first_speed - second_speed) < 0.5)
 
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.check_banana()
+
 
 class TrainingBananaTestsT3(unittest.TestCase):
     """Training 3, subject has to run into the banana
@@ -1001,14 +1031,14 @@ class TrainingBananaTestsT3(unittest.TestCase):
     def test_can_move_forward(self):
         # test can now move forward
         before = self.tb.base.camera.getPos()
-        print('before', before)
+        #print before
         messenger.send('y_axis', [-2])
         # have to step twice, can't move on the first frame
         taskMgr.step()
         taskMgr.step()
         # should have moved
         after = self.tb.base.camera.getPos()
-        print('after', after)
+        #print('after', after)
         self.assertNotEqual(before, after)
 
     def test_cannot_move_backward(self):
@@ -1038,8 +1068,29 @@ class TrainingBananaTestsT3(unittest.TestCase):
         #print self.tb.base.camera.getPos()[1]
         self.assertTrue(self.tb.yay_reward)
 
-    def test_banana_returns_to_same_spot_after_collision(self):
-        pass
+    def test_avatar_returns_to_same_spot_after_collision(self):
+        messenger.send('y_axis', [-2])
+        #print self.tb.base.camera.getPos()[1]
+        last_pos = self.tb.base.camera.getPos()[1]
+        taskMgr.step()
+        taskMgr.step()
+        #print last_pos
+        # keep going until reward
+        while not self.tb.yay_reward:
+            taskMgr.step()
+        #print 'reward'
+        # now go until ban on moving is lifted
+        while not self.tb.moving:
+            taskMgr.step()
+        new_pos = self.tb.base.camera.getPos()[1]
+        self.assertEqual(last_pos, new_pos)
+
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.restart_bananas()
+        taskMgr.step()
+        self.tb.check_banana()
 
 
 class TrainingBananaTestsKeys(unittest.TestCase):
@@ -1450,6 +1501,12 @@ class TrainingBananaTestsKeys(unittest.TestCase):
         messenger.send('space')
         # if delay is in effect, gave reward
         self.assertTrue(self.tb.delay_start)
+
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.check_banana()
+
 
 if __name__ == "__main__":
     # Need to actually shut down python between runs, because the ShowBase instance

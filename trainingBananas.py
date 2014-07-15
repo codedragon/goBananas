@@ -264,12 +264,14 @@ class TrainingBananas(JoystickHandler):
             #print 'past delay'
             # check for reward
             #print('beeps so far', self.reward_count)
+            #print self.yay_reward
             if self.yay_reward and self.reward_count < self.num_beeps:
-                #print 'reward'
+                print 'reward'
                 self.reward_count += 1
                 self.give_reward()
                 return task.cont
             elif self.yay_reward and self.reward_count == self.num_beeps:
+                #print 'gave reward'
                 # done giving reward, time to start over, maybe
                 # hide the banana
                 self.banana.stash()
@@ -308,6 +310,9 @@ class TrainingBananas(JoystickHandler):
                     #print('dt', dt)
                     #print('change in position', self.y_mag * self.speed * dt)
                     position[1] += self.y_mag * self.speed * dt
+                    # if this puts us past center, stay at center
+                    if position[1] > 0:
+                        position[1] = 0
                     self.base.camera.setPos(position)
                 #print 'moving'
                 # want to create some acceleration, so
@@ -356,7 +361,7 @@ class TrainingBananas(JoystickHandler):
                     if collide_banana:
                         #print('in the zone')
                         if task.time > self.hold_time:
-                            #print('ok, get reward')
+                            print('ok, get reward')
                             # stop moving and get reward
                             self.x_change_color(self.x_stop_c)
                             self.moving = False
@@ -403,6 +408,7 @@ class TrainingBananas(JoystickHandler):
     def check_banana(self):
         #print 'check banana'
         collide_banana = False
+        #print self.base.camera.getPos()
         # if we are doing only forward, or only side, only need to check for entries,
         # but if doing both movement, have to check for whichever we are currently
         # interested in.
@@ -415,8 +421,10 @@ class TrainingBananas(JoystickHandler):
         elif self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
             collide_banana = True
-            #print self.collHandler.getEntries()
+            print self.collHandler.getEntries()
             #print self.base.camera.getH()
+            #print self.base.camera.getPos()
+            #print self.banana.getPos()
         return collide_banana
 
     def restart_bananas(self):
@@ -478,9 +486,10 @@ class TrainingBananas(JoystickHandler):
         if not self.go_forward:
             #print('rotate avatar back so at correct angle:', self.avatar_h)
             self.base.camera.setH(self.multiplier * self.avatar_h)
-            print('avatar heading', self.base.camera.getH())
+            #print('avatar heading', self.base.camera.getH())
         else:
             self.base.camera.setPos(self.avatar_pos)
+            #print self.base.camera.getPos()
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'banana position, ' +
@@ -489,7 +498,7 @@ class TrainingBananas(JoystickHandler):
         #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
         # un-hide banana
         self.banana.unstash()
-        #print 'avatar can move again'
+        print 'avatar can move again, new trial starting'
         self.moving = True
         #print('yay', self.yay_reward)
 
