@@ -1004,7 +1004,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
 
 
 class TrainingBananaTestsT3(unittest.TestCase):
-    """Training 3, subject has to run into the banana
+    """Training 3, subject has to run forward into the banana
     """
 
     @classmethod
@@ -1079,8 +1079,62 @@ class TrainingBananaTestsT3(unittest.TestCase):
         while not self.tb.yay_reward:
             taskMgr.step()
         #print 'reward'
+        # let go of joystick
+        messenger.send('y_axis', [0])
         # now go until ban on moving is lifted
         while not self.tb.moving:
+            taskMgr.step()
+        new_pos = self.tb.base.camera.getPos()[1]
+        self.assertEqual(last_pos, new_pos)
+
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.restart_bananas()
+        taskMgr.step()
+        self.tb.check_banana()
+
+
+class TrainingBananaTestsT3_1(TrainingBananaTestsT3, unittest.TestCase):
+    """Training 3, subject has to run forward into the banana, must let go
+    of joystick to start new trial
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        loadPrcFileData("", "window-type offscreen")
+        #print 'about to load world'
+        training = 3.1
+        cls.tb = TrainingBananas()
+        cls.tb.set_level_variables(training)
+        # make defaults so stuff tests as fast as possible, overrides config file
+        cls.tb.reward_time = 0.01
+        cls.tb.num_beeps = 1
+
+    def setUp(self):
+        # this will reset x_mag to zero, clearing any joystick pushes,
+        # as well resetting other things
+        self.tb.reset_variables()
+        # make sure at correct training level
+        #self.tb.set_level_variables(2)
+        # reset banana - this is often done in the test, if we want
+        # to ensure a certain direction, but not necessarily
+        self.tb.restart_bananas()
+
+    def test_does_not_start_next_trial_if_holding_joystick(self):
+        messenger.send('y_axis', [-2])
+        #print self.tb.base.camera.getPos()[1]
+        taskMgr.step()
+        taskMgr.step()
+        #print last_pos
+        # keep going until reward
+        while not self.tb.yay_reward:
+            taskMgr.step()
+        #print 'reward'
+        last_pos = self.tb.base.camera.getPos()[1]
+        # continue to push joystick for a while, and
+        # see if we go anywhere
+        for i in range(50):
             taskMgr.step()
         new_pos = self.tb.base.camera.getPos()[1]
         self.assertEqual(last_pos, new_pos)
@@ -1534,6 +1588,8 @@ if __name__ == "__main__":
         elif int(sys.argv[1]) == 5:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT3)
         elif int(sys.argv[1]) == 6:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT3_1)
+        elif int(sys.argv[1]) == 7:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsKeys)
         #print 'run suite'
         result = unittest.TextTestRunner().run(suite)

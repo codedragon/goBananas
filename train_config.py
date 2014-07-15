@@ -9,7 +9,7 @@ subject = 'Test'
 trainingDirection = 'Left'
 
 #training = 2.3
-training = 3
+training = 4
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
@@ -66,8 +66,8 @@ training = 3
 # training 4, combines forward and side movement. banana shows up randomly
 #          on either side, initially cannot go forward must line up going
 #          right/left. Once lined up, partial reward, and can only go forward
-#               self.go_forward = 0
-#               self.free_move = 0 * this variable will change in this training
+#               self.go_forward = True * this variable will change in this training
+#               self.free_move = 4
 #               self.must_release = True
 #               self.random_banana = True
 #               self.require_aim = False (rather meaningless here)

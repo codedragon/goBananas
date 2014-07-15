@@ -279,9 +279,9 @@ class TrainingBananas(JoystickHandler):
                 self.x_change_color(self.x_start_c)
                 # before we can proceed, subject may need to let go of the joystick
                 if self.must_release:
-                    #print 'checking x_mag'
+                    #print 'checking for release'
                     #print self.x_mag
-                    if abs(self.x_mag) > 0:
+                    if abs(self.x_mag) > 0 or abs(self.y_mag) > 0:
                         #print('let go!')
                         return task.cont
                 # and now we can start things over again
@@ -413,7 +413,7 @@ class TrainingBananas(JoystickHandler):
         # but if doing both movement, have to check for whichever we are currently
         # interested in.
         if self.training > self.levels_available[1][-1]:
-            print 'training 4'
+            #print 'training 4'
             for i in range(self.collHandler.getNumEntries()):
                 entry = self.collHandler.getEntry(i)
                 print entry.getIntoNodePath
@@ -558,30 +558,28 @@ class TrainingBananas(JoystickHandler):
             else:
                 self.y_mag = 0
 
-    def inc_distance(self):
-        if not self.go_forward:
-            print 'increase angle'
-            #print('old pos', self.avatar_h)
-            #self.avatar_h[0] = self.avatar_h[0] * 1.5
-            self.avatar_h *= 1.5
-            if abs(self.avatar_h) > self.max_angle:
-                self.avatar_h = self.multiplier * self.max_angle
-            # y is always going to be positive
-            #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
-            print('new heading', self.avatar_h)
-            #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
+    def inc_angle(self):
+        print 'increase angle'
+        #print('old pos', self.avatar_h)
+        #self.avatar_h[0] = self.avatar_h[0] * 1.5
+        self.avatar_h *= 1.5
+        if abs(self.avatar_h) > self.max_angle:
+            self.avatar_h = self.multiplier * self.max_angle
+        # y is always going to be positive
+        #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
+        print('new heading', self.avatar_h)
+        #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
 
-    def dec_distance(self):
-        if not self.go_forward:
-            print 'decrease angle'
-            #print('old pos', self.avatar_h)
-            self.avatar_h /= 1.5
-            if abs(self.avatar_h) < self.min_angle:
-                self.avatar_h = self.multiplier * self.min_angle
-            #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
-            #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
-            print('new heading', self.avatar_h)
-            #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
+    def dec_angle(self):
+        print 'decrease angle'
+        #print('old pos', self.avatar_h)
+        self.avatar_h /= 1.5
+        if abs(self.avatar_h) < self.min_angle:
+            self.avatar_h = self.multiplier * self.min_angle
+        #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
+        #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
+        print('new heading', self.avatar_h)
+        #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
 
     def inc_reward(self):
         print 'increase reward'
@@ -732,6 +730,7 @@ class TrainingBananas(JoystickHandler):
             self.free_move = 3
         if training > self.levels_available[0][4]:
             self.require_aim = True
+        # level 3 training
         if training > self.levels_available[0][-1]:
             # defaults for level 3 training
             self.go_forward = True
@@ -741,11 +740,17 @@ class TrainingBananas(JoystickHandler):
             self.require_aim = False
         if training > self.levels_available[1][0]:
             self.must_release = True
+        # level 4 training
         if training > self.levels_available[1][-1]:
-            self.go_forward = 0
+            self.random_banana = True
+            self.free_move = 4
 
+        if self.training >= self.levels_available[2][0]:
+            # if training is 4.x, use both bitmasks, and check which collision
+            self.cam_sphere_node.setFromCollideMask(self.banana_mask)
+            self.cam_ray_node.setFromCollideMask(self.banana_mask)
         if self.training >= self.levels_available[1][0]:
-            # if training is 3 or higher, need to run into banana for reward
+            # if training is 3.x, need to run into banana for reward
             # so only care about sphere having same bitmask as banana
             self.cam_sphere_node.setFromCollideMask(self.banana_mask)
             self.cam_ray_node.setFromCollideMask(0)
@@ -795,8 +800,8 @@ class TrainingBananas(JoystickHandler):
         self.accept('q', self.close)
         self.accept('w', self.inc_reward)
         self.accept('s', self.dec_reward)
-        self.accept('e', self.inc_distance)
-        self.accept('d', self.dec_distance)
+        self.accept('e', self.inc_angle)
+        self.accept('d', self.dec_angle)
         self.accept('t', self.inc_level)
         self.accept('g', self.dec_level)
         self.accept('y', self.inc_wrong_speed)
