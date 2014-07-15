@@ -15,7 +15,7 @@ then
     arch -i386 ppython test_moBananas.py &> /dev/null || { echo A test in moBananas failed; exit 1; }
 else
     for i in {0..6}; do
-        #echo $i
+        echo $i
         ppython test_trainingBananas.py $i > /dev/null || { echo $OUTPUT $i; exit 1; }
     done
     ppython test_moBananas.py &> /dev/null || { echo A test in moBananas failed; exit 1; }

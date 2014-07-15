@@ -12,53 +12,72 @@ trainingDirection = 'Left'
 training = 3
 
 # Set Training Level - only using 2 and above in this program
-# for all training 2, no forward movement (move_forward = False)
+# for all training 2, no forward movement (go_forward = False)
 # training 2.0, left/right, can only move direction towards center
 #               self.free_move = 1
 #               self.must_release = False
 #               self.random_banana = False
 #               self.require_aim = False
 # training 2.1, left/right, must let go of joystick to start next trial,
-#               can only move direction towards center
+#          can only move direction towards center
 #               self.free_move = 1
 #               self.must_release = True
 #               self.random_banana = False
 #               self.require_aim = False
 # training 2.2, banana appears randomly on either side, multiple distances. Must let go
-#               of joystick to start next trial, can only move direction towards center
+#          of joystick to start next trial, can only move direction towards center
 #               self.free_move = 1
 #               self.must_release = True
 #               self.random_banana = True
 #               self.require_aim = False
 # training 2.3, banana appears randomly on either side, multiple distances. Must let go
-#               of joystick to start next trial, both directions allowed, wrong direction
-#               slower than towards center
+#          of joystick to start next trial, both directions allowed, wrong direction
+#          slower than towards center
 #               self.free_move = 2
 #               self.must_release = True
 #               self.random_banana = True
 #               self.require_aim = False
 # training 2.4, banana appears randomly on either side, multiple distances. Must let go
-#               of joystick to start next trial, both directions allowed, wrong direction
-#               same speed as towards center
+#          of joystick to start next trial, both directions allowed, wrong direction
+#          same speed as towards center
 #               self.free_move = 3
 #               self.must_release = True
 #               self.random_banana = True
 #               self.require_aim = False
 # training 2.5, subject has to line up crosshair to banana (not go past) for min. time,
-#               slows down if goes past banana, both directions allowed
+#          slows down if goes past banana, both directions allowed
 #               self.free_move = 3
-#               self.release = True
+#               self.must_release = True
 #               self.random_banana = True
 #               self.require_aim = True
 # training 3.0, move crosshair to banana, forward, no movement right and left
 #               self.go_forward = True
 #               self.free_move = 0
+#               self.must_release = False
+#               self.random_banana = False
+#               self.require_aim = False (rather meaningless here)
+# training 3.1, move crosshair to banana, forward, must let go of joystick to start
+#          new trial
+#               self.go_forward = True
+#               self.free_move = 0
+#               self.must_release = True
+#               self.random_banana = False
+#               self.require_aim = False (rather meaningless here)
+# training 4, combines forward and side movement. banana shows up randomly
+#          on either side, initially cannot go forward must line up going
+#          right/left. Once lined up, partial reward, and can only go forward
+#               self.go_forward = 0
+#               self.free_move = 0 * this variable will change in this training
+#               self.must_release = True
+#               self.random_banana = True
+#               self.require_aim = False (rather meaningless here)
 
 
-# starting angle between avatar and banana
+# starting angle between avatar and banana  (turning training)
 avatar_start_h = 1.5
-# starting position of banana
-banana_start_pos = (0, 2.5, 0)
+
+# starting distance between avatar and banana (forward training)
+avatar_start_d = 2.5
 
 # list of all random selections available
 random_lists = [[3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9], [3, 5, 7.5, 8.5, 9.5, 10], [3, 5, 7, 8, 9, 10, 11]]

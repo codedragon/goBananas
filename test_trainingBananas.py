@@ -43,8 +43,10 @@ class TrainingBananaTestsT2(unittest.TestCase):
         cls.tb.reward_time = 0.01
         cls.tb.num_beeps = 1
         cls.tb.avatar_h = 1.5
+        print cls.tb.training
 
     def setUp(self):
+        print self.tb.training
         # this will reset x_mag to zero, clearing any joystick pushes,
         # as well resetting other things
         self.tb.reset_variables()
@@ -53,9 +55,21 @@ class TrainingBananaTestsT2(unittest.TestCase):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        print self.tb.training
 
     #def test_purposely_fails(self):
     #    self.assertTrue(False)
+
+    def test_cannot_move_forward(self):
+        """
+        For all turning training (2.x), not allowed to go forward
+        """
+        before = self.tb.base.camera.getPos()
+        messenger.send('y_axis', [2])
+        for i in range(50):
+            taskMgr.step()
+        after = self.tb.base.camera.getPos()
+        self.assertEqual(before, after)
 
     def test_move_joystick_right_moves_crosshair_right(self):
         """
@@ -191,6 +205,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         if self.tb.training < 2.2:
             messenger.send('r')
             self.tb.restart_bananas()
+            #print self.tb.training
             old_dir = self.tb.multiplier
             before = self.tb.base.camera.getH()
             #print before
@@ -959,8 +974,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
 
 
 class TrainingBananaTestsT3(unittest.TestCase):
-    """Training 2.5, subject has to line up crosshair to banana (not go past)
-    for min. time, slows down if goes past banana, both directions allowed
+    """Training 3, subject has to run into the banana
     """
 
     @classmethod
@@ -987,19 +1001,45 @@ class TrainingBananaTestsT3(unittest.TestCase):
     def test_can_move_forward(self):
         # test can now move forward
         before = self.tb.base.camera.getPos()
-        print before
+        print('before', before)
+        messenger.send('y_axis', [-2])
+        # have to step twice, can't move on the first frame
+        taskMgr.step()
+        taskMgr.step()
+        # should have moved
+        after = self.tb.base.camera.getPos()
+        print('after', after)
+        self.assertNotEqual(before, after)
+
+    def test_cannot_move_backward(self):
+        # test can now move forward
+        before = self.tb.base.camera.getPos()
+        print('before', before)
         messenger.send('y_axis', [2])
         # have to step twice, can't move on the first frame
         taskMgr.step()
         taskMgr.step()
-        # opposite direction allowed, so should have moved
+        # should not have moved
         after = self.tb.base.camera.getPos()
-        self.assertNotEqual(before, after)
+        print('after', after)
+        self.assertEqual(before, after)
 
     def test_gets_reward_when_run_into_banana(self):
+        messenger.send('y_axis', [-2])
+        #print self.tb.base.camera.getPos()[1]
+        last_pos = self.tb.base.camera.getPos()[1]
+        taskMgr.step()
+        taskMgr.step()
+        #print last_pos
+        # keep going until camera stops moving forward
+        while self.tb.base.camera.getPos()[1] > last_pos:
+            last_pos = self.tb.base.camera.getPos()[1]
+            taskMgr.step()
+        #print self.tb.base.camera.getPos()[1]
+        self.assertTrue(self.tb.yay_reward)
+
+    def test_banana_returns_to_same_spot_after_collision(self):
         pass
-        #messenger.send('y_axis', [2])
-        #self.assertTrue(self.tb.yay_reward)
 
 
 class TrainingBananaTestsKeys(unittest.TestCase):
