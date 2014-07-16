@@ -54,7 +54,8 @@ training = 2.3
 avatar_start_h = 1.5
 
 # list of all random selections available
-random_lists = [[3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9], [3, 5, 7.5, 8.5, 9.5, 10], [3, 5, 7, 8, 9, 10, 11]]
+random_lists = [[3, 5, 6.5], [3, 5, 6.5, 7], [3, 5, 6.5, 7.5], [3, 5, 7, 8], [3, 5, 7, 9], [3, 5, 7, 9.5], [3, 5, 7, 10],
+                [3, 5, 8, 10.5], [3, 5, 8, 11], [3, 5, 8, 12], [3, 5, 8, 13]]
 # choose starting number of random_lists.
 random_selection = 1
 
@@ -87,7 +88,7 @@ pulseInterval = 0.2  # in seconds
 #
 
 # how many reward pulses to give per reward
-numBeeps = 3
+numBeeps = 4
 
 # starting alpha for crosshair
 xHairAlpha = 1
