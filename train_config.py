@@ -8,8 +8,8 @@ subject = 'Test'
 #trainingDirection = 'Right'
 trainingDirection = 'Left'
 
-training = 2.3
-#training = 4
+#training = 2.3
+training = 2.6
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
@@ -45,7 +45,13 @@ training = 2.3
 #               self.random_banana = True
 #               self.require_aim = False
 # training 2.5, subject has to line up crosshair to banana (not go past) for min. time,
-#          slows down if goes past banana, both directions allowed
+#          slows down if goes past banana (for direction away from banana), both directions allowed
+#               self.free_move = 3
+#               self.must_release = True
+#               self.random_banana = True
+#               self.require_aim = 'slow'
+# training 2.6, subject has to line up crosshair to banana (not go past) for min. time,
+#          continues at normal speed if goes past banana, both directions allowed
 #               self.free_move = 3
 #               self.must_release = True
 #               self.random_banana = True
@@ -64,14 +70,14 @@ training = 2.3
 #               self.random_banana = False
 #               self.require_aim = False (rather meaningless here)
 # training 4, combines forward and side movement. banana shows up randomly
-#          on either side, initially cannot go forward must line up going
-#          right/left. Once lined up, partial reward, and can only go forward
-#               self.go_forward = True * this variable will change in this training
+#          on either side, assume will line up going right/left first, but
+#          not required. Once lined up, partial reward, full reward for running
+#          into banana
+#               self.go_forward = True
 #               self.free_move = 4
-#               self.must_release = True
+#               self.must_release = False (might want this for actual running into banana)
 #               self.random_banana = True
 #               self.require_aim = False (rather meaningless here)
-
 
 # starting angle between avatar and banana  (turning training)
 avatar_start_h = 1.5
@@ -80,8 +86,8 @@ avatar_start_h = 1.5
 avatar_start_d = 2.5
 
 # list of all random selections available
-random_lists = [[3,5,6.5],[3,5,7],[3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9], [3, 5, 7.5, 8.5, 9.5, 10],
-                [3, 5, 7, 8, 9, 10, 11]]
+random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9],
+                [3, 5, 7.5, 8.5, 9.5, 10], [3, 5, 7, 8, 9, 10, 11]]
 # choose starting number of random_lists.
 random_selection = 1
 

@@ -323,17 +323,24 @@ class TrainingBananaTestsT2(unittest.TestCase):
         """
         if self.tb.training < 2.4:
             messenger.send('x_axis', [self.tb.multiplier * 2])
-            # keep going until we are not moving towards center anymore
+            # keep going until we are not moving towards center anymore,
+            # only reason will stop is because we have the crosshair over
+            # the banana. Depending on the speed we are traveling, this
+            # will happen at different camera angles, so can't just go
+            # for a certain camera angle
             last_h = abs(self.tb.base.camera.getH())
             # takes two steps to initially get moving
             taskMgr.step()
             taskMgr.step()
             while abs(self.tb.base.camera.getH()) < last_h:
                 last_h = abs(self.tb.base.camera.getH())
+                print last_h
                 taskMgr.step()
+            print self.tb.base.camera.getH()
             self.assertTrue(self.tb.yay_reward)
-            # tolerance is 0.5 for having banana and crosshair aligned
-            self.assertTrue(abs(self.tb.base.camera.getH()) < 0.5)
+            # make sure we lined up the crosshair and bananas
+            print self.tb.collHandler.getNumEntries()
+            self.assertTrue(self.tb.collHandler.getNumEntries() > 0)
             return lambda func: func
         return unittest.skip('skipped test, training > 2.3')
 
@@ -830,18 +837,9 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         # zero
         camera_h = self.tb.base.camera.getH()
         #print camera_h
-        if camera_h > 0:
-            while self.tb.base.camera.getH() > 0:
-                #print('camera head', self.tb.base.camera.getH())
-                taskMgr.step()
-        else:
-            while self.tb.base.camera.getH() < 0:
-                #print('camera head', self.tb.base.camera.getH())
-                taskMgr.step()
-        #print 'first loop over'
-        #print('camera head', self.tb.base.camera.getH())
-        # now go past banana
-        for i in range(10):
+        # okay, go past center. let's just go to the same
+        # distance on the other side as where we started.
+        while self.tb.base.camera.getH() < -camera_h:
             taskMgr.step()
         # make sure we were really trying to move
         self.assertTrue(abs(self.tb.x_mag) == 2)
@@ -853,9 +851,66 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         else:
             self.assertTrue(self.tb.base.camera.getH() > 0)
 
-    def test_max_speed_slows_down_after_passing_banana(self):
+    def test_max_speed_slows_down_direction_away_from_banana_after_passing_banana(self):
         """
-        test that after we go past the banana, we go slower.
+        test that after we go past the banana, we go slower, if we continue in same direction
+        """
+        if self.tb.training > 2.5:
+            # first two frames get messed up for timing, so go two steps
+            taskMgr.step()
+            taskMgr.step()
+            messenger.send('x_axis', [2 * self.tb.multiplier])
+            # I would use absolute, but then can't tell when we cross over
+            # zero
+            camera_h = self.tb.base.camera.getH()
+            # print camera_h
+            # go a few steps, see how long it takes
+            start = time.time()
+            for i in range(30):
+                taskMgr.step()
+            first_time = time.time() - start
+            #print('time', first_time)
+            #print self.tb.base.camera.getH()
+            first_dist = camera_h - self.tb.base.camera.getH()
+            #print('dist', first_dist)
+            first_speed = abs(first_dist / first_time)
+            #print 'first test over'
+            #print('camera head', self.tb.base.camera.getH())
+            # okay, go past center. let's just go to the same
+            # distance on the other side as where we started.
+            while self.tb.base.camera.getH() < -camera_h:
+                taskMgr.step()
+            # and now we can test moving again, fist send a zero,
+            # to reset speed.
+            messenger.send('x_axis', [0])
+            taskMgr.step()
+            # now return to our regularly scheduled program
+            messenger.send('x_axis', [2 * self.tb.multiplier])
+            # and now we can test moving again, first send 2 steps,
+            # this puts us starting at the same slow_factor as for
+            # the first run
+            taskMgr.step()
+            taskMgr.step()
+            avatar_h = self.tb.base.camera.getH()
+            #print avatar_h
+            start = time.time()
+            for i in range(30):
+                taskMgr.step()
+            second_time = time.time() - start
+            #print('time', second_time)
+            #print self.tb.base.camera.getH()
+            second_dist = avatar_h - self.tb.base.camera.getH()
+            #print('dist', second_dist)
+            second_speed = abs(second_dist / second_time)
+            #print('first', first_speed)
+            #print('second', second_speed)
+            self.assertTrue(first_speed > second_speed)
+            return lambda func: func
+        return unittest.skip('skipped test, training != 2.5')
+
+    def test_max_speed_remains_same_direction_towards_banana_after_passing_banana(self):
+        """
+        test that after we go past the banana, we go same speed, if we turn back towards banana
         """
         # first two frames get messed up for timing, so go two steps
         taskMgr.step()
@@ -864,7 +919,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         # I would use absolute, but then can't tell when we cross over
         # zero
         camera_h = self.tb.base.camera.getH()
-        #print camera_h
+        # print camera_h
         # go a few steps, see how long it takes
         start = time.time()
         for i in range(30):
@@ -874,27 +929,19 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         #print self.tb.base.camera.getH()
         first_dist = camera_h - self.tb.base.camera.getH()
         #print('dist', first_dist)
-        first_speed = abs(first_dist/first_time)
+        first_speed = abs(first_dist / first_time)
         #print 'first test over'
         #print('camera head', self.tb.base.camera.getH())
-        # now go to center
-        if camera_h > 0:
-            while self.tb.base.camera.getH() > 0:
-                #print('camera head', self.tb.base.camera.getH())
-                taskMgr.step()
-        else:
-            while self.tb.base.camera.getH() < 0:
-                #print('camera head', self.tb.base.camera.getH())
-                taskMgr.step()
-        #print 'first loop over'
-        #print('camera head', self.tb.base.camera.getH())
-        # now go past banana
-        while abs(self.tb.base.camera.getH()) < 1:
-            #print('camera head', self.tb.base.camera.getH())
+        # okay, go past center. let's just go to the same
+        # distance on the other side as where we started.
+        while self.tb.base.camera.getH() < -camera_h:
             taskMgr.step()
-        #print('camera head', self.tb.base.camera.getH())
-        # and test again
-        #print 'test again'
+        # and now we can test moving again, fist send a zero,
+        # to reset speed.
+        messenger.send('x_axis', [0])
+        taskMgr.step()
+        # now we switch directions to test direction towards center
+        messenger.send('x_axis', [2 * -self.tb.multiplier])
         # and now we can test moving again, first send 2 steps,
         # this puts us starting at the same slow_factor as for
         # the first run
@@ -913,11 +960,116 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         second_speed = abs(second_dist / second_time)
         #print('first', first_speed)
         #print('second', second_speed)
-        self.assertTrue(first_speed > second_speed)
+        self.assertTrue(abs(first_speed - second_speed) < 0.5)
 
-    def test_speed_returns_to_normal_after_reward(self):
+    def test_speed_returns_to_normal_after_reward_if_slowed(self):
         """
-        test that after we go past the banana, we go slower.
+        test that after we get our reward, speed returns to normal.
+
+        """
+        # first two frames get messed up for timing, so go two steps
+        print 'start'
+        taskMgr.step()
+        taskMgr.step()
+        messenger.send('x_axis', [2 * self.tb.multiplier])
+        # I would use absolute, but then can't tell when we cross over
+        # zero
+        camera_h = self.tb.base.camera.getH()
+        print camera_h
+        # go a few steps, see how long it takes
+        print 'test'
+        start = time.time()
+        for i in range(30):
+            #print('i', i)
+            taskMgr.step()
+        first_time = time.time() - start
+        #print('time', first_time)
+        #print self.tb.base.camera.getH()
+        first_dist = camera_h - self.tb.base.camera.getH()
+        #print('dist', first_dist)
+        first_speed = abs(first_dist/first_time)
+        print 'first test over'
+        print('camera head', self.tb.base.camera.getH())
+        # okay, go past center. let's just go to the same
+        # distance on the other side as where we started.
+        while self.tb.base.camera.getH() < -camera_h:
+            taskMgr.step()
+        print 'first while loop'
+        print('camera head', self.tb.base.camera.getH())
+        # and now we can test moving again, fist send a zero,
+        # to reset speed.
+        messenger.send('x_axis', [0])
+        taskMgr.step()
+        # now return to our regularly scheduled program,
+        # but now need to return to center, so change direction
+        messenger.send('x_axis', [2 * -self.tb.multiplier])
+        # and now we can test moving again, first send 2 steps,
+        # this puts us starting at the same slow_factor as for
+        # the first run
+        taskMgr.step()
+        taskMgr.step()
+        avatar_h = self.tb.base.camera.getH()
+        print avatar_h
+        start = time.time()
+        for i in range(30):
+            taskMgr.step()
+        second_time = time.time() - start
+        #print('time', second_time)
+        print self.tb.base.camera.getH()
+        second_dist = avatar_h - self.tb.base.camera.getH()
+        #print('dist', second_dist)
+        second_speed = abs(second_dist / second_time)
+        # second speed should be slow
+        # now go back to center and collect reward
+        # go until we start to change direction
+        last_h = abs(self.tb.base.camera.getH())
+        # takes two steps to initially get moving
+        taskMgr.step()
+        taskMgr.step()
+        print self.tb.base.camera.getH(), last_h
+        # we should be getting smaller numbers until we reach center
+        while abs(self.tb.base.camera.getH()) < last_h:
+            last_h = abs(self.tb.base.camera.getH())
+            print last_h
+            taskMgr.step()
+        print('check camera', self.tb.base.camera.getH())
+        # get reward
+        messenger.send('x_axis', [0])
+        taskMgr.step()
+        while self.tb.reward_count < self.tb.num_beeps:
+            taskMgr.step()
+        print 'reward'
+        # now step until banana has been reset
+        while not self.tb.moving:
+            taskMgr.step()
+        # and now we can test moving again, first send two steps,
+        # this puts us starting at the same slow_factor as for
+        # the first run
+        taskMgr.step()
+        taskMgr.step()
+        messenger.send('x_axis', [2 * -self.tb.multiplier])
+        avatar_h = self.tb.base.camera.getH()
+        #print avatar_f
+        #print 'test again'
+        start = time.time()
+        for i in range(30):
+            #print('i', i)
+            taskMgr.step()
+        third_time = time.time() - start
+        #print('time', second_time)
+        #print self.tb.base.camera.getH()
+        third_dist = avatar_h - self.tb.base.camera.getH()
+        #print('dist', second_dist)
+        third_speed = abs(third_dist / third_time)
+        #print('first', first_speed)
+        #print('second', second_speed)
+        self.assertTrue(first_speed > second_speed)
+        self.assertTrue(abs(first_speed - third_speed) < 0.5)
+
+    def test_speed_still_normal_after_reward(self):
+        """
+        test that after we get our reward, speed returns to normal.
+
         """
         # first two frames get messed up for timing, so go two steps
         taskMgr.step()
@@ -934,37 +1086,29 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
             #print('i', i)
             taskMgr.step()
         first_time = time.time() - start
-        #print('time', first_time)
+        print('time', first_time)
         #print self.tb.base.camera.getH()
         first_dist = camera_h - self.tb.base.camera.getH()
         #print('dist', first_dist)
         first_speed = abs(first_dist/first_time)
         #print 'first test over'
         #print('camera head', self.tb.base.camera.getH())
-        # now go to center
-        if camera_h > 0:
-            while self.tb.base.camera.getH() > 0:
-                #print('camera head', self.tb.base.camera.getH())
-                taskMgr.step()
-        else:
-            while self.tb.base.camera.getH() < 0:
-                #print('camera head', self.tb.base.camera.getH())
-                taskMgr.step()
-        #print 'first loop over'
-        #print('camera head', self.tb.base.camera.getH())
-        # now go past banana
-        while abs(self.tb.base.camera.getH()) < 1:
-            #print('camera head', self.tb.base.camera.getH())
+        # go until we start to change direction
+        last_h = abs(self.tb.base.camera.getH())
+        # takes two steps to initially get moving
+        taskMgr.step()
+        taskMgr.step()
+        while abs(self.tb.base.camera.getH()) < last_h:
+            last_h = abs(self.tb.base.camera.getH())
+            print last_h
             taskMgr.step()
-        # and now return to banana for reward,
-        # go the other way until we get to center again
-        messenger.send('x_axis', [2 * -self.tb.multiplier])
-        while abs(self.tb.base.camera.getH()) > 0.1:
-            taskMgr.step()
+        print('check camera', self.tb.base.camera.getH())
         # get reward
         messenger.send('x_axis', [0])
+        taskMgr.step()
         while self.tb.reward_count < self.tb.num_beeps:
             taskMgr.step()
+        print 'reward'
         # now step until banana has been reset
         while not self.tb.moving:
             taskMgr.step()
@@ -980,6 +1124,92 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         start = time.time()
         for i in range(30):
             #print('i', i)
+            taskMgr.step()
+        second_time = time.time() - start
+        #print('time', second_time)
+        #print self.tb.base.camera.getH()
+        second_dist = avatar_h - self.tb.base.camera.getH()
+        #print('dist', second_dist)
+        second_speed = abs(second_dist / second_time)
+        #print('first', first_speed)
+        #print('second', second_speed)
+        self.assertTrue(abs(first_speed - second_speed) < 0.5)
+
+    def tearDown(self):
+        # need to clear collisions, if some have happened, but haven't been
+        # checked yet (ended trial before reward)
+        self.tb.restart_bananas()
+        taskMgr.step()
+        self.tb.check_banana()
+
+class TrainingBananaTestsT2_6(TrainingBananaTestsT2_5, unittest.TestCase):
+    """Training 2.6, subject has to line up crosshair to banana (not go past)
+    for min. time, does not slow down if goes past banana, both directions allowed
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        loadPrcFileData("", "window-type offscreen")
+        #print 'about to load world'
+        training = 2.5
+        cls.tb = TrainingBananas()
+        cls.tb.set_level_variables(training)
+        # make defaults so stuff tests as fast as possible, overrides config file
+        cls.tb.reward_time = 0.01
+        cls.tb.num_beeps = 1
+        cls.tb.avatar_h = 1.5
+
+    def setUp(self):
+        # this will reset x_mag to zero, clearing any joystick pushes,
+        # as well resetting other things
+        self.tb.reset_variables()
+        # make sure at correct training level
+        #self.tb.set_level_variables(2)
+        # reset banana - this is often done in the test, if we want
+        # to ensure a certain direction, but not necessarily
+        self.tb.restart_bananas()
+
+    def test_max_speed_does_not_slow_down_after_passing_banana(self):
+        """
+        test that after we go past the banana, we continue at same speed.
+        """
+        # first two frames get messed up for timing, so go two steps
+        taskMgr.step()
+        taskMgr.step()
+        messenger.send('x_axis', [2 * self.tb.multiplier])
+        camera_h = self.tb.base.camera.getH()
+        #print camera_h
+        # go a few steps, see how long it takes
+        start = time.time()
+        for i in range(30):
+            taskMgr.step()
+        first_time = time.time() - start
+        #print('time', first_time)
+        #print self.tb.base.camera.getH()
+        first_dist = camera_h - self.tb.base.camera.getH()
+        #print('dist', first_dist)
+        first_speed = abs(first_dist/first_time)
+        #print 'first test over'
+        #print('camera head', self.tb.base.camera.getH())
+        # okay, go past center. let's just go to the same
+        # distance on the other side as where we started.
+        while self.tb.base.camera.getH() < -camera_h:
+            taskMgr.step()
+        # and now we can test moving again, fist send a zero,
+        # to reset speed.
+        messenger.send('x_axis', [0])
+        taskMgr.step()
+        # now return to our regularly scheduled program
+        messenger.send('x_axis', [2 * self.tb.multiplier])
+        # first send 2 steps,
+        # this puts us starting at the same slow_factor as for
+        # the first run
+        taskMgr.step()
+        taskMgr.step()
+        avatar_h = self.tb.base.camera.getH()
+        #print avatar_h
+        start = time.time()
+        for i in range(30):
             taskMgr.step()
         second_time = time.time() - start
         #print('time', second_time)
@@ -1580,10 +1810,14 @@ if __name__ == "__main__":
         elif int(sys.argv[1]) == 4:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_4)
         elif int(sys.argv[1]) == 5:
-            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT3)
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_5)
         elif int(sys.argv[1]) == 6:
-            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT3_1)
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT2_6)
         elif int(sys.argv[1]) == 7:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT3)
+        elif int(sys.argv[1]) == 8:
+            suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsT3_1)
+        elif int(sys.argv[1]) == 9:
             suite = unittest.TestLoader().loadTestsFromTestCase(TrainingBananaTestsKeys)
         #print 'run suite'
         result = unittest.TextTestRunner().run(suite)
