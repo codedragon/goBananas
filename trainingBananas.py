@@ -99,28 +99,26 @@ class TrainingBananas(JoystickHandler):
         self.random_choices = self.all_random_selections[self.current_choice]
 
         #### Setup Graphics
+        # bitmasks for collisions
+        ray_mask = BitMask32(0x1)
+        sphere_mask = BitMask32(0x2)
+        self.mask_list = [ray_mask, sphere_mask, ray_mask | sphere_mask]
+
         # set up banana
         self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
         # banana always in the same position, just move avatar.
-        # if doing turning training, banana always starts in same place
-        #self.banana.setPos(Point3(0, 0, 0))
-        #if self.training < self.levels_available[1][0]:
-        #self.banana.setPos(Point3(0, 2.5, 0))
         self.banana.setPos(Point3(0, 0, 0))
-        #else:
-        #    self.banana.setPos(Point3(config['banana_start_pos']))
-
-        #self.banana.setPos(Point3(0, 0, 0))
         self.banana.setH(280)
+        #self.banana.setH(0)
         self.banana.setScale(0.5)
         self.banana.reparentTo(self.base.render)
-        coll_node_path = self.banana.find('**/+CollisionNode')
-        coll_node_path.setScale(0.2)
+        banana_node_path = self.banana.find('**/+CollisionNode')
+        banana_node_path.setScale(0.1)
         self.banana_mask = BitMask32(0x1)
-        coll_node_path.node().setIntoCollideMask(self.banana_mask)
-        print ('banana', coll_node_path.node().getIntoCollideMask())
-        #collision_node.show()
-        #cs = CollisionSphere(0, 0, 0, 1)
+        # banana intoCollideMask will change depending on which level we
+        # are training on.
+        self.banana_coll_node = banana_node_path.node()
+        self.banana_coll_node.setIntoCollideMask(self.mask_list[0])
 
         # set up collision system and collision ray to camera
         self.base.cTrav = CollisionTraverser()
@@ -128,26 +126,27 @@ class TrainingBananas(JoystickHandler):
         ray_node = self.base.camera.attachNewNode(CollisionNode('CrossHairRay'))
         # ray that comes straight out from the camera
         ray_solid = CollisionRay(0, 0, 0, 0, 1, 0)
-        ray_node_path = self.make_coll_node_path(ray_node, ray_solid)
-        self.cam_ray_node = ray_node_path.node()
-        self.cam_ray_node.setIntoCollideMask(0)
+        self.ray_node_path = self.make_coll_node_path(ray_node, ray_solid)
+        self.ray_node_path.node().setIntoCollideMask(0)
+        self.ray_node_path.node().setFromCollideMask(ray_mask)
 
         # add collision sphere to camera
         sphere_node = self.base.camera.attachNewNode(CollisionNode('CollisionSphere'))
         camera_sphere = CollisionSphere(0, 0, 0, 1.3)
-        sphere_node_path = self.make_coll_node_path(sphere_node, camera_sphere)
-        self.cam_sphere_node = sphere_node_path.node()
-        self.cam_sphere_node.setIntoCollideMask(0)
+        self.sphere_node_path = self.make_coll_node_path(sphere_node, camera_sphere)
+        self.sphere_node_path.node().setIntoCollideMask(0)
+        self.sphere_node_path.node().setFromCollideMask(sphere_mask)
 
         # into collide masks are set with level variables, since we change
         # whether between using the sphere or the ray for detecting collisions,
         # depending on which level we are on.
 
-        self.base.cTrav.addCollider(ray_node_path, self.collHandler)
-        self.base.cTrav.addCollider(sphere_node_path, self.collHandler)
+        self.base.cTrav.addCollider(self.ray_node_path, self.collHandler)
+        self.base.cTrav.addCollider(self.sphere_node_path, self.collHandler)
         #self.base.cTrav.showCollisions(self.base.render)
-        #ray_node_path.show()
-        #sphere_node_path.show()
+        #self.ray_node_path.show()
+        #self.sphere_node_path.show()
+        #banana_node_path.show()
 
         # set avatar position/heading
         # Default positions
@@ -155,8 +154,7 @@ class TrainingBananas(JoystickHandler):
         self.avatar_h = 0
 
         if self.training > self.levels_available[0][-1]:
-            pass
-            self.avatar_pos = Point3(0, -config['avatar_start_d'], 0)
+            self.avatar_pos = Point3(0.01, -config['avatar_start_d'], 0)
             #self.fullForwardSpeed = config['fullForwardSpeed']
         elif self.training < self.levels_available[1][0]:
             self.avatar_h = config['avatar_start_h']
@@ -176,7 +174,9 @@ class TrainingBananas(JoystickHandler):
         # These numbers were scientifically determined. JK, moved around until the cross looked
         # centered on the ray
         #crosshair_pos = Point3(0, 0, 0)
-        crosshair_pos = Point3(-0.07, 0, -0.05)
+        #crosshair_pos = Point3(-0.07, 0, -0.05)
+        crosshair_pos = Point3(-0.055, 0, -0.03)
+
         #print text_node_path.getPos()
         text_node_path.setPos(crosshair_pos)
 
@@ -231,11 +231,11 @@ class TrainingBananas(JoystickHandler):
         self.frameTask.last = 0  # task time of the last frame
         # set variables to their actual starting values
         self.reset_variables()
-        print self.avatar_h
-        print self.base.camera.getH()
-        print self.avatar_pos
-        print self.base.camera.getPos()
-        print self.banana.getPos()
+        #print self.avatar_h
+        #print self.base.camera.getH()
+        #print self.avatar_pos
+        #print self.base.camera.getPos()
+        #print self.banana.getPos()
 
     def frame_loop(self, task):
         #print self.training
@@ -294,6 +294,7 @@ class TrainingBananas(JoystickHandler):
             # check to see if we are moving
             if self.moving:
                 # moving, forward first, only moves forward for forward training.
+                # only allowed to turn if not going forward
                 if self.go_forward:
                     if self.start_trial or self.y_mag == 0:
                         self.speed = self.initial_speed
@@ -314,43 +315,44 @@ class TrainingBananas(JoystickHandler):
                     if position[1] > 0:
                         position[1] = 0
                     self.base.camera.setPos(position)
-                #print 'moving'
-                # want to create some acceleration, so
-                # every frame we will increase the self.speed by a very small fraction of the previous self.x_mag
-                # if self.x_mag was zero, than we reset slow_factor
-                #print self.base.camera.getH()
-                #print(self.x_mag * self.speed * -self.multiplier)
-                #print self.speed
-                heading = self.base.camera.getH()
-                #print heading
-                # set new speed, if new trial or subject stopped, reverts to default
-                if self.start_trial or self.x_mag == 0:
-                    self.speed = self.initial_speed
-                    self.start_trial = False
                 else:
-                    #self.speed = 1
-                    # self.x_mag (how much you push the joystick) affects
-                    # acceleration as well as speed
-                    self.speed += 0.05 * abs(self.x_mag)
-                #print('new speed', self.speed)
-                # edges of screen are like a wall
-                # if heading is 22 or over, and moving away from center, nothing happens
-                if abs(heading) >= 22 and self.x_mag * self.multiplier > 0:
-                    #print 'hit a wall'
-                    delta_heading = 0
-                elif self.check_zone is None:
-                    #print 'went past zone'
-                    # if gone past banana target zone, no acceleration
-                    delta_heading = self.x_mag * self.initial_speed * dt
-                else:
-                    # use dt so when frame rate changes the rate of movement changes proportionately
-                    delta_heading = self.x_mag * self.speed * dt
+                    #print 'moving'
+                    # want to create some acceleration, so
+                    # every frame we will increase the self.speed by a very small fraction of the previous self.x_mag
+                    # if self.x_mag was zero, than we reset slow_factor
+                    #print self.base.camera.getH()
+                    #print(self.x_mag * self.speed * -self.multiplier)
                     #print self.speed
-                    #print('dt', dt)
-                    #print('x', self.x_mag)
-                #print('change heading', delta_heading)
-                self.base.camera.setH(heading + delta_heading)
-                #print('camera heading', self.base.camera.getH())
+                    heading = self.base.camera.getH()
+                    #print heading
+                    # set new speed, if new trial or subject stopped, reverts to default
+                    if self.start_trial or self.x_mag == 0:
+                        self.speed = self.initial_speed
+                        self.start_trial = False
+                    else:
+                        #self.speed = 1
+                        # self.x_mag (how much you push the joystick) affects
+                        # acceleration as well as speed
+                        self.speed += 0.05 * abs(self.x_mag)
+                    #print('new speed', self.speed)
+                    # edges of screen are like a wall
+                    # if heading is 22 or over, and moving away from center, nothing happens
+                    if abs(heading) >= 22 and self.x_mag * self.multiplier > 0:
+                        #print 'hit a wall'
+                        delta_heading = 0
+                    elif self.check_zone is None:
+                        #print 'went past zone'
+                        # if gone past banana target zone, no acceleration
+                        delta_heading = self.x_mag * self.initial_speed * dt
+                    else:
+                        # use dt so when frame rate changes the rate of movement changes proportionately
+                        delta_heading = self.x_mag * self.speed * dt
+                        #print self.speed
+                        #print('dt', dt)
+                        #print('x', self.x_mag)
+                    #print('change heading', delta_heading)
+                    self.base.camera.setH(heading + delta_heading)
+                    #print('camera heading', self.base.camera.getH())
                 # check for collision:
                 collide_banana = self.check_banana()
                 # if we need to be stopping and leaving (holding) crosshair over banana,
@@ -394,9 +396,15 @@ class TrainingBananas(JoystickHandler):
                             self.moving = False
                             # move to center
                             if self.base.camera.getH != 0:
+                                pass
                                 #print 'moved camera'
-                                self.base.camera.setH(0)
+                                #self.base.camera.setH(0)
                             self.yay_reward = True
+                    elif collide_banana is None:
+                        # partial reward for lining up banana in level 4.x
+                        print 'partial reward'
+                        self.yay_reward = True
+                        self.reward_count = self.num_beeps - 1
         return task.cont
 
     def give_reward(self):
@@ -412,12 +420,18 @@ class TrainingBananas(JoystickHandler):
         # if we are doing only forward, or only side, only need to check for entries,
         # but if doing both movement, have to check for whichever we are currently
         # interested in.
-        if self.training > self.levels_available[1][-1]:
-            #print 'training 4'
+        if self.free_move == 4:
             for i in range(self.collHandler.getNumEntries()):
                 entry = self.collHandler.getEntry(i)
-                print entry.getIntoNodePath
-            #if self.free_move == 0:
+                if self.go_forward and entry.getFromNodePath() == self.sphere_node_path:
+                    print 'ran into banana going forward'
+                    collide_banana = True
+                    self.go_forward = False
+                elif not self.go_forward and entry.getFromNodePath() == self.ray_node_path:
+                    print 'lined up banana from side'
+                    collide_banana = None
+                    self.go_forward = True
+                #print entry.getFromNodePath()
         elif self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
             collide_banana = True
@@ -441,10 +455,13 @@ class TrainingBananas(JoystickHandler):
             self.multiplier = self.new_dir
             self.new_dir = None
             # for some versions, subject could still be holding joystick at this point.
-            # this means we x_mag is at a position that might no longer be
-            # allowed, so we are going to send the current joystick position
-            # through the move method to correct that. move switches the sign, so switch
-            # the sign here as well.
+            # (for example, was going to the right, but now is suppose to be going to the left,
+            # but since we only detect when the joystick position has changed, and it has
+            # not, may not realize that that we are now going what is considered a 'wrong' direction
+            # so we are essentially re-checking the the joystick position, given the other updated
+            # parameters).
+            # send the current joystick position through the move method to correct that.
+            # the original signal had its sign changed, so switch the sign here as well.
             #print 'move'
             self.move('x', -self.x_mag)
             #print('change direction')
@@ -454,6 +471,7 @@ class TrainingBananas(JoystickHandler):
             self.change_level = False
         # check to see if banana is on random
         if self.random_banana:
+            #print 'random'
             # make side not entirely random. Don't want too many in a row on one side
             # for MP, because he is a bit of an idiot.
             # First check if we care about the next direction
@@ -487,9 +505,10 @@ class TrainingBananas(JoystickHandler):
             #print('rotate avatar back so at correct angle:', self.avatar_h)
             self.base.camera.setH(self.multiplier * self.avatar_h)
             #print('avatar heading', self.base.camera.getH())
-        else:
-            self.base.camera.setPos(self.avatar_pos)
-            #print self.base.camera.getPos()
+        # position does not change, if not doing forward training, so just
+        # reset
+        self.base.camera.setPos(self.avatar_pos)
+        #print self.base.camera.getPos()
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'banana position, ' +
@@ -519,7 +538,7 @@ class TrainingBananas(JoystickHandler):
             #print js_input
             # we are moving the camera in the opposite direction of the joystick,
             # if only forward movement allowed, set side movement to zero
-            if self.free_move == 0:
+            if self.go_forward:
                 self.x_mag = 0
             else:
                 self.x_mag = -js_input
@@ -592,32 +611,55 @@ class TrainingBananas(JoystickHandler):
         print('new reward', self.num_beeps)
 
     def inc_level(self):
-        # in level 2 have 2 thru 2.5
-        # currently level 3 is highest
+        # increase the level, if we are jumping multiple levels,
+        # at once, self.training will not have increased yet, so
+        # check to see what self.change_level is first (don't want
+        # to change levels in the middle of a trial)
         print('increase training level')
-        #print('current training level', self.training)
-        if self.training == self.levels_available[-1][-1]:
-            print 'cannot increase level'
-            self.change_level = self.training
-        elif self.training == self.levels_available[0][-1]:
-            #print 'switch 2 to 3'
-            self.change_level = self.levels_available[1][0]
+        training = self.training
+        if self.change_level:
+            training = self.change_level
+        #print('old level', training)
+        # get current position in sequence:
+        seq_num = self.get_seq_num(training)
+        if training == self.levels_available[-1][-1]:
+            print 'already at most difficult level'
+            self.change_level = training
+        elif training == self.levels_available[seq_num][-1]:
+            print 'switching to new sequence'
+            self.change_level = self.levels_available[seq_num + 1][0]
         else:
-            #print 'else'
-            self.change_level = self.training + 0.1
+            self.change_level = round(training + 0.1, 2)
         print('new level', self.change_level)
 
     def dec_level(self):
+        # decrease the level, if we are jumping multiple levels,
+        # at once, self.training will not have increased yet, so
+        # check to see what self.change_level is first (don't want
+        # to change levels in the middle of a trial)
         print('decrease training level')
-        #print('current training level', self.training)
-        if self.training == self.levels_available[0][0]:
-            self.change_level = self.training
-            print 'cannot decrease level'
-        elif self.training == self.levels_available[-1][0]:
-            self.change_level = self.levels_available[-2][-1]
+        training = self.training
+        if self.change_level:
+            training = self.change_level
+        #print('old level', training)
+        # get current position in sequence:
+        seq_num = self.get_seq_num(training)
+        if training == self.levels_available[0][0]:
+            print 'already at easiest level'
+            self.change_level = training
+        elif training == self.levels_available[seq_num][0]:
+            print 'switching to new sequence'
+            self.change_level = self.levels_available[seq_num - 1][-1]
         else:
-            self.change_level = self.training - 0.1
+            self.change_level = round(training - 0.1, 2)
         print('new level', self.change_level)
+
+    def get_seq_num(self, training):
+        for seq_num, sequence in enumerate(self.levels_available):
+            if sequence.count(training) > 0:
+                if sequence.index(training) is not None:
+                    break
+        return seq_num
 
     def inc_wrong_speed(self):
         print 'increase speed in wrong direction'
@@ -720,6 +762,7 @@ class TrainingBananas(JoystickHandler):
         self.random_banana = False
         self.require_aim = False
         self.go_forward = False
+        self.banana_coll_node.setIntoCollideMask(self.mask_list[0])
         if training > self.levels_available[0][0]:
             self.must_release = True
         if training > self.levels_available[0][1]:
@@ -732,6 +775,7 @@ class TrainingBananas(JoystickHandler):
             self.require_aim = True
         # level 3 training
         if training > self.levels_available[0][-1]:
+            self.banana_coll_node.setIntoCollideMask(self.mask_list[1])
             # defaults for level 3 training
             self.go_forward = True
             self.free_move = 0
@@ -742,28 +786,18 @@ class TrainingBananas(JoystickHandler):
             self.must_release = True
         # level 4 training
         if training > self.levels_available[1][-1]:
+            self.banana_coll_node.setIntoCollideMask(self.mask_list[2])
+            # go_forward will change during trial, start out can only
+            # go to the side, until banana is lined up
+            self.go_forward = False
             self.random_banana = True
             self.free_move = 4
 
-        if self.training >= self.levels_available[2][0]:
-            # if training is 4.x, use both bitmasks, and check which collision
-            self.cam_sphere_node.setFromCollideMask(self.banana_mask)
-            self.cam_ray_node.setFromCollideMask(self.banana_mask)
-        if self.training >= self.levels_available[1][0]:
-            # if training is 3.x, need to run into banana for reward
-            # so only care about sphere having same bitmask as banana
-            self.cam_sphere_node.setFromCollideMask(self.banana_mask)
-            self.cam_ray_node.setFromCollideMask(0)
-        elif self.training >= self.levels_available[0][0]:
-            # if training is 2 to 3, need ray to line up with banana for reward
-            self.cam_sphere_node.setFromCollideMask(0)
-            self.cam_ray_node.setFromCollideMask(self.banana_mask)
-        print 'ray'
-        print self.cam_ray_node.getFromCollideMask()
-        print self.cam_ray_node.getIntoCollideMask()
-        print 'sphere'
-        print self.cam_sphere_node.getFromCollideMask()
-        print self.cam_sphere_node.getIntoCollideMask()
+        print('forward', self.go_forward)
+        print('free move', self.free_move)
+        print('must release', self.must_release)
+        print('random', self.random_banana)
+        print('require aim', self.require_aim)
 
     def open_data_file(self, config):
         # open file for recording eye data

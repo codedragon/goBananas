@@ -8,7 +8,7 @@ subject = 'Test'
 #trainingDirection = 'Right'
 trainingDirection = 'Left'
 
-#training = 2.3
+# training = 2.3
 training = 4
 
 # Set Training Level - only using 2 and above in this program
@@ -80,7 +80,8 @@ avatar_start_h = 1.5
 avatar_start_d = 2.5
 
 # list of all random selections available
-random_lists = [[3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9], [3, 5, 7.5, 8.5, 9.5, 10], [3, 5, 7, 8, 9, 10, 11]]
+random_lists = [[3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9], [3, 5, 7.5, 8.5, 9.5, 10],
+                [3, 5, 7, 8, 9, 10, 11]]
 # choose starting number of random_lists.
 random_selection = 1
 
