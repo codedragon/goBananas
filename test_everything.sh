@@ -8,7 +8,7 @@ OUTPUT="A test has failed, please troubleshoot test suite "
 if [ "$arch" == 'x86_64' ]
 then
     for i in {0..7}; do
-        #echo $i
+        echo $i
         arch -i386 ppython test_trainingBananas.py $i > /dev/null || { echo $OUTPUT $i; exit 1;}
         #echo test over
     done

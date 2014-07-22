@@ -287,7 +287,7 @@ class TrainingBananas(JoystickHandler):
                         #print('let go!')
                         return task.cont
                 # and now we can start things over again
-                print('start over')
+                #print('start over')
                 self.restart_bananas()
                 # check_time is used to see how long it takes subject
                 # to get banana from time plotted
@@ -328,6 +328,7 @@ class TrainingBananas(JoystickHandler):
                     #print heading
                     # set new speed, if new trial or subject stopped, reverts to default
                     if self.start_trial or self.x_mag == 0:
+                        #print 'restart speed'
                         self.speed = self.initial_speed
                         self.start_trial = False
                     else:
@@ -338,13 +339,20 @@ class TrainingBananas(JoystickHandler):
                     #print('new speed', self.speed)
                     # edges of screen are like a wall
                     # if heading is 22 or over, and moving away from center, nothing happens
-                    if abs(heading) >= 22 and self.x_mag * self.multiplier > 0:
+                    # is there any way to tell if you are moving towards center?
+                    to_center = False
+                    if self.x_mag != 0 and heading != 0:
+                        if self.x_mag/abs(self.x_mag) * heading/abs(heading) < 0:
+                            to_center = True
+                        #print('to center ', to_center)
+                    if abs(heading) >= 22 and not to_center:
                         #print 'hit a wall'
                         delta_heading = 0
-                    elif self.check_zone is None:
+                    elif self.check_zone is None and not to_center:
                         #print 'went past zone'
                         # if check_zone is None, than went past banana target zone,
-                        # and we want him to go slow (cancel any acceleration)
+                        # and we want him to go slow (cancel any acceleration), if in direction
+                        # away from center
                         delta_heading = self.x_mag * self.initial_speed * dt
                     else:
                         # use dt so when frame rate changes the rate of movement changes proportionately
@@ -365,7 +373,7 @@ class TrainingBananas(JoystickHandler):
                     if collide_banana:
                         #print('in the zone')
                         if task.time > self.hold_time:
-                            print('ok, get reward')
+                            #print('ok, get reward')
                             # stop moving and get reward
                             self.x_change_color(self.x_stop_c)
                             self.moving = False
@@ -382,7 +390,7 @@ class TrainingBananas(JoystickHandler):
                         if self.require_aim == 'slow':
                             self.check_zone = None
                         else:
-                            print "don't slow down"
+                            #print "don't slow down"
                             self.check_zone = False
                 else:
                     # not currently checking zone, so either collide_banana means reward immediately
@@ -408,7 +416,7 @@ class TrainingBananas(JoystickHandler):
                             self.yay_reward = True
                     elif collide_banana is None:
                         # partial reward for lining up banana in level 4.x
-                        print 'partial reward'
+                        #print 'partial reward'
                         #self.yay_reward = 'partial'
                         self.yay_reward = True
                         self.reward_count = self.num_beeps - 1
@@ -431,18 +439,18 @@ class TrainingBananas(JoystickHandler):
             for i in range(self.collHandler.getNumEntries()):
                 entry = self.collHandler.getEntry(i)
                 if self.go_forward and entry.getFromNodePath() == self.sphere_node_path:
-                    print 'ran into banana going forward'
+                    #print 'ran into banana going forward'
                     collide_banana = True
                     self.go_forward = False
                 elif not self.go_forward and entry.getFromNodePath() == self.ray_node_path:
-                    print 'lined up banana from side'
+                    #print 'lined up banana from side'
                     collide_banana = None
                     self.go_forward = True
                 #print entry.getFromNodePath()
         elif self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
             collide_banana = True
-            print self.collHandler.getEntries()
+            #print self.collHandler.getEntries()
             #print self.base.camera.getH()
             #print self.base.camera.getPos()
             #print self.banana.getPos()
@@ -492,10 +500,12 @@ class TrainingBananas(JoystickHandler):
                 #print 'random'
                 self.multiplier = random.choice([1, -1])
             #print('next up', self.multiplier)
-            # multiplier should never be zero
+            # multiplier should never be zero when doing this comparison
+            # last_multiplier is the only one that can be zero, and only
+            # very briefly
             # if this gives you a negative 1, than we are switching sides,
-            # and should reset to zero
-            # if we don't care about side_bias, then this doesn't matter
+            # if we don't care about side_bias, we don't look at last_multiplier,
+            # and this doesn't matter
             if self.last_multiplier/self.multiplier != 1:
                 #print 'reset'
                 self.last_multiplier = 0
@@ -525,7 +535,7 @@ class TrainingBananas(JoystickHandler):
         #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
         # un-hide banana
         self.banana.unstash()
-        print 'avatar can move again, new trial starting'
+        #print 'avatar can move again, new trial starting'
         self.moving = True
         #print('yay', self.yay_reward)
 
@@ -799,7 +809,7 @@ class TrainingBananas(JoystickHandler):
         if training > self.levels_available[0][5]:
             #print '2.6'
             self.require_aim = True
-        print self.levels_available[0][-1]
+        #print self.levels_available[0][-1]
         # level 3 training
         if training > self.levels_available[0][-1]:
             #print '3.0'

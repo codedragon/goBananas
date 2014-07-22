@@ -14,7 +14,7 @@ training = 2.6
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
 # training 2.0, left/right, can only move direction towards center
-#               self.free_move = 1
+#               self.free_move = 1 (only towards banana)
 #               self.must_release = False
 #               self.random_banana = False
 #               self.require_aim = False
@@ -33,14 +33,14 @@ training = 2.6
 # training 2.3, banana appears randomly on either side, multiple distances. Must let go
 #          of joystick to start next trial, both directions allowed, wrong direction
 #          slower than towards center
-#               self.free_move = 2
+#               self.free_move = 2 (both directions, away from center slow)
 #               self.must_release = True
 #               self.random_banana = True
 #               self.require_aim = False
 # training 2.4, banana appears randomly on either side, multiple distances. Must let go
 #          of joystick to start next trial, both directions allowed, wrong direction
 #          same speed as towards center
-#               self.free_move = 3
+#               self.free_move = 3 (both directions, all normal speeds)
 #               self.must_release = True
 #               self.random_banana = True
 #               self.require_aim = False
