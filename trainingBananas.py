@@ -107,7 +107,7 @@ class TrainingBananas(JoystickHandler):
         # set up banana
         self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
         # banana always in the same position, just move avatar.
-        self.banana.setPos(Point3(0, 0, 0))
+        self.banana.setPos(Point3(0, 0, 1))
         self.banana.setH(280)
         #self.banana.setH(0)
         self.banana.setScale(0.5)
@@ -132,6 +132,7 @@ class TrainingBananas(JoystickHandler):
 
         # add collision sphere to camera
         sphere_node = self.base.camera.attachNewNode(CollisionNode('CollisionSphere'))
+        #camera_sphere = CollisionSphere(0, 0, 0, 1.3)
         camera_sphere = CollisionSphere(0, 0, 0, 1.3)
         self.sphere_node_path = self.make_coll_node_path(sphere_node, camera_sphere)
         self.sphere_node_path.node().setIntoCollideMask(0)
@@ -150,11 +151,11 @@ class TrainingBananas(JoystickHandler):
 
         # set avatar position/heading
         # Default positions
-        self.avatar_pos = Point3(0, -2.5, 0)
+        self.avatar_pos = Point3(0, -2.5, 1)
         self.avatar_h = 0
 
         if self.training > self.levels_available[0][-1]:
-            self.avatar_pos = Point3(0.01, -config['avatar_start_d'], 0)
+            self.avatar_pos = Point3(0.01, -config['avatar_start_d'], 1)
             #self.fullForwardSpeed = config['fullForwardSpeed']
         elif self.training < self.levels_available[1][0]:
             self.avatar_h = config['avatar_start_h']
@@ -197,6 +198,7 @@ class TrainingBananas(JoystickHandler):
 
         # These variables are set to their initial states in reset_variables, so
         # does not matter what they are set to here.
+        ###  DO NOT SET VARIABLES HERE, GO TO RESET_VARIABLES!!!
         # variable used to notify when changing direction of new target
         self.new_dir = None
         # and variable to notify when changing levels
@@ -211,12 +213,14 @@ class TrainingBananas(JoystickHandler):
         self.x_mag = 0
         self.y_mag = 0
         self.speed = self.initial_speed  # factor to slow down movement of joystick and control acceleration
+        # speed for going in the wrong direction, when same speed as initial speed, then no change
+        self.forward_speed = self.initial_speed + 1  # forward needs more speed than turning
+        self.wrong_speed = 0.005
+        self.slow_speed = self.wrong_speed
         # toggle for whether moving is allowed or not
         self.moving = True
         # toggle for making sure stays on banana for min time for 2.3
         self.set_zone_time = False
-        # speed for going in the wrong direction, 1 is no change, higher numbers slower
-        self.wrong_speed = 4
         # keeps track of how long we have held
         self.hold_time = 0
         self.check_zone = False
@@ -297,20 +301,21 @@ class TrainingBananas(JoystickHandler):
             if self.moving:
                 # moving, forward first, only bother checking if possible to go forward
                 if self.go_forward:
+                    # forward needs a little speed boost compared to turning
                     if self.start_trial or self.y_mag == 0:
-                        self.speed = self.initial_speed
+                        self.forward_speed = self.initial_speed + 1
                         self.start_trial = False
                     else:
                         # self.y_mag (how much you push the joystick) affects
                         # acceleration as well as speed
-                        self.speed += 0.05 * abs(self.y_mag)
+                        self.forward_speed += self.initial_speed * abs(self.y_mag)
                     position = self.base.camera.getPos()
                     #print(position)
                     #print('y_mag', self.y_mag)
                     #print('speed', self.speed)
                     #print('dt', dt)
                     #print('change in position', self.y_mag * self.speed * dt)
-                    position[1] += self.y_mag * self.speed * dt
+                    position[1] += self.y_mag * self.forward_speed * dt
                     # if this puts us past center, stay at center
                     if position[1] > 0:
                         position[1] = 0
@@ -318,49 +323,8 @@ class TrainingBananas(JoystickHandler):
                 # Now check for rotation. Don't need to check this if self.free_move = 0
                 if self.free_move != 0:
                     #print 'rotating'
-                    # want to create some acceleration, so
-                    # every frame we will increase the self.speed by a very small fraction of the previous self.x_mag
-                    # if self.x_mag was zero, than we reset slow_factor
-                    #print self.base.camera.getH()
-                    #print(self.x_mag * self.speed * -self.multiplier)
-                    #print self.speed
                     heading = self.base.camera.getH()
-                    #print heading
-                    # set new speed, if new trial or subject stopped, reverts to default
-                    if self.start_trial or self.x_mag == 0:
-                        #print 'restart speed'
-                        self.speed = self.initial_speed
-                        self.start_trial = False
-                    else:
-                        #self.speed = 1
-                        # self.x_mag (how much you push the joystick) affects
-                        # acceleration as well as speed
-                        self.speed += 0.05 * abs(self.x_mag)
-                    #print('new speed', self.speed)
-                    # edges of screen are like a wall
-                    # if heading is 22 or over, and moving away from center, nothing happens
-                    # is there any way to tell if you are moving towards center?
-                    to_center = False
-                    if self.x_mag != 0 and heading != 0:
-                        if self.x_mag/abs(self.x_mag) * heading/abs(heading) < 0:
-                            to_center = True
-                        #print('to center ', to_center)
-                    if abs(heading) >= 22 and not to_center:
-                        #print 'hit a wall'
-                        delta_heading = 0
-                    elif self.check_zone is None and not to_center:
-                        #print 'went past zone'
-                        # if check_zone is None, than went past banana target zone,
-                        # and we want him to go slow (cancel any acceleration), if in direction
-                        # away from center
-                        delta_heading = self.x_mag * self.initial_speed * dt
-                    else:
-                        # use dt so when frame rate changes the rate of movement changes proportionately
-                        delta_heading = self.x_mag * self.speed * dt
-                        #print self.speed
-                        #print('dt', dt)
-                        #print('x', self.x_mag)
-                    #print('change heading', delta_heading)
+                    delta_heading = self.get_new_heading(heading, dt)
                     self.base.camera.setH(heading + delta_heading)
                     #print('camera heading', self.base.camera.getH())
                 # check for collision:
@@ -387,6 +351,7 @@ class TrainingBananas(JoystickHandler):
                     else:
                         #print('left zone, wait for another collision')
                         self.x_change_color(self.x_start_c)
+                        #print('require aim', self.require_aim)
                         if self.require_aim == 'slow':
                             self.check_zone = None
                         else:
@@ -441,11 +406,10 @@ class TrainingBananas(JoystickHandler):
                 if self.go_forward and entry.getFromNodePath() == self.sphere_node_path:
                     #print 'ran into banana going forward'
                     collide_banana = True
-                    self.go_forward = False
+                    self.moving = False
                 elif not self.go_forward and entry.getFromNodePath() == self.ray_node_path:
                     #print 'lined up banana from side'
                     collide_banana = None
-                    self.go_forward = True
                 #print entry.getFromNodePath()
         elif self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
@@ -575,24 +539,6 @@ class TrainingBananas(JoystickHandler):
             if self.subject == 'MP' and js_input != 0:
                 self.x_mag = js_input * -2
             #print('x', self.x_mag)
-
-            ### MOVE THIS TO FRAME LOOP
-
-            # slow down or stop movement in direction away from banana
-            # if joystick direction and multiplier are same sign,
-            # will be positive and therefor direction to be blocked
-            if self.x_mag * self.multiplier > 0:
-                #print('greater than zero:', self.x_mag * self.multiplier)
-                # 1 is only allowed to go one direction (towards banana),
-                # 2 is both direction, but away from banana is slower
-                if self.free_move == 1:
-                    #print 'none'
-                    self.x_mag = 0
-                elif self.free_move == 2:
-                    #print 'slow'
-                    #print self.wrong_speed
-                    self.x_mag /= self.wrong_speed
-            #print('new x', self.x_mag)
         else:
             # y direction is reversed,
             # not allowed to go backward, ever
@@ -600,6 +546,54 @@ class TrainingBananas(JoystickHandler):
                 self.y_mag = -js_input
             else:
                 self.y_mag = 0
+
+    def get_new_heading(self, heading, dt):
+        # set new speed.
+        # if new trial or subject stopped moving, reverts to initial speed
+        if self.start_trial or self.x_mag == 0:
+            self.speed = self.initial_speed
+            self.slow_speed = self.wrong_speed
+            self.start_trial = False
+        else:
+            # the larger the push on the joystick,
+            # the more the speed increases.
+            self.slow_speed += self.wrong_speed * abs(self.x_mag)
+            #self.speed += 0.05 * abs(self.x_mag)
+            self.speed += self.initial_speed * abs(self.x_mag)
+        # determine if moving towards the banana
+        to_banana = False
+        # first if is to make sure we don't divide by zero,
+        if self.x_mag != 0 and heading != 0:
+            if self.x_mag/abs(self.x_mag) * heading/abs(heading) < 0:
+                to_banana = True
+        # unless there is a reason to stop movement, this is the heading
+        delta_heading = self.x_mag * self.speed * dt
+        # if heading away from banana, many opportunities to slow or
+        # stop movement...
+        if not to_banana:
+            if abs(heading) >= 22:
+                # block off edge of screen
+                # print 'hit a wall'
+                delta_heading = 0
+            elif self.check_zone is None:
+                # if check_zone is None, than went past banana target zone,
+                # and we want him to go slow
+                #print 'went past zone'
+                delta_heading = self.x_mag * self.slow_speed * dt
+                #delta_heading = self.x_mag * self.initial_speed * dt
+            elif self.free_move == 1:
+                # self.free_move is one, only allowed to go towards banana
+                delta_heading = 0
+            elif self.free_move == 2:
+                # self.free_move is two, both directions allowed, but go
+                # in direction away from banana more slowly.
+                print 'slow'
+                #self.x_mag /= self.wrong_speed
+                delta_heading = self.x_mag * self.slow_speed * dt
+                #print self.slow_speed
+                #delta_heading = self.x_mag * self.speed * dt
+                #print('delta heading', delta_heading)
+        return delta_heading
 
     def inc_angle(self):
         print 'increase angle'
@@ -687,19 +681,16 @@ class TrainingBananas(JoystickHandler):
 
     def inc_wrong_speed(self):
         print 'increase speed in wrong direction'
-        # larger numbers are slower, so decrease number
-        # to increase speed
-        if self.wrong_speed == 1:
+        if self.wrong_speed >= self.initial_speed:
+            self.wrong_speed = self.initial_speed
             print 'now same speed as towards the banana'
         else:
-            self.wrong_speed -= 1
+            self.wrong_speed += 0.01
         print('new speed', self.wrong_speed)
 
     def dec_wrong_speed(self):
         print 'decrease speed in wrong direction'
-        # smaller numbers are faster, so increase number
-        # to decrease speed
-        self.wrong_speed += 1
+        self.wrong_speed -= 0.01
         print('new speed', self.wrong_speed)
 
     def inc_random(self):
@@ -748,6 +739,10 @@ class TrainingBananas(JoystickHandler):
         self.reward_count = 0
         self.x_mag = 0
         self.y_mag = 0
+        self.speed = self.initial_speed  # factor to slow down movement of joystick and control acceleration
+        # speed for going in the wrong direction, when same speed as initial speed, then no change
+        self.wrong_speed = 0.005
+        self.slow_speed = self.wrong_speed
         # toggle for whether moving is allowed or not
         self.moving = True
         # toggle for making sure stays on banana for min time for 2.3
@@ -767,7 +762,8 @@ class TrainingBananas(JoystickHandler):
         self.check_zone = False
         #self.check_time = 0
         # speed for going in the wrong direction, 1 is no change, higher numbers slower
-        self.wrong_speed = 4
+        self.wrong_speed = 0.005
+        self.slow_speed = self.wrong_speed
         # toggle for when trial begins
         self.start_trial = True
         if self.random_banana:
