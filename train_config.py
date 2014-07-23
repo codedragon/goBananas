@@ -54,10 +54,10 @@ training = 2.3
 avatar_start_h = 1.5
 
 # list of all random selections available
-random_lists = [[3, 5, 6.5], [3, 5, 6.5, 7], [3, 5, 6.5, 7.5], [3, 5, 7, 8], [3, 5, 7, 9], [3, 5, 7, 9.5], [3, 5, 7, 10],
-                [3, 5, 8, 10.5], [3, 5, 8, 11], [3, 5, 8, 12], [3, 5, 8, 13]]
+random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 6.5, 7.5], [3, 5, 7, 8], [3, 5, 7, 9], [3, 5, 7, 9.5], [4, 6, 7, 10],
+                [4, 5, 8, 10.5], [4, 6, 9, 11], [4, 6, 8, 10, 12], [4, 6, 8, 10, 13]]
 # choose starting number of random_lists.
-random_selection = 1
+random_selection = 3
 
 # random selection used for training 2.3 and above
 #random_choices = [1.5, 2, 2.3, 3, 3.4]
