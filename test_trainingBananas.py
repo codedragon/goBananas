@@ -329,7 +329,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
             # go to center for reward, and stay until moving is allowed again.
             self.move_to_center_for_reward('stay')
             # should be on left side now.
-            #print 'banana on new side now'
+            print 'banana on new side now'
             self.assertTrue(self.tb.multiplier == -old_dir)
             # should be same distance, but opposite side
             self.assertTrue(self.tb.base.camera.getH() / before == -1)

@@ -20,6 +20,13 @@ aspectRatio  gobananas : 1.333  bananarchy:  1.25
 resolution       1024x768          1280x1024
 FOV              60:46.82          60:49.58
 
+gobananas, camera:
+pos		LPoint3f(0, 0, 0)
+fov		LVecBase2f(60, 46.8265)
+near		0.10000000149
+far		100000.0
+aspectratio	1.33333337307
+
 Tests are becoming quite problematic. Starting to require doing stuff in environment.
 How to get around this?
 

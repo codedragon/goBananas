@@ -149,6 +149,9 @@ class TrainingBananas(JoystickHandler):
         #self.sphere_node_path.show()
         #banana_node_path.show()
 
+        # Camera
+        self.base.camLens.setFov(60)
+
         # set avatar position/heading
         # Default positions
         self.avatar_pos = Point3(0, -2.5, 1)
@@ -238,7 +241,13 @@ class TrainingBananas(JoystickHandler):
         #print self.avatar_h
         #print self.base.camera.getH()
         #print self.avatar_pos
-        #print self.base.camera.getPos()
+        print self.base.camera.getPos()
+        print self.base.camLens.getFov()
+        print self.base.camLens.getNear()
+        print self.base.camLens.getFar()
+        print self.base.camLens.getAspectRatio()
+        self.base.camLens.setNear(0.5)
+
         #print self.banana.getPos()
 
     def frame_loop(self, task):
