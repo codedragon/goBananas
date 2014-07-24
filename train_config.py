@@ -9,7 +9,7 @@ subject = 'Test'
 trainingDirection = 'Left'
 
 #training = 2.3
-training = 4
+training = 2.3
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
@@ -87,16 +87,16 @@ avatar_start_h = 1.5
 # smaller banana)
 avatar_start_d = 3.5
 
-# list of all random selections available
-random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9],
-                [3, 5, 7.5, 8.5, 9.5, 10], [3, 5, 7, 8, 9, 10, 11]]
+# list of all random selections available (2.3 and above)
+#random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9],
+#                [3, 5, 7.5, 8.5, 9.5, 10], [3, 5, 7, 8, 9, 10, 11]]
+
+random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 6.5, 7.5], [3, 5, 7, 8], [3, 5, 7, 9], [3, 5, 7, 9.5], [4, 6, 7, 10],
+                [4, 5, 8, 10.5], [4, 6, 9, 11], [4, 6, 8, 10, 12], [4, 6, 8, 10, 13], [4, 7, 10, 12, 14],
+                [4, 7, 10, 13, 15], [5, 8, 11, 14, 16], [5, 8, 11, 14, 17], [4, 6, 9, 12, 15, 18],
+                [4, 6, 10, 13, 16, 19], [4, 7, 10, 14, 17, 20], [4, 7, 10, 14, 18, 21], [4, 7, 10, 14, 18, 22]]
 # choose starting number of random_lists.
 random_selection = 1
-
-# random selection used for training 2.3 and above
-#random_choices = [1.5, 2, 2.3, 3, 3.4]
-#random_choices = [1.5, 2.3, 3, 3.4, 4.2, 5]
-#random_choices = [1.5, 2.3, 3.4, 5, 7.6, 11]
 
 # random bias means that it is not strictly random, if there are 2 bananas in a row
 # on one side, the next banana will always switch sides.
@@ -110,7 +110,7 @@ hold_aim = 0.6
 
 # what speed to start out at this will be multiplied by pressure on joystick
 # and time since last screen refresh
-initial_turn_speed = 0.1
+initial_turn_speed = 0.2
 #initial_speed = 2
 
 initial_forward_speed = 2

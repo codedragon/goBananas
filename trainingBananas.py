@@ -134,7 +134,7 @@ class TrainingBananas(JoystickHandler):
         # add collision sphere to camera
         sphere_node = self.base.camera.attachNewNode(CollisionNode('CollisionSphere'))
         #camera_sphere = CollisionSphere(0, 0, 0, 1.3)
-        camera_sphere = CollisionSphere(0, 0, 0, 0.8)
+        camera_sphere = CollisionSphere(0, 0, 0, 1.0)
         self.sphere_node_path = self.make_coll_node_path(sphere_node, camera_sphere)
         self.sphere_node_path.node().setIntoCollideMask(0)
         self.sphere_node_path.node().setFromCollideMask(sphere_mask)
@@ -247,7 +247,7 @@ class TrainingBananas(JoystickHandler):
         #print self.base.camLens.getNear()
         #print self.base.camLens.getFar()
         #print self.base.camLens.getAspectRatio()
-        self.base.camLens.setNear(0.3)
+        self.base.camLens.setNear(0.2)
         #print self.banana.getPos()
 
     def frame_loop(self, task):
