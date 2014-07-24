@@ -9,7 +9,7 @@ subject = 'Test'
 trainingDirection = 'Left'
 
 #training = 2.3
-training = 2
+training = 4
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
@@ -83,7 +83,9 @@ training = 2
 avatar_start_h = 1.5
 
 # starting distance between avatar and banana (forward training)
-avatar_start_d = 2.5
+# with turning training, this is 2.5, so further than this for
+# smaller banana)
+avatar_start_d = 3.5
 
 # list of all random selections available
 random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9],
@@ -108,8 +110,10 @@ hold_aim = 0.6
 
 # what speed to start out at this will be multiplied by pressure on joystick
 # and time since last screen refresh
-initial_speed = 0.1
+initial_turn_speed = 0.1
 #initial_speed = 2
+
+initial_forward_speed = 2
 
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
 #reward = False

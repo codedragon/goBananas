@@ -88,7 +88,8 @@ class TrainingBananas(JoystickHandler):
         # must be more than zero. At 1.5 distance, must be greater than
         # 0.5 to require stopping
         self.hold_aim = config['hold_aim']
-        self.initial_speed = config['initial_speed']
+        self.initial_speed = config['initial_turn_speed']
+        self.initial_forward_speed = config['initial_forward_speed']
         self.training = config['training']
         if not unittest:
             print('training level is', self.training)
@@ -133,7 +134,7 @@ class TrainingBananas(JoystickHandler):
         # add collision sphere to camera
         sphere_node = self.base.camera.attachNewNode(CollisionNode('CollisionSphere'))
         #camera_sphere = CollisionSphere(0, 0, 0, 1.3)
-        camera_sphere = CollisionSphere(0, 0, 0, 1.3)
+        camera_sphere = CollisionSphere(0, 0, 0, 0.8)
         self.sphere_node_path = self.make_coll_node_path(sphere_node, camera_sphere)
         self.sphere_node_path.node().setIntoCollideMask(0)
         self.sphere_node_path.node().setFromCollideMask(sphere_mask)
@@ -217,7 +218,7 @@ class TrainingBananas(JoystickHandler):
         self.y_mag = 0
         self.speed = self.initial_speed  # factor to slow down movement of joystick and control acceleration
         # speed for going in the wrong direction, when same speed as initial speed, then no change
-        self.forward_speed = self.initial_speed + 1  # forward needs more speed than turning
+        self.forward_speed = self.initial_forward_speed
         self.wrong_speed = 0.005
         self.slow_speed = self.wrong_speed
         # toggle for whether moving is allowed or not
@@ -241,13 +242,12 @@ class TrainingBananas(JoystickHandler):
         #print self.avatar_h
         #print self.base.camera.getH()
         #print self.avatar_pos
-        print self.base.camera.getPos()
-        print self.base.camLens.getFov()
-        print self.base.camLens.getNear()
-        print self.base.camLens.getFar()
-        print self.base.camLens.getAspectRatio()
-        self.base.camLens.setNear(0.5)
-
+        #print self.base.camera.getPos()
+        #print self.base.camLens.getFov()
+        #print self.base.camLens.getNear()
+        #print self.base.camLens.getFar()
+        #print self.base.camLens.getAspectRatio()
+        self.base.camLens.setNear(0.3)
         #print self.banana.getPos()
 
     def frame_loop(self, task):
@@ -312,12 +312,12 @@ class TrainingBananas(JoystickHandler):
                 if self.go_forward:
                     # forward needs a little speed boost compared to turning
                     if self.start_trial or self.y_mag == 0:
-                        self.forward_speed = self.initial_speed + 1
+                        self.forward_speed = self.initial_forward_speed
                         self.start_trial = False
                     else:
                         # self.y_mag (how much you push the joystick) affects
                         # acceleration as well as speed
-                        self.forward_speed += self.initial_speed * abs(self.y_mag)
+                        self.forward_speed += self.initial_forward_speed * abs(self.y_mag)
                     position = self.base.camera.getPos()
                     #print(position)
                     #print('y_mag', self.y_mag)
@@ -748,7 +748,8 @@ class TrainingBananas(JoystickHandler):
         self.reward_count = 0
         self.x_mag = 0
         self.y_mag = 0
-        self.speed = self.initial_speed  # factor to slow down movement of joystick and control acceleration
+        self.speed = self.initial_speed  # factor to change speed of joystick and control acceleration
+        self.forward_speed = self.initial_forward_speed
         # speed for going in the wrong direction, when same speed as initial speed, then no change
         self.wrong_speed = 0.005
         self.slow_speed = self.wrong_speed
