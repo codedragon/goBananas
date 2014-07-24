@@ -90,6 +90,7 @@ class TrainingBananas(JoystickHandler):
         self.hold_aim = config['hold_aim']
         self.initial_speed = config['initial_turn_speed']
         self.initial_forward_speed = config['initial_forward_speed']
+        self.forward_limit = config['forward_limit']
         self.training = config['training']
         if not unittest:
             print('training level is', self.training)
@@ -278,9 +279,14 @@ class TrainingBananas(JoystickHandler):
             # check for reward
             #print('beeps so far', self.reward_count)
             #print self.yay_reward
-            #if self.yay_reward == 'partial':
-            #    print 'partial reward'
-            if self.yay_reward and self.reward_count < self.num_beeps:
+            if self.yay_reward == 'partial':
+                # if we line up the crosshair in level 4, give partial reward
+                if self.reward_count == 0:
+                    print 'partial reward'
+                    self.give_reward()
+                    #self.reward_count += 1
+                    return task.cont
+            elif self.yay_reward and self.reward_count < self.num_beeps:
                 print 'reward'
                 self.reward_count += 1
                 self.give_reward()
@@ -329,7 +335,7 @@ class TrainingBananas(JoystickHandler):
                     if position[1] > 0:
                         position[1] = 0
                     self.base.camera.setPos(position)
-                # Now check for rotation. Don't need to check this if self.free_move = 0
+                # Now check for rotation. Don't need to check this if self.free_move = 0 (forward movement only)
                 if self.free_move != 0:
                     #print 'rotating'
                     heading = self.base.camera.getH()
@@ -342,9 +348,11 @@ class TrainingBananas(JoystickHandler):
                 # make sure still in target zone.
                 if self.check_zone:
                     #print('check hold')
-                    # not sure if I will use a zone for going forward yet
+                    # use zone for both left-right training, and for forward training.
+                    # with forward training, use to see if we went off course, and then
+                    # lined up the crosshair and banana again.
                     if collide_banana:
-                        #print('in the zone')
+                        print('in the zone')
                         if task.time > self.hold_time:
                             #print('ok, get reward')
                             # stop moving and get reward
@@ -357,6 +365,8 @@ class TrainingBananas(JoystickHandler):
                             #print('keep holding')
                             #print('time', task.time)
                             #print('hold until', self.hold_time)
+                    elif collide_banana is None:
+                        self.yay_reward = 'partial'
                     else:
                         #print('left zone, wait for another collision')
                         self.x_change_color(self.x_start_c)
@@ -388,12 +398,12 @@ class TrainingBananas(JoystickHandler):
                                 #print 'moved camera'
                                 #self.base.camera.setH(0)
                             self.yay_reward = True
-                    elif collide_banana is None:
+                    #elif collide_banana is None:
                         # partial reward for lining up banana in level 4.x
                         #print 'partial reward'
                         #self.yay_reward = 'partial'
-                        self.yay_reward = True
-                        self.reward_count = self.num_beeps - 1
+                        #self.yay_reward = True
+                        #self.reward_count = self.num_beeps - 1
         return task.cont
 
     def give_reward(self):
@@ -412,12 +422,12 @@ class TrainingBananas(JoystickHandler):
         if self.free_move == 4:
             for i in range(self.collHandler.getNumEntries()):
                 entry = self.collHandler.getEntry(i)
-                if self.go_forward and entry.getFromNodePath() == self.sphere_node_path:
-                    #print 'ran into banana going forward'
+                if entry.getFromNodePath() == self.sphere_node_path:
+                    print 'ran into banana going forward'
                     collide_banana = True
                     self.moving = False
-                elif not self.go_forward and entry.getFromNodePath() == self.ray_node_path:
-                    #print 'lined up banana from side'
+                elif self.yay_reward != 'partial' and entry.getFromNodePath() == self.ray_node_path:
+                    print 'lined up banana from side'
                     collide_banana = None
                 #print entry.getFromNodePath()
         elif self.collHandler.getNumEntries() > 0:
@@ -556,8 +566,20 @@ class TrainingBananas(JoystickHandler):
             else:
                 self.y_mag = 0
 
+    def restrict_forward(self):
+        """
+        :return:
+        As self.forward_limit increases, we require the subject to 'go straighter',
+        iow, the subject should not be pushing the joystick to the side, only forward
+        When forward_limit hits one, can only go forward (any side movement means don't
+        go anywhere)
+        """
+        self.go_forward = True
+        if self.x_mag > self.forward_limit:
+            self.go_forward = False
+
     def get_new_heading(self, heading, dt):
-        # set new speed.
+        # set new turning speed.
         # if new trial or subject stopped moving, reverts to initial speed
         if self.start_trial or self.x_mag == 0:
             self.speed = self.initial_speed
@@ -837,7 +859,7 @@ class TrainingBananas(JoystickHandler):
             self.free_move = 4
             self.must_release = False
             self.random_banana = True
-            self.require_aim = False
+            self.require_aim = True
 
         print('forward', self.go_forward)
         print('free move', self.free_move)

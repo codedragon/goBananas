@@ -1,7 +1,7 @@
 # change individual config files, and have script copy to config.py
 # configuration file for trainBananas
 #
-subject = 'Test'
+subject = 'Gromit'
 #subject = 'MP'
 
 # direction subject has to push the joystick to get the banana
@@ -9,7 +9,7 @@ subject = 'Test'
 trainingDirection = 'Left'
 
 #training = 2.3
-training = 4
+training = 2
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
@@ -77,15 +77,16 @@ training = 4
 #               self.free_move = 4
 #               self.must_release = False (might want this for actual running into banana)
 #               self.random_banana = True
-#               self.require_aim = True (needed for giving partial reward when lining up crosshair)
+#               self.require_aim = False (rather meaningless here)
 
 # starting angle between avatar and banana  (turning training)
-avatar_start_h = 1.5
+avatar_start_h = 1
 
 # starting distance between avatar and banana (forward training)
 # with turning training, this is 2.5, so further than this for
 # smaller banana)
-avatar_start_d = 3.5
+avatar_start_d = 2.5
+#avatar_start_d = 3.5
 
 # list of all random selections available (2.3 and above)
 #random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9],
@@ -115,9 +116,6 @@ initial_turn_speed = 0.2
 
 initial_forward_speed = 2
 
-# limits how much subject can go to the side when suppose to be going forward
-# limit of 1 means no restriction, should not go smaller than 0.2
-forward_limit = 1
 # Are we giving rewards? If true but no pydaq, just won't send pulse.
 #reward = False
 reward = True
