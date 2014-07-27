@@ -134,7 +134,9 @@ class TrainingBananas(JoystickHandler):
         # add collision sphere to camera
         sphere_node = self.base.camera.attachNewNode(CollisionNode('CollisionSphere'))
         #camera_sphere = CollisionSphere(0, 0, 0, 1.3)
-        camera_sphere = CollisionSphere(0, 0, 0, 1.0)
+        #avatar_radius = 0.3
+        avatar_radius = 1
+        camera_sphere = CollisionSphere(0, 0, 0, avatar_radius)
         self.sphere_node_path = self.make_coll_node_path(sphere_node, camera_sphere)
         self.sphere_node_path.node().setIntoCollideMask(0)
         self.sphere_node_path.node().setFromCollideMask(sphere_mask)
@@ -145,7 +147,7 @@ class TrainingBananas(JoystickHandler):
 
         self.base.cTrav.addCollider(self.ray_node_path, self.collHandler)
         self.base.cTrav.addCollider(self.sphere_node_path, self.collHandler)
-        #self.base.cTrav.showCollisions(self.base.render)
+        self.base.cTrav.showCollisions(self.base.render)
         #self.ray_node_path.show()
         #self.sphere_node_path.show()
         #banana_node_path.show()
@@ -247,7 +249,7 @@ class TrainingBananas(JoystickHandler):
         #print self.base.camLens.getNear()
         #print self.base.camLens.getFar()
         #print self.base.camLens.getAspectRatio()
-        self.base.camLens.setNear(0.2)
+        self.base.camLens.setNear(avatar_radius/2.0)
         #print self.banana.getPos()
 
     def frame_loop(self, task):
@@ -278,8 +280,10 @@ class TrainingBananas(JoystickHandler):
             # check for reward
             #print('beeps so far', self.reward_count)
             #print self.yay_reward
-            #if self.yay_reward == 'partial':
-            #    print 'partial reward'
+            if self.yay_reward == 'partial':
+                print 'giving partial reward'
+                self.give_reward()
+                self.yay_reward = None
             if self.yay_reward and self.reward_count < self.num_beeps:
                 print 'reward'
                 self.reward_count += 1
@@ -300,7 +304,7 @@ class TrainingBananas(JoystickHandler):
                         #print('let go!')
                         return task.cont
                 # and now we can start things over again
-                #print('start over')
+                print('start over')
                 self.restart_bananas()
                 # check_time is used to see how long it takes subject
                 # to get banana from time plotted
@@ -390,10 +394,10 @@ class TrainingBananas(JoystickHandler):
                             self.yay_reward = True
                     elif collide_banana is None:
                         # partial reward for lining up banana in level 4.x
-                        #print 'partial reward'
-                        #self.yay_reward = 'partial'
-                        self.yay_reward = True
-                        self.reward_count = self.num_beeps - 1
+                        print 'partial reward'
+                        self.yay_reward = 'partial'
+                        #self.yay_reward = True
+                        #self.reward_count = self.num_beeps - 1
         return task.cont
 
     def give_reward(self):
@@ -410,15 +414,23 @@ class TrainingBananas(JoystickHandler):
         # but if doing both movement, have to check for whichever we are currently
         # interested in.
         if self.free_move == 4:
+            # why doesn't the camera show that we see the banana, ever? wrong camera?
+            print self.base.camNode.isInView(self.banana.getPos())
             for i in range(self.collHandler.getNumEntries()):
                 entry = self.collHandler.getEntry(i)
-                if self.go_forward and entry.getFromNodePath() == self.sphere_node_path:
+                in_view = self.base.camNode.isInView(entry.getIntoNodePath().getPos())
+                print in_view
+                print entry.getIntoNodePath().getPos()
+                if entry.getFromNodePath() == self.sphere_node_path and in_view:
                     #print 'ran into banana going forward'
                     collide_banana = True
                     self.moving = False
-                elif not self.go_forward and entry.getFromNodePath() == self.ray_node_path:
-                    #print 'lined up banana from side'
-                    collide_banana = None
+                elif entry.getFromNodePath() == self.ray_node_path:
+                    #print 'collide ray'
+                    #print self.yay_reward
+                    if self.yay_reward is not None:
+                        print 'lined up banana from side'
+                        collide_banana = None
                 #print entry.getFromNodePath()
         elif self.collHandler.getNumEntries() > 0:
             # the only object we can be running into is the banana, so there you go...
@@ -492,7 +504,7 @@ class TrainingBananas(JoystickHandler):
             # the sign here as well.
             #print 'move'
             self.move('x', -self.x_mag)
-        if not self.go_forward:
+        if self.free_move != 0:
             #print('rotate avatar back so at correct angle:', self.avatar_h)
             self.base.camera.setH(self.multiplier * self.avatar_h)
             #print('avatar heading', self.base.camera.getH())
@@ -578,8 +590,8 @@ class TrainingBananas(JoystickHandler):
         # unless there is a reason to stop movement, this is the heading
         delta_heading = self.x_mag * self.speed * dt
         # if heading away from banana, many opportunities to slow or
-        # stop movement...
-        if not to_banana:
+        # stop movement...(except for if free_move is 4...)
+        if not to_banana and self.free_move != 4:
             if abs(heading) >= 22:
                 # block off edge of screen
                 # print 'hit a wall'
@@ -596,7 +608,7 @@ class TrainingBananas(JoystickHandler):
             elif self.free_move == 2:
                 # self.free_move is two, both directions allowed, but go
                 # in direction away from banana more slowly.
-                print 'slow'
+                #print 'slow'
                 #self.x_mag /= self.wrong_speed
                 delta_heading = self.x_mag * self.slow_speed * dt
                 #print self.slow_speed
