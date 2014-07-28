@@ -282,14 +282,6 @@ class TrainingBananas(JoystickHandler):
             #print('beeps so far', self.reward_count)
             #print self.yay_reward
             if self.yay_reward == 'partial':
-                # if we line up the crosshair in level 4, give partial reward
-                if self.reward_count == 0:
-                    print 'partial reward'
-                    self.give_reward()
-                    #self.reward_count += 1
-                    return task.cont
-            elif self.yay_reward and self.reward_count < self.num_beeps:
-                #print 'reward'
                 print 'giving partial reward'
                 self.give_reward()
                 self.yay_reward = None
@@ -342,7 +334,7 @@ class TrainingBananas(JoystickHandler):
                     if position[1] > 0:
                         position[1] = 0
                     self.base.camera.setPos(position)
-                # Now check for rotation. Don't need to check this if self.free_move = 0 (forward movement only)
+                # Now check for rotation. Don't need to check this if self.free_move = 0
                 if self.free_move != 0:
                     #print 'rotating'
                     heading = self.base.camera.getH()
@@ -355,11 +347,9 @@ class TrainingBananas(JoystickHandler):
                 # make sure still in target zone.
                 if self.check_zone:
                     #print('check hold')
-                    # use zone for both left-right training, and for forward training.
-                    # with forward training, use to see if we went off course, and then
-                    # lined up the crosshair and banana again.
+                    # not sure if I will use a zone for going forward yet
                     if collide_banana:
-                        print('in the zone')
+                        #print('in the zone')
                         if task.time > self.hold_time:
                             #print('ok, get reward')
                             # stop moving and get reward
@@ -372,8 +362,6 @@ class TrainingBananas(JoystickHandler):
                             #print('keep holding')
                             #print('time', task.time)
                             #print('hold until', self.hold_time)
-                    elif collide_banana is None:
-                        self.yay_reward = 'partial'
                     else:
                         #print('left zone, wait for another collision')
                         self.x_change_color(self.x_start_c)
@@ -405,10 +393,8 @@ class TrainingBananas(JoystickHandler):
                                 #print 'moved camera'
                                 #self.base.camera.setH(0)
                             self.yay_reward = True
-                    #elif collide_banana is None:
+                    elif collide_banana is None:
                         # partial reward for lining up banana in level 4.x
-                        #print 'partial reward'
-                        #self.yay_reward = 'partial'
                         print 'partial reward'
                         self.yay_reward = 'partial'
                         #self.yay_reward = True
@@ -433,13 +419,6 @@ class TrainingBananas(JoystickHandler):
             print self.base.camNode.isInView(self.banana.getPos())
             for i in range(self.collHandler.getNumEntries()):
                 entry = self.collHandler.getEntry(i)
-                if entry.getFromNodePath() == self.sphere_node_path:
-                    print 'ran into banana going forward'
-                    collide_banana = True
-                    self.moving = False
-                elif self.yay_reward != 'partial' and entry.getFromNodePath() == self.ray_node_path:
-                    print 'lined up banana from side'
-                    collide_banana = None
                 in_view = self.base.camNode.isInView(entry.getIntoNodePath().getPos())
                 print in_view
                 print entry.getIntoNodePath().getPos()

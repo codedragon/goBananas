@@ -316,7 +316,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
             # have to let go to get new banana, but new banana always on same
             # side as before, so banana could be in the center or on the same
             # side as it was before, just not past the banana, in any case.
-            self.assertTrue(abs(after) < 0.5 or after * before >= 0)
+            self.assertTrue(abs(after) < 0.7 or after * before >= 0)
             return lambda func: func
         return unittest.skip('skipped test, training > 2.4')
 
