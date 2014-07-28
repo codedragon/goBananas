@@ -287,7 +287,7 @@ class TrainingBananas(JoystickHandler):
                     #self.reward_count += 1
                     return task.cont
             elif self.yay_reward and self.reward_count < self.num_beeps:
-                print 'reward'
+                #print 'reward'
                 self.reward_count += 1
                 self.give_reward()
                 return task.cont
@@ -746,6 +746,16 @@ class TrainingBananas(JoystickHandler):
             self.random_choices = self.all_random_selections[self.current_choice]
         print('selection', self.random_choices)
 
+    def inc_forward_speed(self):
+        print 'increase forward speed'
+        self.initial_forward_speed += 0.01
+        print('new speed', self.initial_forward_speed)
+
+    def dec_forward_speed(self):
+        print 'decrease forward speed'
+        self.initial_forward_speed -= 0.01
+        print('new speed', self.initial_forward_speed)
+
     def change_left(self):
         self.new_dir = -1
         print('new dir: left')
@@ -910,6 +920,8 @@ class TrainingBananas(JoystickHandler):
         self.accept('h', self.dec_wrong_speed)
         self.accept('u', self.inc_random)
         self.accept('j', self.dec_random)
+        self.accept('i', self.inc_forward_speed)
+        self.accept('k', self.dec_forward_speed)
         self.accept('f', self.change_forward)
         self.accept('r', self.change_right)
         self.accept('l', self.change_left)
