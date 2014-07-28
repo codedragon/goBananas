@@ -130,7 +130,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         # since we don't know if we are on the original side,
         # don't know if multiplier is in direction of center
         before = self.tb.base.camera.getH()
-        my_move = 4 * before/abs(before)
+        my_move = 6 * before/abs(before)
         if abs(before) < 4:
             my_move = 2 * before/abs(before)
         #print('try this', my_move)
@@ -141,15 +141,18 @@ class TrainingBananaTestsT2(unittest.TestCase):
             # The further out you start, the faster you go, and the
             # longer it takes to stop, and therefor the more likely
             # you are to stop beyond the zone where there will be a
-            # collision, so stop earlier when further out
+            # collision, so stop earlier, and slow down before center
+            while abs(self.tb.base.camera.getH()) < 0.2:
+                taskMgr.step()
             if before > 0:
                 print 'positive'
-                while self.tb.base.camera.getH() > 0.03 * before:
+                messenger.send('x_axis', [1])
+                while self.tb.base.camera.getH() > 0.02 * before:
                     taskMgr.step()
                     print('camera head', self.tb.base.camera.getH())
             else:
                 print 'negative'
-                while self.tb.base.camera.getH() < 0.03 * before:
+                while self.tb.base.camera.getH() < 0.02 * before:
                     taskMgr.step()
                     print('camera head', self.tb.base.camera.getH())
             print('after', self.tb.base.camera.getH())

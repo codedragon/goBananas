@@ -9,7 +9,7 @@ subject = 'Test'
 trainingDirection = 'Left'
 
 #training = 2.3
-training = 2.2
+training = 3
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)

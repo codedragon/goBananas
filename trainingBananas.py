@@ -148,7 +148,7 @@ class TrainingBananas(JoystickHandler):
 
         self.base.cTrav.addCollider(self.ray_node_path, self.collHandler)
         self.base.cTrav.addCollider(self.sphere_node_path, self.collHandler)
-        self.base.cTrav.showCollisions(self.base.render)
+        #self.base.cTrav.showCollisions(self.base.render)
         #self.ray_node_path.show()
         #self.sphere_node_path.show()
         #banana_node_path.show()
@@ -158,7 +158,7 @@ class TrainingBananas(JoystickHandler):
 
         # set avatar position/heading
         # Default positions
-        self.avatar_pos = Point3(0, -2.5, 1)
+        self.avatar_pos = Point3(0, -1.5, 1)
         self.avatar_h = 0
 
         if self.training > self.levels_available[0][-1]:
@@ -286,7 +286,7 @@ class TrainingBananas(JoystickHandler):
                 self.give_reward()
                 self.yay_reward = None
             if self.yay_reward and self.reward_count < self.num_beeps:
-                print 'reward'
+                #print 'reward'
                 self.reward_count += 1
                 self.give_reward()
                 return task.cont
