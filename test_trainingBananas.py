@@ -453,6 +453,8 @@ class TrainingBananaTestsT2(unittest.TestCase):
             # make sure we lined up the crosshair and bananas
             # (approximately in center)
             self.assertTrue(-0.8 < position < 0.8)
+            # make sure we lined up the crosshair and bananas
+            # (approximately in center)
             self.assertTrue(self.tb.yay_reward)
             return lambda func: func
         return unittest.skip('skipped test, training > 2.3')

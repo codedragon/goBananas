@@ -86,7 +86,7 @@ avatar_start_h = 1.5
 # starting distance between avatar and banana (forward training)
 # with turning training, this is 2.5, so further than this for
 # smaller banana)
-avatar_start_d = 3.5
+avatar_start_d = 2.5
 
 # list of all random selections available (2.3 and above)
 #random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9],
@@ -128,7 +128,7 @@ pulseInterval = 0.2  # in seconds
 #
 
 # how many reward pulses to give per reward
-numBeeps = 3
+numBeeps = 4
 
 # starting alpha for crosshair
 xHairAlpha = 1
