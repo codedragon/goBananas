@@ -355,10 +355,19 @@ class TrainingBananas(JoystickHandler):
                 if self.check_zone:
                     #print('check hold')
                     # not sure if I will use a zone for going forward yet
+                    # The 'zone' is whenever the ray is colliding with the banana.
+                    # use zone for both left-right training and for forward training,
+                    # whenever self.require_aim is true.
+                    # with forward training, use to see if we went off course, and then
+                    # lined up the crosshair and banana again.
+                    #print collide_banana
                     if collide_banana:
-                        #print('in the zone')
+                        #print('still in the zone')
+                        #if self.free_move == 4 or task.time > self.hold_time:
                         if task.time > self.hold_time:
                             #print('ok, get reward')
+                            #print self.free_move
+                            #print('hold time', task.time > self.hold_time)
                             # stop moving and get reward
                             self.x_change_color(self.x_stop_c)
                             self.moving = False
@@ -370,9 +379,9 @@ class TrainingBananas(JoystickHandler):
                             #print('time', task.time)
                             #print('hold until', self.hold_time)
                     else:
-                        #print('left zone, wait for another collision')
+                        print('left zone, wait for another collision')
                         self.x_change_color(self.x_start_c)
-                        #print('require aim', self.require_aim)
+                        print('require aim', self.require_aim)
                         if self.require_aim == 'slow':
                             self.check_zone = None
                         else:

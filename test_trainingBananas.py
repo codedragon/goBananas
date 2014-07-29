@@ -1187,12 +1187,12 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         first_dist = abs(camera_h - self.tb.base.camera.getH())
         print('dist', first_dist)
         #print 'first test over'
-        #print('camera head', self.tb.base.camera.getH())
+        print('camera head', self.tb.base.camera.getH())
         #go to center
         # use not reward method, cause we would go right past center
         # if we were looking for reward.
         self.move_to_center_without_using_reward()
-        print self.tb.base.camera.getH()
+        print('camera head', self.tb.base.camera.getH())
         # stay in center to get reward
         messenger.send('x_axis', [0])
         taskMgr.step()
@@ -1211,7 +1211,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         messenger.send('x_axis', [2 * -self.tb.multiplier])
         avatar_h = self.tb.base.camera.getH()
         print avatar_h
-        print 'test again'
+        #print 'test again'
         for i in range(30):
             #print('i', i)
             taskMgr.step()
