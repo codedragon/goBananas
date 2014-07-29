@@ -1,15 +1,11 @@
 To run just one test:
 python test_goBananas.py TestGoBananas.test_position_bananas
 
-
-Make some suites out of my unittests:
-
-http://agiletesting.blogspot.com/2005/01/python-unit-testing-part-1-unittest.html
-
 Log Files:
-logs when subject collides with banana ('Yummy')
-logs every time gets a reward ('Beep')
+logs when subject collides with banana ('Yummy') (200)
+logs every time gets a reward ('Beep') (201)
 logs when reward is over and banana disappears ('Finished')
+logs when new trial starts ('NewTrial') (1000 + trial number)
 
 For projector: set resolution for 1280 x 720, refresh 120hz
 or perhaps 1280x800? Conflict about 'native' resolution. Using
@@ -46,10 +42,20 @@ Normal coordinate system, unlike ActionScript
 (-, -) | (+, -)
        |
 
+Trying to figure out Camera/LensNode/isInView.
+According to manual, should be able to use LensNode, but can't figure out what that means.
+It appears that the default lensnode is self.base.camNode, but it appears to not be at the
+same position as the camera? This works, but doesn't show banana as in view, even when it is:
+print self.base.camNode.isInView(self.banana.getPos())
+print self.base.camNode.isInView(entry.getIntoNodePath().getPos())
+And these do not show the same position:
+print self.base.camera.getPos()
+print self.base.cam.getPos()
+
 More attributes to investigate:
 DepthOffsetAttrib: Causes the Z-buffer to treat the object as if it were closer or farther
 DeptTestAttrib: Alters teh way the Z-buffer affects the model.
-
+(also setNear)
 
 What happens when you hit this object?  PandaEPL
 self.myModel.setCollisionCallback(MovingObject.chooseme)
