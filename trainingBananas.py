@@ -119,6 +119,7 @@ class TrainingBananas(JoystickHandler):
         banana_node_path.setScale(0.1)
         self.banana_mask = BitMask32(0x1)
         if self.subject == 'MP' and self.training == 2.5:
+            print 'making adjustment to banana sphere for MP on 2.5'
             banana_node_path.setScale(0.2)
         # banana intoCollideMask will change depending on which level we
         # are training on.
@@ -288,13 +289,15 @@ class TrainingBananas(JoystickHandler):
                 print 'giving partial reward'
                 self.give_reward()
                 self.yay_reward = None
-            if self.yay_reward and self.reward_count < self.num_beeps:
-                #print 'reward'
+                # since none, don't need to return, won't give more reward, but
+                # will go on to let move
+            elif self.yay_reward and self.reward_count < self.num_beeps:
+                #print 'gave reward'
                 self.reward_count += 1
                 self.give_reward()
                 return task.cont
             elif self.yay_reward and self.reward_count == self.num_beeps:
-                #print 'gave reward'
+                #print 'gave final reward'
                 # done giving reward, time to start over, maybe
                 # hide the banana
                 self.banana.stash()
@@ -346,6 +349,7 @@ class TrainingBananas(JoystickHandler):
                     #print('camera heading', self.base.camera.getH())
                 # check for collision:
                 collide_banana = self.check_banana()
+                #print('collide', collide_banana)
                 # if we need to be stopping and leaving (holding) crosshair over banana,
                 # make sure still in target zone.
                 if self.check_zone:
@@ -516,6 +520,7 @@ class TrainingBananas(JoystickHandler):
         # reset
         self.base.camera.setPos(self.avatar_pos)
         #print self.base.camera.getPos()
+        print self.base.camera.getH()
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'banana position, ' +
@@ -605,6 +610,9 @@ class TrainingBananas(JoystickHandler):
                 to_banana = True
         # unless there is a reason to stop movement, this is the heading
         delta_heading = self.x_mag * self.speed * dt
+        # if not allowed to go past banana, stop directly at center
+        # if self.free_move == 1:
+        # if heading + delta_heading switches it from + to -
         # if heading away from banana, many opportunities to slow or
         # stop movement...(except for if free_move is 4...)
         if not to_banana and self.free_move != 4:
@@ -710,6 +718,7 @@ class TrainingBananas(JoystickHandler):
         print('new level', self.change_level)
 
     def get_seq_num(self, training):
+        seq_num = 0
         for seq_num, sequence in enumerate(self.levels_available):
             if sequence.count(training) > 0:
                 if sequence.index(training) is not None:
