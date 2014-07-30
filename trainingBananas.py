@@ -1,7 +1,7 @@
 from __future__ import division
 from direct.showbase.ShowBase import ShowBase
 from joystick import JoystickHandler
-from panda3d.core import Point3, Point4,BitMask32
+from panda3d.core import Point3, Point4, BitMask32
 from panda3d.core import TextNode, WindowProperties
 from panda3d.core import CollisionNode, CollisionRay, CollisionSphere
 from panda3d.core import CollisionTraverser, CollisionHandlerQueue
@@ -254,7 +254,7 @@ class TrainingBananas(JoystickHandler):
         #print self.base.camLens.getNear()
         #print self.base.camLens.getFar()
         #print self.base.camLens.getAspectRatio()
-        self.base.camLens.setNear(avatar_radius/2.0)
+        self.base.camLens.setNear(avatar_radius/3.0)
         #print self.banana.getPos()
 
     def frame_loop(self, task):
@@ -286,9 +286,10 @@ class TrainingBananas(JoystickHandler):
             #print('beeps so far', self.reward_count)
             #print self.yay_reward
             if self.yay_reward == 'partial':
-                print 'giving partial reward'
+                #print 'giving partial reward'
                 self.give_reward()
                 self.yay_reward = None
+                self.go_forward = True
                 # since none, don't need to return, won't give more reward, but
                 # will go on to let move
             elif self.yay_reward and self.reward_count < self.num_beeps:
@@ -311,7 +312,7 @@ class TrainingBananas(JoystickHandler):
                         #print('let go!')
                         return task.cont
                 # and now we can start things over again
-                print('start over')
+                #print('start over')
                 self.restart_bananas()
                 # check_time is used to see how long it takes subject
                 # to get banana from time plotted
@@ -340,8 +341,8 @@ class TrainingBananas(JoystickHandler):
                     if position[1] > 0:
                         position[1] = 0
                     self.base.camera.setPos(position)
-                # Now check for rotation. Don't need to check this if self.free_move = 0
-                if self.free_move != 0:
+                # Now check for rotation. Don't need to check this if going forward
+                if not self.go_forward:
                     #print 'rotating'
                     heading = self.base.camera.getH()
                     delta_heading = self.get_new_heading(heading, dt)
@@ -362,17 +363,23 @@ class TrainingBananas(JoystickHandler):
                     # lined up the crosshair and banana again.
                     #print collide_banana
                     if collide_banana:
-                        #print('still in the zone')
+                        print('still in the zone')
                         #if self.free_move == 4 or task.time > self.hold_time:
                         if task.time > self.hold_time:
                             #print('ok, get reward')
                             #print self.free_move
                             #print('hold time', task.time > self.hold_time)
                             # stop moving and get reward
-                            self.x_change_color(self.x_stop_c)
-                            self.moving = False
-                            self.yay_reward = True
-                            self.check_zone = False
+                            if self.free_move == 4:
+                                # partial reward for lining up banana in level 4.x
+                                print 'partial reward'
+                                self.yay_reward = 'partial'
+                                self.check_zone = False
+                            elif self.yay_reward is not None:
+                                self.x_change_color(self.x_stop_c)
+                                self.moving = False
+                                self.yay_reward = True
+                                self.check_zone = False
                         else:
                             pass
                             #print('keep holding')
@@ -381,8 +388,9 @@ class TrainingBananas(JoystickHandler):
                     else:
                         print('left zone, wait for another collision')
                         self.x_change_color(self.x_start_c)
-                        print('require aim', self.require_aim)
+                        #print('require aim', self.require_aim)
                         if self.require_aim == 'slow':
+                            print 'aim slow'
                             self.check_zone = None
                         else:
                             #print "don't slow down"
@@ -396,7 +404,9 @@ class TrainingBananas(JoystickHandler):
                         #print 'collision'
                         #print 'change xhair color to red'
                         self.x_change_color(self.x_stop_c)
-                        if self.require_aim:
+                        # if we require aim, we start timer when we have a collision,
+                        # but if self.go_forward, than we have already aimed.
+                        if self.require_aim and not self.go_forward:
                             self.set_zone_time = True
                         else:
                             #print 'yes'
@@ -432,24 +442,30 @@ class TrainingBananas(JoystickHandler):
         # interested in.
         if self.free_move == 4:
             # why doesn't the camera show that we see the banana, ever? wrong camera?
-            print self.base.camNode.isInView(self.banana.getPos())
+            #print self.base.camNode.isInView(self.banana.getPos())
             for i in range(self.collHandler.getNumEntries()):
                 entry = self.collHandler.getEntry(i)
-                in_view = self.base.camNode.isInView(entry.getIntoNodePath().getPos())
-                print in_view
-                print entry.getIntoNodePath().getPos()
-                if entry.getFromNodePath() == self.sphere_node_path and in_view:
+                #in_view = self.base.camNode.isInView(entry.getIntoNodePath().getPos())
+                #print in_view
+                #print entry.getIntoNodePath().getPos()
+                if entry.getFromNodePath() == self.sphere_node_path:
                     #print 'ran into banana going forward'
                     collide_banana = True
                     self.moving = False
                 elif entry.getFromNodePath() == self.ray_node_path:
                     #print 'collide ray'
                     #print self.yay_reward
-                    if self.yay_reward is not None:
+                    # if we are requiring aim, than use collide_banana = True,
+                    # since this will automatically get diverted before full reward
+                    if self.yay_reward is not None and not self.require_aim:
                         print 'lined up banana from side'
                         collide_banana = None
+                    elif self.yay_reward is not None and self.require_aim:
+                        print 'lined up banana from side, need to aim'
+                        collide_banana = True
                 #print entry.getFromNodePath()
         elif self.collHandler.getNumEntries() > 0:
+            #print 'collided'
             # the only object we can be running into is the banana, so there you go...
             collide_banana = True
             #print self.collHandler.getEntries()
@@ -536,6 +552,9 @@ class TrainingBananas(JoystickHandler):
                                  str(self.multiplier * self.avatar_h) + '\n')
 
         #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
+        # for training 4, switch from going forward to left/right
+        if self.free_move == 4:
+            self.go_forward = False
         # un-hide banana
         self.banana.unstash()
         #print 'avatar can move again, new trial starting'
@@ -627,7 +646,7 @@ class TrainingBananas(JoystickHandler):
         if not to_banana and self.free_move != 4:
             if abs(heading) >= 22:
                 # block off edge of screen
-                # print 'hit a wall'
+                #print 'hit a wall'
                 delta_heading = 0
             elif self.check_zone is None:
                 # if check_zone is None, than went past banana target zone,
@@ -636,9 +655,11 @@ class TrainingBananas(JoystickHandler):
                 delta_heading = self.x_mag * self.slow_speed * dt
                 #delta_heading = self.x_mag * self.initial_speed * dt
             elif self.free_move == 1:
+                #print 'free move is 1'
                 # self.free_move is one, only allowed to go towards banana
                 delta_heading = 0
             elif self.free_move == 2:
+                #print 'free move is 2'
                 # self.free_move is two, both directions allowed, but go
                 # in direction away from banana more slowly.
                 #print 'slow'
@@ -881,7 +902,7 @@ class TrainingBananas(JoystickHandler):
             self.free_move = 0
             self.must_release = False
             self.random_banana = False
-            self.require_aim = False
+            self.require_aim = True
         if training > self.levels_available[1][0]:
             #print '3.1'
             self.must_release = True
@@ -889,10 +910,13 @@ class TrainingBananas(JoystickHandler):
         if training > self.levels_available[1][-1]:
             #print '4.0'
             self.banana_coll_node.setIntoCollideMask(self.mask_list[2])
-            self.go_forward = True
+            self.go_forward = False
             self.free_move = 4
             self.must_release = False
             self.random_banana = True
+            self.require_aim = False
+        if training > self.levels_available[2][0]:
+            # print '4.1'
             self.require_aim = True
 
         print('forward', self.go_forward)

@@ -1,15 +1,18 @@
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.MessengerGlobal import messenger
+from direct.task.TaskManagerGlobal import taskMgr
 PYGAME_LOADED = True
 try:
     import pygame
 except ImportError:
     PYGAME_LOADED = False
+    pygame = None
     print 'Pygame not found, necessary for joystick use'
 
 
 class JoystickHandler(DirectObject):
     def __init__(self):
+        DirectObject.__init__(self)
         if not PYGAME_LOADED:
             return
         pygame.init()
@@ -54,5 +57,6 @@ class JoystickHandler(DirectObject):
 class JoystickError(Exception):
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return repr(self.value)

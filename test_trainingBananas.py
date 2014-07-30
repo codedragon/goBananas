@@ -71,8 +71,8 @@ class TrainingBananaTestsT2(unittest.TestCase):
             before = self.tb.base.camera.getH()
         print('before', before)
         # we are moving to the other side, so let's do this quickly
-        messenger.send('x_axis', [self.tb.multiplier * abs(before)])
-        print('sent in', self.tb.multiplier * abs(before))
+        messenger.send('x_axis', [self.tb.multiplier * abs(before/2)])
+        print('sent in', self.tb.multiplier * abs(before/2))
         after = -before
         #print('after will be', after)
         #print self.tb.wrong_speed
@@ -143,8 +143,8 @@ class TrainingBananaTestsT2(unittest.TestCase):
         # since we don't know if we are on the original side,
         # don't know if multiplier is in direction of center
 
-        # MEH, SOMETIMES STOPS NOT BECAUSE OF COLLISION, BUT BECAUSE
-        # CROSSES ZERO?
+        # Timing is affected by printing stuff out, so be careful while
+        # troubleshooting!!!
         before = self.tb.base.camera.getH()
         my_move = 6 * before/abs(before)
         if abs(before) < 4:
@@ -158,17 +158,18 @@ class TrainingBananaTestsT2(unittest.TestCase):
             # longer it takes to stop, and therefor the more likely
             # you are to stop beyond the zone where there will be a
             # collision, so stop earlier, and slow down before center
-            while abs(self.tb.base.camera.getH()) < 0.2:
+            while abs(self.tb.base.camera.getH()) > 1:
                 taskMgr.step()
+            #print('before fine tuning', self.tb.base.camera.getH())
             if before > 0:
                 #print 'positive'
-                messenger.send('x_axis', [1])
-                while self.tb.base.camera.getH() > 0.02 * before:
+                messenger.send('x_axis', [0.5])
+                while self.tb.base.camera.getH() > 0.2:
                     taskMgr.step()
                     #print('camera head', self.tb.base.camera.getH())
             else:
                 #print 'negative'
-                while self.tb.base.camera.getH() < 0.02 * before:
+                while self.tb.base.camera.getH() < -0.2:
                     taskMgr.step()
                     #print('camera head', self.tb.base.camera.getH())
             #print('after', self.tb.base.camera.getH())
@@ -185,7 +186,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
             while self.tb.base.camera.getH() != before:
                 before = self.tb.base.camera.getH()
                 taskMgr.step()
-                print self.tb.base.camera.getH()
+                #print self.tb.base.camera.getH()
 
     def clear_collisions(self):
         # need to clear collisions, if some have happened, but haven't been
@@ -1098,6 +1099,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         messenger.send('x_axis', [2 * self.tb.multiplier])
         camera_h = self.tb.base.camera.getH()
         #print camera_h
+        # test before reward:
         for i in range(30):
             #print('i', i)
             taskMgr.step()
@@ -1128,7 +1130,8 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
             taskMgr.step()
         #print self.tb.base.camera.getH()
         second_dist = abs(avatar_h - self.tb.base.camera.getH())
-        print('dist', second_dist)
+        print('dist2', second_dist)
+        print 'dist2 should be much smaller than dist'
         # second speed should be slow
         # now go back to center and collect reward
         self.move_to_center_without_using_reward()
@@ -1156,7 +1159,8 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
             taskMgr.step()
         #print self.tb.base.camera.getH()
         third_dist = abs(avatar_h - self.tb.base.camera.getH())
-        print('dist', second_dist)
+        print 'dist and dist3 should be close to same'
+        print('dist3', third_dist)
         # second dist should be much shorter than first
         # at least half the dist, if we are slowing down
         # (not 2.6 or higher)
@@ -1247,7 +1251,8 @@ class TrainingBananaTestsT2_6(TrainingBananaTestsT2_5, unittest.TestCase):
         # make it so random selections never go out to 22, which is possible
         # in the game, but screws up tests, since can't move in one direction
         # from that point.
-        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16, 18, 20]]
+        #self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16, 18, 20]]
+        self.tb.all_random_selections = [[20]]
         self.tb.current_choice = 0
         # this will reset x_mag to zero, clearing any joystick pushes,
         # as well resetting other things

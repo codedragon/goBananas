@@ -50,6 +50,8 @@ class GoBananas:
         #win_props.setOrigin(20, 20)  # make it so windows aren't on top of each other
         #win_props.setSize(800, 600)  # normal panda window
         # base is global, used by pandaepl from panda3d
+        # would be great to load this so it isn't just a global from nowhere,
+        # but pandaepl makes it impossible
         base.win.requestProperties(win_props)
         #print base.win.requestProperties(win_props)
         #base.setFrameRateMeter(True)
