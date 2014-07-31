@@ -37,12 +37,12 @@ numBeeps = 3
 extra = 2
 
 # are we repeating a certain configuration of bananas?
-# one of the first 10 banana configurations will be chosen
+# one of the first x banana configurations will be chosen
 # at random to be repeated.
-bananaRepeat = False
+bananaRepeat = True
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
-repeatNumber = 10
+repeatNumber = 3
 
 # for activating reward system
 pulseInterval = 200  # in ms
@@ -83,8 +83,7 @@ else:
 # with min and max, eventually implement
 
 # Point3 is global from panda3d.core
-#initialPos = Point3(0, 0, 1)
-initialPos = Point3(0, -7.5, 1)
+initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
@@ -106,20 +105,20 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 100
+numBananas = 2
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 1  # 1.7
+tooClose = 2.2  # 1.7
 
 # Banana Positions
-minDistance = -7
-maxDistance = 7
-minFwDistance = -7
-maxFwDistance = 7
+minDistance = -10
+maxDistance = 10
+minFwDistance = -10
+maxFwDistance = 10
 #fwDistanceIncrement = .1
 
 # if not fully trained, do one banana at a time

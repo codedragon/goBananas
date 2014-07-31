@@ -1,8 +1,8 @@
 # change individual config files, and have script copy to config.py
 # configuration file for trainBananas
 #
-#subject = 'Test'
-subject = 'MP'
+subject = 'Test'
+#subject = 'MP'
 
 # direction subject has to push the joystick to get the banana
 #trainingDirection = 'Right'

@@ -815,6 +815,11 @@ class TrainingBananas(JoystickHandler):
         self.new_dir = None
         print('new dir: forward')
 
+    def extra_reward(self):
+        print('beep')
+        if self.reward:
+            self.reward.pumpOut()
+
     def reset_variables(self):
         self.base.taskMgr.remove("frame_loop")
         # set/reset to the original state of variables
@@ -975,7 +980,7 @@ class TrainingBananas(JoystickHandler):
         self.accept('f', self.change_forward)
         self.accept('r', self.change_right)
         self.accept('l', self.change_left)
-        self.accept('space', self.give_reward)
+        self.accept('space', self.extra_reward)
 
     @staticmethod
     def make_coll_node_path(node_path, solid):

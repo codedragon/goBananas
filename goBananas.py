@@ -42,7 +42,6 @@ class GoBananas:
         self.fullTurningSpeed = config['fullTurningSpeed']
         self.fullForwardSpeed = config['fullForwardSpeed']
 
-
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props
@@ -96,9 +95,13 @@ class GoBananas:
         Log.getInstance().addType("NewTrial", [("Trial", int)],
                                   False)
 
-        Log.getInstance().addType("EyeData", [("X", float),
-                                                  ("Y", float)],
-                                                  False)
+        Log.getInstance().addType("EyeData",
+                                  [("X", float), ("Y", float)],
+                                  False)
+
+        Log.getInstance().addType("RepeatTrial", [("Repeat", int)],
+                                  False)
+
         # Load environment
         self.load_environment(config)
 
@@ -113,6 +116,7 @@ class GoBananas:
         vr.inputListen("downTurnSpeed", self.downTurnSpeed)
         vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
         vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
+        vr.inputListen("extra_reward", self.extra_reward)
         #vr.inputListen("restart", self.restart)
         vr.inputListen("NewTrial", self.new_trial)
         # set up task to be performed between frames, checks at interval of pump
@@ -154,19 +158,18 @@ class GoBananas:
             self.send_events = None
 
         # Log First Trial
-        self.trial_num = 1
+        self.trial_num = 0
         VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
         self.new_trial()
 
     def check_reward(self):
         # Runs every 200ms
-        # checks to see if we are giving reward. If we are, there
-        # was a collision, and avatar can't move and banana hasn't
-        # disappeared yet.
+        # checks to see if we are giving reward (beeps is not None).
+        # If we are, there was a collision, and avatar can't move and
+        # banana hasn't disappeared yet.
         # After last reward, banana disappears and avatar can move.
 
         # print 'current beep', self.beeps
-
         if self.banana_models.beeps is None:
             return
         elif self.banana_models.beeps == 0:
@@ -175,7 +178,6 @@ class GoBananas:
             if self.send_events:
                 self.send_events.send_signal(200)
                 self.send_strobe.send_signal()
-
 
         # Still here? Give reward!
         if self.reward:
@@ -288,6 +290,11 @@ class GoBananas:
     def restart(self, inputEvent):
         #print 'restarted'
         self.banana_models.replenishBananas()
+
+    def extra_reward(self, inputEvent):
+        print 'yup'
+        if self.reward:
+            self.reward.pumpOut()
 
     def start(self):
         """
