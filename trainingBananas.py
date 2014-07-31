@@ -35,7 +35,7 @@ class TrainingBananas(JoystickHandler):
         self.base.disableMouse()
         print('Subject is', config['subject'])
         self.subject = config['subject']
-        self.levels_available = [[2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6], [3, 3.1], [4]]
+        self.levels_available = [[2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6], [3, 3.1], [4, 4.1]]
 
         # set up reward system
         # if unit-testing, pretend like we couldn't
@@ -643,12 +643,14 @@ class TrainingBananas(JoystickHandler):
         # if heading + delta_heading switches it from + to -
         # if heading away from banana, many opportunities to slow or
         # stop movement...(except for if free_move is 4...)
-        if not to_banana and self.free_move != 4:
+        if not to_banana:
             if abs(heading) >= 22:
                 # block off edge of screen
                 #print 'hit a wall'
                 delta_heading = 0
-            elif self.check_zone is None:
+                return delta_heading
+        if not to_banana and self.free_move != 4:
+            if self.check_zone is None:
                 # if check_zone is None, than went past banana target zone,
                 # and we want him to go slow
                 #print 'went past zone'
@@ -948,15 +950,15 @@ class TrainingBananas(JoystickHandler):
     def setup_inputs(self):
         self.accept('x_axis', self.move, ['x'])
         self.accept('y_axis', self.move, ['y'])
-        self.accept('arrow_right', self.move, ['x_key', 2])
-        self.accept('arrow_left', self.move, ['x_key', -2])
+        self.accept('arrow_right', self.move, ['x_key', 0.5])
+        self.accept('arrow_left', self.move, ['x_key', -0.5])
         self.accept('arrow_right-up', self.move, ['x_key', 0])
         self.accept('arrow_left-up', self.move, ['x_key', 0])
-        self.accept('arrow_right-repeat', self.move, ['x_key', 2])
-        self.accept('arrow_left-repeat', self.move, ['x_key', -2])
-        self.accept('arrow_up', self.move, ['y_key', -2])
+        self.accept('arrow_right-repeat', self.move, ['x_key', 0.5])
+        self.accept('arrow_left-repeat', self.move, ['x_key', -0.5])
+        self.accept('arrow_up', self.move, ['y_key', -0.5])
         self.accept('arrow_up-up', self.move, ['y_key', 0])
-        self.accept('arrow_up-repeat', self.move, ['y_key', -2])
+        self.accept('arrow_up-repeat', self.move, ['y_key', -0.5])
         self.accept('q', self.close)
         self.accept('w', self.inc_reward)
         self.accept('s', self.dec_reward)

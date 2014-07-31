@@ -1,16 +1,15 @@
 # change individual config files, and have script copy to config.py
 # configuration file for trainBananas
 #
-#subject = 'Gromit'
-subject = 'Test'
-#subject = 'MP'
+#subject = 'Test'
+subject = 'MP'
 
 # direction subject has to push the joystick to get the banana
 #trainingDirection = 'Right'
 trainingDirection = 'Left'
 
 #training = 2.3
-training = 4
+training = 3.1
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
@@ -71,29 +70,20 @@ training = 4
 #               self.random_banana = False
 #               self.require_aim = False (rather meaningless here)
 # training 4, combines forward and side movement. banana shows up randomly
-#          on either side, must line up going right/left first (no forward allowed)
-#          Once lined up, partial reward, and can no longer go left/right,
-#          only forward, full reward for running into banana
-#      NOTE: For training 4 always use the T block, otherwise may encourage bad habits.
-#
-#               self.go_forward = False (starts at False, changes to True)
+#          on either side, assume will line up going right/left first, but
+#          not required. Once lined up, partial reward, full reward for running
+#          into banana
+#               self.go_forward = True
 #               self.free_move = 4
 #               self.must_release = False (might want this for actual running into banana)
 #               self.random_banana = True
-#               self.require_aim = False
-# training 4.1, same as 4 except needs to aim before going forward
-#               self.go_forward = False (starts at False, changes to True)
-#               self.free_move = 4
-#               self.must_release = False (might want this for actual running into banana)
-#               self.random_banana = True
-#               self.require_aim = True (need to leave it in center for a min. time before
-#                                        getting partial reward and allowed to go forward)
+#               self.require_aim = True (needed for giving partial reward when lining up crosshair)
 
 # starting angle between avatar and banana  (turning training)
 avatar_start_h = 1.5
 
 # starting distance between avatar and banana (forward training)
-# with turning training, this is 1.5, so further than this for
+# with turning training, this is 2.5, so further than this for
 # smaller banana)
 avatar_start_d = 3.5
 
@@ -106,7 +96,7 @@ random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 6.5, 7.5], [3, 5, 7, 8], [3, 5, 7
                 [4, 7, 10, 13, 15], [5, 8, 11, 14, 16], [5, 8, 11, 14, 17], [4, 6, 9, 12, 15, 18],
                 [4, 6, 10, 13, 16, 19], [4, 7, 10, 14, 17, 20], [4, 7, 10, 14, 18, 21], [4, 7, 10, 14, 18, 22]]
 # choose starting number of random_lists.
-random_selection = 10
+random_selection = 7
 
 # random bias means that it is not strictly random, if there are 2 bananas in a row
 # on one side, the next banana will always switch sides.
@@ -123,7 +113,7 @@ hold_aim = 0.6
 initial_turn_speed = 0.2
 #initial_speed = 2
 
-initial_forward_speed = 1.0
+initial_forward_speed = 1
 
 # limits how much subject can go to the side when suppose to be going forward
 # limit of 1 means no restriction, should not go smaller than 0.2
@@ -137,7 +127,7 @@ pulseInterval = 0.2  # in seconds
 #
 
 # how many reward pulses to give per reward
-numBeeps = 4
+numBeeps = 3
 
 # starting alpha for crosshair
 xHairAlpha = 1
