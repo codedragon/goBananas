@@ -292,7 +292,7 @@ class GoBananas:
         self.banana_models.replenishBananas()
 
     def extra_reward(self, inputEvent):
-        print 'yup'
+        #print 'yup'
         if self.reward:
             self.reward.pumpOut()
 

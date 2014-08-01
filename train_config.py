@@ -9,7 +9,7 @@ subject = 'Test'
 trainingDirection = 'Left'
 
 #training = 2.3
-training = 3.1
+training = 4.2
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
@@ -70,14 +70,29 @@ training = 3.1
 #               self.random_banana = False
 #               self.require_aim = False (rather meaningless here)
 # training 4, combines forward and side movement. banana shows up randomly
-#          on either side, assume will line up going right/left first, but
-#          not required. Once lined up, partial reward, full reward for running
-#          into banana
-#               self.go_forward = True
+#          on either side, must line up going right/left first (no forward allowed)
+#          Once lined up, partial reward, and can no longer go left/right,
+#          only forward, full reward for running into banana
+#      NOTE: For training 4 always use the T block, otherwise may encourage bad habits.
+#               self.go_forward = False (starts at False, changes to True)
 #               self.free_move = 4
 #               self.must_release = False (might want this for actual running into banana)
 #               self.random_banana = True
-#               self.require_aim = True (needed for giving partial reward when lining up crosshair)
+#               self.require_aim = False
+# training 4.1, same as 4 except needs to aim before going forward, slows down if misses
+#               self.go_forward = False (starts at False, changes to True)
+#               self.free_move = 4
+#               self.must_release = False (might want this for actual running into banana)
+#               self.random_banana = True
+#               self.require_aim = "slow" (need to leave it in center for a min. time before
+#                                        getting partial reward and allowed to go forward)
+# training 4.2, same as 4 except needs to aim before going forward, zooms right past banana
+#               self.go_forward = False (starts at False, changes to True)
+#               self.free_move = 4
+#               self.must_release = False (might want this for actual running into banana)
+#               self.random_banana = True
+#               self.require_aim = True (need to leave it in center for a min. time before
+#                                        getting partial reward and allowed to go forward)
 
 # starting angle between avatar and banana  (turning training)
 avatar_start_h = 1.5

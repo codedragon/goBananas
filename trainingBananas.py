@@ -35,7 +35,7 @@ class TrainingBananas(JoystickHandler):
         self.base.disableMouse()
         print('Subject is', config['subject'])
         self.subject = config['subject']
-        self.levels_available = [[2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6], [3, 3.1], [4, 4.1]]
+        self.levels_available = [[2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6], [3, 3.1], [4, 4.1, 4.2]]
 
         # set up reward system
         # if unit-testing, pretend like we couldn't
@@ -642,17 +642,15 @@ class TrainingBananas(JoystickHandler):
         # if self.free_move == 1:
         # if heading + delta_heading switches it from + to -
         # if heading away from banana, many opportunities to slow or
-        # stop movement...(except for if free_move is 4...)
+        # stop movement...
         if not to_banana:
             if abs(heading) >= 22:
                 # block off edge of screen
                 #print 'hit a wall'
                 delta_heading = 0
-                return delta_heading
-        if not to_banana and self.free_move != 4:
-            if self.check_zone is None:
+            elif self.check_zone is None:
                 # if check_zone is None, than went past banana target zone,
-                # and we want him to go slow
+                # and we want to go slow
                 #print 'went past zone'
                 delta_heading = self.x_mag * self.slow_speed * dt
                 #delta_heading = self.x_mag * self.initial_speed * dt
@@ -924,6 +922,9 @@ class TrainingBananas(JoystickHandler):
             self.require_aim = False
         if training > self.levels_available[2][0]:
             # print '4.1'
+            self.require_aim = 'slow'
+        if training > self.levels_available[2][1]:
+            # print '4.2'
             self.require_aim = True
 
         print('forward', self.go_forward)
