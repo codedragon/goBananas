@@ -132,6 +132,9 @@ to:
 self.threshold = float(Options.getInstance().get().js_zero_threshold)
 otherwise the threshold option will not work.
 
+comment out loading joystick calibration in common.py, is buggy, and does nothing.
+(comment out all 3 lines, no sense loading if not calibrating)
+
 In the following files, line numbers, delete the .asList() part. For example in
 ModelBase.py, line 60
 change:
@@ -140,5 +143,3 @@ to:
 for nodePath in self.retrNodePath().findAllMatches("**/" + str(tag) + "/**"):
 Vr.py, line 206
 VrObject.py, line 86
-
-Comment out loading calibration in joystick.py, is buggy, and does nothing.

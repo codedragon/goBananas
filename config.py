@@ -39,7 +39,7 @@ extra = 2
 # are we repeating a certain configuration of bananas?
 # one of the first x banana configurations will be chosen
 # at random to be repeated.
-bananaRepeat = True
+bananaRepeat = False
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
 repeatNumber = 10
@@ -73,7 +73,7 @@ minTurningLinearSpeed = 1.5
 minTurningLinearSpeedIncrement = 0.5
 
 # Point3 is global from panda3d.core
-initialPos = Point3(0, 0, 1)
+initialPos = Point3(0, -8, 1)
 
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
@@ -95,14 +95,14 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 10
+numBananas = 99
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 2.2  # 1.7
+tooClose = 1  # 1
 
 # Banana Positions
 minDistance = -10
