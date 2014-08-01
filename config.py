@@ -37,9 +37,9 @@ numBeeps = 3
 extra = 2
 
 # are we repeating a certain configuration of bananas?
-# one of the first 10 banana configurations will be chosen
+# one of the first x banana configurations will be chosen
 # at random to be repeated.
-bananaRepeat = False
+bananaRepeat = True
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
 repeatNumber = 10
@@ -62,29 +62,18 @@ FOV = 60
 
 # Movement
 linearAcceleration = 30
-if training >= 3:
-    fullForwardSpeed = 2.8
-#fullForwardSpeed = 0.0
-else:
-    fullForwardSpeed = 0
+fullForwardSpeed = 2.8
 fullBackwardSpeed = 0
-#turningAcceleration = 30
 turningAcceleration = 130
-#turningAcceleration = 100
-if training == 3.1:
-    fullTurningSpeed = 0
-elif training >= 2:
-    #fullTurningSpeed = 55
-    fullTurningSpeed = 55
-#fullTurningSpeed = 20
-else:
-    fullTurningSpeed = 200
-#turningLinearSpeed = 2  #Kiril has this as a factor,
-# with min and max, eventually implement
+fullTurningSpeed = 55
+turningLinearSpeed = 2
+maxTurningLinearSpeed = 90.0
+minTurningLinearSpeedReqd = 1.0
+minTurningLinearSpeed = 1.5
+minTurningLinearSpeedIncrement = 0.5
 
 # Point3 is global from panda3d.core
-#initialPos = Point3(0, 0, 1)
-initialPos = Point3(0, -7.5, 1)
+initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
@@ -106,69 +95,23 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 100
+numBananas = 10
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 1  # 1.7
+tooClose = 2.2  # 1.7
 
 # Banana Positions
-minDistance = -7
-maxDistance = 7
-minFwDistance = -7
-maxFwDistance = 7
-#fwDistanceIncrement = .1
-
-# if not fully trained, do one banana at a time
-#if (training > 0) and (training < 5):
-#	numBananas = 1
-#	distance = .15
-#	bananaLocs[0] = [initialPos[0] - distance, initialPos[1] + 2, 90]
-
-# Target Ray
-#targetRayWindow = .45
-#fovRayVecX = 30
-
-# Target header window, to the left and right
-#if (training > 2) & (training < 2.5):
-#	targetHwinL = 4 - (((training - 2) * 10) - 1)
-#	targetHwinR = 4 - (((training - 2) * 10) - 1)
-#else:
-#	targetHwinL = 2  #1.2 is sort of the boundary.
-#	targetHwinR = 2  #1.2 is sort of the boundary.
-
-# Terrain, sky
-terrainModel = './models/towns/field.bam'
-terrainCenter = Point3(0, 0, 0)
-skyModel = './models/sky/sky.bam'
-skyScale = 1.6
-
-# Eventually want landmarks in state, and load directory full of
-# landmarks, randomly placed in background.
-
-treeModel = './models/trees/palmTree.bam'
-treeLoc = Point3(13, 13, 0)
-treeScale = .0175
-
-skyScraperModel = './models/skyscraper/skyscraper.bam'
-skyScraperLoc = Point3(-13, -13, 0)
-skyScraperScale = .3
-
-stLightModel = './models/streetlight/streetlight.bam'
-stLightLoc = Point3(-13, 13, 0)
-stLightScale = .75
-
-# bananarchy was using amill.bam, but I couldn't load that file,
-# and the original amill.egg was not in the folder.
-windmillModel = './models/windmill/amill.bam'
-windmillLoc = Point3(13, -13, 0)
-windmillScale = .2
-windmillH = 45
+minDistance = -10
+maxDistance = 10
+minFwDistance = -10
+maxFwDistance = 10
 
 # Load 2 bananas for testing, know where they are!
+# (no effect if manual False)
 bananaModel = './models/bananas/banana.bam'
 bananaLoc = Point3(5, 3, 1)
 bananaScale = 0.5
@@ -180,11 +123,9 @@ bananaLoc2 = Point3(5.5, 3, 1)
 if 'Keyboard' in globals():
     keyboard = Keyboard.getInstance()
     keyboard.bind("close", ["escape", "q"])
-    #keyboard.bind("exit", ["escape", "q"])
     keyboard.bind("restart", "y")
     keyboard.bind("toggleDebug", ["escape", "d"])
     keyboard.bind("upTurnSpeed", "t")
     keyboard.bind("downTurnSpeed", "g")
     keyboard.bind("increaseBananas", "w")
     keyboard.bind("decreaseBananas", "s")
-    keyboard.bind("extra_reward", "space")
