@@ -143,3 +143,16 @@ to:
 for nodePath in self.retrNodePath().findAllMatches("**/" + str(tag) + "/**"):
 Vr.py, line 206
 VrObject.py, line 86
+
+Panda3d updated getTightBounds so it returns None instead of
+(Point3(0, 0), Point3(0, 0)) when the node is empty.
+
+http://www.panda3d.org/forums/viewtopic.php?t=16865&p=97925
+
+So, edit Text.py, to add an if statement, starting line 159
+now will read:
+
+bounds    = self.retrNodePath().getTightBounds()
+if bounds is None:
+    bounds = (Point3(0, 0), Point3(0, 0))
+self.firstLineHeight = bounds[1][2]-bounds[0][2]
