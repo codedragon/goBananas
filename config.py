@@ -83,7 +83,8 @@ else:
 # with min and max, eventually implement
 
 # Point3 is global from panda3d.core
-initialPos = Point3(0, 0, 1)
+#initialPos = Point3(0, 0, 1)
+initialPos = Point3(0, -7.5, 1)
 
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
@@ -105,20 +106,20 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 10
+numBananas = 100
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 2.2  # 1.7
+tooClose = 1  # 1.7
 
 # Banana Positions
-minDistance = -10
-maxDistance = 10
-minFwDistance = -10
-maxFwDistance = 10
+minDistance = -7
+maxDistance = 7
+minFwDistance = -7
+maxFwDistance = 7
 #fwDistanceIncrement = .1
 
 # if not fully trained, do one banana at a time
@@ -186,3 +187,4 @@ if 'Keyboard' in globals():
     keyboard.bind("downTurnSpeed", "g")
     keyboard.bind("increaseBananas", "w")
     keyboard.bind("decreaseBananas", "s")
+    keyboard.bind("extra_reward", "space")

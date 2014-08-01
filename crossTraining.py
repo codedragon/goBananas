@@ -30,7 +30,7 @@ class CrossTraining(JoystickHandler):
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         if not unittest:
             wp = WindowProperties()
-            wp.setSize(1024, 768)
+            wp.setSize(1280, 800)
             wp.setOrigin(0, 0)
             base.win.requestProperties(wp)
         self.crosshair = TextNode('crosshair')

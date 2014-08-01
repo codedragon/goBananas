@@ -140,3 +140,5 @@ to:
 for nodePath in self.retrNodePath().findAllMatches("**/" + str(tag) + "/**"):
 Vr.py, line 206
 VrObject.py, line 86
+
+Comment out loading calibration in joystick.py, is buggy, and does nothing.
