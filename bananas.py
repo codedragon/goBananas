@@ -23,7 +23,7 @@ class Bananas():
         except KeyError:
             print 'default'
             self.manual = False
-        print self.manual
+        #print self.manual
         self.bananaModels = []
         self.stashed = self.numBananas
         self.beeps = None
@@ -117,7 +117,7 @@ class Bananas():
         # will just be over-written.
         if self.repeat:
             self.pList = pList
-        print pList
+        #print pList
         #return bananaModels
 
     def collideBanana(self, collisionInfoList):
@@ -174,7 +174,7 @@ class Bananas():
             # make new bananas visible
             self.bananaModels[i].setStashed(False)
             # start count again
-        print pList
+        #print pList
         if repeat == 'new':
             print 'save new'
             # save the current list of random banana placements
@@ -201,19 +201,24 @@ class Bananas():
             # we have gone through the first self.repeat_number amount of
             # trials, so will not interfere with collecting the initial set
             # of banana layout for repeat
+            print('just finished trialNum', trialNum)
+            trialNum += 1
             if self.repeat and trialNum % self.repeat_number == 0:
+                # time to choose a new repeat trial, choose a number from 0 to
+                # repeat number, since we haven't
                 self.now_repeat = trialNum + random.choice(range(self.repeat_number))
                 print('chose trial', self.now_repeat)
-            print('trialNum', trialNum)
             # collect the set of banana positions that will be repeated
             if trialNum == self.now_repeat and self.now_repeat < self.repeat_number:
+                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trialNum])
                 self.replenishBananas('new')
             elif trialNum == self.now_repeat:
                 print 'repeat'
+                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trialNum])
                 self.replenishBananas('repeat')
             else:
                 self.replenishBananas()
-            trialNum += 1
+
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
             #new_trial()
         return trialNum
