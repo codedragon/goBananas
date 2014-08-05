@@ -81,7 +81,7 @@ minTurningLinearSpeed = 1.5
 minTurningLinearSpeedIncrement = 0.5
 
 # Point3 is global from panda3d.core
-initialPos = Point3(0, -8, 1)
+initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
@@ -137,3 +137,4 @@ if 'Keyboard' in globals():
     keyboard.bind("downTurnSpeed", "g")
     keyboard.bind("increaseBananas", "w")
     keyboard.bind("decreaseBananas", "s")
+    keyboard.bind("changeWeightedCenter", "c")

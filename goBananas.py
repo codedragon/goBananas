@@ -116,6 +116,7 @@ class GoBananas:
         vr.inputListen("downTurnSpeed", self.downTurnSpeed)
         vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
         vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
+        vr.inputListen("changeWeightedCenter", self.banana_models.changeWeightedCenter)
         vr.inputListen("extra_reward", self.extra_reward)
         #vr.inputListen("restart", self.restart)
         vr.inputListen("NewTrial", self.new_trial)
@@ -176,7 +177,7 @@ class GoBananas:
             # just ran into it?
             VLQ.getInstance().writeLine("Yummy", [self.banana_models.byeBanana])
             print('logged', self.banana_models.byeBanana)
-            print('banana pos', self.banana_models.bananaModels[int(self.banana_models.byeBanana[-2:])].getPos())
+            #print('banana pos', self.banana_models.bananaModels[int(self.banana_models.byeBanana[-2:])].getPos())
             position = self.banana_models.bananaModels[int(self.banana_models.byeBanana[-2:])].getPos()
             self.numBeeps = self.banana_models.get_reward_level(position)
             print self.numBeeps

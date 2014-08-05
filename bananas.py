@@ -20,8 +20,9 @@ class Bananas():
             self.now_repeat = None
         self.weighted_bananas = config['weightedBananas']
         if self.weighted_bananas:
-            high_area = 0.25 * 0.33
-            middle_area = 0.25
+            # total area is 100
+            high_area = 0.25 * 0.33 * 100
+            middle_area = 0.25 * 100
             self.high_radius = sqrt(high_area / pi)
             self.mid_radius = sqrt(middle_area / pi)
             self.high_reward = config['high_reward']
@@ -30,7 +31,7 @@ class Bananas():
             print self.high_radius
             print self.mid_radius
             self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
-            print self.weight_center
+            print('center', self.weight_center)
         try:
             self.manual = config['manual']
         except KeyError:
@@ -258,9 +259,14 @@ class Bananas():
         # reset bananas
         self.replenishBananas()
 
+    def changeWeightedCenter(self, inputEvent):
+        self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+        print('center', self.weight_center)
+
     def get_reward_level(self, position):
-        distance = mB.distance(position, self.weight_center)
-        print distance
+        print('banana position', position[0], position[1])
+        distance = mB.distance((position[0], position[1]), self.weight_center)
+        print('distance to center', distance)
         print('high', self.high_radius)
         print('mid', self.mid_radius)
         if distance < self.high_radius:
