@@ -1,9 +1,9 @@
 from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
 from panda3d.core import Point3
-import moBananas as mb
+import moBananas as mB
 import os
-import sys
 import random
+from numpy import sqrt, pi
 
 
 class Bananas():
@@ -18,6 +18,19 @@ class Bananas():
             print('collect banana positions from trial', self.now_repeat)
         else:
             self.now_repeat = None
+        self.weighted_bananas = config['weightedBananas']
+        if self.weighted_bananas:
+            high_area = 0.25 * 0.33
+            middle_area = 0.25
+            self.high_radius = sqrt(high_area / pi)
+            self.mid_radius = sqrt(middle_area / pi)
+            self.high_reward = config['high_reward']
+            self.mid_reward = config['mid_reward']
+            self.low_reward = config['low_reward']
+            print self.high_radius
+            print self.mid_radius
+            self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+            print self.weight_center
         try:
             self.manual = config['manual']
         except KeyError:
@@ -46,10 +59,10 @@ class Bananas():
             #y = self.posBananas.pop(0)
             x, y = self.pList[i]
             bananaModel = Model.Model("banana" + "%02d" % i,
-                                os.path.join(self.dir,
-                                "banana.bam"),
-                                Point3(x, y, 1),
-                                self.collideBanana)
+                                      os.path.join(self.dir,
+                                      "banana.bam"),
+                                      Point3(x, y, 1),
+                                      self.collideBanana)
             bananaModel.setScale(self.scale)
             # could make this static instead
             #bananaModel.setH(random.randint(0, 360))
@@ -90,7 +103,7 @@ class Bananas():
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         #print avatarXY
         for i, j in enumerate(range(start, self.numBananas)):
-            (x, y) = mb.setXY(pList, avatarXY)
+            (x, y) = mB.setXY(pList, avatarXY)
             #print i,j
             #pList += [(x, y)]
             pList.append((x, y))
@@ -158,6 +171,8 @@ class Bananas():
             pList = self.pList
         else:
             pList = []
+        if self.weighted_bananas:
+            self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
         #print pList
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
@@ -167,7 +182,7 @@ class Bananas():
             if repeat == 'repeat':
                 (x, y) = pList[i]
             else:
-                (x, y) = mb.setXY(pList, avatarXY)
+                (x, y) = mB.setXY(pList, avatarXY)
                 pList.append((x, y))
             #print x, y
             self.bananaModels[i].setPos(Point3(x, y, 1))
@@ -242,3 +257,16 @@ class Bananas():
         self.numBananas -= 5
         # reset bananas
         self.replenishBananas()
+
+    def get_reward_level(self, position):
+        distance = mB.distance(position, self.weight_center)
+        print distance
+        print('high', self.high_radius)
+        print('mid', self.mid_radius)
+        if distance < self.high_radius:
+            reward = self.high_reward
+        elif distance < self.mid_radius:
+            reward = self.mid_reward
+        else:
+            reward = self.low_reward
+        return reward

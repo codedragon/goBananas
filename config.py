@@ -44,6 +44,12 @@ bananaRepeat = False
 # within this number of trials)
 repeatNumber = 10
 
+# Are bananas in different areas worth more/less?
+weightedBananas = True
+high_reward = 6
+mid_reward = 4
+low_reward = 2
+
 # for activating reward system
 pulseInterval = 200  # in ms
 
