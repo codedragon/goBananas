@@ -711,8 +711,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
 
     def setUp(self):
         # make it so random selections never go out to 22, which is possible
-        # in the game, but screws up tests, since can't move in one direction
-        # from that point.
+        # in the game, but screws up tests, since close to the wall at that point
         self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16, 18, 20]]
         self.tb.current_choice = 0
         # this will reset x_mag to zero, clearing any joystick pushes,
@@ -789,7 +788,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
         # times on multiple levels with random bananas.
         messenger.send('x_axis', [6 * -self.tb.multiplier])
         # first get to edge
-        while abs(self.tb.base.camera.getH()) < 22:
+        while abs(self.tb.base.camera.getH()) < self.tb.screen_edge:
             taskMgr.step()
         # now try to go further, shouldn't be able to move
         for i in range(5):

@@ -1,16 +1,18 @@
 # change individual config files, and have script copy to config.py
 # configuration file for trainBananas
 #
-#subject = 'Gromit'
 subject = 'Test'
 #subject = 'MP'
 
-# direction subject has to push the joystick to get the banana Right/Left
+# whether to show the environment in the background
+background = True
+
+# direction subject has to push the joystick to get the banana
 #trainingDirection = 'Right'
 trainingDirection = 'Left'
 
-#training = 2.3
-training = 2.0
+training = 2.4
+#training = 4.1
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
@@ -112,7 +114,7 @@ random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 6.5, 7.5], [3, 5, 7, 8], [3, 5, 7
                 [4, 7, 10, 13, 15], [5, 8, 11, 14, 16], [5, 8, 11, 14, 17], [4, 6, 9, 12, 15, 18],
                 [4, 6, 10, 13, 16, 19], [4, 7, 10, 14, 17, 20], [4, 7, 10, 14, 18, 21], [4, 7, 10, 14, 18, 22]]
 # choose starting number of random_lists.
-random_selection = 20
+random_selection = 7
 
 # random bias means that it is not strictly random, if there are 2 bananas in a row
 # on one side, the next banana will always switch sides.
@@ -129,7 +131,7 @@ hold_aim = 0.6
 initial_turn_speed = 0.2
 #initial_speed = 2
 
-initial_forward_speed = 1.0
+initial_forward_speed = 1
 
 # limits how much subject can go to the side when suppose to be going forward
 # limit of 1 means no restriction, should not go smaller than 0.2

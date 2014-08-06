@@ -130,4 +130,3 @@ if 'Keyboard' in globals():
     keyboard.bind("increaseBananas", "w")
     keyboard.bind("decreaseBananas", "s")
     keyboard.bind("extra_reward", "space")
-

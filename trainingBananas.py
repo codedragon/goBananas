@@ -104,7 +104,15 @@ class TrainingBananas(JoystickHandler):
         ray_mask = BitMask32(0x1)
         sphere_mask = BitMask32(0x2)
         self.mask_list = [ray_mask, sphere_mask, ray_mask | sphere_mask]
-
+        if config['background']:
+            field = self.base.loader.loadModel("models/play_space/field.bam")
+            field.setPos(Point3(0, 0, 0))
+            field.reparentTo(self.base.render)
+            field_node_path = field.find('**/+CollisionNode')
+            field_node_path.node().setIntoCollideMask(0)
+            sky = self.base.loader.loadModel("models/sky/sky.bam")
+            sky.setPos(Point3(0, 0, 0))
+            sky.reparentTo(self.base.render)
         # set up banana
         self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
         # banana always in the same position, just move avatar.
@@ -163,12 +171,18 @@ class TrainingBananas(JoystickHandler):
         # Default positions
         self.avatar_pos = Point3(0, -1.5, 1)
         self.avatar_h = 0
-
+        self.screen_edge = 30
+        self.config_avatar_d = -config['avatar_start_d']
+        self.config_avatar_h = config['avatar_start_h']
         if self.training > self.levels_available[0][-1]:
-            self.avatar_pos = Point3(0.01, -config['avatar_start_d'], 1)
+            # if training is 3 or greater, use starting position from config
+            # (for above 3, if also doing left/right always on random,
+            # so angle will be set later)
+            self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
             #self.fullForwardSpeed = config['fullForwardSpeed']
         elif self.training < self.levels_available[1][0]:
-            self.avatar_h = config['avatar_start_h']
+            # if training is 2.x, use starting angle from config
+            self.avatar_h = self.config_avatar_h
 
         # Cross hair
         # color changes for crosshair
@@ -362,7 +376,7 @@ class TrainingBananas(JoystickHandler):
                     # lined up the crosshair and banana again.
                     #print collide_banana
                     if collide_banana:
-                        print('still in the zone')
+                        #print('still in the zone')
                         #if self.free_move == 4 or task.time > self.hold_time:
                         if task.time > self.hold_time:
                             #print('ok, get reward')
@@ -385,7 +399,7 @@ class TrainingBananas(JoystickHandler):
                             #print('time', task.time)
                             #print('hold until', self.hold_time)
                     else:
-                        print('left zone, wait for another collision')
+                        #print('left zone, wait for another collision')
                         self.x_change_color(self.x_start_c)
                         #print('require aim', self.require_aim)
                         if self.require_aim == 'slow':
@@ -460,10 +474,10 @@ class TrainingBananas(JoystickHandler):
                     # if we are requiring aim, than use collide_banana = True,
                     # since this will automatically get diverted before full reward
                     if self.yay_reward is not None and not self.require_aim:
-                        print 'lined up banana from side'
+                        #print 'lined up banana from side'
                         collide_banana = None
                     elif self.yay_reward is not None and self.require_aim:
-                        print 'lined up banana from side, need to aim'
+                        #print 'lined up banana from side, need to aim'
                         collide_banana = True
                 #print entry.getFromNodePath()
         elif self.collHandler.getNumEntries() > 0:
@@ -621,6 +635,7 @@ class TrainingBananas(JoystickHandler):
             self.go_forward = False
 
     def get_new_heading(self, heading, dt):
+        #print 'get new heading'
         # set new turning speed.
         # if new trial or subject stopped moving, reverts to initial speed
         if self.start_trial or self.x_mag == 0:
@@ -647,7 +662,7 @@ class TrainingBananas(JoystickHandler):
         # if heading away from banana, many opportunities to slow or
         # stop movement...
         if not to_banana:
-            if abs(heading) >= 22:
+            if abs(heading) >= self.screen_edge:
                 # block off edge of screen
                 #print 'hit a wall'
                 delta_heading = 0
@@ -670,7 +685,7 @@ class TrainingBananas(JoystickHandler):
                 delta_heading = self.x_mag * self.slow_speed * dt
                 #print self.slow_speed
                 #delta_heading = self.x_mag * self.speed * dt
-                #print('delta heading', delta_heading)
+        #print('delta heading', delta_heading)
         return delta_heading
 
     def inc_angle(self):
@@ -932,6 +947,8 @@ class TrainingBananas(JoystickHandler):
         self.require_aim = False
         self.go_forward = False
         self.banana_coll_node.setIntoCollideMask(self.mask_list[0])
+        self.avatar_h = self.config_avatar_h
+        self.avatar_pos = Point3(0, -1.5, 1)
         if training > self.levels_available[0][0]:
             #print '2.1'
             self.must_release = True
@@ -954,6 +971,7 @@ class TrainingBananas(JoystickHandler):
         # level 3 training
         if training > self.levels_available[0][-1]:
             #print '3.0'
+            self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
             self.banana_coll_node.setIntoCollideMask(self.mask_list[1])
             # defaults for level 3 training
             self.go_forward = True
