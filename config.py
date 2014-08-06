@@ -95,7 +95,7 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 99
+numBananas = 100
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
@@ -129,3 +129,5 @@ if 'Keyboard' in globals():
     keyboard.bind("downTurnSpeed", "g")
     keyboard.bind("increaseBananas", "w")
     keyboard.bind("decreaseBananas", "s")
+    keyboard.bind("extra_reward", "space")
+
