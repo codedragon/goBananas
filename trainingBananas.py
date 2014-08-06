@@ -70,8 +70,6 @@ class TrainingBananas(JoystickHandler):
             self.multiplier = 1
         elif config['trainingDirection'] == 'Left':
             self.multiplier = -1
-        elif config['trainingDirection'] == 'Forward':
-            self.multiplier = None
         #print config['trainingDirection']
         self.last_multiplier = self.multiplier
 
@@ -94,7 +92,8 @@ class TrainingBananas(JoystickHandler):
         self.training = config['training']
         if not unittest:
             print('training level is', self.training)
-
+            if self.training < 2.2:
+                print('starting direction is', config['trainingDirection'])
         # random selection used for training 2.3 and above
         self.all_random_selections = config['random_lists']
         self.current_choice = config['random_selection'] - 1
@@ -431,6 +430,9 @@ class TrainingBananas(JoystickHandler):
         print('beep')
         if self.reward:
             self.reward.pumpOut()
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'reward' + '\n')
         self.delay_start = True
 
     def check_banana(self):
@@ -499,6 +501,7 @@ class TrainingBananas(JoystickHandler):
             #print 'move'
             self.move('x', -self.x_mag)
             #print('change direction')
+
         if self.change_level:
             #print 'actually change level now'
             self.set_level_variables(self.change_level)
@@ -680,6 +683,10 @@ class TrainingBananas(JoystickHandler):
         # y is always going to be positive
         #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
         print('new heading', self.avatar_h)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, increase angle ' +
+                                 str(self.multiplier * self.avatar_h) + '\n')
         #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
 
     def dec_angle(self):
@@ -691,17 +698,29 @@ class TrainingBananas(JoystickHandler):
         #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
         #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
         print('new heading', self.avatar_h)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, decrease angle ' +
+                                 str(self.multiplier * self.avatar_h) + '\n')
         #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
 
     def inc_reward(self):
         print 'increase reward'
         self.num_beeps += 1
         print('new reward', self.num_beeps)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, increase reward ' +
+                                 str(self.num_beeps) + '\n')
 
     def dec_reward(self):
         print 'decrease reward'
         self.num_beeps -= 1
         print('new reward', self.num_beeps)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, decrease reward ' +
+                                 str(self.num_beeps) + '\n')
 
     def inc_level(self):
         # increase the level, if we are jumping multiple levels,
@@ -724,6 +743,10 @@ class TrainingBananas(JoystickHandler):
         else:
             self.change_level = round(training + 0.1, 2)
         print('new level', self.change_level)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, increase level ' +
+                                 str(self.change_level) + '\n')
 
     def dec_level(self):
         # decrease the level, if we are jumping multiple levels,
@@ -746,6 +769,10 @@ class TrainingBananas(JoystickHandler):
         else:
             self.change_level = round(training - 0.1, 2)
         print('new level', self.change_level)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, decrease level ' +
+                                 str(self.change_level) + '\n')
 
     def get_seq_num(self, training):
         seq_num = 0
@@ -763,11 +790,19 @@ class TrainingBananas(JoystickHandler):
         else:
             self.wrong_speed += 0.01
         print('new speed', self.wrong_speed)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, increase wrong speed ' +
+                                 str(self.wrong_speed) + '\n')
 
     def dec_wrong_speed(self):
         print 'decrease speed in wrong direction'
         self.wrong_speed -= 0.01
         print('new speed', self.wrong_speed)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, decrease wrong speed ' +
+                                 str(self.wrong_speed) + '\n')
 
     def inc_random(self):
         print 'increase selection of random bananas'
@@ -779,6 +814,10 @@ class TrainingBananas(JoystickHandler):
             self.current_choice += 1
             self.random_choices = self.all_random_selections[self.current_choice]
         print('selection', self.random_choices)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, increase random selection ' +
+                                 str(self.random_choices) + '\n')
 
     def dec_random(self):
         print 'decrease selection of random bananas'
@@ -790,28 +829,42 @@ class TrainingBananas(JoystickHandler):
             self.current_choice -= 1
             self.random_choices = self.all_random_selections[self.current_choice]
         print('selection', self.random_choices)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, decrease random selection ' +
+                                 str(self.random_choices) + '\n')
 
     def inc_forward_speed(self):
         print 'increase forward speed'
         self.initial_forward_speed += 0.01
         print('new speed', self.initial_forward_speed)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, increase forward speed ' +
+                                 str(self.initial_forward_speed) + '\n')
 
     def dec_forward_speed(self):
         print 'decrease forward speed'
         self.initial_forward_speed -= 0.01
         print('new speed', self.initial_forward_speed)
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, decrease forward speed ' +
+                                 str(self.initial_forward_speed) + '\n')
 
     def change_left(self):
         self.new_dir = -1
         print('new dir: left')
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, new dir left' + '\n')
 
     def change_right(self):
         self.new_dir = 1
         print('new dir: right')
-
-    def change_forward(self):
-        self.new_dir = None
-        print('new dir: forward')
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'keypress, new dir right' + '\n')
 
     def extra_reward(self):
         print('beep')
@@ -978,7 +1031,6 @@ class TrainingBananas(JoystickHandler):
         self.accept('j', self.dec_random)
         self.accept('i', self.inc_forward_speed)
         self.accept('k', self.dec_forward_speed)
-        self.accept('f', self.change_forward)
         self.accept('r', self.change_right)
         self.accept('l', self.change_left)
         self.accept('space', self.extra_reward)

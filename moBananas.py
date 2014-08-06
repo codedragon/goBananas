@@ -22,7 +22,7 @@ def setXY(pList, avatar=(0, 0), tooClose=None,):
     if not tooClose:
         #print 'get from config'
         tooClose = config['tooClose']
-        dist_avatar = config['avatarRadius']*3
+        dist_avatar = config['avatarRadius']*2
     else:
         dist_avatar = tooClose
     #print 'too close, setXY', tooClose
