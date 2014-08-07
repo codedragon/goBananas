@@ -94,7 +94,8 @@ instructSeeAll = False
 
 # Experiment-specific settings
 
-# Bananas.
+# Bananas. Over 200 and starts to take a little while,
+# and runs the risk of hitting maximum recursion depths.
 numBananas = 250
 #numBananas = 25
 bananaDir = './models/bananas/'
@@ -105,10 +106,10 @@ bananaScale = .5
 tooClose = 1  # 1
 
 # Banana Positions
-minDistance = -10
-maxDistance = 10
-minFwDistance = -10
-maxFwDistance = 10
+minXDistance = -10
+maxXDistance = 10
+minYDistance = -10
+maxYDistance = 10
 
 # Load 2 bananas for testing, know where they are!
 # (no effect if manual False)

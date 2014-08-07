@@ -121,16 +121,13 @@ class TrainingBananas(JoystickHandler):
         #self.banana.setH(0)
         self.banana.setScale(0.5)
         self.banana.reparentTo(self.base.render)
-        banana_node_path = self.banana.find('**/+CollisionNode')
+        self.banana_node_path = self.banana.find('**/+CollisionNode')
         # usually 0.1
-        banana_node_path.setScale(0.2)
+        self.banana_node_path.setScale(0.1)
         self.banana_mask = BitMask32(0x1)
-        if self.subject == 'MP' and self.training == 2.5:
-            print 'making adjustment to banana sphere for MP on 2.5'
-            banana_node_path.setScale(0.2)
         # banana intoCollideMask will change depending on which level we
         # are training on.
-        self.banana_coll_node = banana_node_path.node()
+        self.banana_coll_node = self.banana_node_path.node()
         self.banana_coll_node.setIntoCollideMask(self.mask_list[0])
 
         # set up collision system and collision ray to camera
@@ -949,6 +946,7 @@ class TrainingBananas(JoystickHandler):
         self.banana_coll_node.setIntoCollideMask(self.mask_list[0])
         self.avatar_h = self.config_avatar_h
         self.avatar_pos = Point3(0, -1.5, 1)
+        self.banana_node_path.setScale(0.1)
         if training > self.levels_available[0][0]:
             #print '2.1'
             self.must_release = True
@@ -984,6 +982,7 @@ class TrainingBananas(JoystickHandler):
             self.must_release = True
         # level 4 training
         if training > self.levels_available[1][-1]:
+            self.banana_node_path.setScale(0.2)
             #print '4.0'
             self.banana_coll_node.setIntoCollideMask(self.mask_list[2])
             self.go_forward = False

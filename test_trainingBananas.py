@@ -182,6 +182,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
             # step until we don't go anymore
             while abs(self.tb.base.camera.getH()) > 1:
                 taskMgr.step()
+                #print self.tb.base.camera.getH()
             messenger.send('x_axis', [self.tb.multiplier])
             while self.tb.base.camera.getH() != before:
                 before = self.tb.base.camera.getH()
@@ -317,15 +318,15 @@ class TrainingBananaTestsT2(unittest.TestCase):
             # don't use reward to find center, since this test is used
             # in higher training levels
             self.move_to_center_without_using_reward()
-            print 'after initial move'
-            print self.tb.base.camera.getH()
+            #print 'after initial move'
+            #print self.tb.base.camera.getH()
             # now keep trying for a bit, for 2.1 in reality this may cause
             # us to go in circles, getting reward, and popping back up on the
             # same side, but that's okay, should never be able to move past center
             messenger.send('x_axis', [2 * self.tb.multiplier])
             for i in range(20):
                 taskMgr.step()
-                print self.tb.base.camera.getH()
+                #print self.tb.base.camera.getH()
             # make sure we didn't go to other side
             # if we were on pos, should still be pos,
             # if we were on neg, should still be neg.

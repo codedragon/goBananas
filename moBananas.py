@@ -1,6 +1,7 @@
 from math import sqrt
 import random
 
+
 def distance(p0, p1):
     """
     (tuple, tuple) -> float
@@ -10,6 +11,7 @@ def distance(p0, p1):
     dist = sqrt((float(p0[0]) - float(p1[0]))**2 + (float(p0[1]) - float(p1[1]))**2)
     return dist
 
+
 def setXY(pList, avatar=(0, 0), tooClose=None,):
     """
     (list) -> tuple
@@ -18,7 +20,11 @@ def setXY(pList, avatar=(0, 0), tooClose=None,):
     close to the avatar, which is at the origin in the beginning.
     """
     config = {}
-    execfile('config.py', config)
+    try:
+        execfile('config.py', config)
+    except IOError:
+        config = {'tooClose': 1, 'avatarRadius': 0.2, 'minXDistance': -10, 'maxXDistance': 10,
+                  'minYDistance': -10, 'maxYDistance': 10}
     if not tooClose:
         #print 'get from config'
         tooClose = config['tooClose']
@@ -27,8 +33,8 @@ def setXY(pList, avatar=(0, 0), tooClose=None,):
         dist_avatar = tooClose
     #print 'too close, setXY', tooClose
 
-    x = random.uniform(config['minDistance'], config['maxDistance'])
-    y = random.uniform(config['minFwDistance'], config['maxFwDistance'])
+    x = random.uniform(config['minXDistance'], config['maxXDistance'])
+    y = random.uniform(config['minYDistance'], config['maxYDistance'])
 
     #print 'x', x
     # check the distance to points already on the list and to the avatar

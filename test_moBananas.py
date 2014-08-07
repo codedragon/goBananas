@@ -99,7 +99,11 @@ class MoBananasTests(unittest.TestCase):
         #print avatar
         tooClose = config['tooClose']
         pList = []
+        # use a small number of bananas, because test can take a while if
+        # large number
         numBananas = config['numBananas']
+        if numBananas > 20:
+            numBananas = 20
         for i in range(numBananas):
             (x, y) = mb.setXY(pList, avatar, tooClose)
             dist = mb.distance((x, y), avatar)
