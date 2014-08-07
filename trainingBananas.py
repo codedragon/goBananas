@@ -123,7 +123,7 @@ class TrainingBananas(JoystickHandler):
         self.banana.reparentTo(self.base.render)
         banana_node_path = self.banana.find('**/+CollisionNode')
         # usually 0.1
-        banana_node_path.setScale(0.1)
+        banana_node_path.setScale(0.2)
         self.banana_mask = BitMask32(0x1)
         if self.subject == 'MP' and self.training == 2.5:
             print 'making adjustment to banana sphere for MP on 2.5'
