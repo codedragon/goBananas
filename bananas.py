@@ -45,7 +45,7 @@ class Bananas():
             #x = self.posBananas.pop(0)
             #y = self.posBananas.pop(0)
             x, y = self.pList[i]
-            bananaModel = Model.Model("banana" + "%02d" % i,
+            bananaModel = Model.Model("banana" + "%03d" % i,
                                 os.path.join(self.dir,
                                 "banana.bam"),
                                 Point3(x, y, 1),
@@ -97,7 +97,7 @@ class Bananas():
             # Model is a global from pandaepl
             # Point3 is a global from Panda3d
 
-            bananaModel = Model.Model("banana" + "%02d" % j,
+            bananaModel = Model.Model("banana" + "%03d" % j,
                                 os.path.join(self.dir,
                                 "banana.bam"),
                                 Point3(x, y, 1),
@@ -186,7 +186,7 @@ class Bananas():
         # make banana go away
         #print self.bananaModels[1].getH()
         #print self.byeBanana[-2:]
-        self.bananaModels[int(self.byeBanana[-2:])].setStashed(True)
+        self.bananaModels[int(self.byeBanana[-3:])].setStashed(True)
         self.stashed -= 1
         #print 'banana gone', self.byeBanana
         #print self.stashed
