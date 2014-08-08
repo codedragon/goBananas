@@ -20,6 +20,7 @@ class Bananas():
             self.now_repeat = None
         self.weighted_bananas = config['weightedBananas']
         if self.weighted_bananas:
+            self.change_weights = config['changeWeightLoc']
             # total area is 100
             high_area = 0.25 * 0.33 * 100
             middle_area = 0.25 * 100
@@ -90,8 +91,11 @@ class Bananas():
         print self.pList
 
     def createBananas(self, start=None):
-
         #print 'create bananas'
+        self.ballModel = Model.Model("smiley", "smiley",
+                                Point3(self.weight_center[0], self.weight_center[1], 1))
+
+        self.ballModel.setScale(0.1)
         # Randomly assign where bananas go and return a banana bananaModel.
         # start allows you to just add new bananas to the bananas already on
         # the field
@@ -110,7 +114,6 @@ class Bananas():
             pList.append((x, y))
             # Model is a global from pandaepl
             # Point3 is a global from Panda3d
-
             bananaModel = Model.Model("banana" + "%02d" % j,
                                 os.path.join(self.dir,
                                 "banana.bam"),
@@ -234,7 +237,8 @@ class Bananas():
                 self.replenishBananas('repeat')
             else:
                 self.replenishBananas()
-
+            if trialNum == self.change_weights:
+                self.changeWeightedCenter()
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
             #new_trial()
         return trialNum
@@ -259,7 +263,7 @@ class Bananas():
         # reset bananas
         self.replenishBananas()
 
-    def changeWeightedCenter(self, inputEvent):
+    def changeWeightedCenter(self):
         self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
         print('center', self.weight_center)
 
