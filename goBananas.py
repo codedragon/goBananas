@@ -107,6 +107,8 @@ class GoBananas:
 
         self.banana_models = Bananas(config)
 
+        # initialize trial number
+        self.trial_num = 0
         # Handle keyboard events
         vr.inputListen('toggleDebug',
                        lambda inputEvent:
@@ -116,7 +118,9 @@ class GoBananas:
         vr.inputListen("downTurnSpeed", self.downTurnSpeed)
         vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
         vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
-        vr.inputListen("changeWeightedCenter", self.banana_models.changeWeightedCenter)
+        vr.inputListen("changeWeightedCenter",
+                       lambda inputEvent:
+                       self.banana_models.changeTrialCenter(self.trial_num))
         vr.inputListen("extra_reward", self.extra_reward)
         #vr.inputListen("restart", self.restart)
         vr.inputListen("NewTrial", self.new_trial)
@@ -159,7 +163,6 @@ class GoBananas:
             self.send_events = None
 
         # Log First Trial
-        self.trial_num = 0
         VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
         self.new_trial()
 

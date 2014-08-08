@@ -13,15 +13,6 @@ class MoBananasTests(unittest.TestCase):
         dist = 1.4142135623730951
         self.assertEquals(mb.distance(p0, p1), dist)
 
-    def test_distance_with_a_neg(self):
-        """
-        Test Distance Formula
-        """
-        p0 = (8, -4)
-        p1 = (9, 5)
-        dist = 1.4142135623730951
-        self.assertEquals(mb.distance(p0, p1), dist)
-
     def test_setXY_no_pList(self):
         """
         Test that we are given a point that at least 0.5 distance

@@ -21,9 +21,9 @@ class Bananas():
         self.weighted_bananas = config['weightedBananas']
         if self.weighted_bananas:
             self.change_weights = config['changeWeightLoc']
-            # total area is 100
-            high_area = 0.25 * 0.33 * 100
-            middle_area = 0.25 * 100
+            # total area is 400, 20x20
+            high_area = 0.25 * 0.33 * 400
+            middle_area = 0.25 * 400
             self.high_radius = sqrt(high_area / pi)
             self.mid_radius = sqrt(middle_area / pi)
             self.high_reward = config['high_reward']
@@ -175,8 +175,6 @@ class Bananas():
             pList = self.pList
         else:
             pList = []
-        if self.weighted_bananas:
-            self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
         #print pList
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
@@ -237,7 +235,7 @@ class Bananas():
                 self.replenishBananas('repeat')
             else:
                 self.replenishBananas()
-            if trialNum == self.change_weights:
+            if trialNum % self.change_weights == 0:
                 self.changeWeightedCenter()
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
             #new_trial()
@@ -265,11 +263,19 @@ class Bananas():
 
     def changeWeightedCenter(self):
         self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+        self.ballModel.setPos(self.weight_center[0], self.weight_center[1], 1)
         print('center', self.weight_center)
+
+    def changeTrialCenter(self, trialNum):
+        # override for when the next change of weighted center happens
+        # may eventually want a different variable for this, if we really want
+        # to use both regular changes and overrides in the same game.
+        self.change_weights = trialNum + 1
 
     def get_reward_level(self, position):
         print('banana position', position[0], position[1])
         distance = mB.distance((position[0], position[1]), self.weight_center)
+        print('center', self.weight_center)
         print('distance to center', distance)
         print('high', self.high_radius)
         print('mid', self.mid_radius)
