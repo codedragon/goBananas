@@ -32,7 +32,7 @@ sendData = False
 # framebuffer-stereo 1
 
 # reward
-numBeeps = 3
+numBeeps = 2
 # factor to increase reward for last banana
 extra = 2
 
@@ -61,14 +61,13 @@ offset = (1, 1)  # (x,y)
 FOV = 60
 
 # Movement
-linearAcceleration = 30
+linearAcceleration = 8
 fullForwardSpeed = 2.8
 fullBackwardSpeed = 0
 turningAcceleration = 130
 fullTurningSpeed = 55
 turningLinearSpeed = 2
 maxTurningLinearSpeed = 90.0
-minTurningLinearSpeedReqd = 1.0
 minTurningLinearSpeed = 1.5
 minTurningLinearSpeedIncrement = 0.5
 
@@ -94,8 +93,7 @@ instructSeeAll = False
 
 # Experiment-specific settings
 
-# Bananas. Over 200 and starts to take a little while,
-# and runs the risk of hitting maximum recursion depths.
+# Bananas.
 numBananas = 250
 #numBananas = 25
 bananaDir = './models/bananas/'
@@ -126,8 +124,8 @@ if 'Keyboard' in globals():
     keyboard.bind("close", ["escape", "q"])
     keyboard.bind("restart", "y")
     keyboard.bind("toggleDebug", ["escape", "d"])
-    keyboard.bind("upTurnSpeed", "t")
-    keyboard.bind("downTurnSpeed", "g")
-    keyboard.bind("increaseBananas", "w")
-    keyboard.bind("decreaseBananas", "s")
+    keyboard.bind("increase_reward", "w")
+    keyboard.bind("decrease_reward", "s")
+    keyboard.bind("increaseBananas", "e")
+    keyboard.bind("decreaseBananas", "d")
     keyboard.bind("extra_reward", "space")

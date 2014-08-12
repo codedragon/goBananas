@@ -112,12 +112,12 @@ class GoBananas:
                        lambda inputEvent:
                        Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
         vr.inputListen('close', self.close)
-        vr.inputListen("upTurnSpeed", self.upTurnSpeed)
-        vr.inputListen("downTurnSpeed", self.downTurnSpeed)
+        vr.inputListen("increase_reward", self.increase_reward)
+        vr.inputListen("decrease_reward", self.decrease_reward)
         vr.inputListen("increaseBananas", self.banana_models.increaseBananas)
         vr.inputListen("decreaseBananas", self.banana_models.decreaseBananas)
         vr.inputListen("extra_reward", self.extra_reward)
-        #vr.inputListen("restart", self.restart)
+        vr.inputListen("restart", self.restart)
         vr.inputListen("NewTrial", self.new_trial)
         # set up task to be performed between frames, checks at interval of pump
         vr.addTask(Task("checkReward",
@@ -273,23 +273,15 @@ class GoBananas:
                 model.setH(item.head)
                 self.envModels.append(model)
 
-    def upTurnSpeed(self, inputEvent):
-        avatar = Avatar.getInstance()
-        self.fullTurningSpeed += 0.1
-        if avatar.getMaxTurningSpeed() > 0:
-            avatar.setMaxTurningSpeed(self.fullTurningSpeed)
-        print("fullTurningSpeed: " + str(self.fullTurningSpeed))
+    def increase_reward(self, inputEvent):
+        self.numBeeps += 1
 
-    def downTurnSpeed(self, inputEvent):
-        avatar = Avatar.getInstance()
-        self.fullTurningSpeed -= 0.1
-        if avatar.getMaxTurningSpeed() > 0:
-            avatar.setMaxTurningSpeed(self.fullTurningSpeed)
-        print("fullTurningSpeed: " + str(self.fullTurningSpeed))
+    def decrease_reward(self, inputEvent):
+        self.numBeeps -= 1
 
     def restart(self, inputEvent):
         #print 'restarted'
-        self.banana_models.replenishBananas()
+        self.banana_models.replenish_stashed_bananas()
 
     def extra_reward(self, inputEvent):
         #print 'yup'

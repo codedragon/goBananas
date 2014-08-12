@@ -150,7 +150,7 @@ class Bananas():
             #print self.beeps
             self.collision = False
 
-    def replenishBananas(self, repeat=None):
+    def replenish_all_bananas(self, repeat=None):
         # Eventually have a different code in repeat to signify
         # if using a previous set or saving a new set.
         if repeat == 'repeat' and self.pList:
@@ -179,6 +179,26 @@ class Bananas():
             # save the current list of random banana placements
             self.pList = pList
         self.stashed = self.numBananas
+
+    def replenish_stashed_bananas(self):
+        #print 'replenish'
+        pList = []
+        avatar = Avatar.Avatar.getInstance()
+        avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
+        for i in range(self.numBananas):
+            #print pList
+            if self.bananaModels[i].isStashed():
+                print 'stashed'
+                (x, y) = mb.setXY(pList, avatarXY)
+                pList.append((x, y))
+                #print x, y
+                self.bananaModels[i].setPos(Point3(x, y, 1))
+                # make new bananas visible
+                self.bananaModels[i].setStashed(False)
+            else:
+                # for bananas not replacing, get current banana position, so we
+                # don't put them too close together
+                pList.append((self.bananaModels[i].getPos()[0], self.bananaModels[i].getPos()[1]))
 
     def goneBanana(self, trialNum):
         # make banana disappear
@@ -210,13 +230,13 @@ class Bananas():
             # collect the set of banana positions that will be repeated
             if trialNum == self.now_repeat and self.now_repeat < self.repeat_number:
                 VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trialNum])
-                self.replenishBananas('new')
+                self.replenish_all_bananas('new')
             elif trialNum == self.now_repeat:
                 print 'repeat'
                 VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trialNum])
-                self.replenishBananas('repeat')
+                self.replenish_all_bananas('repeat')
             else:
-                self.replenishBananas()
+                self.replenish_all_bananas()
 
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
             #new_trial()
@@ -231,7 +251,7 @@ class Bananas():
         if self.numBananas > len(self.bananaModels):
             self.bananaModels.extend(self.createBananas(self.numBananas - 5))
             # make new ones show up
-        self.replenishBananas()
+        self.replenish_all_bananas()
 
     def decreaseBananas(self, inputEvent):
         # decrease number of bananas by 5
@@ -240,4 +260,4 @@ class Bananas():
             self.bananaModels[i].setStashed(True)
         self.numBananas -= 5
         # reset bananas
-        self.replenishBananas()
+        self.replenish_all_bananas()

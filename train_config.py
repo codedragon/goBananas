@@ -1,8 +1,8 @@
 # change individual config files, and have script copy to config.py
 # configuration file for trainBananas
 #
-subject = 'Test'
-#subject = 'MP'
+#subject = 'Test'
+subject = 'MP'
 
 # whether to show the environment in the background
 background = True
@@ -11,8 +11,8 @@ background = True
 #trainingDirection = 'Right'
 trainingDirection = 'Left'
 
-training = 2.4
-#training = 4.1
+#training = 2.3
+training = 4.0
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)

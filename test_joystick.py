@@ -53,10 +53,10 @@ class TestJoystick(JoystickHandler):
         # separate the plots, and increase the gain
         if js_dir == 'x':
             self.x_mag = (js_input * self.gain) + self.offset
-            print('new x', self.x_mag)
+            #print('new x', self.x_mag)
         else:
-            self.y_mag = (js_input * self.gain) - self.offset
-            print('new y', self.y_mag)
+            self.y_mag = -((js_input * self.gain) + self.offset)
+            #print('new y', self.y_mag)
 
     def key_move(self, js_dir):
         #print(js_dir)

@@ -612,7 +612,7 @@ class TrainingBananas(JoystickHandler):
                 self.x_mag = js_input * -2
             #print('x', self.x_mag)
         else:
-            # y direction is reversed,
+            # y direction is also reversed,
             # not allowed to go backward, ever
             if js_input < 0:
                 self.y_mag = -js_input

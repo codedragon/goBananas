@@ -108,17 +108,22 @@ class TrainingBananaTestsT2(unittest.TestCase):
         print('after', self.tb.base.camera.getH())
 
     def move_to_center_for_reward(self, stay=None):
+        #print 'move to center for reward'
         # only works if we are not allowed to go past center,
         # so less than 2.3
         if self.tb.training > 2.2:
             raise Exception("This method only for training less than 2.3")
         messenger.send('x_axis', [4 * self.tb.multiplier])
         if abs(self.tb.base.camera.getH()) < 4:
-            messenger.send('x_axis', [self.tb.multiplier * 2])
+            messenger.send('x_axis', [self.tb.multiplier * 1])
         # go until we get reward
         while self.tb.reward_count < self.tb.num_beeps:
+            print('camera head', self.tb.base.camera.getH())
             taskMgr.step()
+        print 'got reward'
+        print('camera head', self.tb.base.camera.getH())
         if stay == 'stay':
+            #print 'stay'
             # keep going while banana still in center.
             # since in center, send zero signal
             # to make sure trial restarts for certain training levels
@@ -364,9 +369,10 @@ class TrainingBananaTestsT2(unittest.TestCase):
             # when restart bananas happens
             messenger.send('l')
             # go to center for reward, and stay until moving is allowed again.
+            #print 'move to center'
             self.move_to_center_for_reward('stay')
             # should be on left side now.
-            print 'banana on new side now'
+            #print 'banana on new side now'
             self.assertTrue(self.tb.multiplier == -old_dir)
             # should be same distance, but opposite side
             self.assertTrue(self.tb.base.camera.getH() / before == -1)
@@ -1084,7 +1090,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         second_dist = abs(avatar_h - self.tb.base.camera.getH())
         print('dist', second_dist)
         # should be a small difference
-        self.assertTrue(abs(first_dist - second_dist) < 0.2)
+        self.assertTrue(abs(first_dist - second_dist) < 0.3)
 
     def test_speed_returns_to_normal_after_reward_if_slowed(self):
         """
