@@ -50,7 +50,7 @@ repeatNumber = 10
 weightedBananas = True
 # Are we changing the location of the weights during the experiment?
 # False or number of trials to go before switching
-changeWeightLoc = 5
+changeWeightLoc = 2
 high_reward = 6
 mid_reward = 4
 low_reward = 2
