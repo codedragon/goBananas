@@ -1,5 +1,10 @@
 from math import sqrt
 import random
+""" Functions for bananas that don't need PandaEPL, so can actually be tested reasonably!
+Includes functions for testing distance, figuring out banana placement, and determining
+reward level dependent on banana positions
+"""
+
 
 
 def distance(p0, p1):
@@ -52,3 +57,7 @@ def setXY(pList, avatar=(0, 0), tooClose=None,):
             x, y = setXY(pList, avatar, tooClose)
     #print 'setXY, x,y', x, y
     return x, y
+
+
+def get_reward_level(position):
+    pass

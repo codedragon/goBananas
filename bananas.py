@@ -1,9 +1,9 @@
 from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
 from panda3d.core import Point3
-import moBananas as mb
+import moBananas as mB
 import os
-import sys
 import random
+from numpy import sqrt, pi
 
 
 class Bananas():
@@ -18,6 +18,21 @@ class Bananas():
             print('collect banana positions from trial', self.now_repeat)
         else:
             self.now_repeat = None
+        self.weighted_bananas = config['weightedBananas']
+        if self.weighted_bananas:
+            self.change_weights = config['changeWeightLoc']
+            # total area is 400, 20x20
+            high_area = 0.25 * 0.33 * 400
+            middle_area = 0.25 * 400
+            self.high_radius = sqrt(high_area / pi)
+            self.mid_radius = sqrt(middle_area / pi)
+            self.high_reward = config['high_reward']
+            self.mid_reward = config['mid_reward']
+            self.low_reward = config['low_reward']
+            print self.high_radius
+            print self.mid_radius
+            self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+            print('center', self.weight_center)
         try:
             self.manual = config['manual']
         except KeyError:
@@ -45,11 +60,11 @@ class Bananas():
             #x = self.posBananas.pop(0)
             #y = self.posBananas.pop(0)
             x, y = self.pList[i]
-            bananaModel = Model.Model("banana" + "%03d" % i,
-                                os.path.join(self.dir,
-                                "banana.bam"),
-                                Point3(x, y, 1),
-                                self.collideBanana)
+            bananaModel = Model.Model("banana" + "%02d" % i,
+                                      os.path.join(self.dir,
+                                      "banana.bam"),
+                                      Point3(x, y, 1),
+                                      self.collideBanana)
             bananaModel.setScale(self.scale)
             # could make this static instead
             #bananaModel.setH(random.randint(0, 360))
@@ -76,8 +91,11 @@ class Bananas():
         print self.pList
 
     def createBananas(self, start=None):
-
         #print 'create bananas'
+        #self.ballModel = Model.Model("smiley", "smiley",
+        #                        Point3(self.weight_center[0], self.weight_center[1], 1))
+
+        #self.ballModel.setScale(0.1)
         # Randomly assign where bananas go and return a banana bananaModel.
         # start allows you to just add new bananas to the bananas already on
         # the field
@@ -90,14 +108,13 @@ class Bananas():
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         #print avatarXY
         for i, j in enumerate(range(start, self.numBananas)):
-            (x, y) = mb.setXY(pList, avatarXY)
+            (x, y) = mB.setXY(pList, avatarXY)
             #print i,j
             #pList += [(x, y)]
             pList.append((x, y))
             # Model is a global from pandaepl
             # Point3 is a global from Panda3d
-
-            bananaModel = Model.Model("banana" + "%03d" % j,
+            bananaModel = Model.Model("banana" + "%02d" % j,
                                 os.path.join(self.dir,
                                 "banana.bam"),
                                 Point3(x, y, 1),
@@ -146,6 +163,7 @@ class Bananas():
             Avatar.Avatar.getInstance().setMaxTurningSpeed(0)
             Avatar.Avatar.getInstance().setMaxForwardSpeed(0)
             #VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", ['stop moving!'])
+            # Setting self.beeps to 0 is signal to give reward
             self.beeps = 0
             #print self.beeps
             self.collision = False
@@ -166,7 +184,7 @@ class Bananas():
             if repeat == 'repeat':
                 (x, y) = pList[i]
             else:
-                (x, y) = mb.setXY(pList, avatarXY)
+                (x, y) = mB.setXY(pList, avatarXY)
                 pList.append((x, y))
             #print x, y
             self.bananaModels[i].setPos(Point3(x, y, 1))
@@ -189,7 +207,7 @@ class Bananas():
             #print pList
             if self.bananaModels[i].isStashed():
                 print 'stashed'
-                (x, y) = mb.setXY(pList, avatarXY)
+                (x, y) = mB.setXY(pList, avatarXY)
                 pList.append((x, y))
                 #print x, y
                 self.bananaModels[i].setPos(Point3(x, y, 1))
@@ -236,8 +254,9 @@ class Bananas():
                 VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trialNum])
                 self.replenish_all_bananas('repeat')
             else:
-                self.replenish_all_bananas()
-
+                self.replenishBananas()
+            if trialNum % self.change_weights == 0:
+                self.changeWeightedCenter()
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
             #new_trial()
         return trialNum
@@ -260,4 +279,30 @@ class Bananas():
             self.bananaModels[i].setStashed(True)
         self.numBananas -= 5
         # reset bananas
-        self.replenish_all_bananas()
+        self.replenishBananas()
+
+    def changeWeightedCenter(self):
+        self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+        #self.ballModel.setPos(Point3(self.weight_center[0], self.weight_center[1], 1))
+        print('center', self.weight_center)
+
+    def changeTrialCenter(self, trialNum):
+        # override for when the next change of weighted center happens
+        # may eventually want a different variable for this, if we really want
+        # to use both regular changes and overrides in the same game.
+        self.change_weights = trialNum + 1
+
+    def get_reward_level(self, position):
+        print('banana position', position[0], position[1])
+        distance = mB.distance((position[0], position[1]), self.weight_center)
+        print('center', self.weight_center)
+        print('distance to center', distance)
+        print('high', self.high_radius)
+        print('mid', self.mid_radius)
+        if distance < self.high_radius:
+            reward = self.high_reward
+        elif distance < self.mid_radius:
+            reward = self.mid_reward
+        else:
+            reward = self.low_reward
+        return reward

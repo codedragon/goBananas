@@ -597,6 +597,7 @@ class TrainingBananas(JoystickHandler):
             #print js_input
             # x direction is reversed
             self.x_mag = -js_input
+            #print('x_mag', self.x_mag)
             # hack for Mr. Peepers...
             # barely touch joystick and goes super speedy. speed not dependent
             # on how hard he touches joystick (always 2)

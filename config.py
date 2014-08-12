@@ -34,15 +34,26 @@ sendData = False
 # reward
 numBeeps = 2
 # factor to increase reward for last banana
-extra = 2
+# probably shouldn't use this if using weighted bananas
+# (just make it 1)
+extra = 1
 
 # are we repeating a certain configuration of bananas?
 # one of the first x banana configurations will be chosen
 # at random to be repeated.
-bananaRepeat = False
+bananaRepeat = True
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
 repeatNumber = 10
+
+# Are bananas in different areas worth more/less?
+weightedBananas = True
+# Are we changing the location of the weights during the experiment?
+# False or number of trials to go before switching
+changeWeightLoc = 2
+high_reward = 6
+mid_reward = 4
+low_reward = 2
 
 # for activating reward system
 pulseInterval = 200  # in ms
@@ -61,7 +72,7 @@ offset = (1, 1)  # (x,y)
 FOV = 60
 
 # Movement
-linearAcceleration = 8
+linearAcceleration = 30
 fullForwardSpeed = 2.8
 fullBackwardSpeed = 0
 turningAcceleration = 130
@@ -72,7 +83,7 @@ minTurningLinearSpeed = 1.5
 minTurningLinearSpeedIncrement = 0.5
 
 # Point3 is global from panda3d.core
-initialPos = Point3(0, -8, 1)
+initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
@@ -94,7 +105,8 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 250
+numBananas = 10
+
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
@@ -129,3 +141,4 @@ if 'Keyboard' in globals():
     keyboard.bind("increaseBananas", "e")
     keyboard.bind("decreaseBananas", "d")
     keyboard.bind("extra_reward", "space")
+    keyboard.bind("changeWeightedCenter", "c")

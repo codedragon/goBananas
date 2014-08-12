@@ -20,6 +20,7 @@ class PlaceModels(object):
 def load_models():
     terrain = PlaceModels()
     terrain.group = 'original'
+    #terrain.group = 'meh'
     terrain.name = 'terrain'
     terrain.model = 'models/play_space/field.bam'
     terrain.scale = 1
@@ -29,9 +30,17 @@ def load_models():
     sky_model = PlaceModels()
     sky_model.name = 'sky'
     sky_model.group = 'original'
+    #sky_model.group = 'meh'
     sky_model.model = 'models/sky/sky.bam'
     sky_model.location = Point3(0, 0, 0)
     sky_model.scale = 1.6
+
+    #smiley_model = PlaceModels()
+    #smiley_model.name = 'smiley'
+    #smiley_model.group = 'original'
+    #smiley_model.model = 'smiley'
+    #smiley_model.location = Point3(5, 5, 1)
+    #smiley_model.scale = 0.1
 
     palm_tree = PlaceModels()
     palm_tree.group = ['original', 'better']

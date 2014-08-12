@@ -82,6 +82,12 @@ allows you to use this:
 collisionInfoList[0].getInto().getIdentifier()
 to get the id of what you collided with.
 
+******* Wish List Item *********
+Would be awesome to be able to then use the identifier to get information
+about the object, position, for example. Now have to do it in a rather
+round-about fashion.
+
+
 From Kiril:
 (I have changed training steps somewhat)
 
