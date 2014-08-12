@@ -41,7 +41,7 @@ extra = 1
 # are we repeating a certain configuration of bananas?
 # one of the first x banana configurations will be chosen
 # at random to be repeated.
-bananaRepeat = False
+bananaRepeat = True
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
 repeatNumber = 10

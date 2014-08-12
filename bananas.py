@@ -92,10 +92,10 @@ class Bananas():
 
     def createBananas(self, start=None):
         #print 'create bananas'
-        self.ballModel = Model.Model("smiley", "smiley",
-                                Point3(self.weight_center[0], self.weight_center[1], 1))
+        #self.ballModel = Model.Model("smiley", "smiley",
+        #                        Point3(self.weight_center[0], self.weight_center[1], 1))
 
-        self.ballModel.setScale(0.1)
+        #self.ballModel.setScale(0.1)
         # Randomly assign where bananas go and return a banana bananaModel.
         # start allows you to just add new bananas to the bananas already on
         # the field
@@ -263,7 +263,7 @@ class Bananas():
 
     def changeWeightedCenter(self):
         self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
-        self.ballModel.setPos(Point3(self.weight_center[0], self.weight_center[1], 1))
+        #self.ballModel.setPos(Point3(self.weight_center[0], self.weight_center[1], 1))
         print('center', self.weight_center)
 
     def changeTrialCenter(self, trialNum):
