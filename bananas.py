@@ -92,6 +92,7 @@ class Bananas():
 
     def createBananas(self, start=None):
         #print 'create bananas'
+        #print start
         #self.ballModel = Model.Model("smiley", "smiley",
         #                        Point3(self.weight_center[0], self.weight_center[1], 1))
 
@@ -101,20 +102,22 @@ class Bananas():
         # the field
         if start is None:
             start = 0
-        #print 'numBananas', self.numBananas
+        print 'numBananas', self.numBananas
         pList = []
         # get current position of avatar, so bananas not too close.
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         #print avatarXY
         for i, j in enumerate(range(start, self.numBananas)):
+            #print i
+            #print j
             (x, y) = mB.setXY(pList, avatarXY)
             #print i,j
             #pList += [(x, y)]
             pList.append((x, y))
             # Model is a global from pandaepl
             # Point3 is a global from Panda3d
-            bananaModel = Model.Model("banana" + "%02d" % j,
+            bananaModel = Model.Model("banana" + "%03d" % j,
                                 os.path.join(self.dir,
                                 "banana.bam"),
                                 Point3(x, y, 1),
@@ -135,7 +138,6 @@ class Bananas():
         if self.repeat:
             self.pList = pList
         #print pList
-        #return bananaModels
 
     def collideBanana(self, collisionInfoList):
         """
@@ -254,8 +256,8 @@ class Bananas():
                 VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trialNum])
                 self.replenish_all_bananas('repeat')
             else:
-                self.replenishBananas()
-            if trialNum % self.change_weights == 0:
+                self.replenish_all_bananas()
+            if self.weighted_bananas and trialNum % self.change_weights == 0:
                 self.changeWeightedCenter()
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trialNum])
             #new_trial()
@@ -263,23 +265,27 @@ class Bananas():
 
     def increaseBananas(self, inputEvent):
         # increase number of bananas by 5
+        print self.numBananas
         self.numBananas += 5
+        print('new banana number', self.numBananas)
         # if we are increasing beyond original amount of bananas,
         # have to create the new bananas
         # print 'bananas number', len(self.bananaModel)
         if self.numBananas > len(self.bananaModels):
-            self.bananaModels.extend(self.createBananas(self.numBananas - 5))
-            # make new ones show up
-        self.replenish_all_bananas()
+            self.createBananas(self.numBananas - 5)
+            # make new ones show up (also any that have been previously hidden)
+        self.replenish_stashed_bananas()
 
     def decreaseBananas(self, inputEvent):
         # decrease number of bananas by 5
         # we can just hide the bananas we aren't using
-        for i in range(self.numBananas):
+        # hide the last 5.
+        start = self.numBananas - 5
+        for i in range(start, self.numBananas):
             self.bananaModels[i].setStashed(True)
         self.numBananas -= 5
         # reset bananas
-        self.replenishBananas()
+        self.replenish_stashed_bananas()
 
     def changeWeightedCenter(self):
         self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))

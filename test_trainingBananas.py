@@ -185,7 +185,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
             # get close, then slow down, otherwise we overshoot, and
             # going way faster here than could go in the game.
             # step until we don't go anymore
-            while abs(self.tb.base.camera.getH()) > 1:
+            while abs(self.tb.base.camera.getH()) > 1.5:
                 taskMgr.step()
                 #print self.tb.base.camera.getH()
             messenger.send('x_axis', [self.tb.multiplier])
@@ -487,7 +487,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         self.clear_collisions()
 
 
-class TrainingBananaTestsT2_1(TrainingBananaTestsT2, unittest.TestCase):
+class TrainingBananaTestsT2_1(TrainingBananaTestsT2):
     """ Training 2.1, self.must_release is now true, so test that we are letting go
     of the joystick before we get a new banana
     """
@@ -557,7 +557,7 @@ class TrainingBananaTestsT2_1(TrainingBananaTestsT2, unittest.TestCase):
         self.clear_collisions()
 
 
-class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
+class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1):
     """Training 2.2, random is now True. This means we have to change the tests for
     moving the crosshair, since we cannot control which direction we are going. Randomly
     it should hit both directions, assuming we test frequently, so shouldn't be a big
@@ -581,7 +581,7 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         # make it so random selections never go out to 22, which is possible
         # in the game, but screws up tests, since can't move in one direction
         # from that point.
-        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16]]
+        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16, 18]]
         self.tb.current_choice = 0
         # this will reset x_mag to zero, clearing any joystick pushes,
         # as well resetting other things
@@ -697,7 +697,7 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1, unittest.TestCase):
         self.clear_collisions()
 
 
-class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
+class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2):
     """Training 2.3, banana appears randomly on either side, multiple distances.
     Must let go of joystick to start next trial, both directions now allowed,
     however wrong direction is slower than towards center. Since can now move away
@@ -719,7 +719,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
     def setUp(self):
         # make it so random selections never go out to 22, which is possible
         # in the game, but screws up tests, since close to the wall at that point
-        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16]]
+        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16, 18]]
         self.tb.current_choice = 0
         # this will reset x_mag to zero, clearing any joystick pushes,
         # as well resetting other things
@@ -810,7 +810,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2, unittest.TestCase):
         self.clear_collisions()
 
 
-class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3, unittest.TestCase):
+class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3):
     """Training 2.3, banana appears randomly on either side, multiple distances.
     Must let go of joystick to start next trial, both directions now allowed,
     and speed is the same in both directions.
@@ -832,7 +832,7 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3, unittest.TestCase):
         # make it so random selections never go out to 22, which is possible
         # in the game, but screws up tests, since can't move in one direction
         # from that point.
-        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16]]
+        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16, 18]]
         self.tb.current_choice = 0
         # this will reset x_mag to zero, clearing any joystick pushes,
         # as well resetting other things
@@ -904,7 +904,7 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3, unittest.TestCase):
         self.clear_collisions()
 
 
-class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
+class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4):
     """Training 2.5, subject has to line up crosshair to banana (not go past)
     for min. time, slows down if goes past banana, both directions allowed
     """
@@ -925,7 +925,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         # make it so random selections never go out to 22, which is possible
         # in the game, but screws up tests, since can't move in one direction
         # from that point.
-        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16]]
+        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16, 18]]
         self.tb.current_choice = 0
         # this will reset x_mag to zero, clearing any joystick pushes,
         # as well resetting other things
@@ -1027,6 +1027,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
             # to reset speed.
             messenger.send('x_axis', [0])
             taskMgr.step()
+            taskMgr.step()
             # now return to our regularly scheduled program
             messenger.send('x_axis', [2 * self.tb.multiplier])
             # and now we can test moving again, first send 2 steps,
@@ -1077,6 +1078,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         messenger.send('x_axis', [0])
         print self.tb.speed
         taskMgr.step()
+        taskMgr.step()
         print self.tb.speed
         # now we switch directions to test direction towards center
         messenger.send('x_axis', [2 * -self.tb.multiplier])
@@ -1124,6 +1126,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         # and now we can test moving again, first send a zero,
         # to reset speed.
         messenger.send('x_axis', [0])
+        taskMgr.step()
         taskMgr.step()
         # next we need to test speed to make sure we slowed down,
         # so continue in same direction we were going
@@ -1239,7 +1242,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4, unittest.TestCase):
         self.clear_collisions()
 
 
-class TrainingBananaTestsT2_6(TrainingBananaTestsT2_5, unittest.TestCase):
+class TrainingBananaTestsT2_6(TrainingBananaTestsT2_5):
     """Training 2.6, subject has to line up crosshair to banana (not go past)
     for min. time, does not slow down if goes past banana, both directions allowed
     """
@@ -1260,8 +1263,7 @@ class TrainingBananaTestsT2_6(TrainingBananaTestsT2_5, unittest.TestCase):
         # make it so random selections never go out to 22, which is possible
         # in the game, but screws up tests, since can't move in one direction
         # from that point.
-        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16]]
-        #self.tb.all_random_selections = [[20]]
+        self.tb.all_random_selections = [[2, 4, 6, 8, 10, 12, 14, 16, 18]]
         self.tb.current_choice = 0
         # this will reset x_mag to zero, clearing any joystick pushes,
         # as well resetting other things
@@ -1414,7 +1416,7 @@ class TrainingBananaTestsT3(unittest.TestCase):
         self.tb.check_banana()
 
 
-class TrainingBananaTestsT3_1(TrainingBananaTestsT3, unittest.TestCase):
+class TrainingBananaTestsT3_1(TrainingBananaTestsT3):
     """Training 3, subject has to run forward into the banana, must let go
     of joystick to start new trial
     """
@@ -1889,7 +1891,7 @@ if __name__ == "__main__":
     # tricks I've tried (was not designed for this, see this discussion:
     # https://www.panda3d.org/forums/viewtopic.php?t=10867
     # To get around this, calling a different suite, depending on which number sent
-    # in as a sys.argv
+    # in as a sys.argv, this way we can just run a loop through all of the classes
     #print sys.argv
     #print len(sys.argv)
     if len(sys.argv) == 2 and is_int_string(sys.argv[1]):

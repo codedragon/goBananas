@@ -41,13 +41,13 @@ extra = 1
 # are we repeating a certain configuration of bananas?
 # one of the first x banana configurations will be chosen
 # at random to be repeated.
-bananaRepeat = True
+bananaRepeat = False
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
 repeatNumber = 10
 
 # Are bananas in different areas worth more/less?
-weightedBananas = True
+weightedBananas = False
 # Are we changing the location of the weights during the experiment?
 # False or number of trials to go before switching
 changeWeightLoc = 2

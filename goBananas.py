@@ -41,6 +41,7 @@ class GoBananas:
         self.extra = config['extra']
         self.fullTurningSpeed = config['fullTurningSpeed']
         self.fullForwardSpeed = config['fullForwardSpeed']
+        self.weighted_bananas = config['weightedBananas']
 
         # get rid of cursor
         win_props = WindowProperties()
@@ -181,9 +182,10 @@ class GoBananas:
             VLQ.getInstance().writeLine("Yummy", [self.banana_models.byeBanana])
             #print('logged', self.banana_models.byeBanana)
             #print('banana pos', self.banana_models.bananaModels[int(self.banana_models.byeBanana[-2:])].getPos())
-            position = self.banana_models.bananaModels[int(self.banana_models.byeBanana[-2:])].getPos()
-            self.numBeeps = self.banana_models.get_reward_level(position)
-            print self.numBeeps
+            if self.weighted_bananas:
+                position = self.banana_models.bananaModels[int(self.banana_models.byeBanana[-2:])].getPos()
+                self.numBeeps = self.banana_models.get_reward_level(position)
+                print self.numBeeps
             if self.send_events:
                 self.send_events.send_signal(200)
                 self.send_strobe.send_signal()
