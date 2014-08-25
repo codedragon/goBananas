@@ -1,7 +1,7 @@
 #!/bin/bash
 # make sure we are using the correct configuration
 cp configs/giz_config.py config.py
-ppython goBananas.py -sGus --no-eeg --resolution=1024x768
+ppython goBananas.py -sGus --no-eeg --resolution=1280x800
 # original directory
 SD=( data/Gus/session_$(date +%y_%m_%d)* )
 

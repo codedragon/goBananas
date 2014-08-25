@@ -7,6 +7,8 @@ class PlaceModels(object):
     def __init__(self):
         self._registry.append(self)
         # default is original group
+        # models can be members of more than one group
+        # for example self.group = ['original', 'circle']
         self.group = 'original'
         self.model = 'models/fixtures/streetlight.bam'
         self.location = Point3(-13, 13, 0)
@@ -43,52 +45,47 @@ def load_models():
     #smiley_model.scale = 0.1
 
     palm_tree = PlaceModels()
-    palm_tree.group = ['original', 'better']
+    palm_tree.group = 'original'
     palm_tree.name = 'palm_tree'
     palm_tree.model = 'models/trees/palmTree.bam'
     palm_tree.location = Point3(13, 13, 0)
     palm_tree.scale = 0.0175
 
     skyscraper = PlaceModels()
-    skyscraper.group = ['original', 'better']
+    skyscraper.group = 'original'
     skyscraper.name = 'skyscraper'
     skyscraper.model = 'models/skyscraper/skyscraper.bam'
     skyscraper.location = Point3(-13, -13, 0)
     skyscraper.scale = 0.3
 
     streetlight = PlaceModels()
-    streetlight.group = ['original', 'better']
+    streetlight.group = ['original']
     streetlight.name = 'streetlight'
     streetlight.model = 'models/streetlight/streetlight.bam'
     streetlight.location = Point3(-13, 13, 0)
     streetlight.scale = 0.75
 
-    windmill = PlaceModels()
-    #windmill.group = ['original', 'better']
-    windmill.group = ['better']
-    windmill.name = 'windmill'
-    windmill.model = 'models/windmill/windmill.bam'
-    windmill.location = Point3(13, -13, 0)
-    windmill.scale = 0.2
-    windmill.head = 45
-
     courtyard = PlaceModels()
-    courtyard.group = 'better'
+    courtyard.group = 'circle'
+    #courtyard.group = 'other'
     courtyard.name = 'terrain'
     #courtyard.model = 'models/play_space/courtyard.bam'
-    courtyard.model = '../play_environ/models/courtyard_one.egg'
+    courtyard.model = 'models/new_stuff/round_courtyard2.bam'
+    #courtyard.model = '../play_environ/models/courtyard_one.egg'
     courtyard.scale = 1
     courtyard.location = Point3(0, 0, 0)
     courtyard.callback = 'MovingObject.handleRepelCollision'
 
     horizon = PlaceModels()
     horizon.name = 'horizon'
-    horizon.group = 'better'
-    #horizon.scale = 1.6
-    horizon.scale = Point3(1, 1, 1)
-    #horizon.model = '../play_environ/models/good_sky_hole.egg'
-    horizon.model = '../play_environ/models/sky_cylinder.egg'
-    horizon.location = Point3(0, 0, -1)
+    horizon.group = 'circle'
+    #horizon.scale = Point3(2, 2, 1)
+    horizon.scale = Point3(2, 2, 4)
+    #horizon.scale = 0.5
+    horizon.model = 'models/new_stuff/sky_kahana2.bam'
+    #horizon.model = 'models/sky/good_sky_hole.egg'
+    #horizon.model = '../play_environ/models/sky_cylinder.egg'
+    horizon.location = Point3(0, 0, -0.5)
 
 #load_models()
 #for item in PlaceModels._registry:

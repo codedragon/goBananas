@@ -94,6 +94,14 @@ crosshair in center, banana off center, move crosshair to banana (learn to assoc
 
 trainBananas is a version I made with PandaEPL, but joystick implementation is problematic.
 
+Codes for goBananas plexon/blackrock:
+200 ran into banana
+201 given reward
+1000 + trial number new trial
+after trial numbers, x and y positions for each banana
+300 repeated trial, next signal will be which trial number is the current repeat
+400 next signal will be x and y position of weighted center
+
 
 Config file training variable:
 
@@ -123,6 +131,8 @@ Config file training variable:
 * 5.2 = A given number of bananas appear on the field and you have to go gather them all, then a new set appears.  Position doesn't reset, neither does header direction.
 
 PandaEPL Bugs and Warnings:
+
+esc-d debug doesn't work?
 
 Bug in joystick implementation:
 Add the word float in line 85, Joystick.py:

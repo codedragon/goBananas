@@ -31,7 +31,9 @@ class Bananas():
             self.low_reward = config['low_reward']
             print self.high_radius
             print self.mid_radius
-            self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+            #self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+            weight_center = (-8.0, 0.5)
+            self.changeWeightedCenter(weight_center)
             print('center', self.weight_center)
         try:
             self.manual = config['manual']
@@ -208,7 +210,7 @@ class Bananas():
         for i in range(self.numBananas):
             #print pList
             if self.bananaModels[i].isStashed():
-                print 'stashed'
+                #print 'stashed'
                 (x, y) = mB.setXY(pList, avatarXY)
                 pList.append((x, y))
                 #print x, y
@@ -287,10 +289,17 @@ class Bananas():
         # reset bananas
         self.replenish_stashed_bananas()
 
-    def changeWeightedCenter(self):
-        self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+    def changeWeightedCenter(self, center=None):
+        if center is None:
+            self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+        else:
+            self.weight_center = center
+        # if you want to see a smiley ball at the weight center... (also have
+        # to initialize it above)
         #self.ballModel.setPos(Point3(self.weight_center[0], self.weight_center[1], 1))
-        print('center', self.weight_center)
+        VideoLogQueue.VideoLogQueue.getInstance().writeLine("WeightedCenter",
+                                                            [self.weight_center[0],
+                                                             self.weight_center[1]])
 
     def changeTrialCenter(self, trialNum):
         # override for when the next change of weighted center happens

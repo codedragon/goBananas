@@ -13,26 +13,27 @@ path_models = ''
 manual = False
 
 # environ types available:
-# 'training'
 # 'original'
 environ = 'original'
+#environ = 'circle'
+
 # Are we giving rewards?
 reward = True
 #reward = False
 
 # Are we collecting eye data?
-#eyeData = True
-eyeData = False
+eyeData = True
+#eyeData = False
 
 # are we sending data to plexon or blackrock?
-#sendData = True
-sendData = False
+sendData = True
+#sendData = False
 
 # 3d?
 # framebuffer-stereo 1
 
 # reward
-numBeeps = 2
+numBeeps = 3
 # factor to increase reward for last banana
 # probably shouldn't use this if using weighted bananas
 # (just make it 1)
@@ -47,13 +48,13 @@ bananaRepeat = False
 repeatNumber = 10
 
 # Are bananas in different areas worth more/less?
-weightedBananas = False
+weightedBananas = True
 # Are we changing the location of the weights during the experiment?
 # False or number of trials to go before switching
-changeWeightLoc = 2
-high_reward = 6
-mid_reward = 4
-low_reward = 2
+changeWeightLoc = 500
+high_reward = 7
+mid_reward = 5
+low_reward = 3
 
 # for activating reward system
 pulseInterval = 200  # in ms
@@ -64,7 +65,9 @@ pulseInterval = 200  # in ms
 # close enough to the number of pixels we are using.
 # if increase resolution beyond 1024, should probably
 # adjust this
-gain = (100, 100)  # (x, y)
+# increased resolution to 1280, 800, so increased x gain
+# to 150 to give us 1500 max pixels.
+gain = (150, 100)  # (x, y)
 offset = (1, 1)  # (x,y)
 
 #### Core PandaEPL settings ####
@@ -110,7 +113,7 @@ numBananas = 10
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
-bananaScale = .5
+bananaScale = .6
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
 tooClose = 1  # 1

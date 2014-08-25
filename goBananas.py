@@ -42,7 +42,7 @@ class GoBananas:
         self.fullTurningSpeed = config['fullTurningSpeed']
         self.fullForwardSpeed = config['fullForwardSpeed']
         self.weighted_bananas = config['weightedBananas']
-
+        self.min_dist = [config['minXDistance'], config['minYDistance']]
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props
@@ -103,6 +103,8 @@ class GoBananas:
         Log.getInstance().addType("RepeatTrial", [("Repeat", int)],
                                   False)
 
+        Log.getInstance().addType("WeightedCenter", [("X", float), ("Y", float)],
+                                  False)
         # Load environment
         self.load_environment(config)
 
@@ -255,9 +257,29 @@ class GoBananas:
             self.send_events.send_signal(1000 + self.trial_num)
             self.send_strobe.send_signal()
             for i in self.banana_models.bananaModels:
+                # can't send negative numbers or decimals, so
+                # need to translate the numbers
                 #print i.getPos()
-                self.send_events.send_signal(i.getPos()[0])
-                self.send_events.send_signal(i.getPos()[1])
+                translate_b = [int((i.getPos()[0] - self.min_dist[0]) * 1000),
+                       int((i.getPos()[1] - self.min_dist[1]) * 1000)]
+                #print foo
+                self.send_events.send_signal(translate_b[0])
+                self.send_strobe.send_signal()
+                self.send_events.send_signal(translate_b[1])
+                self.send_strobe.send_signal()
+            if self.weighted_bananas:
+                self.send_events.send_signal(400)
+                self.send_strobe.send_signal()
+                translate_w = [int((self.banana_models.weight_center[0] - self.min_dist[0]) * 1000),
+                       int((self.banana_models.weight_center[1] - self.min_dist[1]) * 1000)]
+                self.send_events.send_signal(translate_w[0])
+                self.send_strobe.send_signal()
+                self.send_events.send_signal(translate_w[1])
+                self.send_strobe.send_signal()
+            if self.banana_models.repeat:
+                self.send_events.send_signal(300)
+                self.send_strobe.send_signal()
+                self.send_events.send_signal(self.banana_models.now_repeat)
                 self.send_strobe.send_signal()
 
     def load_environment(self, config):
@@ -279,7 +301,7 @@ class GoBananas:
                     model.setCollisionCallback(eval(item.callback))
                     # white wall is bright, and sometimes hard to see bananas,
                     # quick fix.
-                    model.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
+                    #model.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
                 model.setScale(item.scale)
                 model.setH(item.head)
                 self.envModels.append(model)
