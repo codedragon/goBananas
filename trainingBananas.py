@@ -173,8 +173,8 @@ class TrainingBananas(JoystickHandler):
         self.config_avatar_h = config['avatar_start_h']
         if self.training > self.levels_available[0][-1]:
             # if training is 3 or greater, use starting position from config
-            # (for above 3, if also doing left/right always on random,
-            # so angle will be set later)
+            # (for above 3, if also doing left/right, will always be random,
+            # so don't worry about it here
             self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
             #self.fullForwardSpeed = config['fullForwardSpeed']
         elif self.training < self.levels_available[1][0]:
@@ -970,6 +970,7 @@ class TrainingBananas(JoystickHandler):
         # level 3 training
         if training > self.levels_available[0][-1]:
             #print '3.0'
+            self.avatar_h = 0
             self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
             self.banana_coll_node.setIntoCollideMask(self.mask_list[1])
             # defaults for level 3 training

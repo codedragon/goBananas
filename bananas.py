@@ -208,7 +208,7 @@ class Bananas():
         for i in range(self.numBananas):
             #print pList
             if self.bananaModels[i].isStashed():
-                print 'stashed'
+                #print 'banana stashed, unstash now'
                 (x, y) = mB.setXY(pList, avatarXY)
                 pList.append((x, y))
                 #print x, y
