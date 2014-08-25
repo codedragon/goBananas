@@ -31,9 +31,11 @@ class Bananas():
             self.low_reward = config['low_reward']
             print self.high_radius
             print self.mid_radius
-            #self.weight_center = (random.uniform(-10, 10), random.uniform(-10, 10))
+            # must use a decimal number (float)
             weight_center = (-8.0, 0.5)
             self.changeWeightedCenter(weight_center)
+            # uncomment to choose a center randomly
+            #self.changeWeightedCenter()
             print('center', self.weight_center)
         try:
             self.manual = config['manual']
@@ -210,7 +212,7 @@ class Bananas():
         for i in range(self.numBananas):
             #print pList
             if self.bananaModels[i].isStashed():
-                #print 'stashed'
+                #print 'banana stashed, unstash now'
                 (x, y) = mB.setXY(pList, avatarXY)
                 pList.append((x, y))
                 #print x, y

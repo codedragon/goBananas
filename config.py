@@ -35,9 +35,7 @@ sendData = True
 # reward
 numBeeps = 3
 # factor to increase reward for last banana
-# probably shouldn't use this if using weighted bananas
-# (just make it 1)
-extra = 1
+extra = 2
 
 # are we repeating a certain configuration of bananas?
 # one of the first x banana configurations will be chosen
@@ -48,10 +46,12 @@ bananaRepeat = False
 repeatNumber = 10
 
 # Are bananas in different areas worth more/less?
+# weighted bananas creates bananas of different rewards according to
+# placement in the environment
 weightedBananas = True
 # Are we changing the location of the weights during the experiment?
 # False or number of trials to go before switching
-changeWeightLoc = 500
+changeWeightLoc = False
 high_reward = 7
 mid_reward = 5
 low_reward = 3
@@ -65,6 +65,7 @@ pulseInterval = 200  # in ms
 # close enough to the number of pixels we are using.
 # if increase resolution beyond 1024, should probably
 # adjust this
+
 # increased resolution to 1280, 800, so increased x gain
 # to 150 to give us 1500 max pixels.
 gain = (150, 100)  # (x, y)
@@ -75,18 +76,19 @@ offset = (1, 1)  # (x,y)
 FOV = 60
 
 # Movement
-linearAcceleration = 30
+linearAcceleration = 8
 fullForwardSpeed = 2.8
 fullBackwardSpeed = 0
 turningAcceleration = 130
-fullTurningSpeed = 55
+# game is normally at 55
+fullTurningSpeed = 30
 turningLinearSpeed = 2
 maxTurningLinearSpeed = 90.0
 minTurningLinearSpeed = 1.5
 minTurningLinearSpeedIncrement = 0.5
 
 # Point3 is global from panda3d.core
-initialPos = Point3(0, 0, 1)
+initialPos = Point3(0, -8, 1)
 
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
@@ -108,8 +110,7 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 10
-
+numBananas = 200
 #numBananas = 25
 bananaDir = './models/bananas/'
 #bananaZ = 1
@@ -123,6 +124,9 @@ minXDistance = -10
 maxXDistance = 10
 minYDistance = -10
 maxYDistance = 10
+
+# banana positions if using circle environment
+radius = 14
 
 # Load 2 bananas for testing, know where they are!
 # (no effect if manual False)
@@ -139,9 +143,8 @@ if 'Keyboard' in globals():
     keyboard.bind("close", ["escape", "q"])
     keyboard.bind("restart", "y")
     keyboard.bind("toggleDebug", ["escape", "d"])
-    keyboard.bind("increase_reward", "w")
-    keyboard.bind("decrease_reward", "s")
-    keyboard.bind("increaseBananas", "e")
-    keyboard.bind("decreaseBananas", "d")
+    keyboard.bind("upTurnSpeed", "t")
+    keyboard.bind("downTurnSpeed", "g")
+    keyboard.bind("increaseBananas", "w")
+    keyboard.bind("decreaseBananas", "s")
     keyboard.bind("extra_reward", "space")
-    keyboard.bind("changeWeightedCenter", "c")
