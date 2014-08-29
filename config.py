@@ -2,10 +2,6 @@
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
 
-# Set Training Level 
-# See README for info about Training Levels
-training = 5.2
-
 # models are in goBananas directory by default
 path_models = ''
 # manual mode allows you to place up to 2 bananas in specific places,
@@ -13,7 +9,7 @@ path_models = ''
 manual = False
 
 # environ types available:
-# 'original'
+# 'original', 'circle'
 environ = 'original'
 #environ = 'circle'
 
@@ -135,6 +131,7 @@ bananaScale = 0.5
 bananaH = 0
 bananaLoc2 = Point3(5.5, 3, 1)
 
+# used for placing bananas in cicular environment
 radius = 14
 
 # (Non-default) command keys.

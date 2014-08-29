@@ -54,20 +54,6 @@ class GoBananas:
         # would be great to load this so it isn't just a global from nowhere,
         # but pandaepl makes it impossible
         base.win.requestProperties(win_props)
-        #print base.win.requestProperties(win_props)
-        #base.setFrameRateMeter(True)
-
-        # window2 = base.openWindow()
-        # win_props.setOrigin(800, 200)  # make it so windows aren't on top of each other
-        # win_props.setSize(800, 600)  # if no resolution given, assume normal panda window
-        # window2.requestProperties(win_props)
-        #
-        # camera = base.camList[0]
-        # camera.reparentTo(render)
-        #
-        # camera2 = base.camList[1]
-        # camera.reparentTo(render)
-
 
         # Get vr environment object
         vr = Vr.getInstance()
@@ -87,24 +73,25 @@ class GoBananas:
         # This one corresponds to colliding with a banana
         Log.getInstance().addType("Yummy", [("BANANA", basestring)],
                                   False)
+        Log.getInstance().addType("Delish", [("PLUM", basestring)],
+                                  False)
+        #
+        Log.getInstance().addType("Scrumptious", [("CHERRIES", basestring)],
+                                  False)
+        Log.getInstance().addType("Tasty", [("BANANA", basestring)],
+                                  False)
         # Reward
         Log.getInstance().addType('Beeps', [('Reward', int)],
-                                            False)
-        # Done getting reward, banana disappears
-        Log.getInstance().addType("Finished", [("BANANA", basestring)],
+                                  False)
+        # Done getting reward, fruit disappears
+        Log.getInstance().addType("Finished", [("FRUIT", basestring)],
                                   False)
         # New Trial
         Log.getInstance().addType("NewTrial", [("Trial", int)],
                                   False)
-
+        # Eye data
         Log.getInstance().addType("EyeData",
                                   [("X", float), ("Y", float)],
-                                  False)
-
-        Log.getInstance().addType("RepeatTrial", [("Repeat", int)],
-                                  False)
-
-        Log.getInstance().addType("WeightedCenter", [("X", float), ("Y", float)],
                                   False)
         # Load environment
         self.load_environment(config)
