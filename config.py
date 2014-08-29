@@ -14,8 +14,8 @@ manual = False
 
 # environ types available:
 # 'original'
-#environ = 'original'
-environ = 'circle'
+environ = 'original'
+#environ = 'circle'
 
 # Are we giving rewards?
 reward = True
@@ -55,6 +55,9 @@ changeWeightLoc = 500
 high_reward = 7
 mid_reward = 5
 low_reward = 3
+
+# toggle for adding training crosshair
+crosshair = False
 
 # for activating reward system
 pulseInterval = 200  # in ms

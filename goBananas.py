@@ -3,6 +3,7 @@ from pandaepl.common import *
 #from pandaepl import Model, MovingObject
 #noinspection PyUnresolvedReferences
 from panda3d.core import WindowProperties
+from panda3d.core import TextNode
 #from panda3d.core import CollisionNode, CollisionSphere
 from load_models import PlaceModels, load_models
 from bananas import Bananas
@@ -43,6 +44,9 @@ class GoBananas:
         self.fullForwardSpeed = config['fullForwardSpeed']
         self.weighted_bananas = config['weightedBananas']
         self.min_dist = [config['minXDistance'], config['minYDistance']]
+        self.crosshair = config['crosshair']
+        if self.crosshair:
+            self.x_alpha = 1
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props
@@ -305,6 +309,28 @@ class GoBananas:
                 model.setScale(item.scale)
                 model.setH(item.head)
                 self.envModels.append(model)
+
+        if self.crosshair:
+            # Cross hair
+            # color changes for crosshair
+            self.x_start_c = Point4(1, 1, 1, self.x_alpha)
+            self.x_stop_c = Point4(1, 0, 0, self.x_alpha)
+            self.crosshair = TextNode('crosshair')
+            self.crosshair.setText('+')
+            text_node_path = base.aspect2d.attachNewNode(self.crosshair)
+            text_node_path.setScale(0.2)
+            # crosshair is always in center, but
+            # need it to be in same place as collisionRay is, but it appears that center is
+            # at the bottom left of the collisionRay, and the top right of the text, so they
+            # don't have center in the same place. Makes more sense to move text than ray.
+            # These numbers were scientifically determined. JK, moved around until the cross looked
+            # centered on the ray
+            #crosshair_pos = Point3(0, 0, 0)
+            #crosshair_pos = Point3(-0.07, 0, -0.05)
+            crosshair_pos = Point3(-0.055, 0, -0.03)
+
+            #print text_node_path.getPos()
+            text_node_path.setPos(crosshair_pos)
 
     def increase_reward(self, inputEvent):
         self.numBeeps += 1
