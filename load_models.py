@@ -16,6 +16,7 @@ class PlaceModels(object):
         self.head = 0
         self.callback = None
         self.name = 'streetlight'
+        self.coll_scale = 1
 
 
 # Eventually may want to make this a database
@@ -86,6 +87,13 @@ def load_models():
     #horizon.model = 'models/sky/good_sky_hole.egg'
     #horizon.model = '../play_environ/models/sky_cylinder.egg'
     horizon.location = Point3(0, 0, -0.5)
+
+    banana = PlaceModels()
+    banana.name = 'banana'
+    banana.group = 'fruit'
+    banana.scale = 0.6
+    banana.model = 'models/fruit/banana.bam'
+    banana.coll_scale = 0.2
 
 #load_models()
 #for item in PlaceModels._registry:
