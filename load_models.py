@@ -95,6 +95,12 @@ def load_models():
     banana.model = 'models/fruit/banana.bam'
     banana.coll_scale = 0.2
 
+    plum = PlaceModels()
+    plum.name = 'plum'
+    plum.group = 'fruit'
+    plum.scale = 0.005
+    plum.model = 'models/fruit/plum.bam'
+
 #load_models()
 #for item in PlaceModels._registry:
 #    print item.model

@@ -35,7 +35,7 @@ class Fruit():
         else:
             self.create_fruit()
 
-    def create_bananas(self, start=None, positions=None):
+    def create_fruit(self, start=None, positions=None):
         #print 'create bananas'
         #print start
         print 'number fruit', self.num_fruit
@@ -52,13 +52,29 @@ class Fruit():
         #print avatarXY
         # for sequential fruit, still create using setXY, since we
         # don't want fruit in the same place twice in one round
-        for i in range(start, self.num_fruit):
-            if positions:
-                x, y = self.pList[i]
-            else:
-                (x, y) = mB.setXY(pList, avatarXY)
-                pList.append((x, y))
-            self.create_banana_model(x, y)
+        load_models()
+        i = 0
+        while i < self.num_fruit:
+            for item in PlaceModels._registry:
+                if 'fruit' in item.group:
+                    print item.model
+                    if positions:
+                        x, y = self.pList[i]
+                    else:
+                        (x, y) = mB.setXY(pList, avatarXY)
+                    pList.append((x, y))
+                    model = Model.Model(item.name, item.model, Point3(x, y, 1), self.collide_fruit)
+                    model.setH(random.randint(0, 360))
+                    # set collision sphere around fruit
+                    model.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(item.coll_scale)
+                    # uncomment to see collision sphere around fruit
+                    #model.retrNodePath().getChild(0).getChild(0).getChild(0).show()
+                    self.fruit_models.append(model)
+                    # if true, object is removed from the environment, but not destroyed
+                    # start with not stashed
+                    self.fruit_models[-1].setStashed(False)
+                    i += 1
+
         #print 'end load bananas'
         # go ahead and save these banana placements, if we are saving from a different trial,
         # will just be over-written.
@@ -72,22 +88,6 @@ class Fruit():
 
         #self.ballModel.setScale(0.1)
 
-    def create_banana_model(self, x, y):
-        load_models()
-        for item in PlaceModels._registry:
-            if 'fruit' in item.group:
-                print item.model
-                model = Model.Model(item.name, item.model, Point3(x, y, 1), self.collide_fruit)
-                model.setH(random.randint(0, 360))
-                # set collision sphere around fruit
-                model.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(item.coll_scale)
-                # uncomment to see collision sphere around fruit
-                #model.retrNodePath().getChild(0).getChild(0).getChild(0).show()
-                self.fruit_models.append(model)
-                # if true, object is removed from the environment, but not destroyed
-                # start with not stashed
-                self.fruit_models[-1].setStashed(False)
-      
     def collide_fruit(self, collisionInfoList):
         """
         Handle the subject colliding with a banana
@@ -96,7 +96,8 @@ class Fruit():
         """
         #print 'collision'
         # which banana we ran into
-        self.bye_fruit = collisionInfoList[0].getInto().getIdentifier()
+        self.got_fruit = collisionInfoList[0].getInto().getIdentifier()
+        print self.got_fruit
         # check to see if the banana was in the camera view when collided,
         # if not, then ignore collision
         collided = collisionInfoList[0].getInto()
@@ -106,7 +107,7 @@ class Fruit():
         # Sometimes we collide with a banana multiple times for no damn reason, so setting self.collision
         # to keep track of whether this is the first collision
         if cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)) and self.collision:
-            #print self.byeBanana
+            #print self.got_fruit
             # cannot run inside of banana
             MovingObject.MovingObject.handleRepelCollision(collisionInfoList)
             #print 'stop moving'
@@ -119,7 +120,7 @@ class Fruit():
             #print self.beeps
             self.collision = False
 
-    def replenish_all_bananas(self, repeat=None):
+    def replenish_all_fruit(self, repeat=None):
         # Eventually have a different code in repeat to signify
         # if using a previous set or saving a new set.
         if repeat == 'repeat' and self.pList:
@@ -149,7 +150,7 @@ class Fruit():
             self.pList = pList
         self.stashed = self.num_fruit
 
-    def replenish_stashed_bananas(self):
+    def replenish_stashed_fruit(self):
         #print 'replenish'
         pList = []
         avatar = Avatar.Avatar.getInstance()
@@ -174,13 +175,13 @@ class Fruit():
         #print 'banana should go away'
         # make banana go away
         #print self.bananaModels[1].getH()
-        #print self.byeBanana[-2:]
-        self.fruit_models[int(self.byeBanana[-3:])].setStashed(True)
+        #print self.got_fruit[-2:]
+        self.fruit_models[int(self.got_fruit[-3:])].setStashed(True)
         self.stashed -= 1
-        #print 'banana gone', self.byeBanana
+        #print 'banana gone', self.got_fruit
         #print self.stashed
         # log collected banana
-        VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.byeBanana])
+        VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.got_fruit])
         self.collision = True
         if self.stashed == 0:
             #print 'last banana'
@@ -199,13 +200,13 @@ class Fruit():
             # collect the set of banana positions that will be repeated
             if trial_num == self.now_repeat and self.now_repeat < self.repeat_number:
                 VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
-                self.replenish_all_bananas('new')
+                self.replenish_all_fruit('new')
             elif trial_num == self.now_repeat:
                 print 'repeat'
                 VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
-                self.replenish_all_bananas('repeat')
+                self.replenish_all_fruit('repeat')
             else:
-                self.replenish_all_bananas()
+                self.replenish_all_fruit()
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
             #new_trial()
         return trial_num

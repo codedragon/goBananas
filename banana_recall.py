@@ -114,6 +114,10 @@ class GoBananas:
                         lambda taskInfo:
                         self.check_reward(),
                         config['pulseInterval']))
+        vr.addTask(Task("rememberBanana",
+                        lambda taskInfo:
+                        self.check_position(),
+                        ))
         # send avatar position to blackrock/plexon
         if config['sendData'] and LOADED_PYDAQ:
             vr.addTask(Task("sendAvatar",
@@ -134,7 +138,7 @@ class GoBananas:
             self.eye_task.SetCallback(self.get_eye_data)
             self.eye_task.StartTask()
         else:
-            self.eye_task = False
+            self.eye_task = None
 
         # send digital signals to blackrock or plexon
         if config['sendData'] and LOADED_PYDAQ:
@@ -163,7 +167,7 @@ class GoBananas:
             return
         elif self.fruit_models.beeps == 0:
             # just ran into it?
-            VLQ.getInstance().writeLine("Yummy", [self.fruit_models.byeBanana])
+            VLQ.getInstance().writeLine("Yummy", [self.fruit_models.got_fruit])
             #print('logged', self.fruit_models.byeBanana)
             #print('fruit pos', self.fruit_models.fruitModels[int(self.fruit_models.byeBanana[-2:])].getPos())
             if self.send_events:
@@ -199,6 +203,7 @@ class GoBananas:
             old_trial = self.trial_num
             self.trial_num = self.fruit_models.gone_fruit(self.trial_num)
             # new fruit appears, either starting over or next fruit in stack
+            print 'new fruit'
             if self.trial_num > old_trial:
                 self.new_trial()
 
@@ -207,6 +212,10 @@ class GoBananas:
             Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
             # reward is over
             self.fruit_models.beeps = None
+
+    def check_position(self):
+        if self.remember_fruit:
+            pass
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
@@ -221,8 +230,6 @@ class GoBananas:
         # to send voltage
         self.send_x_pos_task.send_signal(avatar.getPos()[0] * 0.2)
         self.send_y_pos_task.send_signal(avatar.getPos()[1] * 0.2)
-        if self.remember_fruit:
-            self.check_distance(avatar.getPos)
 
     def new_trial(self):
         # starting over again with a banana,
