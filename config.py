@@ -114,7 +114,7 @@ instructSeeAll = False
 numBananas = 10
 
 #numBananas = 25
-bananaDir = './models/bananas/'
+bananaDir = './models/fruit/'
 #bananaZ = 1
 bananaScale = .6
 #bananaRotation = 0  # Rotation speed in degrees/frame.
