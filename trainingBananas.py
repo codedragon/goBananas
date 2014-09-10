@@ -171,15 +171,6 @@ class TrainingBananas(JoystickHandler):
         self.screen_edge = 30
         self.config_avatar_d = -config['avatar_start_d']
         self.config_avatar_h = config['avatar_start_h']
-        if self.training > self.levels_available[0][-1]:
-            # if training is 3 or greater, use starting position from config
-            # (for above 3, if also doing left/right, will always be random,
-            # so don't worry about it here
-            self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
-            #self.fullForwardSpeed = config['fullForwardSpeed']
-        elif self.training < self.levels_available[1][0]:
-            # if training is 2.x, use starting angle from config
-            self.avatar_h = self.config_avatar_h
 
         # Cross hair
         # color changes for crosshair
@@ -553,7 +544,7 @@ class TrainingBananas(JoystickHandler):
             self.move('x', -self.x_mag)
         if self.free_move != 0:
             #print('rotate avatar back so at correct angle:', self.avatar_h)
-            self.base.camera.setH(self.multiplier * self.avatar_h)
+            self.base.camera.setH(self.multiplier * abs(self.avatar_h))
             #print('avatar heading', self.base.camera.getH())
         # position does not change, if not doing forward training, so just
         # reset
@@ -924,11 +915,18 @@ class TrainingBananas(JoystickHandler):
         self.slow_speed = self.wrong_speed
         # toggle for when trial begins
         self.start_trial = True
+        if self.training > self.levels_available[0][-1]:
+            # if training is 3 or greater, use starting position from config,
+            # otherwise use default
+            self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
+            #self.fullForwardSpeed = config['fullForwardSpeed']
         if self.random_banana:
             self.random_choices = self.all_random_selections[self.current_choice]
             self.avatar_h = random.choice(self.random_choices)
             print('current angles available ', self.random_choices)
-            #print self.current_choice
+            #print self.
+        else:
+            self.avatar_h = self.config_avatar_h
         self.base.camera.setH(self.multiplier * self.avatar_h)
         #print('default camera position', self.base.camera.getPos())
         self.base.camera.setPos(self.avatar_pos)
@@ -990,15 +988,17 @@ class TrainingBananas(JoystickHandler):
             self.go_forward = False
             self.free_move = 4
             self.must_release = False
-            self.random_banana = True
+            self.random_banana = False
             self.require_aim = False
         if training > self.levels_available[2][0]:
             # print '4.1'
-            self.require_aim = 'slow'
+            self.random_banana = True
         if training > self.levels_available[2][1]:
             # print '4.2'
+            self.require_aim = 'slow'
+        if training > self.levels_available[2][2]:
+            # print '4.3'
             self.require_aim = True
-
         print('forward', self.go_forward)
         print('free move', self.free_move)
         print('must release', self.must_release)
