@@ -2,10 +2,6 @@
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
 
-# Set Training Level 
-# See README for info about Training Levels
-training = 5.2
-
 # models are in goBananas directory by default
 path_models = ''
 # manual mode allows you to place up to 2 bananas in specific places,
@@ -129,9 +125,8 @@ maxYDistance = 10
 
 # Load 2 bananas for testing, know where they are!
 # (no effect if manual False)
-bananaModel = './models/bananas/banana.bam'
+bananaModel = './models/fruit/banana.bam'
 bananaLoc = Point3(5, 3, 1)
-bananaScale = 0.5
 bananaH = 0
 bananaLoc2 = Point3(5.5, 3, 1)
 
