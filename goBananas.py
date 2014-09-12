@@ -38,6 +38,7 @@ class GoBananas:
         # bring some configuration parameters into memory, so we don't need to
         # reload the config file multiple times, also allows us to change these
         # variables dynamically
+        #base.setFrameRateMeter(True)
         self.numBeeps = config['numBeeps']
         self.extra = config['extra']
         self.fullTurningSpeed = config['fullTurningSpeed']

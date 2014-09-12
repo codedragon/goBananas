@@ -1,7 +1,14 @@
 #!/bin/bash
+# set the name of the movie
+MOVIE=( data/Gus/JN_$(date +%y_%m_%d_%H_%M).avi)
+
 # make sure we are using the correct configuration
 cp configs/giz_config.py config.py
-ppython goBananas.py -sGus --no-eeg --resolution=1280x800
+
+# take some video and start the task
+/c/ffmpeg/bin/ffmpeg -f dshow -video_size 640x480 -framerate 30 -t 300 -pixel_format yuv420p -i video="Logitech QuickCam S5500" $MOVIE &> test.out & ppython goBananas.py -sGus --no-eeg --resolution=1280x800
+#ppython goBananas.py -sGus --no-eeg --resolution=1280x800
+
 # original directory
 SD=( data/Gus/session_$(date +%y_%m_%d)* )
 
