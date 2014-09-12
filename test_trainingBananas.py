@@ -946,17 +946,23 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4):
         self.assertTrue(camera_h + camera_h_2 < 0.5)
 
     def test_get_reward_when_over_crosshair_required_amount_of_time(self):
-        messenger.send('x_axis', [6 * self.tb.multiplier])
+        messenger.send('x_axis', [4 * self.tb.multiplier])
+        # if hold_aim is set before we set start the timer, may be off slightly,
+        # but should only be 0.01 at most
         while self.tb.collHandler.getNumEntries() == 0:
-            taskMgr.step()
             start = time.time()
+            taskMgr.step()
         messenger.send('x_axis', [0])
+        # go until get reward
         while not self.tb.yay_reward:
             taskMgr.step()
+        # take one more step,
+        # how long did it take?
         finish = time.time()
         #print finish - start
+        time_took = (finish + 0.01) - start
         #print self.tb.hold_aim
-        self.assertTrue(finish - start >= self.tb.hold_aim)
+        self.assertTrue(time_took >= self.tb.hold_aim)
 
     def test_no_reward_when_over_crosshair_less_than_required_amount_of_time(self):
         messenger.send('x_axis', [6 * self.tb.multiplier])
