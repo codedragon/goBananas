@@ -8,6 +8,8 @@ path_models = ''
 # rather than having random placement of x bananas
 manual = False
 
+# how close to remembered location to get reward?
+distance_goal = 1
 # environ types available:
 # 'original', 'circle'
 environ = 'original'
@@ -28,7 +30,7 @@ sendData = False
 # framebuffer-stereo 1
 
 # reward
-numBeeps = 10
+numBeeps = 3
 # factor to increase reward for last banana
 # probably shouldn't use this if using weighted bananas
 # (just make it 1)
@@ -41,16 +43,6 @@ fruit_repeat = False
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
 repeat_number = 10
-
-# weighted bananas creates bananas of different rewards according to
-# placement in the environment
-weightedBananas = False
-# Are we changing the location of the weights during the experiment?
-# False or number of trials to go before switching
-changeWeightLoc = 500
-high_reward = 7
-mid_reward = 5
-low_reward = 3
 
 # toggle for adding training crosshair
 crosshair = False
@@ -106,7 +98,7 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-num_fruit = 3
+num_fruit = 2  # number of fruit, includes banana
 #numBananas = 25
 fruit_dir = './models/fruit/'
 #bananaZ = 1

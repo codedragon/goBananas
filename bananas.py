@@ -100,6 +100,7 @@ class Bananas():
         # make collision sphere around banana really small
         banana_model.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
         # uncomment to see collision sphere around bananas
+        print banana_model.retrNodePath().getChild(0).getChild(0).getChild(0).node()
         #banana_model.retrNodePath().getChild(0).getChild(0).getChild(0).show()
         self.bananaModels.append(banana_model)
         # if true, object is removed from the environment, but not destroyed

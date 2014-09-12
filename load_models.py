@@ -91,15 +91,16 @@ def load_models():
     banana = PlaceModels()
     banana.name = 'banana'
     banana.group = 'fruit'
-    banana.scale = 0.6
+    banana.scale = 0.05
     banana.model = 'models/fruit/banana.bam'
-    banana.coll_scale = 0.2
+    banana.coll_scale = 1
 
     plum = PlaceModels()
     plum.name = 'plum'
     plum.group = 'fruit'
     plum.scale = 0.005
     plum.model = 'models/fruit/plum.bam'
+    plum.coll_scale = 1.2
 
 #load_models()
 #for item in PlaceModels._registry:

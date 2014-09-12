@@ -4,6 +4,7 @@ from panda3d.core import WindowProperties
 from panda3d.core import TextNode
 from load_models import PlaceModels, load_models
 from fruit import Fruit
+from math import sqrt
 import datetime
 import sys
 # only load pydaq if it's available
@@ -17,7 +18,18 @@ except ImportError:
     print 'Not using PyDaq'
 
 
-class GoBananas:
+def get_distance(p0, p1):
+    """
+    (tuple, tuple) -> float
+    Returns the distance between 2 points. p0 is a tuple with (x, y)
+    and p1 is a tuple with (x1, y1)
+    :rtype : tuple
+    """
+    dist = sqrt((float(p0[0]) - float(p1[0])) ** 2 + (float(p0[1]) - float(p1[1])) ** 2)
+    return dist
+
+
+class BananaRecall:
     def __init__(self):
         """
         Initialize the experiment
@@ -40,8 +52,11 @@ class GoBananas:
         self.fullTurningSpeed = config['fullTurningSpeed']
         self.fullForwardSpeed = config['fullForwardSpeed']
         self.min_dist = [config['minXDistance'], config['minYDistance']]
+        self.distance_goal = config['distance_goal']
+        # toggle if got to fruit location
+        self.remembered_location = False
         # variable to track if we are checking to see if the avatar is
-        # in the position of the remembered banana
+        # in the position of the remembered banana (ie, time to look for remembered location)
         self.remember_fruit = False
         # get rid of cursor
         win_props = WindowProperties()
@@ -69,21 +84,17 @@ class GoBananas:
         #collisionNode.setTwoSided(True)
 
         # Register Custom Log Entries
-        # This one corresponds to colliding with a banana
-        Log.getInstance().addType("Yummy", [("BANANA", basestring)],
+        # This one corresponds to colliding with a fruit
+        Log.getInstance().addType("Yummy", [("Fruit", basestring)],
                                   False)
-        Log.getInstance().addType("Delish", [("PLUM", basestring)],
-                                  False)
-        #
-        Log.getInstance().addType("Scrumptious", [("CHERRIES", basestring)],
-                                  False)
-        Log.getInstance().addType("Tasty", [("BANANA", basestring)],
+        # Remembered where the banana was
+        Log.getInstance().addType("Remembered", [("Distance", float)],
                                   False)
         # Reward
         Log.getInstance().addType('Beeps', [('Reward', int)],
                                   False)
         # Done getting reward, fruit disappears
-        Log.getInstance().addType("Finished", [("FRUIT", basestring)],
+        Log.getInstance().addType("Finished", [("Fruit", basestring)],
                                   False)
         # New Trial
         Log.getInstance().addType("NewTrial", [("Trial", int)],
@@ -96,7 +107,7 @@ class GoBananas:
         self.load_environment(config)
 
         self.fruit_models = Fruit(config)
-
+        print self.fruit_models
         # initialize trial number
         self.trial_num = 0
         # Handle keyboard events
@@ -165,8 +176,11 @@ class GoBananas:
         # print 'current beep', self.beeps
         if self.fruit_models.beeps is None:
             return
+        elif self.remembered_location:
+            # is being rewarded for remembering the location
+            print 'remembered, new banana'
         elif self.fruit_models.beeps == 0:
-            # just ran into it?
+            # just ran into fruit
             VLQ.getInstance().writeLine("Yummy", [self.fruit_models.got_fruit])
             #print('logged', self.fruit_models.byeBanana)
             #print('fruit pos', self.fruit_models.fruitModels[int(self.fruit_models.byeBanana[-2:])].getPos())
@@ -204,7 +218,9 @@ class GoBananas:
             self.trial_num = self.fruit_models.gone_fruit(self.trial_num)
             # new fruit appears, either starting over or next fruit in stack
             print 'new fruit'
-            if self.trial_num > old_trial:
+            if self.trial_num is None:
+                self.remember_fruit = True
+            elif self.trial_num > old_trial:
                 self.new_trial()
 
             # avatar can move
@@ -215,7 +231,16 @@ class GoBananas:
 
     def check_position(self):
         if self.remember_fruit:
-            pass
+            avatar = Avatar.getInstance()
+            avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
+            print self.fruit_models.fruit_models
+            banana_pos = (self.fruit_models.fruit_models[0].getPos()[0], self.fruit_models.fruit_models[0].getPos()[1])
+            dist_to_banana = get_distance(avatar_pos, banana_pos)
+            print dist_to_banana
+            if dist_to_banana <= self.distance_goal:
+                VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
+                self.remembered_location = True
+                self.fruit_models.beeps = 0
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
@@ -309,7 +334,7 @@ class GoBananas:
 
 if __name__ == '__main__':
     #print 'main?'
-    GoBananas().start()
+    BananaRecall().start()
 else:
     print 'not main?'
     #import argparse
