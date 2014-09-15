@@ -26,6 +26,7 @@ def load_models():
     terrain.name = 'terrain'
     terrain.model = 'models/play_space/field.bam'
     terrain.scale = 1
+    #terrain.scale = Point3(1.5, 1.5, 1)
     terrain.location = Point3(0, 0, 0)
     terrain.callback = 'MovingObject.handleRepelCollision'
 
@@ -73,6 +74,7 @@ def load_models():
     courtyard.model = 'models/new_stuff/round_courtyard2.bam'
     #courtyard.model = '../play_environ/models/courtyard_one.egg'
     courtyard.scale = 1
+    #courtyard.scale = Point3(0.5, 0.5, 1)
     courtyard.location = Point3(0, 0, 0)
     courtyard.callback = 'MovingObject.handleRepelCollision'
 

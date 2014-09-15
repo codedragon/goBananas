@@ -115,6 +115,10 @@ class GoBananas:
 
         self.banana_models = Bananas(config)
 
+        #lens = Camera.getDefaultCamera().retrNodePath().node().getLens()
+        #print("Fov", lens.getFov())
+        #print("Aspect Ratio", lens.getAspectRatio())
+
         # initialize trial number
         self.trial_num = 0
         # Handle keyboard events
