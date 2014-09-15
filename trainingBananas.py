@@ -367,6 +367,7 @@ class TrainingBananas(JoystickHandler):
                         #print('still in the zone')
                         #if self.free_move == 4 or task.time > self.hold_time:
                         if task.time > self.hold_time:
+                            #print('hold aim', self.hold_aim)
                             #print('ok, get reward')
                             #print self.free_move
                             #print('hold time', task.time > self.hold_time)
@@ -682,6 +683,7 @@ class TrainingBananas(JoystickHandler):
         #print('old pos', self.avatar_h)
         #self.avatar_h[0] = self.avatar_h[0] * 1.5
         self.avatar_h *= 1.5
+        #print('would be', self.avatar_h)
         if abs(self.avatar_h) > self.max_angle:
             self.avatar_h = self.multiplier * self.max_angle
         # y is always going to be positive
@@ -878,7 +880,7 @@ class TrainingBananas(JoystickHandler):
     def reset_variables(self):
         self.base.taskMgr.remove("frame_loop")
         # set/reset to the original state of variables
-        self.max_angle = 18
+        self.max_angle = 26
         self.min_angle = 1.5
         self.delay_start = False
         self.yay_reward = False
@@ -999,6 +1001,14 @@ class TrainingBananas(JoystickHandler):
         if training > self.levels_available[2][2]:
             # print '4.3'
             self.require_aim = True
+        # In case random_bananas changed:
+        if self.random_banana:
+            self.random_choices = self.all_random_selections[self.current_choice]
+            self.avatar_h = random.choice(self.random_choices)
+            print('current angles available ', self.random_choices)
+            #print self.
+        else:
+            self.avatar_h = self.config_avatar_h
         print('forward', self.go_forward)
         print('free move', self.free_move)
         print('must release', self.must_release)
