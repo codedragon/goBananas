@@ -177,7 +177,9 @@ class BananaRecall:
         if self.fruit_models.beeps is None:
             return
         elif self.remembered_location:
-            # is being rewarded for remembering the location
+            self.remember_fruit = False
+            # is being rewarded for remembering t
+            # he location
             print 'remembered, new banana'
         elif self.fruit_models.beeps == 0:
             # just ran into fruit
@@ -215,6 +217,8 @@ class BananaRecall:
         if self.fruit_models.beeps == self.numBeeps:
             # fruit disappears
             old_trial = self.trial_num
+            if self.remembered_location:
+                self.new_trial()
             self.trial_num = self.fruit_models.gone_fruit(self.trial_num)
             # new fruit appears, either starting over or next fruit in stack
             print 'new fruit'
@@ -233,7 +237,6 @@ class BananaRecall:
         if self.remember_fruit:
             avatar = Avatar.getInstance()
             avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
-            print self.fruit_models.fruit_models
             banana_pos = (self.fruit_models.fruit_models[0].getPos()[0], self.fruit_models.fruit_models[0].getPos()[1])
             dist_to_banana = get_distance(avatar_pos, banana_pos)
             print dist_to_banana
