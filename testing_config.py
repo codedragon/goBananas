@@ -2,45 +2,59 @@
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
 
-# Set Training Level
-# training 0, different program
-# training 1, move crosshair, not generallly used
-# training 2, move crosshair to banana, left/right
-# training 2.1, move crosshair to banana, must let go of joystick to start next trial
-# training 2.2, subject has to line up crosshair to banana for min. time, slows down if goes past banana
-# training 3, move crosshair to banana, forward
-training = 2.2
-
 # models are in goBananas directory by default
 path_models = ''
-
-# direction subject has to push the joystick
-trainingDirection = 'Right'
-#trainingDirection = 'Left'
-
 # manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
-manual = True
+manual = False
 
 # environ types available:
-# 'training'
 # 'original'
-# None gives you nothing
-environ = None
 #environ = 'original'
+environ = None
 
-# Are we giving rewards? not if not using pydaq
-#reward = False
+# Are we giving rewards?
 reward = True
+#reward = False
 
 # Are we collecting eye data?
-eyeData = False
-#eyeData = True
+eyeData = True
+#eyeData = False
+
+# are we sending data to plexon or blackrock?
+sendData = True
+#sendData = False
+
+# 3d?
+# framebuffer-stereo 1
 
 # reward
 numBeeps = 3
 # factor to increase reward for last banana
-extra = 2
+# probably shouldn't use this if using weighted bananas
+# (just make it 1)
+extra = 1
+
+# are we repeating a certain configuration of bananas?
+# one of the first x banana configurations will be chosen
+# at random to be repeated.
+bananaRepeat = False
+# How often to repeat the trial (will be one randomized
+# within this number of trials)
+repeatNumber = 10
+
+# Are bananas in different areas worth more/less?
+weightedBananas = True
+# Are we changing the location of the weights during the experiment?
+# False or number of trials to go before switching
+changeWeightLoc = 500
+high_reward = 7
+mid_reward = 5
+low_reward = 3
+
+# toggle for adding training crosshair
+crosshair = False
+
 # for activating reward system
 pulseInterval = 200  # in ms
 
@@ -50,7 +64,9 @@ pulseInterval = 200  # in ms
 # close enough to the number of pixels we are using.
 # if increase resolution beyond 1024, should probably
 # adjust this
-gain = (100, 100)  # (x, y)
+# increased resolution to 1280, 800, so increased x gain
+# to 150 to give us 1500 max pixels.
+gain = (150, 100)  # (x, y)
 offset = (1, 1)  # (x,y)
 
 #### Core PandaEPL settings ####
@@ -59,17 +75,16 @@ FOV = 60
 
 # Movement
 linearAcceleration = 30
+fullForwardSpeed = 2.8
 fullBackwardSpeed = 0
-turningAcceleration = 50
-if training >= 3:
-    fullForwardSpeed = 2.8
-    fullTurningSpeed = 0
-elif training >= 2:
-    fullForwardSpeed = 0
-    fullTurningSpeed = 40
+turningAcceleration = 130
+fullTurningSpeed = 55
+turningLinearSpeed = 2
+maxTurningLinearSpeed = 90.0
+minTurningLinearSpeed = 1.5
+minTurningLinearSpeedIncrement = 0.5
 
 # Point3 is global from panda3d.core
-# initial position of avatar
 initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
@@ -80,11 +95,9 @@ avatarRadius = 0.2
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4  # 0.4
-movementType = 'walking' # car | walking
+movementType = 'walking'  # car | walking
 
-# needed for joystick (instructions)
-#instructSize = 0.1
-instructSize = 0.2
+instructSize = 0.1
 instructFont = '/c/Windows/Fonts/times.ttf'
 instructBgColor = Point4(0, 0, 0, 1)
 instructFgColor = Point4(1, 1, 1, 1)
@@ -93,68 +106,42 @@ instructSeeAll = False
 
 # Experiment-specific settings
 
-# stuff for just moving the crosshair to the center
-# (task we never actually plan to do...)
-# starting alpha for crosshair
-xHairAlpha = 1
-# how far to travel per joystick push
-xHairDist = 0.01
-# starting distance from center (range 0-1), use positive numbers,
-# direction determined by trainingDirection.
-xStartPos = Point3(0.05, 0, 0)
-beginning_x = Point3(0.05, 0, 0)
-
 # Bananas.
-numBananas = 1
-# if training direction is right, both x and y should be positive
-#posBananas = [(2, 4.6)]
-# banana close to center for right/left training# #
-#posBananas = [(0.5, 4.975)]
-# banana in distance for forward training
-#posBananas = [(0, 7)]
-# ack so bloody annoying!!!!
-posBananas = [(0, 2.5)]  # banana in center
-#posBananas = [(0, 0), (1, 0)]
+numBananas = 10
+
 #numBananas = 25
-bananaDir = './models/bananas/'
+bananaDir = './models/fruit/'
 #bananaZ = 1
-#bananaScale = .5
-bananaScale = 0.5
+bananaScale = .6
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
-tooClose = 2  # 1.7
+tooClose = 1  # 1
 
 # Banana Positions
-minDistance = -7
-maxDistance = 7
-minFwDistance = -7
-maxFwDistance = 7
-#fwDistanceIncrement = .1
+minXDistance = -10
+maxXDistance = 10
+minYDistance = -10
+maxYDistance = 10
+
+# Load 2 bananas for testing, know where they are!
+# (no effect if manual False)
+bananaModel = './models/fruit/banana.bam'
+bananaLoc = Point3(5, 3, 1)
+bananaH = 0
+bananaLoc2 = Point3(5.5, 3, 1)
+
+radius = 14
 
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common
 if 'Keyboard' in globals():
     keyboard = Keyboard.getInstance()
     keyboard.bind("close", ["escape", "q"])
-    #keyboard.bind("exit", ["escape", "q"])
-    #keyboard.bind("restart", "r")
+    keyboard.bind("restart", "y")
     keyboard.bind("toggleDebug", ["escape", "d"])
-    #keyboard.bind("increaseDist", ["shift", "up"])
-    #keyboard.bind("decreaseDist", ["shift", "down"])
-    keyboard.bind("increaseDist", "w")
-    keyboard.bind("decreaseDist", "s")
-    keyboard.bind("increaseLevel", "e")
-    keyboard.bind("decreaseLevel", "d")
-    #keyboard.bind("increaseBananas", "w")
-    #keyboard.bind("decreaseBananas", "s")
-    keyboard.bind("increaseReward", "t")
-    keyboard.bind("decreaseReward", "g")
-    keyboard.bind("increaseInt", "u")
-    keyboard.bind("decreaseInt", "j")
-    keyboard.bind("changeLeft", "l")
-    keyboard.bind("changeRight", "r")
-    keyboard.bind("changeForward", "f")
-    keyboard.bind("allowBackward", "b")
-    keyboard.bind("override", "o")
-    keyboard.bind("pause", "p")
-    keyboard.bind("reward", "space")
+    keyboard.bind("increase_reward", "w")
+    keyboard.bind("decrease_reward", "s")
+    keyboard.bind("increaseBananas", "e")
+    keyboard.bind("decreaseBananas", "d")
+    keyboard.bind("extra_reward", "space")
+    keyboard.bind("changeWeightedCenter", "c")

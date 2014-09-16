@@ -178,8 +178,8 @@ class BananaRecall:
             return
         elif self.remembered_location:
             self.remember_fruit = False
-            # is being rewarded for remembering t
-            # he location
+            # is being rewarded for remembering the
+            # correct location
             print 'remembered, new banana'
         elif self.fruit_models.beeps == 0:
             # just ran into fruit
@@ -220,10 +220,11 @@ class BananaRecall:
             if self.remembered_location:
                 self.new_trial()
                 self.remember_fruit = False
-                self.remembered_location = False
             else:
                 self.remember_fruit = self.fruit_models.gone_fruit(self.trial_num)
-                # new fruit appears, either starting over or next fruit in stack
+                print('remember_fruit', self.remember_fruit)
+            self.remembered_location = False
+            # new fruit appears, either starting over or next fruit in stack
             print 'new fruit'
 
             # avatar can move
@@ -236,10 +237,12 @@ class BananaRecall:
         if self.remember_fruit:
             avatar = Avatar.getInstance()
             avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
-            banana_pos = (self.fruit_models.fruit_models[0].getPos()[0], self.fruit_models.fruit_models[0].getPos()[1])
+            banana = self.fruit_models.fruit_models[self.fruit_models.fruit_dict[self.fruit_models.fruit_to_remember]]
+            banana_pos = (banana.getPos()[0], banana.getPos()[1])
             dist_to_banana = get_distance(avatar_pos, banana_pos)
             print dist_to_banana
             if dist_to_banana <= self.distance_goal:
+                print 'found it!'
                 VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
                 self.remembered_location = True
                 self.fruit_models.beeps = 0

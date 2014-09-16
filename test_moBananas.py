@@ -135,7 +135,7 @@ class MoBananasTests(unittest.TestCase):
 
         """
         config = {}
-        execfile('config.py', config)
+        execfile('testing_config.py', config)
         avatar = (config['initialPos'][0], config['initialPos'][1])
         #print avatar
         avatar_min_dist = config['avatarRadius'] * 2

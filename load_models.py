@@ -91,8 +91,8 @@ def load_models():
     banana = PlaceModels()
     banana.name = 'old_banana'
     banana.group = 'fruit'
-    banana.scale = 0.05
-    banana.model = 'models/banana/banana.bam'
+    banana.scale = 0.5
+    banana.model = 'models/bananas/banana.bam'
     banana.coll_scale = 1
 
     banana = PlaceModels()

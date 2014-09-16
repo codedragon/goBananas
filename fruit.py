@@ -79,23 +79,60 @@ class Fruit():
                 model.retrNodePath().getChild(0).getChild(0).show()
                 self.fruit_models.append(model)
                 # if true, object is removed from the environment, but not destroyed
-                # all but banana are stashed in beginning
+                # all fruit are stashed in beginning, one will be loaded in restart_fruit_sequence
                 self.fruit_models[i].setStashed(True)
-                if item.name == self.fruit_to_remember:
-                    self.fruit_models[i].setStashed(False)
-                print i
+                #print i
                 i += 1
                 if i > self.num_fruit - 1:
                     print('break', i)
                     break
-        print self.fruit_dict
-        print self.fruit_models
-        print 'end load fruit'
+        #print self.fruit_dict
+        #print self.fruit_models
+        print 'end create fruit'
         # go ahead and save these banana placements, if we are saving from a different trial,
-        # will just be over-written.
+        # will just be over-written. (restart_fruit_sequence always called after create)
         if self.repeat and positions is None:
             self.pList = pList
         #print pList
+
+    def restart_fruit_sequence(self, repeat=None):
+        print('fruit_list', self.fruit_list)
+        print('num_fruit', self.num_fruit)
+        # Eventually have a different code in repeat to signify
+        # if using a previous set or saving a new set.
+        if repeat == 'repeat' and self.pList:
+            pList = self.pList
+        else:
+            pList = []
+        #print pList
+        avatar = Avatar.Avatar.getInstance()
+        avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
+        # print 'avatar pos', avatarXY
+        print(range(self.num_fruit))
+        for i in range(self.num_fruit):
+            print i
+            #print pList
+            if repeat == 'repeat':
+                (x, y) = pList[i]
+            else:
+                (x, y) = mB.setXY(pList, avatarXY)
+                pList.append((x, y))
+            print x, y
+            self.fruit_models[i].setPos(Point3(x, y, 1))
+            # make all fruit except one to be remembered not-visible
+            self.fruit_models[i].setStashed(True)
+            if self.fruit_models[i].name == self.fruit_to_remember:
+                self.fruit_models[i].setStashed(False)
+            # add to our list
+            self.fruit_list.append(self.fruit_models[i].name)
+        print self.fruit_list
+
+        #print pList
+        if repeat == 'new':
+            print 'save new'
+            # save the current list of random banana placements
+            self.pList = pList
+        #self.stashed = self.num_fruit
 
     def collide_fruit(self, collisionInfoList):
         """
@@ -135,41 +172,37 @@ class Fruit():
             #print self.beeps
             self.collision = False
 
-    def restart_fruit_sequence(self, repeat=None):
-        print('fruit_list', self.fruit_list)
-        print('num_fruit', self.num_fruit)
-        # Eventually have a different code in repeat to signify
-        # if using a previous set or saving a new set.
-        if repeat == 'repeat' and self.pList:
-            pList = self.pList
+    def gone_fruit(self, trial_num):
+        # currently not using trial_num, but may create a task using multiple fruit where
+        # this becomes necessary again.
+        print 'fruit should go away'
+        print('this fruit', self.fruit_dict[self.got_fruit])
+
+        # remove the current fruit from list of possible fruit
+        self.fruit_list.remove(self.got_fruit)
+        # stash the fruit we just ran into,
+        self.fruit_models[self.fruit_dict[self.got_fruit]].setStashed(True)
+        # unstash the next fruit, unless it is time to go to the remembered banana
+        find_banana = False
+        # know it is time to search for location, when we have made it through all
+        # of the fruit
+        if not self.fruit_list:
+            # if we are searching for the banana, send find_banana as true
+            find_banana = True
+            print 'remember banana'
         else:
-            pList = []
-        #print pList
-        avatar = Avatar.Avatar.getInstance()
-        avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
-        # print 'avatar pos', avatarXY
-        print(range(self.num_fruit))
-        for i in range(self.num_fruit):
-            print i
-            #print pList
-            if repeat == 'repeat':
-                (x, y) = pList[i]
-            else:
-                (x, y) = mB.setXY(pList, avatarXY)
-                pList.append((x, y))
-            print x, y
-            self.fruit_models[i].setPos(Point3(x, y, 1))
-            # make new bananas visible
-            self.fruit_models[i].setStashed(False)
-            # add to our list
-            self.fruit_list.append(self.fruit_models[i].name)
-        print self.fruit_list
-        #print pList
-        if repeat == 'new':
-            print 'save new'
-            # save the current list of random banana placements
-            self.pList = pList
-        #self.stashed = self.num_fruit
+            print('whole dict', self.fruit_dict)
+            print('next fruit in list', self.fruit_list[0])
+            print('next fruit in dict', self.fruit_dict[self.fruit_list[0]])
+            self.fruit_models[self.fruit_dict[self.fruit_list[0]]].setStashed(False)
+
+        #self.stashed -= 1
+        #print 'banana gone', self.got_fruit
+        #print self.stashed
+        # log collected banana
+        VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.got_fruit])
+        self.collision = True
+        return find_banana
 
     def replenish_stashed_fruit(self):
         print 'replenish'
@@ -191,34 +224,3 @@ class Fruit():
                 # don't put them too close together
                 pList.append((self.fruit_models[i].getPos()[0], self.fruit_models[i].getPos()[1]))
 
-    def gone_fruit(self, trial_num):
-        # currently not using trial_num, but may create a task using multiple fruit where
-        # this becomes necessary again.
-        print 'fruit should go away'
-        print('this fruit', self.fruit_dict[self.got_fruit])
-
-        # remove the current fruit from list of possible fruit
-        self.fruit_list.remove(self.got_fruit)
-        # stash the fruit we just ran into,
-        self.fruit_models[self.fruit_dict[self.got_fruit]].setStashed(True)
-        # unstash the next fruit, unless it is time to go to the remembered banana
-        find_banana = False
-        # know it is time to search for location, when we have made it through all
-        # of the fruit
-        if not self.got_fruit:
-            # if we are searching for the banana, send find_banana as true
-            find_banana = True
-            print 'remember banana'
-        else:
-            print('whole dict', self.fruit_dict)
-            print('next fruit in list', self.fruit_list[0])
-            print('next fruit in dict', self.fruit_dict[self.fruit_list[0]])
-            self.fruit_models[self.fruit_dict[self.fruit_list[0]]].setStashed(False)
-
-        #self.stashed -= 1
-        #print 'banana gone', self.got_fruit
-        #print self.stashed
-        # log collected banana
-        VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.got_fruit])
-        self.collision = True
-        return find_banana

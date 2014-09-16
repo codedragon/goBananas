@@ -8,8 +8,6 @@ path_models = ''
 # rather than having random placement of x bananas
 manual = False
 
-# how close to remembered location to get reward?
-distance_goal = 1
 # environ types available:
 # 'original', 'circle'
 environ = 'circle'
@@ -98,12 +96,16 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # num_fruit must be 2 or more
-num_fruit = 2  # number of fruit, includes banana, assumes a different model for each fruit
+num_fruit = 3  # number of fruit, includes banana, assumes a different model for each fruit
 fruit_to_remember = 'banana'
 fruit_scale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
-# how close is too close together?
-tooClose = 1  # 1
+# how close to remembered location to get reward?
+distance_goal = 1
+# how close is too close together? Keep in mind that the distance is between the centers, but
+# when you run into a fruit, you are not at the center, so could be closer than tooClose at that point
+# Therefor, Too close should be at least as ar as the distance goal + 0.5
+tooClose = 2  # 1
 
 # Banana Positions
 minXDistance = -10

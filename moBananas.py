@@ -31,7 +31,7 @@ def setXY(pList, avatar=(0, 0), config = None):
     dist_avatar = config['avatarRadius']*2
     environ = config['environ']
 
-    if 'circle' in environ:
+    if environ and 'circle' in environ:
         radius = config['radius']
         x, y = get_circle_point(radius)
     else:

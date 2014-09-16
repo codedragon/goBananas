@@ -114,7 +114,7 @@ class TrainingBananas(JoystickHandler):
             sky.setPos(Point3(0, 0, 0))
             sky.reparentTo(self.base.render)
         # set up banana
-        self.banana = self.base.loader.loadModel("models/fruit/banana.bam")
+        self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
         # banana always in the same position, just move avatar.
         self.banana.setPos(Point3(0, 0, 1))
         self.banana.setH(280)
