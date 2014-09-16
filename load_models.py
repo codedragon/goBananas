@@ -71,7 +71,7 @@ def load_models():
     #courtyard.group = 'other'
     courtyard.name = 'terrain'
     #courtyard.model = 'models/play_space/courtyard.bam'
-    courtyard.model = 'models/new_stuff/round_courtyard2.bam'
+    courtyard.model = 'models/new/round_courtyard2.bam'
     #courtyard.model = '../play_environ/models/courtyard_one.egg'
     courtyard.scale = 1
     courtyard.location = Point3(0, 0, 0)
@@ -83,10 +83,17 @@ def load_models():
     #horizon.scale = Point3(2, 2, 1)
     horizon.scale = Point3(2, 2, 4)
     #horizon.scale = 0.5
-    horizon.model = 'models/new_stuff/sky_kahana2.bam'
+    horizon.model = 'models/new/sky_kahana2.bam'
     #horizon.model = 'models/sky/good_sky_hole.egg'
     #horizon.model = '../play_environ/models/sky_cylinder.egg'
     horizon.location = Point3(0, 0, -0.5)
+
+    banana = PlaceModels()
+    banana.name = 'old_banana'
+    banana.group = 'fruit'
+    banana.scale = 0.05
+    banana.model = 'models/banana/banana.bam'
+    banana.coll_scale = 1
 
     banana = PlaceModels()
     banana.name = 'banana'
@@ -100,7 +107,8 @@ def load_models():
     plum.group = 'fruit'
     plum.scale = 0.005
     plum.model = 'models/fruit/plum.bam'
-    plum.coll_scale = 1.2
+    # plum needs big sphere, so plum will still be visible after run into sphere
+    plum.coll_scale = 1.5
 
 #load_models()
 #for item in PlaceModels._registry:

@@ -219,13 +219,12 @@ class BananaRecall:
             old_trial = self.trial_num
             if self.remembered_location:
                 self.new_trial()
-            self.trial_num = self.fruit_models.gone_fruit(self.trial_num)
-            # new fruit appears, either starting over or next fruit in stack
+                self.remember_fruit = False
+                self.remembered_location = False
+            else:
+                self.remember_fruit = self.fruit_models.gone_fruit(self.trial_num)
+                # new fruit appears, either starting over or next fruit in stack
             print 'new fruit'
-            if self.trial_num is None:
-                self.remember_fruit = True
-            elif self.trial_num > old_trial:
-                self.new_trial()
 
             # avatar can move
             Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
@@ -262,6 +261,8 @@ class BananaRecall:
     def new_trial(self):
         # starting over again with a banana,
         # need to remember position of the banana
+        self.trial_num += 1
+        self.fruit_models.restart_fruit_sequence()
         print('new trial', self.trial_num)
         if self.send_events:
             self.send_events.send_signal(1000 + self.trial_num)

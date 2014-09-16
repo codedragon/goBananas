@@ -12,7 +12,7 @@ manual = False
 distance_goal = 1
 # environ types available:
 # 'original', 'circle'
-environ = 'original'
+environ = 'circle'
 
 # Are we giving rewards?
 reward = True
@@ -97,11 +97,9 @@ instructSeeAll = False
 
 # Experiment-specific settings
 
-# Bananas.
-num_fruit = 2  # number of fruit, includes banana
-#numBananas = 25
-fruit_dir = './models/fruit/'
-#bananaZ = 1
+# num_fruit must be 2 or more
+num_fruit = 2  # number of fruit, includes banana, assumes a different model for each fruit
+fruit_to_remember = 'banana'
 fruit_scale = .5
 #bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
