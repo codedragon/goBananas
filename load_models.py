@@ -71,7 +71,7 @@ def load_models():
     #courtyard.group = 'other'
     courtyard.name = 'terrain'
     #courtyard.model = 'models/play_space/courtyard.bam'
-    courtyard.model = 'models/new_stuff/round_courtyard2.bam'
+    courtyard.model = 'models/play_space/round_courtyard2.bam'
     #courtyard.model = '../play_environ/models/courtyard_one.egg'
     courtyard.scale = 1
     #courtyard.scale = Point3(0.5, 0.5, 1)
@@ -84,7 +84,7 @@ def load_models():
     #horizon.scale = Point3(2, 2, 1)
     horizon.scale = Point3(2, 2, 4)
     #horizon.scale = 0.5
-    horizon.model = 'models/new_stuff/sky_kahana2.bam'
+    horizon.model = 'models/sky/sky_kahana2.bam'
     #horizon.model = 'models/sky/good_sky_hole.egg'
     #horizon.model = '../play_environ/models/sky_cylinder.egg'
     horizon.location = Point3(0, 0, -0.5)

@@ -10,8 +10,8 @@ manual = False
 
 # environ types available:
 # 'original'
-environ = 'original'
-#environ = 'circle'
+# environ = 'original'
+environ = 'circle'
 
 # Are we giving rewards?
 reward = True
@@ -110,7 +110,7 @@ instructSeeAll = False
 numBananas = 10
 
 #numBananas = 25
-bananaDir = './models/fruit/'
+bananaDir = './models/bananas/'
 #bananaZ = 1
 bananaScale = .6
 #bananaRotation = 0  # Rotation speed in degrees/frame.
@@ -125,7 +125,7 @@ maxYDistance = 10
 
 # Load 2 bananas for testing, know where they are!
 # (no effect if manual False)
-bananaModel = './models/fruit/banana.bam'
+bananaModel = './models/bananas/banana.bam'
 bananaLoc = Point3(5, 3, 1)
 bananaH = 0
 bananaLoc2 = Point3(5.5, 3, 1)
