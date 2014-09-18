@@ -9,10 +9,18 @@ from numpy import sqrt, pi
 
 class Fruit():
     def __init__(self, config):
-        # number fruit to do including first banana (but not remembered location,
-        # since there is no actual fruit there).
-        self.num_fruit = config['num_fruit']
+
+        # Do all of this prior to calling class, send in two lists,
+        # fruit_types and num_fruit_types
+
+        # fruit to remember
         self.fruit_to_remember = config['fruit_to_remember']
+        # fruit not remembering
+        self.all_fruit = config['fruit']
+        self.all_fruit.insert(0, self.fruit_to_remember)
+        self.num_fruit = config['num_fruit']
+        self.num_fruit.insert(0, 1)
+
         # for repeating a particular configuration
         self.repeat = config['fruit_repeat']
         self.repeat_number = config['repeat_number']
@@ -22,6 +30,8 @@ class Fruit():
         else:
             self.now_repeat = None
         self.manual = config['manual']
+        # for the moment Beth wants all of the other fruit the same, but she has gone
+        # back and forth on this, so set up machinery to do multiple types of fruit
         self.fruit_dict = {}
         self.fruit_models = []
         # list to keep track of which fruit have shown up
@@ -56,9 +66,11 @@ class Fruit():
         # for sequential fruit, still create using setXY, since we
         # don't want fruit in the same place twice in one round
         load_models()
-        i = 0
+        fruit_count = 0
+        this_fruit = 0
+        this_fruit_num = 0
         for item in PlaceModels._registry:
-            if 'fruit' in item.group:
+            if self.all_fruit[this_fruit] in item.name:
                 print item.model
                 # positions actually don't matter here, since we will reset them.
                 if positions:
@@ -66,11 +78,16 @@ class Fruit():
                 else:
                     (x, y) = mB.setXY(pList, avatarXY)
                 pList.append((x, y))
-                model = Model.Model(item.name, item.model, Point3(x, y, 1), self.collide_fruit)
+                name = item.name + "%03d" % this_fruit_num
+                print name
+                model = Model.Model(name, item.model, Point3(x, y, 1), self.collide_fruit)
                 model.setHpr(Point3(random.randint(0, 360), 0, 75))
                 model.setScale(item.scale)
                 model.name = item.name
-                self.fruit_dict[item.name] = i
+                if model.name in self.fruit_dict:
+                    self.fruit_dict[model.name].append(this_fruit_num)
+                else:
+                    self.fruit_dict[item.name] = this_fruit_num
                 #print(model.retrNodePath().getChild(0))
                 #print(model.retrNodePath().getChild(0).getChild(0).node())
                 # set collision sphere around fruit
@@ -80,14 +97,17 @@ class Fruit():
                 self.fruit_models.append(model)
                 # if true, object is removed from the environment, but not destroyed
                 # all fruit are stashed in beginning, one will be loaded in restart_fruit_sequence
-                self.fruit_models[i].setStashed(True)
+                self.fruit_models[fruit_count].setStashed(True)
                 #print i
-                i += 1
-                if i > self.num_fruit - 1:
-                    print('break', i)
+                fruit_count += 1
+                if fruit_count > self.num_fruit:
+                    print('break', fruit_count)
                     break
-        #print self.fruit_dict
-        #print self.fruit_models
+                if this_fruit_num == self.num_fruit[this_fruit]:
+                    this_fruit_num = 0
+                    this_fruit += 1
+        print self.fruit_dict
+        print self.fruit_models
         print 'end create fruit'
         # go ahead and save these banana placements, if we are saving from a different trial,
         # will just be over-written. (restart_fruit_sequence always called after create)
