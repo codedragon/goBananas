@@ -71,7 +71,7 @@ def load_models():
     #courtyard.group = 'other'
     courtyard.name = 'terrain'
     #courtyard.model = 'models/play_space/courtyard.bam'
-    courtyard.model = 'models/play_space/round_courtyard2.bam'
+    courtyard.model = 'models/play_space/round_courtyard.bam'
     #courtyard.model = '../play_environ/models/courtyard_one.egg'
     courtyard.scale = 1
     #courtyard.scale = Point3(0.5, 0.5, 1)
