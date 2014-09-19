@@ -103,11 +103,7 @@ class BananaRecall:
         Log.getInstance().addType("EyeData",
                                   [("X", float), ("Y", float)],
                                   False)
-        # Load environment
-        self.load_environment(config)
-
-        self.fruit_models = Fruit(config)
-        print self.fruit_models
+        self.fruit_models = None
         # initialize trial number
         self.trial_num = 0
         # Handle keyboard events
@@ -330,6 +326,20 @@ class BananaRecall:
         """
         Start the experiment.
         """
+        # Load environment
+        config = Conf.getInstance().getConfig()  # Get configuration dictionary.
+        self.load_environment(config)
+        self.fruit_models = Fruit(config)
+        print self.fruit_models
+        # fruit to remember
+        fruit_to_remember = config['fruit_to_remember']
+        # fruit not remembering
+        all_fruit = config['fruit']
+        all_fruit.insert(0, fruit_to_remember)
+        num_fruit = config['num_fruit']
+        num_fruit.insert(0, 1)
+        num_fruit_dict = dict(zip(all_fruit, num_fruit))
+        self.fruit_models.create_fruit(num_fruit_dict)
         #print 'start'
         Experiment.getInstance().start()
 

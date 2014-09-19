@@ -10,16 +10,8 @@ from numpy import sqrt, pi
 class Fruit():
     def __init__(self, config):
 
-        # Do all of this prior to calling class, send in two lists,
-        # fruit_types and num_fruit_types
-
-        # fruit to remember
+        # fruit to remember, if not a remember fruit task, will be none
         self.fruit_to_remember = config['fruit_to_remember']
-        # fruit not remembering
-        self.all_fruit = config['fruit']
-        self.all_fruit.insert(0, self.fruit_to_remember)
-        self.num_fruit = config['num_fruit']
-        self.num_fruit.insert(0, 1)
 
         # for repeating a particular configuration
         self.repeat = config['fruit_repeat']
@@ -32,7 +24,7 @@ class Fruit():
         self.manual = config['manual']
         # for the moment Beth wants all of the other fruit the same, but she has gone
         # back and forth on this, so set up machinery to do multiple types of fruit
-        self.fruit_dict = {}
+        self.index_fruit_dict = {}
         self.fruit_models = []
         # list to keep track of which fruit have shown up
         self.fruit_list = []
@@ -42,23 +34,13 @@ class Fruit():
         # variable to save the last fruit we ran into
         self.got_fruit = None
         self.pList = []
-        if self.manual:
-            self.pList = config['pos_fruit']
-            self.create_fruit(positions=True)
-        else:
-            self.create_fruit()
 
-    def create_fruit(self, start=None, positions=None):
+    def create_fruit(self, fruit_dict):
+        # return a fruitModel.
         #print 'create bananas'
         #print start
-        print 'number fruit', self.num_fruit
-        # Randomly assign where fruit goes and return a fruitModel.
-        # start allows you to just add new fruit to the fruit already on
-        # the field
-        if start is None:
-            start = 0
-        if positions is None:
-            pList = []
+        print 'number fruit', fruit_dict
+        pList = []
         # get current position of avatar, so fruit not too close.
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
@@ -69,44 +51,45 @@ class Fruit():
         fruit_count = 0
         this_fruit = 0
         this_fruit_num = 0
-        for item in PlaceModels._registry:
-            if self.all_fruit[this_fruit] in item.name:
-                print item.model
-                # positions actually don't matter here, since we will reset them.
-                if positions:
-                    x, y = self.pList[i]
-                else:
-                    (x, y) = mB.setXY(pList, avatarXY)
-                pList.append((x, y))
-                name = item.name + "%03d" % this_fruit_num
-                print name
-                model = Model.Model(name, item.model, Point3(x, y, 1), self.collide_fruit)
-                model.setHpr(Point3(random.randint(0, 360), 0, 75))
-                model.setScale(item.scale)
-                model.name = item.name
-                if model.name in self.fruit_dict:
-                    self.fruit_dict[model.name].append(this_fruit_num)
-                else:
-                    self.fruit_dict[item.name] = this_fruit_num
-                #print(model.retrNodePath().getChild(0))
-                #print(model.retrNodePath().getChild(0).getChild(0).node())
-                # set collision sphere around fruit
-                model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
-                # uncomment to see collision sphere around fruit
-                model.retrNodePath().getChild(0).getChild(0).show()
-                self.fruit_models.append(model)
-                # if true, object is removed from the environment, but not destroyed
-                # all fruit are stashed in beginning, one will be loaded in restart_fruit_sequence
-                self.fruit_models[fruit_count].setStashed(True)
-                #print i
-                fruit_count += 1
-                if fruit_count > self.num_fruit:
-                    print('break', fruit_count)
-                    break
-                if this_fruit_num == self.num_fruit[this_fruit]:
-                    this_fruit_num = 0
-                    this_fruit += 1
-        print self.fruit_dict
+        # for each fruit in our dictionary, find corresponding model,
+        # create new model for each count in dictionary of that fruit
+        for fruit, count in self.num_fruit_dict.iteritems():
+            for item in PlaceModels._registry:
+                if fruit == item.name:
+                    for each in range(count):
+                        print item.model
+                        # positions actually don't matter here, since we will reset them.
+                        (x, y) = (0, 0)
+                        pList.append((x, y))
+                        name = item.name + "%03d" % this_fruit_num
+                        print name
+                        model = Model.Model(name, item.model, Point3(x, y, 1), self.collide_fruit)
+                        model.setHpr(Point3(random.randint(0, 360), 0, 75))
+                        model.setScale(item.scale)
+                        model.name = item.name
+                        if model.name in self.index_fruit_dict:
+                            self.index_fruit_dict[model.name].append(this_fruit_num)
+                        else:
+                            self.index_fruit_dict[item.name] = this_fruit_num
+                    #print(model.retrNodePath().getChild(0))
+                    #print(model.retrNodePath().getChild(0).getChild(0).node())
+                    # set collision sphere around fruit
+                    model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
+                    # uncomment to see collision sphere around fruit
+                    model.retrNodePath().getChild(0).getChild(0).show()
+                    self.fruit_models.append(model)
+                    # if true, object is removed from the environment, but not destroyed
+                    # all fruit are stashed in beginning, one will be loaded in restart_fruit_sequence
+                    self.fruit_models[fruit_count].setStashed(True)
+                    #print i
+                    fruit_count += 1
+                    if fruit_count > self.num_fruit:
+                        print('break', fruit_count)
+                        break
+                    if this_fruit_num == self.num_fruit[this_fruit]:
+                        this_fruit_num = 0
+                        this_fruit += 1
+        print self.index_fruit_dict
         print self.fruit_models
         print 'end create fruit'
         # go ahead and save these banana placements, if we are saving from a different trial,
@@ -114,6 +97,7 @@ class Fruit():
         if self.repeat and positions is None:
             self.pList = pList
         #print pList
+        # if the fruit_dict is different from self.num_fruit_dict, add the two together, somehow...
 
     def restart_fruit_sequence(self, repeat=None):
         print('fruit_list', self.fruit_list)
@@ -196,12 +180,12 @@ class Fruit():
         # currently not using trial_num, but may create a task using multiple fruit where
         # this becomes necessary again.
         print 'fruit should go away'
-        print('this fruit', self.fruit_dict[self.got_fruit])
+        print('this fruit', self.index_fruit_dict[self.got_fruit])
 
         # remove the current fruit from list of possible fruit
         self.fruit_list.remove(self.got_fruit)
         # stash the fruit we just ran into,
-        self.fruit_models[self.fruit_dict[self.got_fruit]].setStashed(True)
+        self.fruit_models[self.index_fruit_dict[self.got_fruit]].setStashed(True)
         # unstash the next fruit, unless it is time to go to the remembered banana
         find_banana = False
         # know it is time to search for location, when we have made it through all
@@ -211,10 +195,10 @@ class Fruit():
             find_banana = True
             print 'remember banana'
         else:
-            print('whole dict', self.fruit_dict)
+            print('whole dict', self.index_fruit_dict)
             print('next fruit in list', self.fruit_list[0])
-            print('next fruit in dict', self.fruit_dict[self.fruit_list[0]])
-            self.fruit_models[self.fruit_dict[self.fruit_list[0]]].setStashed(False)
+            print('next fruit in dict', self.index_fruit_dict[self.fruit_list[0]])
+            self.fruit_models[self.index_fruit_dict[self.fruit_list[0]]].setStashed(False)
 
         #self.stashed -= 1
         #print 'banana gone', self.got_fruit
