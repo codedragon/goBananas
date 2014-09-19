@@ -10,8 +10,18 @@ from numpy import sqrt, pi
 class Fruit():
     def __init__(self, config):
 
-        # fruit to remember, if not a remember fruit task, will be none
+        # Do all of this prior to calling class, send in two lists,
+        # fruit_types and num_fruit_types
+
+        # fruit to remember, make a dictionary of names and amounts
         self.fruit_to_remember = config['fruit_to_remember']
+        # fruit not remembering, if remembering, lol
+        self.all_fruit = config['fruit']  # list of fruit
+        self.num_fruit = config['num_fruit']  # list corresponding to list above
+
+        if self.fruit_to_remember:
+            self.all_fruit.insert(0, self.fruit_to_remember)
+            self.num_fruit.insert(0, 1)
 
         # for repeating a particular configuration
         self.repeat = config['fruit_repeat']
@@ -24,7 +34,15 @@ class Fruit():
         self.manual = config['manual']
         # for the moment Beth wants all of the other fruit the same, but she has gone
         # back and forth on this, so set up machinery to do multiple types of fruit
+
         self.index_fruit_dict = {}
+
+
+        # fruit_dict keeps track of which index number in the fruit_model list corresponds to which
+        # name/model, because this is easier than running a for loop every time to find the one
+        # we want
+        self.fruit_dict = {}
+
         self.fruit_models = []
         # list to keep track of which fruit have shown up
         self.fruit_list = []
@@ -51,6 +69,7 @@ class Fruit():
         fruit_count = 0
         this_fruit = 0
         this_fruit_num = 0
+
         # for each fruit in our dictionary, find corresponding model,
         # create new model for each count in dictionary of that fruit
         # This is a lot of loops, fortunately they are all small. Might
@@ -91,6 +110,52 @@ class Fruit():
                         this_fruit_num = 0
                         this_fruit += 1
         print self.index_fruit_dict
+
+        for item in PlaceModels._registry:
+            if self.all_fruit[this_fruit] == item.name:
+                print item.model
+                # positions actually don't matter here, since we will reset them.
+                if positions:
+                    x, y = self.pList[fruit_count]
+                else:
+                    (x, y) = mB.setXY(pList, avatarXY)
+                pList.append((x, y))
+                name = item.name + "%03d" % this_fruit_num
+                if item.name == self.fruit_to_remember:
+                    name = item.name
+                print name
+                model = Model.Model(name, item.model, Point3(x, y, 1), self.collide_fruit)
+                model.setHpr(Point3(random.randint(0, 360), 0, 75))
+                model.setScale(item.scale)
+                model.name = name
+                if model.name in self.fruit_dict:
+                    self.fruit_dict[model.name].append(this_fruit_num)
+                else:
+                    self.fruit_dict[item.name] = [this_fruit_num]
+                #print(model.retrNodePath().getChild(0))
+                #print(model.retrNodePath().getChild(0).getChild(0).node())
+                # set collision sphere around fruit
+                model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
+                # uncomment to see collision sphere around fruit
+                model.retrNodePath().getChild(0).getChild(0).show()
+                self.fruit_models.append(model)
+                # if true, object is removed from the environment, but not destroyed
+                # all fruit are stashed in beginning, one will be loaded in restart_fruit_sequence
+                self.fruit_models[fruit_count].setStashed(True)
+                #print i
+                fruit_count += 1
+                this_fruit_num += 1
+                print('fruit count', fruit_count)
+                print('this fruit count', this_fruit_num)
+                if fruit_count == sum(self.num_fruit):
+                    print('break', fruit_count)
+                    break
+                if this_fruit_num == self.num_fruit[this_fruit]:
+                    this_fruit_num = 0
+                    this_fruit += 1
+                    print('new fruit', self.all_fruit[this_fruit])
+        print self.fruit_dict
+
         print self.fruit_models
         print 'end create fruit'
 
@@ -109,8 +174,8 @@ class Fruit():
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         # print 'avatar pos', avatarXY
-        print(range(self.num_fruit))
-        for i in range(self.num_fruit):
+        print(range(sum(self.num_fruit)))
+        for i in range(sum(self.num_fruit)):
             print i
             #print pList
             if repeat == 'repeat':
@@ -120,9 +185,13 @@ class Fruit():
                 pList.append((x, y))
             print x, y
             self.fruit_models[i].setPos(Point3(x, y, 1))
+            # if task is remembering fruit,
             # make all fruit except one to be remembered not-visible
-            self.fruit_models[i].setStashed(True)
-            if self.fruit_models[i].name == self.fruit_to_remember:
+            if self.fruit_to_remember:
+                self.fruit_models[i].setStashed(True)
+                if self.fruit_models[i].name == self.fruit_to_remember:
+                    self.fruit_models[i].setStashed(False)
+            else:
                 self.fruit_models[i].setStashed(False)
             # add to our list
             self.fruit_list.append(self.fruit_models[i].name)
@@ -153,12 +222,12 @@ class Fruit():
         #print cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path))
         # Sometimes we collide with a banana multiple times for no damn reason, so setting self.collision
         # to keep track of whether this is the first collision
-        print('collision', self.collision)
-        print('camera', Camera.Camera.getDefaultCamera().getPos())
-        print('collision position', collided.retrNodePath().getPos(cam_node_path))
-        for fruit in self.fruit_models:
-            print fruit.getPos()
-        print('in view', cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)))
+        #print('collision', self.collision)
+        #print('camera', Camera.Camera.getDefaultCamera().getPos())
+        #print('collision position', collided.retrNodePath().getPos(cam_node_path))
+        #for fruit in self.fruit_models:
+        #    print fruit.getPos()
+        #print('in view', cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)))
         if cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)) and self.collision:
             print self.got_fruit
             # cannot run inside of banana - can't I just do this earlier for all of the fruit?
@@ -177,12 +246,24 @@ class Fruit():
         # currently not using trial_num, but may create a task using multiple fruit where
         # this becomes necessary again.
         print 'fruit should go away'
+
         print('this fruit', self.index_fruit_dict[self.got_fruit])
 
         # remove the current fruit from list of possible fruit
         self.fruit_list.remove(self.got_fruit)
         # stash the fruit we just ran into,
         self.fruit_models[self.index_fruit_dict[self.got_fruit]].setStashed(True)
+
+        #print('this fruit', self.fruit_dict[self.got_fruit])
+        print dir(self.fruit_models)
+        print self.fruit_models
+        print self.fruit_models.index(self.got_fruit)
+        # remove the current fruit from list of possible fruit
+        self.fruit_list.remove(self.got_fruit)
+        # stash the fruit we just ran into,
+        self.fruit_models[self.fruit_dict[self.got_fruit]].setStashed(True)
+
+
         # unstash the next fruit, unless it is time to go to the remembered banana
         find_banana = False
         # know it is time to search for location, when we have made it through all
