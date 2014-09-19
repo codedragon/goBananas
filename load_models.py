@@ -110,6 +110,17 @@ def load_models():
     # plum needs big sphere, so plum will still be visible after run into sphere
     plum.coll_scale = 1.5
 
+
+def get_model(model_type, model_value):
+        data = getattr(PlaceModels, model_type)
+        print data
+        for datum in data:
+            print datum
+            if datum == model_value:
+                return datum
+        else:
+            print "not found"
+
 #load_models()
 #for item in PlaceModels._registry:
 #    print item.model

@@ -53,9 +53,11 @@ class Fruit():
         this_fruit_num = 0
         # for each fruit in our dictionary, find corresponding model,
         # create new model for each count in dictionary of that fruit
-        for fruit, count in self.num_fruit_dict.iteritems():
+        # This is a lot of loops, fortunately they are all small. Might
+        # want to make a method for getting stuff out of PlaceModels.
+        for fruit, count in fruit_dict.iteritems():
             for item in PlaceModels._registry:
-                if fruit == item.name:
+                while fruit == item.name:
                     for each in range(count):
                         print item.model
                         # positions actually don't matter here, since we will reset them.
@@ -83,20 +85,15 @@ class Fruit():
                     self.fruit_models[fruit_count].setStashed(True)
                     #print i
                     fruit_count += 1
-                    if fruit_count > self.num_fruit:
-                        print('break', fruit_count)
-                        break
-                    if this_fruit_num == self.num_fruit[this_fruit]:
+                    this_fruit_num += 1
+
+                    if this_fruit_num == count:
                         this_fruit_num = 0
                         this_fruit += 1
         print self.index_fruit_dict
         print self.fruit_models
         print 'end create fruit'
-        # go ahead and save these banana placements, if we are saving from a different trial,
-        # will just be over-written. (restart_fruit_sequence always called after create)
-        if self.repeat and positions is None:
-            self.pList = pList
-        #print pList
+
         # if the fruit_dict is different from self.num_fruit_dict, add the two together, somehow...
 
     def restart_fruit_sequence(self, repeat=None):

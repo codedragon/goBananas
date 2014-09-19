@@ -160,7 +160,7 @@ class BananaRecall:
 
         # Log First Trial
         VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
-        self.new_trial()
+        #self.new_trial()
 
     def check_reward(self):
         # Runs every 200ms
@@ -340,6 +340,7 @@ class BananaRecall:
         num_fruit.insert(0, 1)
         num_fruit_dict = dict(zip(all_fruit, num_fruit))
         self.fruit_models.create_fruit(num_fruit_dict)
+        self.new_trial()
         #print 'start'
         Experiment.getInstance().start()
 
