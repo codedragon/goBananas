@@ -233,7 +233,7 @@ class BananaRecall:
         if self.remember_fruit:
             avatar = Avatar.getInstance()
             avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
-            banana = self.fruit_models.fruit_models[self.fruit_models.fruit_dict[self.fruit_models.fruit_to_remember]]
+            banana = self.fruit_models.fruit_models[self.fruit_models.index_fruit_dict[self.fruit_models.fruit_to_remember]]
             banana_pos = (banana.getPos()[0], banana.getPos()[1])
             dist_to_banana = get_distance(avatar_pos, banana_pos)
             print dist_to_banana

@@ -112,14 +112,13 @@ def load_models():
 
 
 def get_model(model_type, model_value):
-        data = getattr(PlaceModels, model_type)
-        print data
-        for datum in data:
-            print datum
-            if datum == model_value:
-                return datum
-        else:
-            print "not found"
+    load_models()
+    for item in PlaceModels()._registry:
+        data = getattr(item, model_type)
+        if data == model_value:
+            return item
+    else:
+        print "not found"
 
 #load_models()
 #for item in PlaceModels._registry:

@@ -4,9 +4,16 @@ from panda3d.core import Point3, Point4
 
 # models are in goBananas directory by default
 path_models = ''
+
 # manual mode allows you to place up to 2 bananas in specific places,
 # rather than having random placement of x bananas
 manual = False
+
+# remember_manual allows you to place the fruit to remember in a particular
+# starting place. You may then use the j key to jump the fruit to a new
+# location, and it will stay there until you jump again, as long as manual is
+# set. If manual is not set, it is in a new, random location each trial.
+remember_manual = False
 
 # environ types available:
 # 'original', 'circle'
@@ -114,13 +121,14 @@ maxXDistance = 10
 minYDistance = -10
 maxYDistance = 10
 
-# Load 2 bananas for testing, know where they are!
+# Load bananas for testing, know where they are!
+# theoretically can load as many as you want, but
+# that becomes tedious.
 # (no effect if manual False)
 bananaModel = './models/bananas/banana.bam'
-bananaLoc = Point3(5, 3, 1)
+bananaLoc = [Point3(5, 3, 1), Point3(5.5, 3, 1)]
 bananaScale = 0.5
 bananaH = 0
-bananaLoc2 = Point3(5.5, 3, 1)
 
 # used for placing bananas in cicular environment
 radius = 14
