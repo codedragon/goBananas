@@ -102,7 +102,7 @@ class Fruit():
         self.fruit_models.append(model)
         return model.name
 
-    def restart_fruit_sequence(self, repeat=None):
+    def setup_trial(self, repeat=None):
         print('fruit_list', self.fruit_list)
         print('num_fruit', self.num_fruit)
         # Eventually have a different code in repeat to signify
@@ -146,7 +146,8 @@ class Fruit():
 
     def collide_fruit(self, collisionInfoList):
         """
-        Handle the subject colliding with a banana
+        Handle the subject colliding with a banana, document fruit, subject
+        freezes, reward is triggered.
         @param collisionInfoList:
         @return:
         """
@@ -182,7 +183,7 @@ class Fruit():
             #print self.beeps
             self.collision = False
 
-    def gone_fruit(self, trial_num):
+    def disappear_fruit(self):
         # currently not using trial_num, but may create a task using multiple fruit where
         # this becomes necessary again.
         print('fruit should go away', self.got_fruit)
@@ -193,8 +194,12 @@ class Fruit():
         self.fruit_list.remove(self.got_fruit)
         # stash the fruit we just ran into,
         self.fruit_models[current_index].setStashed(True)
+        # log collected banana
+        VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.got_fruit])
+        self.collision = True
 
-        # default is not time to find the banana location
+    def get_next_fruit(self):
+        # default is not time to find the banana memory
         find_banana_loc = False
         # know it is time to search for location, when we have made it through all
         # of the fruit
@@ -208,13 +213,8 @@ class Fruit():
             print('next fruit in list', self.fruit_list[0])
             print('next fruit in dict', self.index_fruit_dict[self.fruit_list[0]])
             self.fruit_models[self.index_fruit_dict[self.fruit_list[0]]].setStashed(False)
-
-        #self.stashed -= 1
         #print 'banana gone', self.got_fruit
         #print self.stashed
-        # log collected banana
-        VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.got_fruit])
-        self.collision = True
         return find_banana_loc
 
     def replenish_stashed_fruit(self):

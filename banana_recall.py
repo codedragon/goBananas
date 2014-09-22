@@ -217,7 +217,8 @@ class BananaRecall:
                 self.new_trial()
                 self.remember_fruit = False
             else:
-                self.remember_fruit = self.fruit_models.gone_fruit(self.trial_num)
+                self.fruit_models.disappear_fruit()
+                self.remember_fruit = self.fruit_models.get_next_fruit()
                 print('remember_fruit', self.remember_fruit)
             self.remembered_location = False
             # new fruit appears, either starting over or next fruit in stack
@@ -261,7 +262,7 @@ class BananaRecall:
         # starting over again with a banana,
         # need to remember position of the banana
         self.trial_num += 1
-        self.fruit_models.restart_fruit_sequence()
+        self.fruit_models.setup_trial()
         print('new trial', self.trial_num)
         if self.send_events:
             self.send_events.send_signal(1000 + self.trial_num)
