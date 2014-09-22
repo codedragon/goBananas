@@ -217,6 +217,29 @@ class Fruit():
         #print self.stashed
         return find_banana_loc
 
+    def check_trial_end(self, trial_num):
+        # if fruit list is empty, new trial
+        if not self.fruit_list:
+            trial_num += 1
+            if self.repeat and trial_num % self.repeat_number == 0:
+                # time to choose a new repeat trial, choose a number from 0 to
+                # repeat number, since we haven't
+                self.now_repeat = trial_num + random.choice(range(self.repeat_number))
+                print('chose trial', self.now_repeat)
+            # collect the set of banana positions that will be repeated
+            if trial_num == self.now_repeat and self.now_repeat < self.repeat_number:
+                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
+                self.setup_trial('new')
+            elif trial_num == self.now_repeat:
+                print 'repeat'
+                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
+                self.setup_trial('repeat')
+            else:
+                self.setup_trial()
+            VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
+            #new_trial()
+        return trial_num
+
     def replenish_stashed_fruit(self):
         print 'replenish'
         pos_list = []

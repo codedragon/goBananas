@@ -102,12 +102,12 @@ instructSeeAll = False
 
 # Experiment-specific settings
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
-fruit = ['plum']
-num_fruit = [2]  # number of fruit, other than fruit to remember or other special fruit
+fruit = ['banana', 'plum']
+num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
 
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
-fruit_to_remember = 'banana'
-#fruit_to_remember = None
+#fruit_to_remember = 'banana'
+fruit_to_remember = None
 # how close to remembered location to get reward?
 distance_goal = 1
 # how close is too close together? Keep in mind that the distance is between the centers, but
