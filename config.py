@@ -44,10 +44,10 @@ extra = 2
 # are we repeating a certain configuration of bananas?
 # one of the first x banana configurations will be chosen
 # at random to be repeated.
-fruit_repeat = False
+fruit_repeat = True
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
-repeat_number = 10
+repeat_number = 3
 
 # toggle for adding training crosshair
 crosshair = False
@@ -103,7 +103,7 @@ instructSeeAll = False
 # Experiment-specific settings
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
 fruit = ['banana', 'plum']
-num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
+num_fruit = [2, 2]  # number of fruit, other than fruit to remember or other special fruit
 
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
 #fruit_to_remember = 'banana'
