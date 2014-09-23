@@ -327,7 +327,6 @@ class GoBananas:
         self.trial_num += 1
         self.fruit_models.setup_trial(self.trial_num)
 
-
     def extra_reward(self, inputEvent):
         #print 'yup'
         if self.reward:

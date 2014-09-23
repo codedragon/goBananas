@@ -104,6 +104,7 @@ class Fruit():
         return model.name
 
     def setup_fruit_for_trial(self, repeat=None):
+        # calculate positions for fruit
         #print('fruit_list', self.fruit_list)
         print('num_fruit', self.num_fruit)
         # if repeat is 'repeat', use saved configuration
@@ -121,7 +122,7 @@ class Fruit():
             if repeat == 'repeat':
                 (x, y) = pos_list[index]
             else:
-                (x, y) = mB.setXY(pos_list, avatarXY)
+                (x, y) = mB.set_xy(pos_list, avatarXY)
                 pos_list.append((x, y))
             #print x, y
             self.fruit_models[index].setPos(Point3(x, y, 1))
@@ -220,9 +221,9 @@ class Fruit():
 
     def setup_trial(self, trial_num):
         print('trial number', trial_num)
-        print('with any amount of luck this stays the original repeat number', self.repeat)
+        print('trial number to be repeated', self.repeat)
         if self.repeat:
-            # first check to see if we are choosing our new trial number. 
+            # first check to see if we are choosing a new trial number for repeat.
             if trial_num > 0 and trial_num % self.repeat_number == 0:
                 # time to choose the next trial that will be a repeat,
                 # choose a number from 0 to repeat number and add it to this trial number
@@ -230,20 +231,18 @@ class Fruit():
                 print('chose trial', self.now_repeat)
             # if we are on a now_repeat trial, and now the trial number is less than repeat number,
             # it is the first one and we are collecting
-            if trial_num == self.now_repeat:
-                if self.now_repeat < self.repeat_number:
-                    # first time, so collecting positions
-                    print 'collecting positions for repeat'
-                    VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
-                    self.setup_fruit_for_trial('new')
-                else:
-                    # and now we are repeating
-                    print 'repeat'
-                    VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
-                    self.setup_fruit_for_trial('repeat')
+            if trial_num == self.repeat:
+                # self.repeat is the trial number for collecting positions
+                print 'collecting positions for repeat'
+                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
+                self.setup_fruit_for_trial('new')
+            elif trial_num == self.now_repeat:
+                # and now we are repeating
+                print 'repeat'
+                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
+                self.setup_fruit_for_trial('repeat')
             else:
                 self.setup_fruit_for_trial()
-
         else:
             self.setup_fruit_for_trial()
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
@@ -257,7 +256,7 @@ class Fruit():
             #print pos_list
             if self.fruit_models[i].isStashed():
                 #print 'banana stashed, unstash now'
-                (x, y) = mB.setXY(pos_list, avatarXY)
+                (x, y) = mB.set_xy(pos_list, avatarXY)
                 pos_list.append((x, y))
                 #print x, y
                 self.fruit_models[i].setPos(Point3(x, y, 1))

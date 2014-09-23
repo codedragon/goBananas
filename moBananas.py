@@ -16,43 +16,50 @@ def distance(p0, p1):
     return dist
 
 
-def setXY(pList, avatar=(0, 0), config = None):
-    """
-    (list) -> tuple
-    Returns a point (x,y) that is more than the minimum distance set by tooClose
-    in the config.py file from existing points in pList. Also cannot be too 
-    close to the avatar, which is at the origin in the beginning.
-    """
-    if config is None:
-        config = {}
-        execfile('config.py', config)
-
-    too_close = config['tooClose']
-    dist_avatar = config['avatarRadius']*2
+def get_random_xy(config):
+    # get a random x and y coordinate
     environ = config['environ']
-
     if environ and 'circle' in environ:
         radius = config['radius']
         x, y = get_circle_point(radius)
     else:
         x = random.uniform(config['minXDistance'], config['maxXDistance'])
         y = random.uniform(config['minYDistance'], config['maxYDistance'])
+    return x, y
 
+
+def set_xy(pList, avatar=(0, 0), config = None):
+    """
+    (list) -> tuple
+    Returns a point (x,y) that is more than the minimum distance set by tooClose
+    in the config.py file from existing points in pList. Also cannot be too 
+    close to the avatar, which is at the origin in the beginning.
+    This algorithm is pretty inefficient for large numbers of fruit, and should
+    eventually be optimized.
+    """
+    if config is None:
+        config = {}
+        execfile('config.py', config)
+
+    too_close = config['tooClose']
+    dist_avatar = config['avatarRadius'] + too_close
+
+    x, y = get_random_xy(config)
     #print('x, y', x, y)
     # check the distance to points already on the list and to the avatar
     if pList:
         for x1, y1 in pList:
-            # if either too close, get new points.
+            # if either too close to other bananas or avatar, get new points.
             if distance((x, y), (x1, y1)) < too_close or distance((x, y), avatar) < dist_avatar:
                 #print 'set xy too close'
                 #print 'distance is ', distance((x,y), (x1,y1))
                 #print x,y
-                x, y = setXY(pList, avatar, config)
+                x, y = set_xy(pList, avatar, config)
     else:
         # check the distance to the avatar if there is no list yet
         if distance((x, y), avatar) < dist_avatar:
-            x, y = setXY(pList, avatar, config)
-    #print 'setXY, x,y', x, y
+            x, y = set_xy(pList, avatar, config)
+    #print 'set_xy, x,y', x, y
     return x, y
 
 

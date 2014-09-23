@@ -23,7 +23,7 @@ class MoBananasTests(unittest.TestCase):
         #print mb.distance(p0, p1)
         self.assertAlmostEqual(mb.distance(p0, p1), dist, 2)
 
-    def test_setXY_no_pList(self):
+    def test_set_xy_no_pList(self):
         """
         Test that we are given a point that at least 0.5 distance
         away from points already on the list
@@ -32,7 +32,7 @@ class MoBananasTests(unittest.TestCase):
         config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'minXDistance': -10, 'maxXDistance': 10,
                   'minYDistance': -10, 'maxYDistance': 10, 'environ': 'original'}
         avatar = (0, 0)
-        p0 = mb.setXY(pList, avatar, config)
+        p0 = mb.set_xy(pList, avatar, config)
         #print p0
         for p in pList:
             #print p
@@ -46,13 +46,13 @@ class MoBananasTests(unittest.TestCase):
         pList = []
         # test all the points are in a circle less than the radius size
         for i in range(30):
-            (x, y) = mb.setXY(pList, avatar, config)
+            (x, y) = mb.set_xy(pList, avatar, config)
             #print 'new point', p0
             dist = mb.distance((x, y), (0, 0))
             self.assertTrue(dist < config['radius'])
             pList += [(x, y)]
 
-    def test_setXY_one_point_in_pList(self):
+    def test_set_xy_one_point_in_pList(self):
         """
         Test that we are given a point that at least 0.5 distance
         away from points already on the list
@@ -61,7 +61,7 @@ class MoBananasTests(unittest.TestCase):
         config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'minXDistance': -10, 'maxXDistance': 10,
                   'minYDistance': -10, 'maxYDistance': 10, 'environ': 'original'}
         avatar = (0, 0)
-        p0 = mb.setXY(pList, avatar, config)
+        p0 = mb.set_xy(pList, avatar, config)
         #print p0
         for p in pList:
             #print p
@@ -69,7 +69,7 @@ class MoBananasTests(unittest.TestCase):
             #print dist
             self.assertTrue(dist > 0.5)
 
-    def test_setXY_many_points_pList(self):
+    def test_set_xy_many_points_pList(self):
         """
         Test that we are given a point that at least 0.5 distance
         away from points already on the list
@@ -79,7 +79,7 @@ class MoBananasTests(unittest.TestCase):
                   'minYDistance': -10, 'maxYDistance': 10, 'environ': 'original'}
         avatar = (0, 0)
         for i in range(30):
-            (x, y) = mb.setXY(pList, avatar, config)
+            (x, y) = mb.set_xy(pList, avatar, config)
             #print 'new point', p0
             for p in pList:
                 dist = mb.distance((x, y), p)
@@ -88,7 +88,7 @@ class MoBananasTests(unittest.TestCase):
             #print pList
             #print len(pList)
 
-    def test_setXY_not_close_to_origin(self):
+    def test_set_xy_not_close_to_origin(self):
         """
         Test that each point we are given a point is at least min distance
         away from the avatar, avatar starts at origin, default
@@ -100,14 +100,14 @@ class MoBananasTests(unittest.TestCase):
         avatar = (0, 0)
         avatar_min_dist = config['avatarRadius'] * 2
         for i in range(50):
-            (x, y) = mb.setXY(pList, avatar, config)
+            (x, y) = mb.set_xy(pList, avatar, config)
             dist = mb.distance((x, y), origin)
             self.assertTrue(dist >= avatar_min_dist)
             pList += [(x, y)]
             #print pList
             #print len(pList)
 
-    def test_setXY_not_close_to_avatar_away_from_origin(self):
+    def test_set_xy_not_close_to_avatar_away_from_origin(self):
         """
         Test that each point we are given a point is at least 0.5 distance
         away from the avatar when not at origin
@@ -118,14 +118,14 @@ class MoBananasTests(unittest.TestCase):
                   'minYDistance': -10, 'maxYDistance': 10, 'environ': 'original'}
         avatar_min_dist = config['avatarRadius'] * 2
         for i in range(50):
-            (x, y) = mb.setXY(pList, avatar, config)
+            (x, y) = mb.set_xy(pList, avatar, config)
             dist = mb.distance((x, y), avatar)
             self.assertTrue(dist >= avatar_min_dist)
             pList += [(x, y)]
             #print pList
             #print len(pList)
 
-    def test_setXY_from_config_file(self):
+    def test_set_xy_from_config_file(self):
         """
         Distance from the avatar is determined by the avatarRadius (want at
         least twice the distance as the avatar away from the avatar).
@@ -146,7 +146,7 @@ class MoBananasTests(unittest.TestCase):
         if numBananas > 20:
             numBananas = 20
         for i in range(numBananas):
-            (x, y) = mb.setXY(pList, avatar, config)
+            (x, y) = mb.set_xy(pList, avatar, config)
             dist = mb.distance((x, y), avatar)
             self.assertTrue(dist >= avatar_min_dist)
             pList += [(x, y)]

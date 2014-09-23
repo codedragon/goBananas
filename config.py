@@ -103,7 +103,7 @@ instructSeeAll = False
 # Experiment-specific settings
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
 fruit = ['banana', 'plum']
-num_fruit = [2, 2]  # number of fruit, other than fruit to remember or other special fruit
+num_fruit = [150, 2]  # number of fruit, other than fruit to remember or other special fruit
 
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
 #fruit_to_remember = 'banana'
@@ -113,7 +113,7 @@ distance_goal = 1
 # how close is too close together? Keep in mind that the distance is between the centers, but
 # when you run into a fruit, you are not at the center, so could be closer than tooClose at that point
 # Therefor, Too close should be at least as ar as the distance goal + 0.5
-tooClose = 2  # 1
+tooClose = 1  # 1
 
 # Banana Positions
 minXDistance = -10
