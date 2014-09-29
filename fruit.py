@@ -89,7 +89,12 @@ class Fruit():
     def create_fruit_model(self, item, name):
         # initial position does not matter
         model = Model.Model(name, item.model, Point3(0, 0, 1), self.collide_fruit)
-        model.setHpr(Point3(random.randint(0, 360), 0, 75))
+        try:
+            roll = item.roll
+        except AttributeError:
+            roll = 0
+        #roll = 75
+        model.setHpr(Point3(random.randint(0, 360), 0, roll))
         model.setScale(item.scale)
         model.name = name
         #print name

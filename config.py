@@ -1,8 +1,11 @@
 # change individual config files, and have script copy to config.py
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
+from pandaepl import Keyboard
 
 # models are in goBananas directory by default
+
+
 path_models = ''
 
 # manual mode allows you to place up to 2 bananas in specific places,
@@ -41,10 +44,13 @@ numBeeps = 3
 # (just make it 1)
 extra = 2
 
-# are we repeating a certain configuration of bananas?
+# are we repeating a certain configuration of fruit?
 # one of the first x banana configurations will be chosen
-# at random to be repeated.
-fruit_repeat = True
+# at random to be repeated. not implemented for recall, see
+# below for recall options
+#fruit_repeat = True
+fruit_repeat = False
+
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
 repeat_number = 3
@@ -102,14 +108,18 @@ instructSeeAll = False
 
 # Experiment-specific settings
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
-fruit = ['banana', 'plum']
-num_fruit = [150, 2]  # number of fruit, other than fruit to remember or other special fruit
+#fruit = ['plum']
+#num_fruit = [2]
+fruit = ['old_banana', 'plum']  # the fruit_to_remember should NOT be part of this list
+num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
 
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
 #fruit_to_remember = 'banana'
 fruit_to_remember = None
 # how close to remembered location to get reward?
-distance_goal = 1
+distance_goal = 3
+repeat_recall_fruit = True  # can be toggled with key
+
 # how close is too close together? Keep in mind that the distance is between the centers, but
 # when you run into a fruit, you are not at the center, so could be closer than tooClose at that point
 # Therefor, Too close should be at least as ar as the distance goal + 0.5
@@ -136,7 +146,7 @@ radius = 14
 # (Non-default) command keys.
 # Keyboard is global from pandaepl.common
 if 'Keyboard' in globals():
-    keyboard = Keyboard.getInstance()
+    keyboard = Keyboard.Keyboard.getInstance()
     keyboard.bind("close", ["escape", "q"])
     keyboard.bind("restart", "y")
     keyboard.bind("toggleDebug", ["escape", "d"])
@@ -145,4 +155,4 @@ if 'Keyboard' in globals():
     keyboard.bind("increaseBananas", "e")
     keyboard.bind("decreaseBananas", "d")
     keyboard.bind("extra_reward", "space")
-    keyboard.bind("changeWeightedCenter", "c")
+    keyboard.bind("toggle_recall", "r")

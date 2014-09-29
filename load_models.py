@@ -12,8 +12,8 @@ class PlaceModels(object):
         self.group = 'original'
         self.model = 'models/fixtures/streetlight.bam'
         self.location = Point3(-13, 13, 0)
-        self.scale = 1
         self.head = 0
+        self.scale = 1
         self.callback = None
         self.name = 'streetlight'
         self.coll_scale = 1
@@ -100,14 +100,16 @@ def load_models():
     banana.group = 'fruit'
     banana.scale = 0.03
     banana.model = 'models/fruit/banana.bam'
+    banana.roll = 75
     banana.coll_scale = 1
+
 
     plum = PlaceModels()
     plum.name = 'plum'
     plum.group = 'fruit'
     plum.scale = 0.005
     plum.model = 'models/fruit/plum.bam'
-    # plum needs big sphere, so plum will still be visible after run into sphere
+    plum.roll = 75
     plum.coll_scale = 1
     plum.coll_pos = (-5, 5, 110, 200)
 

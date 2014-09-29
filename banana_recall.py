@@ -179,7 +179,7 @@ class BananaRecall:
             print 'remembered, new banana'
         elif self.fruit_models.beeps == 0:
             # just ran into fruit
-            VLQ.getInstance().writeLine("Yummy", [self.fruit_models.got_fruit])
+            VLQ.getInstance().writeLine("Yummy", [self.fruit_models.current_fruit])
             #print('logged', self.fruit_models.byeBanana)
             #print('fruit pos', self.fruit_models.fruitModels[int(self.fruit_models.byeBanana[-2:])].getPos())
             if self.send_events:
@@ -262,7 +262,7 @@ class BananaRecall:
         # starting over again with a banana,
         # need to remember position of the banana
         self.trial_num += 1
-        self.fruit_models.setup_trial()
+        self.fruit_models.setup_trial(self.trial_num)
         print('new trial', self.trial_num)
         if self.send_events:
             self.send_events.send_signal(1000 + self.trial_num)
