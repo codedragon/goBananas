@@ -37,7 +37,10 @@ class GoBananas:
         # reload the config file multiple times, also allows us to change these
         # variables dynamically
         self.numBeeps = config['numBeeps']
-        self.extra = config['extra']
+        # extra is a list, first is the bonus reward, second is the regular reward
+        self.extra = [config['extra'] * self.numBeeps, self.numBeeps]
+        # extra_flag is true if extra is not 1
+        self.extra_flag = self.extra[0] > self.numBeeps
         self.fullTurningSpeed = config['fullTurningSpeed']
         self.fullForwardSpeed = config['fullForwardSpeed']
         # self.weighted_bananas = config['weightedBananas']
@@ -68,7 +71,6 @@ class GoBananas:
         #
         # camera2 = base.camList[1]
         # camera.reparentTo(render)
-
 
         # Get vr environment object
         vr = Vr.getInstance()
@@ -173,7 +175,7 @@ class GoBananas:
         elif self.fruit_models.beeps == 0:
             # just ran into it?
             VLQ.getInstance().writeLine("Yummy", [self.fruit_models.current_fruit])
-            #print('logged', self.fruit_models.current_fruit)
+            #print('yummy', self.fruit_models.current_fruit)
             #print('banana pos', self.fruit_models.bananaModels[int(self.fruit_models.current_fruit[-2:])].getPos())
             if self.send_events:
                 self.send_events.send_signal(200)
@@ -185,13 +187,6 @@ class GoBananas:
         else:
             print('beep', self.fruit_models.beeps)
 
-        #print MovingObject.getCollisionIdentifier(Vr.getInstance())
-        #vr = Vr.getInstance()
-        #vr.cTrav.
-        #for i in xrange(vr.cQueue.getNumEntries()):
-        #    print Vr.getInstance().cQueue.getEntry(i)
-        #collisionInfoList[0]
-        #current_fruit = collisionInfoList[0].getInto().getIdentifier()
         VLQ.getInstance().writeLine('Beeps', [int(self.fruit_models.beeps)])
         if self.send_events:
             self.send_events.send_signal(201)
@@ -204,11 +199,13 @@ class GoBananas:
         #print 'extra', self.extra
         #print 'stashed', self.fruit_models.stashed
         if self.fruit_models.beeps == self.numBeeps:
-            # check to see if we are doing double reward
-            if not self.fruit_models.fruit_list and self.extra > 1:
-                #print 'reset'
-                self.fruit_models.beeps = 0
-                self.extra -= 1
+            #print('fruit list', self.fruit_models.fruit_list)
+            # check to see if we are doing extra reward, if we are on last fruit
+            # and haven't done extra reward yet.
+            if len(self.fruit_models.fruit_list) == 1 and self.extra_flag:
+                #print 'bonus beeps'
+                self.extra_flag = False
+                self.numBeeps = self.extra[0]
             else:
                 # banana disappears
                 old_trial = self.trial_num
@@ -217,9 +214,9 @@ class GoBananas:
                 if not self.fruit_models.fruit_list:
                     self.trial_num += 1
                     self.fruit_models.setup_trial(self.trial_num)
-                    # reset the increased reward for last banana
-                    config = Conf.getInstance().getConfig()  # Get configuration dictionary.
-                    self.extra = config['extra']
+                    # reset normal reward and flag for the increased reward for last banana
+                    self.numBeeps = self.extra[1]
+                    self.extra_flag = self.extra[0] > self.numBeeps
                     # logging for new trial
                     self.log_new_trial()
                 # avatar can move

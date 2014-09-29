@@ -1,5 +1,5 @@
 from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
-from panda3d.core import Point3
+from panda3d.core import Point3, CollisionNode, CollisionSphere
 from load_models import load_models, get_model
 import moBananas as mB
 import os
@@ -92,12 +92,27 @@ class Fruit():
         model.setHpr(Point3(random.randint(0, 360), 0, 75))
         model.setScale(item.scale)
         model.name = name
+        #print name
+        try:
+            #print(item.coll_pos)
+            x, y, z, s = item.coll_pos
+            model_sphere = CollisionSphere(x, y, z, s)
+            model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
+            model.retrNodePath().getChild(1).node().addSolid(model_sphere)
+            #model.retrNodePath().getChild(1).show()
+            #print(model.retrNodePath().getChild(1))
+            #print(model.retrNodePath().getChild(1).node())
+        except AttributeError:
+            model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
+            #model.retrNodePath().getChild(0).getChild(0).show()
+            #print(model.retrNodePath().getChild(0).getChild(0))
         #print(model.retrNodePath().getChild(0))
+        #print(model.retrNodePath().getChild(0).node())
+
+        #print(model.retrNodePath().getChild(0).getChild(0))
         #print(model.retrNodePath().getChild(0).getChild(0).node())
-        # set collision sphere around fruit
-        model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
-        # uncomment to see collision sphere around fruit
-        model.retrNodePath().getChild(0).getChild(0).show()
+        #model.retrNodePath().getChild(0).show()
+
         # hide all models on creation
         model.setStashed(True)
         self.fruit_models.append(model)
@@ -130,7 +145,7 @@ class Fruit():
             # add to our list
             self.fruit_list.append(fruit)
         #print self.fruit_list
-        print pos_list
+        #print pos_list
 
         if repeat == 'new':
             print 'save new'
@@ -174,6 +189,7 @@ class Fruit():
         #    print fruit.getPos()
         #print('in view', cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)))
         if cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)) and self.first_collision:
+        #if self.first_collision:
             #print self.current_fruit
             # cannot run inside of banana - can't I just do this earlier for all of the fruit?
             MovingObject.MovingObject.handleRepelCollision(collisionInfoList)

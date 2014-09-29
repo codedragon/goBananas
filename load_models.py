@@ -108,7 +108,8 @@ def load_models():
     plum.scale = 0.005
     plum.model = 'models/fruit/plum.bam'
     # plum needs big sphere, so plum will still be visible after run into sphere
-    plum.coll_scale = 2.5
+    plum.coll_scale = 1
+    plum.coll_pos = (-5, 5, 110, 200)
 
 
 def get_model(model_type, model_value):
