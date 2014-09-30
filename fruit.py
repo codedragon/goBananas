@@ -19,10 +19,12 @@ class Fruit():
         # fruit not remembering
         self.all_fruit = config['fruit']  # list of fruit
         self.num_fruit = config['num_fruit']  # list corresponding to list above
+        self.repeat_recall = False
 
         if self.fruit_to_remember:
             self.all_fruit.insert(0, self.fruit_to_remember)
             self.num_fruit.insert(0, 1)
+            self.repeat_recall = config['repeat_recall_fruit']
 
         # for repeating a particular configuration
         self.repeat = config['fruit_repeat']
@@ -130,17 +132,23 @@ class Fruit():
         # if repeat is 'repeat', use saved configuration
         # if repeat is 'new' save the configuration creating now
         pos_list = []
-        if repeat == 'repeat':
-            pos_list = self.pos_list
+        if repeat == 'recall' and not self.pos_list:
+            repeat = 'new'
+        if repeat == 'repeat' or repeat == 'recall':
+            old_list = self.pos_list
         #print pos_list
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         # print 'avatar pos', avatarXY
         for fruit, index in self.index_fruit_dict.iteritems():
-            #print fruit, index
+            print fruit, index
             #print pos_list
             if repeat == 'repeat':
-                (x, y) = pos_list[index]
+                (x, y) = old_list[index]
+            elif repeat == 'recall' and fruit == self.fruit_to_remember:
+                print 'just repeating the fruit to remember'
+                (x, y) = old_list[index]
+                pos_list.append((x, y))
             else:
                 (x, y) = mB.set_xy(pos_list, avatarXY)
                 pos_list.append((x, y))
@@ -150,7 +158,7 @@ class Fruit():
             # add to our list
             self.fruit_list.append(fruit)
         #print self.fruit_list
-        #print pos_list
+        print pos_list
 
         if repeat == 'new':
             print 'save new'
@@ -265,7 +273,10 @@ class Fruit():
             else:
                 self.setup_fruit_for_trial()
         else:
-            self.setup_fruit_for_trial()
+            if self.repeat_recall:
+                self.setup_fruit_for_trial('recall')
+            else:
+                self.setup_fruit_for_trial()
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
 
     def replenish_stashed_fruit(self):
