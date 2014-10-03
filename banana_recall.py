@@ -6,7 +6,9 @@ from load_models import PlaceModels, load_models
 from fruit import Fruit
 from math import sqrt
 import datetime
+import time
 import sys
+
 # only load pydaq if it's available
 try:
     sys.path.insert(1, '../pydaq')
@@ -53,11 +55,17 @@ class BananaRecall:
         self.fullForwardSpeed = config['fullForwardSpeed']
         self.min_dist = [config['minXDistance'], config['minYDistance']]
         self.distance_goal = config['distance_goal']
+        self.time_to_recall = config['time_to_recall']
+        self.time_to_flash = config['time_to_flash']
         # toggle if got to fruit location
         self.remembered_location = False
         # variable to track if we are checking to see if the avatar is
         # in the position of the remembered banana (ie, time to look for remembered location)
         self.remember_fruit = False
+        # variable to keep track of how long subject has to get to remembered fruit location
+        self.recall_timer = None
+        # trigger fruit flashing
+        self.flash_timer = None
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props
@@ -220,6 +228,7 @@ class BananaRecall:
                 self.fruit_models.disappear_fruit()
                 self.remember_fruit = self.fruit_models.get_next_fruit()
                 print('remember_fruit', self.remember_fruit)
+                self.recall_timer = time.clock()
             self.remembered_location = False
             # new fruit appears, either starting over or next fruit in stack
             print 'new fruit'
@@ -243,6 +252,10 @@ class BananaRecall:
                 VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
                 self.remembered_location = True
                 self.fruit_models.beeps = 0
+            elif time.clock() - self.recall_timer >= self.time_to_recall:
+                self.end_trial()
+            elif time.clock() - self.flash_timer >= self.time_to_flash:
+                self.new_trial()
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
@@ -261,6 +274,10 @@ class BananaRecall:
     def new_trial(self):
         # starting over again with a banana,
         # need to remember position of the banana
+        # stop flash
+        if self.flash_timer:
+            self.fruit_models.flash_recall('off')
+            self.flash_timer = None
         self.trial_num += 1
         self.fruit_models.setup_trial(self.trial_num)
         print('new trial', self.trial_num)
@@ -301,12 +318,16 @@ class BananaRecall:
                 if item.callback is not None:
                     #print 'not none'
                     model.setCollisionCallback(eval(item.callback))
-                    # white wall is bright, and sometimes hard to see fruits,
-                    # quick fix.
-                    #model.nodePath.setColor(0.8, 0.8, 0.8, 1.0)
+
                 model.setScale(item.scale)
                 model.setH(item.head)
                 self.envModels.append(model)
+
+    def end_trial(self):
+        # flash where banana was, start new trial
+        self.fruit_models.flash_recall('on')
+        self.flash_timer = self.time_to_flash
+        self.recall_timer = None
 
     def increase_reward(self, inputEvent):
         self.numBeeps += 1
