@@ -146,7 +146,7 @@ class Fruit():
             if repeat == 'repeat':
                 (x, y) = old_list[index]
             elif repeat == 'recall' and fruit == self.fruit_to_remember:
-                print 'just repeating the fruit to remember'
+                #print 'only repeating the fruit to remember'
                 (x, y) = old_list[index]
                 pos_list.append((x, y))
             else:
@@ -250,8 +250,13 @@ class Fruit():
 
     def flash_recall(self, flash):
         # flash the fruit subject was suppose to find, but didn't,
-        # flash is true or false, depending on whether we are turning it on or off
-        self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].setStashed(flash)
+        # flash is true or false, depending on whether we are turning it on or off,
+        # makes more sense for true to turn on fruit and false turn off, so invert signal
+        # Do I need to somehow turn off callback during flash? Depends on how fast the flash, I think.
+        print('flash ', flash)
+        self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].setStashed(not flash)
+        print self.index_fruit_dict[self.fruit_to_remember]
+        print self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].getPos()
 
     def setup_trial(self, trial_num):
         print('trial number', trial_num)

@@ -223,7 +223,6 @@ class BananaRecall:
             old_trial = self.trial_num
             if self.remembered_location:
                 self.new_trial()
-                self.remember_fruit = False
             else:
                 self.fruit_models.disappear_fruit()
                 self.remember_fruit = self.fruit_models.get_next_fruit()
@@ -246,20 +245,31 @@ class BananaRecall:
             banana = self.fruit_models.fruit_models[self.fruit_models.index_fruit_dict[self.fruit_models.fruit_to_remember]]
             banana_pos = (banana.getPos()[0], banana.getPos()[1])
             dist_to_banana = get_distance(avatar_pos, banana_pos)
-            print dist_to_banana
-            print self.recall_timer
-            print self.flash_timer
-            print self.time_to_recall
-            print self.time_to_flash
+            #print('dist to banana', dist_to_banana)
+            print('recall timer', self.recall_timer)
+            print('flash timer', self.flash_timer)
+            #print('time to recall', self.time_to_recall)
+            #print('time to flash', self.time_to_flash)
             if dist_to_banana <= self.distance_goal:
                 print 'found it!'
                 VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
                 self.remembered_location = True
                 self.fruit_models.beeps = 0
-            elif time.clock() - self.recall_timer >= self.time_to_recall:
-                self.end_trial()
-            elif time.clock() - self.flash_timer >= self.time_to_flash:
-                self.new_trial()
+            elif self.recall_timer:
+                print 'check recall timer'
+                print('count down', time.clock() - self.recall_timer)
+                if time.clock() - self.recall_timer >= self.time_to_recall:
+                    print 'timer up'
+                    if self.time_to_flash:
+                        self.flash_fruit()
+                    else:
+                        self.new_trial()
+            elif self.flash_timer:
+                print 'check flash timer'
+                print('count down', time.clock() - self.flash_timer)
+                if time.clock() - self.flash_timer >= self.time_to_flash:
+                    print 'flash off'
+                    self.new_trial()
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
@@ -276,9 +286,10 @@ class BananaRecall:
         self.send_y_pos_task.send_signal(avatar.getPos()[1] * 0.2)
 
     def new_trial(self):
-        # starting over again with a banana,
-        # need to remember position of the banana
-        # stop flash
+        # starting over again with a new banana position,
+        # make sure not still checking on old banana
+        self.remember_fruit = False
+        # stop flash, if flashing
         if self.flash_timer:
             self.fruit_models.flash_recall(False)
             self.flash_timer = 0
@@ -327,10 +338,12 @@ class BananaRecall:
                 model.setH(item.head)
                 self.envModels.append(model)
 
-    def end_trial(self):
-        # flash where banana was, start new trial
+    def flash_fruit(self):
+        print 'flash fruit'
+        # flash where banana was, turn on timer for flash
+        # turn off timer for recall
         self.fruit_models.flash_recall(True)
-        self.flash_timer = self.time_to_flash
+        self.flash_timer = time.clock()
         self.recall_timer = 0
 
     def increase_reward(self, inputEvent):

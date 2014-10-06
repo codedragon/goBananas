@@ -118,9 +118,9 @@ fruit_to_remember = 'banana'
 #fruit_to_remember = None
 # how close to remembered location to get reward?
 distance_goal = 3
-repeat_recall_fruit = True  # can be toggled with key
-time_to_recall = 2  # number of seconds to get to remembered location
-time_to_flash = 0.5  # number of seconds to flash fruit
+repeat_recall_fruit = False  # can be toggled with key
+time_to_recall = 10  # number of seconds to get to remembered location
+time_to_flash = 10  # number of seconds to flash fruit, zero for no flashing
 # how close is too close together? Keep in mind that the distance is between the centers, but
 # when you run into a fruit, you are not at the center, so could be closer than tooClose at that point
 # Therefor, Too close should be at least as ar as the distance goal + 0.5
