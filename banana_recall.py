@@ -63,9 +63,9 @@ class BananaRecall:
         # in the position of the remembered banana (ie, time to look for remembered location)
         self.remember_fruit = False
         # variable to keep track of how long subject has to get to remembered fruit location
-        self.recall_timer = None
+        self.recall_timer = 0
         # trigger fruit flashing
-        self.flash_timer = None
+        self.flash_timer = 0
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props
@@ -247,6 +247,10 @@ class BananaRecall:
             banana_pos = (banana.getPos()[0], banana.getPos()[1])
             dist_to_banana = get_distance(avatar_pos, banana_pos)
             print dist_to_banana
+            print self.recall_timer
+            print self.flash_timer
+            print self.time_to_recall
+            print self.time_to_flash
             if dist_to_banana <= self.distance_goal:
                 print 'found it!'
                 VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
@@ -260,8 +264,8 @@ class BananaRecall:
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
         VLQ.getInstance().writeLine("EyeData",
-                                [((eye_data[0] * self.gain[0]) - self.offset[0]),
-                                ((eye_data[1] * self.gain[1]) - self.offset[1])])
+                                    [((eye_data[0] * self.gain[0]) - self.offset[0]),
+                                    ((eye_data[1] * self.gain[1]) - self.offset[1])])
 
     def check_avatar(self):
         avatar = Avatar.getInstance()
@@ -276,8 +280,8 @@ class BananaRecall:
         # need to remember position of the banana
         # stop flash
         if self.flash_timer:
-            self.fruit_models.flash_recall('off')
-            self.flash_timer = None
+            self.fruit_models.flash_recall(False)
+            self.flash_timer = 0
         self.trial_num += 1
         self.fruit_models.setup_trial(self.trial_num)
         print('new trial', self.trial_num)
@@ -325,9 +329,9 @@ class BananaRecall:
 
     def end_trial(self):
         # flash where banana was, start new trial
-        self.fruit_models.flash_recall('on')
+        self.fruit_models.flash_recall(True)
         self.flash_timer = self.time_to_flash
-        self.recall_timer = None
+        self.recall_timer = 0
 
     def increase_reward(self, inputEvent):
         self.numBeeps += 1

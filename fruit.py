@@ -248,6 +248,11 @@ class Fruit():
         #print self.stashed
         return find_banana_loc
 
+    def flash_recall(self, flash):
+        # flash the fruit subject was suppose to find, but didn't,
+        # flash is true or false, depending on whether we are turning it on or off
+        self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].setStashed(flash)
+
     def setup_trial(self, trial_num):
         print('trial number', trial_num)
         print('trial number to be repeated', self.repeat)

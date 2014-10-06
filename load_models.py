@@ -103,7 +103,6 @@ def load_models():
     banana.roll = 75
     banana.coll_scale = 1
 
-
     plum = PlaceModels()
     plum.name = 'plum'
     plum.group = 'fruit'
