@@ -209,6 +209,7 @@ class Fruit():
             self.first_collision = False
 
     def disappear_fruit(self):
+        # fruit that is currently visible is stashed
         #print('fruit should go away', self.current_fruit)
         current_index = self.index_fruit_dict[self.current_fruit]
         #print('this fruit index', current_index)
@@ -222,6 +223,7 @@ class Fruit():
         self.first_collision = True
 
     def get_next_fruit(self):
+        # if we are doing fruit sequentially, go to the next one
         # default is not time to find the banana memory
         find_banana_loc = False
         # know it is time to search for location, when we have made it through all
@@ -241,6 +243,7 @@ class Fruit():
         return find_banana_loc
 
     def setup_trial(self, trial_num):
+        # trials are set up the same, whether showing fruit sequentially or all at once.
         print('trial number', trial_num)
         print('trial number to be repeated', self.repeat)
         if self.repeat:
@@ -269,6 +272,8 @@ class Fruit():
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
 
     def replenish_stashed_fruit(self):
+        # for showing fruit all at once, if bananas stashed, get new positions and show them again
+        # can replenish at any time, so not all are necessarily stashed currently
         print 'replenish'
         pos_list = []
         avatar = Avatar.Avatar.getInstance()
