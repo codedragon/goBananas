@@ -1,5 +1,5 @@
 from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
-from panda3d.core import Point3, CollisionNode, CollisionSphere
+from panda3d.core import Point3, CollisionNode, CollisionSphere, TransparencyAttrib
 from load_models import load_models, get_model
 import moBananas as mB
 import os
@@ -255,6 +255,9 @@ class Fruit():
         # Do I need to somehow turn off callback during flash? Depends on how fast the flash, I think.
         print('flash ', flash)
         self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].setStashed(not flash)
+        fruit_node_path = self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].retrNodePath()
+        fruit_node_path.setTransparency(TransparencyAttrib.MAlpha)
+        fruit_node_path.setAlphaScale(0.5)
         print self.index_fruit_dict[self.fruit_to_remember]
         print self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].getPos()
 

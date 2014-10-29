@@ -31,6 +31,13 @@ def get_distance(p0, p1):
     return dist
 
 
+def check_timer(timer, goal):
+        if time.clock() - timer >= goal:
+            print('timer up')
+            return True
+        return False
+
+
 class BananaRecall:
     def __init__(self):
         """
@@ -43,20 +50,12 @@ class BananaRecall:
         # Set session to today's date and time
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
         print exp.getSessionNum()
-        config = Conf.getInstance().getConfig()  # Get configuration dictionary.
+        self.config = Conf.getInstance().getConfig()  # Get configuration dictionary.
         #print config['training']
         #print 'load testing', config['testing']
-        # bring some configuration parameters into memory, so we don't need to
-        # reload the config file multiple times, also allows us to change these
+        # bring some configuration parameters into variables, so can change these
         # variables dynamically
-        self.numBeeps = config['numBeeps']
-        self.extra = config['extra']
-        self.fullTurningSpeed = config['fullTurningSpeed']
-        self.fullForwardSpeed = config['fullForwardSpeed']
-        self.min_dist = [config['minXDistance'], config['minYDistance']]
-        self.distance_goal = config['distance_goal']
-        self.time_to_recall = config['time_to_recall']
-        self.time_to_flash = config['time_to_flash']
+        self.numBeeps = self.config['numBeeps']
         # toggle if got to fruit location
         self.remembered_location = False
         # variable to track if we are checking to see if the avatar is
@@ -66,6 +65,8 @@ class BananaRecall:
         self.recall_timer = 0
         # trigger fruit flashing
         self.flash_timer = 0
+        # how long since last reward
+        self.reward_timer = 0
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props
@@ -125,30 +126,30 @@ class BananaRecall:
         vr.inputListen("restart", self.restart)
         vr.inputListen("NewTrial", self.new_trial)
         # set up task to be performed between frames, checks at interval of pump
-        vr.addTask(Task("checkReward",
+        #vr.addTask(Task("checkReward",
+        #                lambda taskInfo:
+        #                self.check_reward(),
+        #                self.config['pulseInterval']))
+        vr.addTask(Task("frame_loop",
                         lambda taskInfo:
-                        self.check_reward(),
-                        config['pulseInterval']))
-        vr.addTask(Task("rememberBanana",
-                        lambda taskInfo:
-                        self.check_position(),
+                        self.frame_loop(),
                         ))
         # send avatar position to blackrock/plexon
-        if config['sendData'] and LOADED_PYDAQ:
+        if self.config['sendData'] and LOADED_PYDAQ:
             vr.addTask(Task("sendAvatar",
                             lambda taskInfo:
-                            self.check_avatar()))
+                            self.send_avatar_daq()))
 
         # set up reward system
-        if config['reward'] and LOADED_PYDAQ:
+        if self.config['reward'] and LOADED_PYDAQ:
             self.reward = pydaq.GiveReward()
         else:
             self.reward = None
 
         # start recording eye position
-        if config['eyeData'] and LOADED_PYDAQ:
-            self.gain = config['gain']
-            self.offset = config['offset']
+        if self.config['eyeData'] and LOADED_PYDAQ:
+            self.gain = self.config['gain']
+            self.offset = self.config['offset']
             self.eye_task = pydaq.EOGTask()
             self.eye_task.SetCallback(self.get_eye_data)
             self.eye_task.StartTask()
@@ -156,71 +157,74 @@ class BananaRecall:
             self.eye_task = None
 
         # send digital signals to blackrock or plexon
-        if config['sendData'] and LOADED_PYDAQ:
+        if self.config['sendData'] and LOADED_PYDAQ:
             self.send_x_pos_task = pydaq.OutputAvatarXPos()
             self.send_y_pos_task = pydaq.OutputAvatarYPos()
-            self.send_events = pydaq.OutputEvents()
-            self.send_strobe = pydaq.StrobeEvents()
-            #self.send_events = None
+            self.daq_events = pydaq.OutputEvents()
+            self.daq_strobe = pydaq.StrobeEvents()
         else:
-            self.send_pos_task = None
-            self.send_events = None
+            self.daq_events = None
 
-        # Log First Trial
-        VLQ.getInstance().writeLine("NewTrial", [self.trial_num])
-        #self.new_trial()
+    def frame_loop(self):
+        # self.remember_fruit means there is an 'invisible' fruit present,
+        # that we will not be colliding into, so check distance
+        if self.remember_fruit:
+            dist_to_banana = self.check_distance_to_fruit()
+            #print('dist to banana', dist_to_banana)
+            if dist_to_banana <= self.config['distance_goal']:
+                print 'found it!'
+                self.found_banana(dist_to_banana)
+            elif self.recall_timer:
+                # check timer for looking for fruit
+                if check_timer(self.recall_timer, self.config['time_to_recall']):
+                    self.recall_timer = 0
+                    # if time is up, no longer checking to see if close to fruit
+                    self.remember_fruit = False
+                    # if flashing fruit, go for it, otherwise start over
+                    if self.config['time_to_flash']:
+                        self.flash_fruit()
+                    else:
+                        self.new_trial()
+        elif self.flash_timer:
+            # if we flashed the fruit to show where it was, check to see if it
+            # is time to turn it off.
+            if check_timer(self.flash_timer, self.config['time_to_flash']):
+                self.new_trial()
+        # check to see if reward timer is on, otherwise safe to give reward
+        if self.reward_timer:
+            if check_timer(self.reward_timer, self.config['pulseInterval']):
+                self.reward_timer = 0
+        elif self.fruit_models.beeps >= 0:
+            # we should give reward, since there is currently no reward timer going
+            self.give_reward()
 
-    def check_reward(self):
-        # Runs every 200ms
-        # checks to see if we are giving reward (beeps is not None).
-        # If we are, there was a collision, and avatar can't move and
-        # fruit hasn't disappeared yet.
-        # After last reward, fruit disappears and avatar can move.
-
-        # print 'current beep', self.beeps
-        if self.fruit_models.beeps is None:
-            return
-        elif self.remembered_location:
-            self.remember_fruit = False
-            # is being rewarded for remembering the
-            # correct location
-            print 'remembered, new banana'
-        elif self.fruit_models.beeps == 0:
-            # just ran into fruit
-            VLQ.getInstance().writeLine("Yummy", [self.fruit_models.current_fruit])
-            #print('logged', self.fruit_models.byeBanana)
-            #print('fruit pos', self.fruit_models.fruitModels[int(self.fruit_models.byeBanana[-2:])].getPos())
-            if self.send_events:
-                self.send_events.send_signal(200)
-                self.send_strobe.send_signal()
-
-        # Still here? Give reward!
+    def give_reward(self):
+        print 'give reward'
         if self.reward:
             self.reward.pumpOut()
         else:
             print('beep', self.fruit_models.beeps)
-
-        #print MovingObject.getCollisionIdentifier(Vr.getInstance())
-        #vr = Vr.getInstance()
-        #vr.cTrav.
-        #for i in xrange(vr.cQueue.getNumEntries()):
-        #    print Vr.getInstance().cQueue.getEntry(i)
-        #collisionInfoList[0]
-        #byeBanana = collisionInfoList[0].getInto().getIdentifier()
+        # now set reward timer
+        self.reward_timer = time.clock()
+        # if this is first reward, log that
+        if self.fruit_models.beeps == 0:
+            VLQ.getInstance().writeLine("Yummy", [self.fruit_models.current_fruit])
+            #print('logged', self.fruit_models.byeBanana)
+            #print('fruit pos', self.fruit_models.fruitModels[int(self.fruit_models.byeBanana[-2:])].getPos())
+            if self.daq_events:
+                self.daq_events.send_signal(200)
+                self.daq_strobe.send_signal()
+        # log which reward we are on
         VLQ.getInstance().writeLine('Beeps', [int(self.fruit_models.beeps)])
-        if self.send_events:
-            self.send_events.send_signal(201)
-            self.send_strobe.send_signal()
+        if self.daq_events:
+            self.daq_events.send_signal(201)
+            self.daq_strobe.send_signal()
         # increment reward
         self.fruit_models.beeps += 1
-
-        # If done, get rid of fruit
-        #print 'beeps', self.fruit_models.beeps
-        #print 'extra', self.extra
-        #print 'stashed', self.fruit_models.stashed
+        # if that was last reward
         if self.fruit_models.beeps == self.numBeeps:
-            # fruit disappears
-            old_trial = self.trial_num
+            print 'last reward'
+            # if fruit visible, fruit disappears, otherwise new trial
             if self.remembered_location:
                 self.new_trial()
             else:
@@ -233,43 +237,27 @@ class BananaRecall:
             print 'new fruit'
 
             # avatar can move
-            Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
-            Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
+            Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
+            Avatar.getInstance().setMaxForwardSpeed(self.config['fullForwardSpeed'])
             # reward is over
             self.fruit_models.beeps = None
 
-    def check_position(self):
-        if self.remember_fruit:
-            avatar = Avatar.getInstance()
-            avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
-            banana = self.fruit_models.fruit_models[self.fruit_models.index_fruit_dict[self.fruit_models.fruit_to_remember]]
-            banana_pos = (banana.getPos()[0], banana.getPos()[1])
-            dist_to_banana = get_distance(avatar_pos, banana_pos)
-            #print('dist to banana', dist_to_banana)
-            print('recall timer', self.recall_timer)
-            print('flash timer', self.flash_timer)
-            #print('time to recall', self.time_to_recall)
-            #print('time to flash', self.time_to_flash)
-            if dist_to_banana <= self.distance_goal:
-                print 'found it!'
-                VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
-                self.remembered_location = True
-                self.fruit_models.beeps = 0
-            elif self.recall_timer:
-                print 'check recall timer'
-                print('count down', time.clock() - self.recall_timer)
-                if time.clock() - self.recall_timer >= self.time_to_recall:
-                    print 'timer up'
-                    if self.time_to_flash:
-                        self.flash_fruit()
-                    else:
-                        self.new_trial()
-            elif self.flash_timer:
-                print 'check flash timer'
-                print('count down', time.clock() - self.flash_timer)
-                if time.clock() - self.flash_timer >= self.time_to_flash:
-                    print 'flash off'
-                    self.new_trial()
+    def check_distance_to_fruit(self):
+        avatar = Avatar.getInstance()
+        avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
+        banana = self.fruit_models.fruit_models[self.fruit_models.index_fruit_dict[self.fruit_models.fruit_to_remember]]
+        banana_pos = (banana.getPos()[0], banana.getPos()[1])
+        dist_to_banana = get_distance(avatar_pos, banana_pos)
+        return dist_to_banana
+
+    def found_banana(self, dist_to_banana):
+        VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
+        # note this reward was due to remembering where fruit was
+        self.remembered_location = True
+        # no longer checking location
+        self.remember_fruit = False
+        # start giving reward
+        self.fruit_models.beeps = 0
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
@@ -277,13 +265,33 @@ class BananaRecall:
                                     [((eye_data[0] * self.gain[0]) - self.offset[0]),
                                     ((eye_data[1] * self.gain[1]) - self.offset[1])])
 
-    def check_avatar(self):
+    def send_avatar_daq(self):
         avatar = Avatar.getInstance()
         # max voltage is 5 volts. Kiril's courtyard is not actually square,
         # 10 in one direction, 11 in the other, so multiply avatar position by 0.4
         # to send voltage
         self.send_x_pos_task.send_signal(avatar.getPos()[0] * 0.2)
         self.send_y_pos_task.send_signal(avatar.getPos()[1] * 0.2)
+
+    def send_new_trial_daq(self):
+        self.daq_events.send_signal(1000 + self.trial_num)
+        self.daq_strobe.send_signal()
+        for i in self.fruit_models.fruitModels:
+            # can't send negative numbers or decimals, so
+            # need to translate the numbers
+            # print i.getPos()
+            translate_b = [int((i.getPos()[0] - self.config['minXDistance']) * 1000),
+                           int((i.getPos()[1] - self.config['minYDistance']) * 1000)]
+            #print foo
+            self.daq_events.send_signal(translate_b[0])
+            self.daq_strobe.send_signal()
+            self.daq_events.send_signal(translate_b[1])
+            self.daq_strobe.send_signal()
+        if self.fruit_models.repeat:
+            self.daq_events.send_signal(300)
+            self.daq_strobe.send_signal()
+            self.daq_events.send_signal(self.fruit_models.now_repeat)
+            self.daq_strobe.send_signal()
 
     def new_trial(self):
         # starting over again with a new banana position,
@@ -296,38 +304,21 @@ class BananaRecall:
         self.trial_num += 1
         self.fruit_models.setup_trial(self.trial_num)
         print('new trial', self.trial_num)
-        if self.send_events:
-            self.send_events.send_signal(1000 + self.trial_num)
-            self.send_strobe.send_signal()
-            for i in self.fruit_models.fruitModels:
-                # can't send negative numbers or decimals, so
-                # need to translate the numbers
-                #print i.getPos()
-                translate_b = [int((i.getPos()[0] - self.min_dist[0]) * 1000),
-                       int((i.getPos()[1] - self.min_dist[1]) * 1000)]
-                #print foo
-                self.send_events.send_signal(translate_b[0])
-                self.send_strobe.send_signal()
-                self.send_events.send_signal(translate_b[1])
-                self.send_strobe.send_signal()
-            if self.fruit_models.repeat:
-                self.send_events.send_signal(300)
-                self.send_strobe.send_signal()
-                self.send_events.send_signal(self.fruit_models.now_repeat)
-                self.send_strobe.send_signal()
+        if self.daq_events:
+            self.send_new_trial_daq()
 
-    def load_environment(self, config):
+    def load_environment(self):
         load_models()
         # Models must be attached to self
         self.envModels = []
-        #print config['environ']
+        #print self.config['environ']
         for item in PlaceModels._registry:
             #print item.group
             #print item.name
-            if config['environ'] in item.group:
+            if self.config['environ'] in item.group:
             #if 'better' in item.group:
                 #print item.name
-                item.model = config['path_models'] + item.model
+                item.model = self.config['path_models'] + item.model
                 #print item.model
                 model = Model(item.name, item.model, item.location)
                 if item.callback is not None:
@@ -341,10 +332,8 @@ class BananaRecall:
     def flash_fruit(self):
         print 'flash fruit'
         # flash where banana was, turn on timer for flash
-        # turn off timer for recall
         self.fruit_models.flash_recall(True)
         self.flash_timer = time.clock()
-        self.recall_timer = 0
 
     def increase_reward(self, inputEvent):
         self.numBeeps += 1
@@ -366,16 +355,13 @@ class BananaRecall:
         Start the experiment.
         """
         # Load environment
-        config = Conf.getInstance().getConfig()  # Get configuration dictionary.
-        self.load_environment(config)
-        self.fruit_models = Fruit(config)
+        self.load_environment()
+        self.fruit_models = Fruit(self.config)
         print self.fruit_models
-        # fruit to remember
-        fruit_to_remember = config['fruit_to_remember']
         # fruit not remembering
-        all_fruit = config['fruit']
-        all_fruit.insert(0, fruit_to_remember)
-        num_fruit = config['num_fruit']
+        all_fruit = self.config['fruit']
+        all_fruit.insert(0, self.config['fruit_to_remember'])
+        num_fruit = self.config['num_fruit']
         num_fruit.insert(0, 1)
         num_fruit_dict = dict(zip(all_fruit, num_fruit))
         self.fruit_models.create_fruit(num_fruit_dict)

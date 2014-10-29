@@ -348,8 +348,12 @@ class GoBananas:
 
     def close(self, inputEvent):
         if self.eye_task:
-            self.eye_task.StopTask()
-            self.eye_task.ClearTask()
+            self.eye_task.close()
+        if self.send_events:
+            self.send_events.close()
+            self.send_strobe.close()
+        if self.reward:
+            self.reward.close()
         Experiment.getInstance().stop()
 
 if __name__ == '__main__':

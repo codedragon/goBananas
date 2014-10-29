@@ -59,7 +59,7 @@ repeat_number = 3
 crosshair = False
 
 # for activating reward system
-pulseInterval = 200  # in ms
+pulseInterval = 0.200  # in s
 
 # eye position calibration information
 # since we are getting voltage from IScan of -5:5
