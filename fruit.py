@@ -1,5 +1,5 @@
 from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
-from panda3d.core import Point3, CollisionNode, CollisionSphere
+from panda3d.core import Point3, CollisionNode, CollisionSphere, TransparencyAttrib
 from load_models import load_models, get_model
 import moBananas as mB
 import os
@@ -19,10 +19,12 @@ class Fruit():
         # fruit not remembering
         self.all_fruit = config['fruit']  # list of fruit
         self.num_fruit = config['num_fruit']  # list corresponding to list above
+        self.repeat_recall = False
 
         if self.fruit_to_remember:
             self.all_fruit.insert(0, self.fruit_to_remember)
             self.num_fruit.insert(0, 1)
+            self.repeat_recall = config['repeat_recall_fruit']
 
         # for repeating a particular configuration
         self.repeat = config['fruit_repeat']
@@ -130,17 +132,23 @@ class Fruit():
         # if repeat is 'repeat', use saved configuration
         # if repeat is 'new' save the configuration creating now
         pos_list = []
-        if repeat == 'repeat':
-            pos_list = self.pos_list
+        if repeat == 'recall' and not self.pos_list:
+            repeat = 'new'
+        if repeat == 'repeat' or repeat == 'recall':
+            old_list = self.pos_list
         #print pos_list
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         # print 'avatar pos', avatarXY
         for fruit, index in self.index_fruit_dict.iteritems():
-            #print fruit, index
+            print fruit, index
             #print pos_list
             if repeat == 'repeat':
-                (x, y) = pos_list[index]
+                (x, y) = old_list[index]
+            elif repeat == 'recall' and fruit == self.fruit_to_remember:
+                #print 'only repeating the fruit to remember'
+                (x, y) = old_list[index]
+                pos_list.append((x, y))
             else:
                 (x, y) = mB.set_xy(pos_list, avatarXY)
                 pos_list.append((x, y))
@@ -150,7 +158,7 @@ class Fruit():
             # add to our list
             self.fruit_list.append(fruit)
         #print self.fruit_list
-        #print pos_list
+        print pos_list
 
         if repeat == 'new':
             print 'save new'
@@ -242,6 +250,19 @@ class Fruit():
         #print self.stashed
         return find_banana_loc
 
+    def flash_recall(self, flash):
+        # flash the fruit subject was suppose to find, but didn't,
+        # flash is true or false, depending on whether we are turning it on or off,
+        # makes more sense for true to turn on fruit and false turn off, so invert signal
+        # Do I need to somehow turn off callback during flash? Depends on how fast the flash, I think.
+        print('flash ', flash)
+        self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].setStashed(not flash)
+        fruit_node_path = self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].retrNodePath()
+        fruit_node_path.setTransparency(TransparencyAttrib.MAlpha)
+        fruit_node_path.setAlphaScale(0.5)
+        print self.index_fruit_dict[self.fruit_to_remember]
+        print self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].getPos()
+
     def setup_trial(self, trial_num):
         # trials are set up the same, whether showing fruit sequentially or all at once.
         print('trial number', trial_num)
@@ -268,7 +289,10 @@ class Fruit():
             else:
                 self.setup_fruit_for_trial()
         else:
-            self.setup_fruit_for_trial()
+            if self.repeat_recall:
+                self.setup_fruit_for_trial('recall')
+            else:
+                self.setup_fruit_for_trial()
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
 
     def replenish_stashed_fruit(self):
