@@ -682,7 +682,8 @@ class TrainingBananas(JoystickHandler):
         print 'increase angle'
         #print('old pos', self.avatar_h)
         #self.avatar_h[0] = self.avatar_h[0] * 1.5
-        self.avatar_h *= 1.5
+        #self.avatar_h *= 1.5
+        self.avatar_h *= 1.1
         #print('would be', self.avatar_h)
         if abs(self.avatar_h) > self.max_angle:
             self.avatar_h = self.multiplier * self.max_angle
@@ -698,7 +699,8 @@ class TrainingBananas(JoystickHandler):
     def dec_angle(self):
         print 'decrease angle'
         #print('old pos', self.avatar_h)
-        self.avatar_h /= 1.5
+        #self.avatar_h /= 1.5
+        self.avatar_h /= 1.1
         if abs(self.avatar_h) < self.min_angle:
             self.avatar_h = self.multiplier * self.min_angle
         #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
@@ -880,7 +882,8 @@ class TrainingBananas(JoystickHandler):
     def reset_variables(self):
         self.base.taskMgr.remove("frame_loop")
         # set/reset to the original state of variables
-        self.max_angle = 26
+        #self.max_angle = 26
+        self.max_angle = 40
         self.min_angle = 1.5
         self.delay_start = False
         self.yay_reward = False
