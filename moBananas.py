@@ -10,7 +10,7 @@ def distance(p0, p1):
     """
     (tuple, tuple) -> float
     Returns the distance between 2 points. p0 is a tuple with (x, y)
-    and p1 is a tuple with (x1, y1)
+    and p1 is a tuple with (x1, y1), works with negative points
     """
     dist = sqrt((float(p0[0]) - float(p1[0]))**2 + (float(p0[1]) - float(p1[1]))**2)
     return dist
@@ -70,10 +70,25 @@ def get_circle_point(radius):
     return x, y
 
 
-def get_sub_area(key_code, dimensions):
-    # dimensions is a  tuple (minX, minY, maxX, maxY)
-    minX, minY, maxX, maxY = dimensions
+def create_sub_areas(dimensions):
+    # dimensions is a tuple (min_x, maxX, min_y, maxY)
+    min_x, min_y, max_x, max_y = dimensions
     # distances for x and y in new sections
-    x_distance = distance((minX, minY), (maxX, minY)) / 3
-    y_distance = distance((minX, minY), (minX, maxY)) / 3
-    sub_area{1: }
+    x_distance = distance((min_x, min_y), (max_x, min_y)) / 3
+    y_distance = distance((min_x, min_y), (min_x, max_y)) / 3
+    # 7, 8, 9
+    # 4, 5, 6
+    # 1, 2, 3
+    # returns a dictionary where each number represents a section
+    # of the field: (min_x, min_y, max_x, max_y)
+    sub_areas = {1: (min_x, min_x + x_distance, min_y, min_y + y_distance),
+                 2: (min_x + x_distance, min_x + 2 * x_distance, min_y, min_y + y_distance),
+                 3: (min_x + 2 * x_distance, min_x + 3 * x_distance, min_y, min_y + y_distance),
+                 4: (min_x, min_x + 2 * x_distance, min_y + y_distance, min_y + 2 * y_distance),
+                 5: (min_x + x_distance, min_x + 2 * x_distance, min_y + y_distance, min_y + 2 * y_distance),
+                 6: (min_x + x_distance, min_x + 2 * x_distance, min_y + y_distance, min_y + 2 * y_distance),
+                 7: (min_x, min_x + x_distance, min_y + 2 * 2 * y_distance, min_y + 3 * y_distance),
+                 8: (min_x + x_distance, min_x + 2 * x_distance, min_y + 2 * y_distance, min_y + 3 * y_distance),
+                 9: (min_x + 2 * x_distance, min_x + 3 * x_distance, min_y + 2 * y_distance, min_y + 3 * y_distance),
+                 }
+    return sub_areas

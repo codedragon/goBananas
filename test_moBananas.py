@@ -153,5 +153,18 @@ class MoBananasTests(unittest.TestCase):
             #print pList
             #print len(pList)
 
+    def test_create_sub_areas(self):
+        min_and_max = mb.create_sub_areas((0, 3, 9, 12))
+        print min_and_max
+        self.assertTrue(min_and_max == {1: (0, 3, 3, 6),
+                                        2: (3, 6, 3, 6),
+                                        3: (6, 9, 3, 6),
+                                        4: (0, 3, 6, 9),
+                                        5: (3, 6, 6, 9),
+                                        6: (6, 9, 6, 9),
+                                        7: (0, 3, 9, 12),
+                                        8: (3, 6, 9, 12),
+                                        9: (6, 9, 9, 12)})
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
