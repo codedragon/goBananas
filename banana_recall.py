@@ -123,8 +123,8 @@ class BananaRecall:
         vr.inputListen("increase_reward", self.increase_reward)
         vr.inputListen("decrease_reward", self.decrease_reward)
         vr.inputListen("extra_reward", self.extra_reward)
-        vr.inputListen("restart", self.restart)
         vr.inputListen("NewTrial", self.new_trial)
+
         # set up task to be performed between frames, checks at interval of pump
         #vr.addTask(Task("checkReward",
         #                lambda taskInfo:
@@ -340,10 +340,6 @@ class BananaRecall:
 
     def decrease_reward(self, inputEvent):
         self.numBeeps -= 1
-
-    def restart(self, inputEvent):
-        #print 'restarted'
-        self.fruit_models.replenish_stashed_fruit()
 
     def extra_reward(self, inputEvent):
         #print 'yup'

@@ -121,9 +121,14 @@ distance_goal = 3
 repeat_recall_fruit = False  # can be toggled with key
 time_to_recall = 10  # number of seconds to get to remembered location
 time_to_flash = 10  # number of seconds to flash fruit, zero for no flashing
-# how close is too close together? Keep in mind that the distance is between the centers, but
+# for training, fruit_to_remember location can be limited to a small area of the courtyard
+# (areas arranged same as numbers on keypad)
+subarea = 0  # this is the starting spot, can be changed by a keypress later on
+
+
+# how close is too close together for fruit and avatar? Keep in mind that the distance is between the centers, but
 # when you run into a fruit, you are not at the center, so could be closer than tooClose at that point
-# Therefor, Too close should be at least as ar as the distance goal + 0.5
+# Therefor, Too close should be at least 1
 tooClose = 1  # 1
 
 # Banana Positions
@@ -141,7 +146,7 @@ bananaLoc = [Point3(5, 3, 1), Point3(5.5, 3, 1)]
 bananaScale = 0.5
 bananaH = 0
 
-# used for placing bananas in cicular environment
+# used for placing bananas in circular environment
 radius = 14
 
 # (Non-default) command keys.

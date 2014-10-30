@@ -12,34 +12,35 @@ class Fruit():
 
         # Do all of this prior to calling class, send in two lists,
         # fruit_types and num_fruit_types
+        self.config = config
 
-        # fruit to remember, if remembering
-        self.fruit_to_remember = config['fruit_to_remember']
+        # if this is not a sequential memory task, this might not be set
+        self.config.setdefault('fruit_to_remember', False)
 
-        # fruit not remembering
+        # fruit not remembering - these will be adjusted, so make into variables
         self.all_fruit = config['fruit']  # list of fruit
         self.num_fruit = config['num_fruit']  # list corresponding to list above
         self.repeat_recall = False
 
-        if self.fruit_to_remember:
-            self.all_fruit.insert(0, self.fruit_to_remember)
+        if self.config['fruit_to_remember']:
+            self.all_fruit.insert(0, self.config['fruit_to_remember'])
             self.num_fruit.insert(0, 1)
+            # bring this into a variable, so we can toggle it.
             self.repeat_recall = config['repeat_recall_fruit']
 
         # for repeating a particular configuration
-        self.repeat = config['fruit_repeat']
-        self.repeat_number = config['repeat_number']
+        self.repeat = config['fruit_repeat']  # true or false
+        self.repeat_number = config['repeat_number']  # how often to repeat
         if self.repeat:
-            self.now_repeat = random.choice(range(self.repeat_number))
+            self.now_repeat = random.choice(range(self.repeat_number))  # choose which trial we are repeating
             print('collect fruit positions from trial', self.now_repeat)
-            self.repeat = self.now_repeat
+            self.repeat = self.now_repeat  # remember which trial we have repeated
         else:
-            self.now_repeat = None
-        self.manual = config['manual']
+            self.now_repeat = None  # never repeat
 
         # index_fruit_dict keeps track of which index number in the fruit_model list corresponds to which
         # name/model, because this is easier than running a for loop every time to find the one
-        # we want
+        # we want. What if I just put the models in a dictionary in the first place? Hmmm...
         self.index_fruit_dict = {}
         # num_fruit dict tells us how many of each fruit we will be showing
         self.num_fruit_dict = {}
@@ -74,7 +75,7 @@ class Fruit():
                 name = item.name + "%03d" % i
                 # differentiate the fruit we are remembering, if we are doing
                 # recall_banana task
-                if self.fruit_to_remember and item.name == self.fruit_to_remember:
+                if self.config['fruit_to_remember'] and item.name == self.config['fruit_to_remember']:
                     name = item.name
                 #print name
                 # create actual model
@@ -125,6 +126,38 @@ class Fruit():
         self.fruit_models.append(model)
         return model.name
 
+    def setup_trial(self, trial_num):
+        # trials are set up the same, whether showing fruit sequentially or all at once.
+        print('trial number', trial_num)
+        print('trial number to be repeated', self.repeat)
+        if self.repeat:
+            # first check to see if we are choosing a new trial number for repeat.
+            if trial_num > 0 and trial_num % self.repeat_number == 0:
+                # time to choose the next trial that will be a repeat,
+                # choose a number from 0 to repeat number and add it to this trial number
+                self.now_repeat = trial_num + random.choice(range(self.repeat_number))
+                print('chose trial', self.now_repeat)
+            # if we are on a now_repeat trial, and now the trial number is less than repeat number,
+            # it is the first one and we are collecting
+            if trial_num == self.repeat:
+                # self.repeat is the trial number for collecting positions
+                print 'collecting positions for repeat'
+                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
+                self.setup_fruit_for_trial('new')
+            elif trial_num == self.now_repeat:
+                # and now we are repeating
+                print 'repeat'
+                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
+                self.setup_fruit_for_trial('repeat')
+            else:
+                self.setup_fruit_for_trial()
+        else:
+            if self.repeat_recall:
+                self.setup_fruit_for_trial('recall')
+            else:
+                self.setup_fruit_for_trial()
+        VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
+
     def setup_fruit_for_trial(self, repeat=None):
         # calculate positions for fruit
         #print('fruit_list', self.fruit_list)
@@ -145,7 +178,7 @@ class Fruit():
             #print pos_list
             if repeat == 'repeat':
                 (x, y) = old_list[index]
-            elif repeat == 'recall' and fruit == self.fruit_to_remember:
+            elif repeat == 'recall' and fruit == self.config['fruit_to_remember']:
                 #print 'only repeating the fruit to remember'
                 (x, y) = old_list[index]
                 pos_list.append((x, y))
@@ -169,9 +202,9 @@ class Fruit():
     def make_fruit_visible(self, index):
         # if task is remembering fruit,
         # make all fruit except one to be remembered not-visible
-        if self.fruit_to_remember:
+        if self.config['fruit_to_remember']:
             self.fruit_models[index].setStashed(True)
-            if self.fruit_models[index].name == self.fruit_to_remember:
+            if self.fruit_models[index].name == self.config['fruit_to_remember']:
                 self.fruit_models[index].setStashed(False)
         else:
             self.fruit_models[index].setStashed(False)
@@ -256,44 +289,12 @@ class Fruit():
         # makes more sense for true to turn on fruit and false turn off, so invert signal
         # Do I need to somehow turn off callback during flash? Depends on how fast the flash, I think.
         print('flash ', flash)
-        self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].setStashed(not flash)
-        fruit_node_path = self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].retrNodePath()
+        self.fruit_models[self.index_fruit_dict[self.config['fruit_to_remember']]].setStashed(not flash)
+        fruit_node_path = self.fruit_models[self.index_fruit_dict[self.config['fruit_to_remember']]].retrNodePath()
         fruit_node_path.setTransparency(TransparencyAttrib.MAlpha)
         fruit_node_path.setAlphaScale(0.5)
-        print self.index_fruit_dict[self.fruit_to_remember]
-        print self.fruit_models[self.index_fruit_dict[self.fruit_to_remember]].getPos()
-
-    def setup_trial(self, trial_num):
-        # trials are set up the same, whether showing fruit sequentially or all at once.
-        print('trial number', trial_num)
-        print('trial number to be repeated', self.repeat)
-        if self.repeat:
-            # first check to see if we are choosing a new trial number for repeat.
-            if trial_num > 0 and trial_num % self.repeat_number == 0:
-                # time to choose the next trial that will be a repeat,
-                # choose a number from 0 to repeat number and add it to this trial number
-                self.now_repeat = trial_num + random.choice(range(self.repeat_number))
-                print('chose trial', self.now_repeat)
-            # if we are on a now_repeat trial, and now the trial number is less than repeat number,
-            # it is the first one and we are collecting
-            if trial_num == self.repeat:
-                # self.repeat is the trial number for collecting positions
-                print 'collecting positions for repeat'
-                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
-                self.setup_fruit_for_trial('new')
-            elif trial_num == self.now_repeat:
-                # and now we are repeating
-                print 'repeat'
-                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
-                self.setup_fruit_for_trial('repeat')
-            else:
-                self.setup_fruit_for_trial()
-        else:
-            if self.repeat_recall:
-                self.setup_fruit_for_trial('recall')
-            else:
-                self.setup_fruit_for_trial()
-        VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
+        print self.index_fruit_dict[self.config['fruit_to_remember']]
+        print self.fruit_models[self.index_fruit_dict[self.config['fruit_to_remember']]].getPos()
 
     def replenish_stashed_fruit(self):
         # for showing fruit all at once, if bananas stashed, get new positions and show them again

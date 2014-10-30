@@ -68,3 +68,12 @@ def get_circle_point(radius):
     if distance((x, y), (0, 0)) > radius:
         x, y = get_circle_point(radius)
     return x, y
+
+
+def get_sub_area(key_code, dimensions):
+    # dimensions is a  tuple (minX, minY, maxX, maxY)
+    minX, minY, maxX, maxY = dimensions
+    # distances for x and y in new sections
+    x_distance = distance((minX, minY), (maxX, minY)) / 3
+    y_distance = distance((minX, minY), (minX, maxY)) / 3
+    sub_area{1: }
