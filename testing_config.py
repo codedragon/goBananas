@@ -118,10 +118,10 @@ bananaScale = .6
 tooClose = 1  # 1
 
 # Banana Positions
-minXDistance = -10
-maxXDistance = 10
-minYDistance = -10
-maxYDistance = 10
+min_x = -10
+max_x = 10
+min_y = -10
+max_y = 10
 
 # Load 2 bananas for testing, know where they are!
 # (no effect if manual False)

@@ -5,6 +5,7 @@ from panda3d.core import TextNode
 from load_models import PlaceModels, load_models
 from fruit import Fruit
 from math import sqrt
+from moBananas import get_distance
 import datetime
 import time
 import sys
@@ -18,17 +19,6 @@ try:
 except ImportError:
     LOADED_PYDAQ = False
     print 'Not using PyDaq'
-
-
-def get_distance(p0, p1):
-    """
-    (tuple, tuple) -> float
-    Returns the distance between 2 points. p0 is a tuple with (x, y)
-    and p1 is a tuple with (x1, y1)
-    :rtype : tuple
-    """
-    dist = sqrt((float(p0[0]) - float(p1[0])) ** 2 + (float(p0[1]) - float(p1[1])) ** 2)
-    return dist
 
 
 def check_timer(timer, goal):
@@ -112,18 +102,26 @@ class BananaRecall:
         Log.getInstance().addType("EyeData",
                                   [("X", float), ("Y", float)],
                                   False)
-        self.fruit_models = None
+        self.fruit = None
         # initialize trial number
         self.trial_num = 0
         # Handle keyboard events
-        vr.inputListen('toggleDebug',
-                       lambda inputEvent:
-                       Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
         vr.inputListen('close', self.close)
         vr.inputListen("increase_reward", self.increase_reward)
         vr.inputListen("decrease_reward", self.decrease_reward)
         vr.inputListen("extra_reward", self.extra_reward)
+        vr.inputListen("toggle_random", self.toggle_random)
         vr.inputListen("NewTrial", self.new_trial)
+        vr.inputListen("subarea_1", self.change_subarea)
+        vr.inputListen("subarea_2", self.change_subarea)
+        vr.inputListen("subarea_3", self.change_subarea)
+        vr.inputListen("subarea_4", self.change_subarea)
+        vr.inputListen("subarea_5", self.change_subarea)
+        vr.inputListen("subarea_6", self.change_subarea)
+        vr.inputListen("subarea_7", self.change_subarea)
+        vr.inputListen("subarea_8", self.change_subarea)
+        vr.inputListen("subarea_9", self.change_subarea)
+        vr.inputListen("subarea_0", self.change_subarea)
 
         # set up task to be performed between frames, checks at interval of pump
         #vr.addTask(Task("checkReward",
@@ -194,7 +192,7 @@ class BananaRecall:
         if self.reward_timer:
             if check_timer(self.reward_timer, self.config['pulseInterval']):
                 self.reward_timer = 0
-        elif self.fruit_models.beeps >= 0:
+        elif self.fruit.beeps >= 0:
             # we should give reward, since there is currently no reward timer going
             self.give_reward()
 
@@ -203,33 +201,33 @@ class BananaRecall:
         if self.reward:
             self.reward.pumpOut()
         else:
-            print('beep', self.fruit_models.beeps)
+            print('beep', self.fruit.beeps)
         # now set reward timer
         self.reward_timer = time.clock()
         # if this is first reward, log that
-        if self.fruit_models.beeps == 0:
-            VLQ.getInstance().writeLine("Yummy", [self.fruit_models.current_fruit])
-            #print('logged', self.fruit_models.byeBanana)
-            #print('fruit pos', self.fruit_models.fruitModels[int(self.fruit_models.byeBanana[-2:])].getPos())
+        if self.fruit.beeps == 0:
+            VLQ.getInstance().writeLine("Yummy", [self.fruit.current_fruit])
+            #print('logged', self.fruit.byeBanana)
+            #print('fruit pos', self.fruit.fruitModels[int(self.fruit.byeBanana[-2:])].getPos())
             if self.daq_events:
                 self.daq_events.send_signal(200)
                 self.daq_strobe.send_signal()
         # log which reward we are on
-        VLQ.getInstance().writeLine('Beeps', [int(self.fruit_models.beeps)])
+        VLQ.getInstance().writeLine('Beeps', [int(self.fruit.beeps)])
         if self.daq_events:
             self.daq_events.send_signal(201)
             self.daq_strobe.send_signal()
         # increment reward
-        self.fruit_models.beeps += 1
+        self.fruit.beeps += 1
         # if that was last reward
-        if self.fruit_models.beeps == self.numBeeps:
+        if self.fruit.beeps == self.numBeeps:
             print 'last reward'
             # if fruit visible, fruit disappears, otherwise new trial
             if self.remembered_location:
                 self.new_trial()
             else:
-                self.fruit_models.disappear_fruit()
-                self.remember_fruit = self.fruit_models.get_next_fruit()
+                self.fruit.disappear_fruit()
+                self.remember_fruit = self.fruit.get_next_fruit()
                 print('remember_fruit', self.remember_fruit)
                 self.recall_timer = time.clock()
             self.remembered_location = False
@@ -240,12 +238,12 @@ class BananaRecall:
             Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
             Avatar.getInstance().setMaxForwardSpeed(self.config['fullForwardSpeed'])
             # reward is over
-            self.fruit_models.beeps = None
+            self.fruit.beeps = None
 
     def check_distance_to_fruit(self):
         avatar = Avatar.getInstance()
         avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
-        banana = self.fruit_models.fruit_models[self.fruit_models.index_fruit_dict[self.fruit_models.fruit_to_remember]]
+        banana = self.fruit.fruit_models[self.fruit.index_fruit_dict[self.config['fruit_to_remember']]]
         banana_pos = (banana.getPos()[0], banana.getPos()[1])
         dist_to_banana = get_distance(avatar_pos, banana_pos)
         return dist_to_banana
@@ -257,7 +255,7 @@ class BananaRecall:
         # no longer checking location
         self.remember_fruit = False
         # start giving reward
-        self.fruit_models.beeps = 0
+        self.fruit.beeps = 0
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
@@ -276,7 +274,7 @@ class BananaRecall:
     def send_new_trial_daq(self):
         self.daq_events.send_signal(1000 + self.trial_num)
         self.daq_strobe.send_signal()
-        for i in self.fruit_models.fruitModels:
+        for i in self.fruit.fruitModels:
             # can't send negative numbers or decimals, so
             # need to translate the numbers
             # print i.getPos()
@@ -287,10 +285,10 @@ class BananaRecall:
             self.daq_strobe.send_signal()
             self.daq_events.send_signal(translate_b[1])
             self.daq_strobe.send_signal()
-        if self.fruit_models.repeat:
+        if self.fruit.repeat:
             self.daq_events.send_signal(300)
             self.daq_strobe.send_signal()
-            self.daq_events.send_signal(self.fruit_models.now_repeat)
+            self.daq_events.send_signal(self.fruit.now_repeat)
             self.daq_strobe.send_signal()
 
     def new_trial(self):
@@ -299,10 +297,10 @@ class BananaRecall:
         self.remember_fruit = False
         # stop flash, if flashing
         if self.flash_timer:
-            self.fruit_models.flash_recall(False)
+            self.fruit.flash_recall(False)
             self.flash_timer = 0
         self.trial_num += 1
-        self.fruit_models.setup_trial(self.trial_num)
+        self.fruit.setup_trial(self.trial_num)
         print('new trial', self.trial_num)
         if self.daq_events:
             self.send_new_trial_daq()
@@ -332,19 +330,32 @@ class BananaRecall:
     def flash_fruit(self):
         print 'flash fruit'
         # flash where banana was, turn on timer for flash
-        self.fruit_models.flash_recall(True)
+        self.fruit.flash_recall(True)
         self.flash_timer = time.clock()
 
-    def increase_reward(self, inputEvent):
+    def increase_reward(self, input_event):
         self.numBeeps += 1
 
-    def decrease_reward(self, inputEvent):
+    def decrease_reward(self, input_event):
         self.numBeeps -= 1
 
-    def extra_reward(self, inputEvent):
+    def extra_reward(self, input_event):
         #print 'yup'
         if self.reward:
             self.reward.pumpOut()
+
+    def toggle_random(self, input_event):
+        # toggle random
+        self.fruit.repeat_recall = not self.fruit.repeat_recall
+
+    def change_subarea(self, input_event):
+        print('change subarea')
+        print input_event
+        print input_event.eventName
+        print input_event.eventName[-1]
+        # get rid of old location, since setting new one
+        self.fruit.pos_list = []
+        self.fruit.create_subarea_dict(int(input_event.eventName[-1]))
 
     def start(self):
         """
@@ -352,15 +363,15 @@ class BananaRecall:
         """
         # Load environment
         self.load_environment()
-        self.fruit_models = Fruit(self.config)
-        print self.fruit_models
+        self.fruit = Fruit(self.config)
+        print self.fruit
         # fruit not remembering
         all_fruit = self.config['fruit']
         all_fruit.insert(0, self.config['fruit_to_remember'])
         num_fruit = self.config['num_fruit']
         num_fruit.insert(0, 1)
         num_fruit_dict = dict(zip(all_fruit, num_fruit))
-        self.fruit_models.create_fruit(num_fruit_dict)
+        self.fruit.create_fruit(num_fruit_dict)
         self.new_trial()
         #print 'start'
         Experiment.getInstance().start()

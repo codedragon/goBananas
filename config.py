@@ -20,7 +20,8 @@ remember_manual = False
 
 # environ types available:
 # 'original', 'circle'
-environ = 'circle'
+#environ = 'circle'
+environ = 'original'
 
 # Are we giving rewards?
 reward = True
@@ -109,7 +110,7 @@ instructSeeAll = False
 # Experiment-specific settings
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
 fruit = ['plum']
-num_fruit = [2]
+num_fruit = [1]
 #fruit = ['old_banana', 'plum']  # the fruit_to_remember should NOT be part of this list
 #num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
 
@@ -118,11 +119,11 @@ fruit_to_remember = 'banana'
 #fruit_to_remember = None
 # how close to remembered location to get reward?
 distance_goal = 3
-repeat_recall_fruit = False  # can be toggled with key
+repeat_recall_fruit = False  # can be toggled with key, repeats location
 time_to_recall = 10  # number of seconds to get to remembered location
 time_to_flash = 10  # number of seconds to flash fruit, zero for no flashing
 # for training, fruit_to_remember location can be limited to a small area of the courtyard
-# (areas arranged same as numbers on keypad)
+# (areas arranged same as numbers on keypad), zero means can be anywhere
 subarea = 0  # this is the starting spot, can be changed by a keypress later on
 
 
@@ -132,10 +133,10 @@ subarea = 0  # this is the starting spot, can be changed by a keypress later on
 tooClose = 1  # 1
 
 # Banana Positions
-minXDistance = -10
-maxXDistance = 10
-minYDistance = -10
-maxYDistance = 10
+min_x = -10
+max_x = 10
+min_y = -10
+max_y = 10
 
 # Load bananas for testing, know where they are!
 # theoretically can load as many as you want, but
@@ -154,11 +155,17 @@ radius = 14
 if 'Keyboard' in globals():
     keyboard = Keyboard.Keyboard.getInstance()
     keyboard.bind("close", ["escape", "q"])
-    keyboard.bind("restart", "y")
-    keyboard.bind("toggleDebug", ["escape", "d"])
     keyboard.bind("increase_reward", "w")
     keyboard.bind("decrease_reward", "s")
-    keyboard.bind("increaseBananas", "e")
-    keyboard.bind("decreaseBananas", "d")
     keyboard.bind("extra_reward", "space")
-    keyboard.bind("toggle_recall", "r")
+    keyboard.bind("toggle_random", "r")
+    keyboard.bind("subarea_1", "1")
+    keyboard.bind("subarea_2", "2")
+    keyboard.bind("subarea_3", "3")
+    keyboard.bind("subarea_4", "4")
+    keyboard.bind("subarea_5", "5")
+    keyboard.bind("subarea_6", "6")
+    keyboard.bind("subarea_7", "7")
+    keyboard.bind("subarea_8", "8")
+    keyboard.bind("subarea_9", "9")
+    keyboard.bind("subarea_0", "0")

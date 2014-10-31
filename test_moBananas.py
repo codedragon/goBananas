@@ -11,7 +11,7 @@ class MoBananasTests(unittest.TestCase):
         p0 = (8, 4)
         p1 = (9, 5)
         dist = 1.4142135623730951
-        self.assertEquals(mb.distance(p0, p1), dist)
+        self.assertEquals(mb.get_distance(p0, p1), dist)
 
     def test_distance_with_negative(self):
         """
@@ -20,8 +20,8 @@ class MoBananasTests(unittest.TestCase):
         p0 = (-2, -3)
         p1 = (-4, 4)
         dist = 7.28
-        #print mb.distance(p0, p1)
-        self.assertAlmostEqual(mb.distance(p0, p1), dist, 2)
+        #print mb.get_distance(p0, p1)
+        self.assertAlmostEqual(mb.get_distance(p0, p1), dist, 2)
 
     def test_set_xy_no_pList(self):
         """
@@ -29,14 +29,14 @@ class MoBananasTests(unittest.TestCase):
         away from points already on the list
         """
         pList = []
-        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'minXDistance': -10, 'maxXDistance': 10,
-                  'minYDistance': -10, 'maxYDistance': 10, 'environ': 'original'}
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
+                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
         avatar = (0, 0)
         p0 = mb.set_xy(pList, avatar, config)
         #print p0
         for p in pList:
             #print p
-            dist = mb.distance(p0, p)
+            dist = mb.get_distance(p0, p)
             #print dist
             self.assertTrue(dist > 0.5)
 
@@ -48,7 +48,7 @@ class MoBananasTests(unittest.TestCase):
         for i in range(30):
             (x, y) = mb.set_xy(pList, avatar, config)
             #print 'new point', p0
-            dist = mb.distance((x, y), (0, 0))
+            dist = mb.get_distance((x, y), (0, 0))
             self.assertTrue(dist < config['radius'])
             pList += [(x, y)]
 
@@ -58,14 +58,14 @@ class MoBananasTests(unittest.TestCase):
         away from points already on the list
         """
         pList = [(4.3, 5.2)]
-        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'minXDistance': -10, 'maxXDistance': 10,
-                  'minYDistance': -10, 'maxYDistance': 10, 'environ': 'original'}
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
+                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
         avatar = (0, 0)
         p0 = mb.set_xy(pList, avatar, config)
         #print p0
         for p in pList:
             #print p
-            dist = mb.distance(p0, p)
+            dist = mb.get_distance(p0, p)
             #print dist
             self.assertTrue(dist > 0.5)
 
@@ -75,14 +75,14 @@ class MoBananasTests(unittest.TestCase):
         away from points already on the list
         """
         pList = []
-        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'minXDistance': -10, 'maxXDistance': 10,
-                  'minYDistance': -10, 'maxYDistance': 10, 'environ': 'original'}
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
+                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
         avatar = (0, 0)
         for i in range(30):
             (x, y) = mb.set_xy(pList, avatar, config)
             #print 'new point', p0
             for p in pList:
-                dist = mb.distance((x, y), p)
+                dist = mb.get_distance((x, y), p)
                 self.assertTrue(dist >= 0.5)
             pList += [(x, y)]
             #print pList
@@ -95,13 +95,13 @@ class MoBananasTests(unittest.TestCase):
         """
         origin = (0, 0)
         pList = []
-        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'minXDistance': -10, 'maxXDistance': 10,
-                  'minYDistance': -10, 'maxYDistance': 10, 'environ': 'original'}
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
+                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
         avatar = (0, 0)
         avatar_min_dist = config['avatarRadius'] * 2
         for i in range(50):
             (x, y) = mb.set_xy(pList, avatar, config)
-            dist = mb.distance((x, y), origin)
+            dist = mb.get_distance((x, y), origin)
             self.assertTrue(dist >= avatar_min_dist)
             pList += [(x, y)]
             #print pList
@@ -114,12 +114,12 @@ class MoBananasTests(unittest.TestCase):
         """
         avatar = (2, -2)
         pList = []
-        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'minXDistance': -10, 'maxXDistance': 10,
-                  'minYDistance': -10, 'maxYDistance': 10, 'environ': 'original'}
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
+                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
         avatar_min_dist = config['avatarRadius'] * 2
         for i in range(50):
             (x, y) = mb.set_xy(pList, avatar, config)
-            dist = mb.distance((x, y), avatar)
+            dist = mb.get_distance((x, y), avatar)
             self.assertTrue(dist >= avatar_min_dist)
             pList += [(x, y)]
             #print pList
@@ -147,24 +147,25 @@ class MoBananasTests(unittest.TestCase):
             numBananas = 20
         for i in range(numBananas):
             (x, y) = mb.set_xy(pList, avatar, config)
-            dist = mb.distance((x, y), avatar)
+            dist = mb.get_distance((x, y), avatar)
             self.assertTrue(dist >= avatar_min_dist)
             pList += [(x, y)]
             #print pList
             #print len(pList)
 
     def test_create_sub_areas(self):
-        min_and_max = mb.create_sub_areas((0, 3, 9, 12))
+        my_dict = {'min_x': 0, 'max_x': 9, 'min_y': 3, 'max_y': 12}
+        min_and_max = mb.create_sub_areas(my_dict)
         print min_and_max
-        self.assertTrue(min_and_max == {1: (0, 3, 3, 6),
-                                        2: (3, 6, 3, 6),
-                                        3: (6, 9, 3, 6),
-                                        4: (0, 3, 6, 9),
-                                        5: (3, 6, 6, 9),
-                                        6: (6, 9, 6, 9),
-                                        7: (0, 3, 9, 12),
-                                        8: (3, 6, 9, 12),
-                                        9: (6, 9, 9, 12)})
+        self.assertTrue(min_and_max == {1: {'min_x': 0, 'max_x': 3, 'min_y': 3, 'max_y': 6},
+                                        2: {'min_x': 3, 'max_x': 6, 'min_y': 3, 'max_y': 6},
+                                        3: {'min_x': 6, 'max_x': 9, 'min_y': 3, 'max_y': 6},
+                                        4: {'min_x': 0, 'max_x': 3, 'min_y': 6, 'max_y': 9},
+                                        5: {'min_x': 3, 'max_x': 6, 'min_y': 6, 'max_y': 9},
+                                        6: {'min_x': 6, 'max_x': 9, 'min_y': 6, 'max_y': 9},
+                                        7: {'min_x': 0, 'max_x': 3, 'min_y': 9, 'max_y': 12},
+                                        8: {'min_x': 3, 'max_x': 6, 'min_y': 9, 'max_y': 12},
+                                        9: {'min_x': 6, 'max_x': 9, 'min_y': 9, 'max_y': 12}})
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
