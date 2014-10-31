@@ -1,3 +1,4 @@
+from __future__ import division
 from math import sqrt
 import random
 """ Functions for bananas that don't need PandaEPL, so can actually be tested reasonably!
@@ -71,11 +72,13 @@ def get_circle_point(radius):
 
 
 def create_sub_areas(dimensions):
-    # dimensions is a tuple (min_x, maxX, min_y, maxY)
-    min_x, min_y, max_x, max_y = dimensions
+    # dimensions is a tuple (min_x, max_x, min_y, max_y)
+    min_x, max_x, min_y, max_y = [float(x) for x in dimensions]
     # distances for x and y in new sections
     x_distance = distance((min_x, min_y), (max_x, min_y)) / 3
+    print x_distance
     y_distance = distance((min_x, min_y), (min_x, max_y)) / 3
+    print y_distance
     # 7, 8, 9
     # 4, 5, 6
     # 1, 2, 3
@@ -84,11 +87,21 @@ def create_sub_areas(dimensions):
     sub_areas = {1: (min_x, min_x + x_distance, min_y, min_y + y_distance),
                  2: (min_x + x_distance, min_x + 2 * x_distance, min_y, min_y + y_distance),
                  3: (min_x + 2 * x_distance, min_x + 3 * x_distance, min_y, min_y + y_distance),
-                 4: (min_x, min_x + 2 * x_distance, min_y + y_distance, min_y + 2 * y_distance),
+                 4: (min_x, min_x + x_distance, min_y + y_distance, min_y + 2 * y_distance),
                  5: (min_x + x_distance, min_x + 2 * x_distance, min_y + y_distance, min_y + 2 * y_distance),
-                 6: (min_x + x_distance, min_x + 2 * x_distance, min_y + y_distance, min_y + 2 * y_distance),
-                 7: (min_x, min_x + x_distance, min_y + 2 * 2 * y_distance, min_y + 3 * y_distance),
+                 6: (min_x + 2 * x_distance, min_x + 3 * x_distance, min_y + y_distance, min_y + 2 * y_distance),
+                 7: (min_x, min_x + x_distance, min_y + 2 * y_distance, min_y + 3 * y_distance),
                  8: (min_x + x_distance, min_x + 2 * x_distance, min_y + 2 * y_distance, min_y + 3 * y_distance),
                  9: (min_x + 2 * x_distance, min_x + 3 * x_distance, min_y + 2 * y_distance, min_y + 3 * y_distance),
                  }
     return sub_areas
+
+
+def get_subset_area(subset, sub_areas):
+    # need to create a dictionary
+    # sub_areas dictionary has values (min_x, max_x, min_y, max_y
+    subset = {'minXDistance': sub_areas[subset][0],
+              'maxXDistance': sub_areas[subset][1],
+              'minYDistance': sub_areas[subset][2],
+              'maxYDistance': sub_areas[subset][3],
+              }

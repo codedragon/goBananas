@@ -130,6 +130,7 @@ class Fruit():
         # trials are set up the same, whether showing fruit sequentially or all at once.
         print('trial number', trial_num)
         print('trial number to be repeated', self.repeat)
+        # self.repeat only refers to regular trials, not sequential trials
         if self.repeat:
             # first check to see if we are choosing a new trial number for repeat.
             if trial_num > 0 and trial_num % self.repeat_number == 0:

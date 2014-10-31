@@ -11,7 +11,7 @@ class MoBananasTests(unittest.TestCase):
         p0 = (8, 4)
         p1 = (9, 5)
         dist = 1.4142135623730951
-        self.assertEquals(mb.distance(p0, p1), dist)
+        self.assertEqual(mb.distance(p0, p1), dist)
 
     def test_distance_with_negative(self):
         """
@@ -22,6 +22,17 @@ class MoBananasTests(unittest.TestCase):
         dist = 7.28
         #print mb.distance(p0, p1)
         self.assertAlmostEqual(mb.distance(p0, p1), dist, 2)
+
+    def test_distance_with_both_exact(self):
+        """
+        Test Distance Formula with a position that includes a negative
+        and that should give an exact distance
+        """
+        p0 = (-10, 10)
+        p1 = (-10, -10)
+        dist = 20
+        #print mb.distance(p0, p1)
+        self.assertEqual(mb.distance(p0, p1), dist)
 
     def test_set_xy_no_pList(self):
         """
@@ -154,17 +165,30 @@ class MoBananasTests(unittest.TestCase):
             #print len(pList)
 
     def test_create_sub_areas(self):
-        min_and_max = mb.create_sub_areas((0, 3, 9, 12))
+        min_and_max = mb.create_sub_areas((0, 9, 3, 12))
         print min_and_max
-        self.assertTrue(min_and_max == {1: (0, 3, 3, 6),
-                                        2: (3, 6, 3, 6),
-                                        3: (6, 9, 3, 6),
-                                        4: (0, 3, 6, 9),
-                                        5: (3, 6, 6, 9),
-                                        6: (6, 9, 6, 9),
-                                        7: (0, 3, 9, 12),
-                                        8: (3, 6, 9, 12),
-                                        9: (6, 9, 9, 12)})
+        self.assertDictEqual(min_and_max, {1: (0.0, 3.0, 3.0, 6.0),
+                                           2: (3.0, 6.0, 3.0, 6.0),
+                                           3: (6.0, 9.0, 3.0, 6.0),
+                                           4: (0.0, 3.0, 6.0, 9.0),
+                                           5: (3.0, 6.0, 6.0, 9.0),
+                                           6: (6.0, 9.0, 6.0, 9.0),
+                                           7: (0.0, 3.0, 9.0, 12.0),
+                                           8: (3.0, 6.0, 9.0, 12.0),
+                                           9: (6.0, 9.0, 9.0, 12.0)})
 
+    def test_create_sub_areas_with_neg(self):
+        # try with easy negative numbers
+        min_and_max = mb.create_sub_areas((-30, 30, -30, 30))
+        #print min_and_max
+        self.assertDictEqual(min_and_max, {1: (-30.0, -10.0, -30.0, -10.0),
+                                           2: (-10.0, 10.0, -30.0, -10.0),
+                                           3: (10.0, 30.0, -30.0, -10.0),
+                                           4: (-30.0, -10.0, -10.0, 10.0),
+                                           5: (-10.0, 10.0, -10.0, 10.0),
+                                           6: (10.0, 30.0, -10.0, 10.0),
+                                           7: (-30.0, -10.0, 10.0, 30.0),
+                                           8: (-10.0, 10.0, 10.0, 30.0),
+                                           9: (10.0, 30.0, 10.0, 30.0)})
 if __name__ == "__main__":
     unittest.main(verbosity=2)
