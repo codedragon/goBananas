@@ -1,3 +1,4 @@
+from __future__ import division
 from math import sqrt
 import random
 """ Functions for bananas that don't need PandaEPL, so can actually be tested reasonably!
@@ -104,3 +105,13 @@ def create_sub_areas(dimensions):
                      'min_y': min_y + 2 * y_dist, 'max_y': min_y + 3 * y_dist},
                  }
     return sub_areas
+
+
+def get_subset_area(subset, sub_areas):
+    # need to create a dictionary
+    # sub_areas dictionary has values (min_x, max_x, min_y, max_y
+    subset = {'minXDistance': sub_areas[subset][0],
+              'maxXDistance': sub_areas[subset][1],
+              'minYDistance': sub_areas[subset][2],
+              'maxYDistance': sub_areas[subset][3],
+              }

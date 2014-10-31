@@ -23,6 +23,17 @@ class MoBananasTests(unittest.TestCase):
         #print mb.get_distance(p0, p1)
         self.assertAlmostEqual(mb.get_distance(p0, p1), dist, 2)
 
+    def test_distance_with_both_exact(self):
+        """
+        Test Distance Formula with a position that includes a negative
+        and that should give an exact distance
+        """
+        p0 = (-10, 10)
+        p1 = (-10, -10)
+        dist = 20
+        #print mb.get_distance(p0, p1)
+        self.assertEqual(mb.get_distance(p0, p1), dist)
+
     def test_set_xy_no_pList(self):
         """
         Test that we are given a point that at least 0.5 distance
@@ -166,6 +177,21 @@ class MoBananasTests(unittest.TestCase):
                                         7: {'min_x': 0, 'max_x': 3, 'min_y': 9, 'max_y': 12},
                                         8: {'min_x': 3, 'max_x': 6, 'min_y': 9, 'max_y': 12},
                                         9: {'min_x': 6, 'max_x': 9, 'min_y': 9, 'max_y': 12}})
+
+    def test_create_sub_areas_with_neg(self):
+        # try with easy negative numbers
+        my_dict = {'min_x': -30, 'max_x': 30, 'min_y': -30, 'max_y': 30}
+        min_and_max = mb.create_sub_areas(my_dict)
+        #print min_and_max
+        self.assertTrue(min_and_max == {1: {'min_x': -30, 'max_x': -10, 'min_y': -30, 'max_y': -10},
+                                        2: {'min_x': -10, 'max_x': 10, 'min_y': -30, 'max_y': -10},
+                                        3: {'min_x': 10, 'max_x': 30, 'min_y': -30, 'max_y': -10},
+                                        4: {'min_x': -30, 'max_x': -10, 'min_y': -10, 'max_y': 10},
+                                        5: {'min_x': -10, 'max_x': 10, 'min_y': -10, 'max_y': 10},
+                                        6: {'min_x': 10, 'max_x': 30, 'min_y': -10, 'max_y': 10},
+                                        7: {'min_x': -30, 'max_x': -10, 'min_y': 10, 'max_y': 30},
+                                        8: {'min_x': -10, 'max_x': 10, 'min_y': 10, 'max_y': 30},
+                                        9: {'min_x': 10, 'max_x': 30, 'min_y': 10, 'max_y': 30}})
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
