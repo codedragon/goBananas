@@ -55,6 +55,9 @@ class Fruit():
         # variable to save the fruit we ran into most recently
         self.current_fruit = None
         self.pos_list = []
+        # for testing can send in a list, for recall, just where the banana
+        # is, for non-sequential tasks, need one position for each fruit
+        #self.pos_list = [5, -5]
 
     def create_fruit(self, fruit_dict):
         self.num_fruit_dict = fruit_dict
@@ -342,14 +345,17 @@ class Fruit():
                 pos_list.append((self.fruit_models[i].getPos()[0], self.fruit_models[i].getPos()[1]))
 
     def create_subarea_dict(self, subarea_key):
+        # Need to keep around the original size of the area, and I don't trust the pandaepl config
+        # dictionary, because they have done weird things to scope, so create a new dictionary
         if subarea_key == 0:
+            # don't get entire self.config dictionary, just bounds of courtyard
             self.subarea = {'min_x': self.config['min_x'],
                             'max_x': self.config['max_x'],
                             'min_y': self.config['min_y'],
                             'max_y': self.config['max_y']
                             }
         else:
-            self.subarea = self.all_subareas[subarea_key]
+            self.subarea.update(self.all_subareas[subarea_key])
         self.subarea['tooClose'] = self.config['tooClose']
         self.subarea['avatarRadius'] = self.config['avatarRadius']
         self.subarea['environ'] = self.config['environ']

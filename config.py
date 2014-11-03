@@ -88,7 +88,7 @@ minTurningLinearSpeed = 1.5
 minTurningLinearSpeedIncrement = 0.5
 
 # Point3 is global from panda3d.core
-initialPos = Point3(0, -8, 1)
+initialPos = Point3(0, 0, 1)
 
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
@@ -119,12 +119,12 @@ fruit_to_remember = 'banana'
 #fruit_to_remember = None
 # how close to remembered location to get reward?
 distance_goal = 3
-repeat_recall_fruit = False  # can be toggled with key, repeats location
+repeat_recall_fruit = True  # can be toggled with key, repeats location
 time_to_recall = 10  # number of seconds to get to remembered location
 time_to_flash = 10  # number of seconds to flash fruit, zero for no flashing
 # for training, fruit_to_remember location can be limited to a small area of the courtyard
 # (areas arranged same as numbers on keypad), zero means can be anywhere
-subarea = 0  # this is the starting spot, can be changed by a keypress later on
+subarea = 8  # this is the starting spot, can be changed by a keypress later on
 
 
 # how close is too close together for fruit and avatar? Keep in mind that the distance is between the centers, but
@@ -137,15 +137,6 @@ min_x = -10
 max_x = 10
 min_y = -10
 max_y = 10
-
-# Load bananas for testing, know where they are!
-# theoretically can load as many as you want, but
-# that becomes tedious.
-# (no effect if manual False)
-bananaModel = './models/bananas/banana.bam'
-bananaLoc = [Point3(5, 3, 1), Point3(5.5, 3, 1)]
-bananaScale = 0.5
-bananaH = 0
 
 # used for placing bananas in circular environment
 radius = 14

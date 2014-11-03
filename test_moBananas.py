@@ -193,5 +193,27 @@ class MoBananasTests(unittest.TestCase):
                                         8: {'min_x': -10, 'max_x': 10, 'min_y': 10, 'max_y': 30},
                                         9: {'min_x': 10, 'max_x': 30, 'min_y': 10, 'max_y': 30}})
 
+    def test_subareas_line_up_in_courtyard(self):
+        # want the number keys to correspond with the way the avatar is facing when the game starts.
+        # 7 8 9   -x,y      x,y
+        # 4 5 6
+        # 1 2 3   -x,-y     x,-y
+        #
+        # So 7 should give you a negative x, positive y, etc., since mapping to avatar at 5, looking at 8.
+        my_dict = {'min_x': -10, 'max_x': 10, 'min_y': -10, 'max_y': 10}
+        min_and_max = mb.create_sub_areas(my_dict)
+        # 7 x neg, y pos
+        self.assertTrue(min_and_max[7]['min_x'] < 0)
+        self.assertTrue(min_and_max[7]['min_y'] > 0)
+        # 9 both pos
+        self.assertTrue(min_and_max[9]['min_x'] > 0)
+        self.assertTrue(min_and_max[9]['min_y'] > 0)
+        # 1 both neg
+        self.assertTrue(min_and_max[1]['min_x'] < 0)
+        self.assertTrue(min_and_max[1]['min_y'] < 0)
+        # 3 x pos, y neg
+        self.assertTrue(min_and_max[3]['min_x'] > 0)
+        self.assertTrue(min_and_max[3]['min_y'] < 0)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
