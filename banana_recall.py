@@ -234,6 +234,7 @@ class BananaRecall:
                 if self.fruit.alpha > 0:
                     print 'turn off alpha'
                     self.fruit.flash_recall_fruit(False)
+                    self.fruit.reset_collision()
                 self.new_trial()
             else:
                 self.fruit.disappear_fruit()
