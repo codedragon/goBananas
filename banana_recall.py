@@ -387,8 +387,7 @@ class BananaRecall:
         print input_event
         print input_event.eventName
         print input_event.eventName[-1]
-        # get rid of old location, since setting new one
-        self.fruit.pos_list = []
+        # create new corresponding dictionary
         self.fruit.create_subarea_dict(int(input_event.eventName[-1]))
 
     def start(self):

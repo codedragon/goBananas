@@ -179,6 +179,7 @@ class Fruit():
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
 
     def setup_fruit_for_trial(self, repeat='No'):
+        print 'setup fruit for trial'
         # get positions for fruit
         # if repeat has 'repeat' in it, use same positions as before (for recall this is only the recall fruit)
         # if repeat is 'new', use new positions
@@ -371,7 +372,7 @@ class Fruit():
             self.recall_node_path.setAlphaScale(self.alpha)
         else:
             self.recall_node_path.setAlphaScale(1)
-        print self.index_fruit_dict[self.config['fruit_to_remember']]
+        print('index for recall fruit', self.index_fruit_dict[self.config['fruit_to_remember']])
         print self.fruit_models[self.index_fruit_dict[self.config['fruit_to_remember']]].getPos()
 
     def replenish_stashed_fruit(self):
@@ -397,6 +398,7 @@ class Fruit():
                 pos_list.append((self.fruit_models[i].getPos()[0], self.fruit_models[i].getPos()[1]))
 
     def create_subarea_dict(self, subarea_key):
+        print('created new dictionary')
         # Need to keep around the original size of the area, and I don't trust the pandaepl config
         # dictionary, because they have done weird things to scope, so create a new dictionary
         if subarea_key == 0:
@@ -411,4 +413,6 @@ class Fruit():
         self.subarea['tooClose'] = self.config['tooClose']
         self.subarea['avatarRadius'] = self.config['avatarRadius']
         self.subarea['environ'] = self.config['environ']
+        # make sure we know we moved
+        self.pos_list = []
         print self.subarea

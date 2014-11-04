@@ -131,8 +131,9 @@ alpha = 0.5  # this is for training in the recall task. fully visible is 1, invi
 
 # how close is too close together for fruit and avatar? Keep in mind that the distance is between the centers, but
 # when you run into a fruit, you are not at the center, so could be closer than tooClose at that point
-# Therefor, Too close should be at least 1
-tooClose = 1  # 1
+# Therefor, Too close should be at least 1. For recall, it should be at least as far as the distance goal, so
+# you don't get a fruit right next to where the recall fruit was and just automatically get a reward
+tooClose = 3  # 1
 
 # Banana Positions
 min_x = -10
