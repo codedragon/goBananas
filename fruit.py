@@ -98,7 +98,8 @@ class Fruit():
 
         # if we are doing recall, set ability to use alpha
         if self.config['fruit_to_remember']:
-            self.recall_node_path = self.fruit_models[self.index_fruit_dict[self.config['fruit_to_remember']]].retrNodePath()
+            fruit_index = self.index_fruit_dict[self.config['fruit_to_remember']]
+            self.recall_node_path = self.fruit_models[fruit_index].retrNodePath()
             self.recall_node_path.setTransparency(TransparencyAttrib.MAlpha)
         #print self.index_fruit_dict
         #print self.fruit_models
@@ -178,6 +179,7 @@ class Fruit():
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
 
     def setup_fruit_for_trial(self, repeat='No'):
+        # get positions for fruit
         # if repeat has 'repeat' in it, use same positions as before (for recall this is only the recall fruit)
         # if repeat is 'new', use new positions
         # if repeat is 'recall', use all new positions if self.pos_list
@@ -189,15 +191,23 @@ class Fruit():
         # if repeat is 'repeat', use saved configuration
         # if repeat is 'new' save the configuration creating now
         pos_list = []
+        old_list = None
         if 'repeat' in repeat:
             old_list = self.pos_list
+        # if we are repeating the recall fruit, need to
+        # do that first, so random positions are placed
+        # proper distance from it.
+        first_fruit = None
         if repeat == 'recall_repeat' and old_list:
-            first_fruit = index + 1
+            print 'repeating recall fruit'
+            (x, y) = old_list
+            pos_list.append((x, y))
+            first_fruit = 0
         #print pos_list
         avatar = Avatar.Avatar.getInstance()
-        avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
-        # print 'avatar pos', avatarXY
-        first_fruit = None
+        avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
+        # print 'avatar pos', avatar_x_y
+
         for fruit, index in self.index_fruit_dict.iteritems():
             print fruit, index
             #print pos_list
@@ -205,29 +215,31 @@ class Fruit():
                 # only do this for regular task, not recall
                 (x, y) = old_list[index]
             elif fruit == self.config['fruit_to_remember']:
-                if 'repeat' in repeat and old_list:
-                    #print 'repeating the fruit to remember'
-                    (x, y) = old_list
-                    pos_list.append((x, y))
-                    # make a note this is a repeated position
-                else:
+                if not old_list:
+                    print 'new recall fruit position'
+                    # if we are showing recall fruit in a new position,
+                    # we will show it first
+                    first_fruit = index
                     # getting a new position
                     # send in config with sub areas
-                    (x, y) = mB.set_xy(pos_list, avatarXY, self.subarea)
+                    (x, y) = mB.set_xy(pos_list, avatar_x_y, self.subarea)
                     pos_list.append((x, y))
                     # this is a new fruit to remember, start with it
-                    first_fruit = index
-                # always be ready to repeat recall fruit, cheap
-                self.pos_list = (x, y)
-                print(x, y)
+
+                    # always be ready to repeat recall fruit, cheap
+                    self.pos_list = (x, y)
+                print('recall fruit position', x, y)
             else:
-                (x, y) = mB.set_xy(pos_list, avatarXY, self.config)
+                (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config)
                 pos_list.append((x, y))
             #print x, y
             self.fruit_models[index].setPos(Point3(x, y, 1))
-            self.make_fruit_visible(index, first_fruit)
-            # add to our list
-            self.fruit_list.append(fruit)
+            show_fruit = self.make_fruit_visible(index, first_fruit)
+            # add to our list, except for the recall fruit,
+            # if we aren't showing it
+            if show_fruit or fruit != self.config['fruit_to_remember']:
+                print "add", fruit
+                self.fruit_list.append(fruit)
             print('fruit list', self.fruit_list)
         #print self.fruit_list
         #print pos_list
@@ -239,12 +251,14 @@ class Fruit():
         #self.stashed = self.num_fruit
 
     def make_fruit_visible(self, index, first_fruit=None):
+        show_fruit = True
         # fruit indexes are given one at a time,
         # if task is remembering fruit,
         # make all fruit except first fruit visible
         # else (for goBananas) make all fruit visible
         if self.config['fruit_to_remember']:
-            self.fruit_models[index].setStashed(True)
+
+            # if first_fruit is index, this is the first fruit to show
             # normally we start with the fruit to remember, but if we are doing
             # it in the same place every time, then subject will be in that place
             # already, and makes no sense, so show it once, than not again until
@@ -253,23 +267,28 @@ class Fruit():
             #if self.fruit_models[index].name == self.config['fruit_to_remember']:
             if index == first_fruit:
                 self.fruit_models[index].setStashed(False)
+            else:
+                self.fruit_models[index].setStashed(True)
+                show_fruit = False
         else:
             self.fruit_models[index].setStashed(False)
+        return show_fruit
 
-    def collide_fruit(self, collisionInfoList):
+    def collide_fruit(self, collision_info):
         """
         Handle the subject colliding with fruit, document fruit collision, subject
         freezes, reward is triggered.
-        @param collisionInfoList:
+        @param collision_info:
         @return:
         """
         #print 'collision'
+        #print 'what is first_collision now?', self.first_collision
         # which fruit we ran into
-        self.current_fruit = collisionInfoList[0].getInto().getIdentifier()
-        #print self.current_fruit
+        self.current_fruit = collision_info[0].getInto().getIdentifier()
+        print self.current_fruit
         # check to see if the banana was in the camera view when collided,
         # if not, then ignore collision
-        collided = collisionInfoList[0].getInto()
+        collided = collision_info[0].getInto()
         cam_node_path = Camera.Camera.getDefaultCamera().retrNodePath()
         #print collided.retrNodePath().getPos(cam_node_path)
         #print cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path))
@@ -282,10 +301,10 @@ class Fruit():
         #    print fruit.getPos()
         #print('in view', cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)))
         if cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)) and self.first_collision:
-        #if self.first_collision:
+            print 'first collision, in view'
             #print self.current_fruit
             # cannot run inside of banana - can't I just do this earlier for all of the fruit?
-            MovingObject.MovingObject.handleRepelCollision(collisionInfoList)
+            MovingObject.MovingObject.handleRepelCollision(collision_info)
             #print 'stop moving'
             # Makes it so Avatar cannot turn or go forward
             Avatar.Avatar.getInstance().setMaxTurningSpeed(0)
@@ -297,6 +316,7 @@ class Fruit():
             self.first_collision = False
 
     def disappear_fruit(self):
+        print 'disappear fruit'
         # fruit that is currently visible is stashed
         #print('fruit should go away', self.current_fruit)
         current_index = self.index_fruit_dict[self.current_fruit]
@@ -306,11 +326,15 @@ class Fruit():
         self.fruit_list.remove(self.current_fruit)
         # stash the fruit we just ran into,
         self.fruit_models[current_index].setStashed(True)
+        self.reset_collision()
+
+    def reset_collision(self):
         # log collected banana
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.current_fruit])
         self.first_collision = True
 
     def get_next_fruit(self):
+        print 'get next fruit'
         # not used for goBananas
         # if we are doing fruit sequentially, go to the next one
         # default is not time to find the banana memory
@@ -318,6 +342,7 @@ class Fruit():
         # know it is time to search for location, when we have made it through all
         # of the fruit
         # unstash the next fruit, unless it is time to go to the remembered banana
+        # (list is empty)
         if not self.fruit_list:
             # if we are searching for the banana, send find_banana as true
             # if banana is going to be partially visible, turn it on
@@ -330,6 +355,7 @@ class Fruit():
             print('whole dict', self.index_fruit_dict)
             print('next fruit in list', self.fruit_list[0])
             print('next fruit in dict', self.index_fruit_dict[self.fruit_list[0]])
+            print self.fruit_models[self.index_fruit_dict[self.fruit_list[0]]].getPos()
             self.fruit_models[self.index_fruit_dict[self.fruit_list[0]]].setStashed(False)
         #print 'banana gone', self.current_fruit
         #print self.stashed
@@ -354,12 +380,12 @@ class Fruit():
         print 'replenish'
         pos_list = []
         avatar = Avatar.Avatar.getInstance()
-        avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
+        avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
         for i in range(self.num_fruit):
             #print pos_list
             if self.fruit_models[i].isStashed():
                 #print 'banana stashed, unstash now'
-                (x, y) = mB.set_xy(pos_list, avatarXY, self.config)
+                (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config)
                 pos_list.append((x, y))
                 #print x, y
                 self.fruit_models[i].setPos(Point3(x, y, 1))

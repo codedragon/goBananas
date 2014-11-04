@@ -109,8 +109,9 @@ instructSeeAll = False
 
 # Experiment-specific settings
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
-fruit = ['plum']
-num_fruit = [2]
+#fruit = ['plum']
+fruit = ['old_banana']
+num_fruit = [1]
 #fruit = ['old_banana', 'plum']  # the fruit_to_remember should NOT be part of this list
 #num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
 
