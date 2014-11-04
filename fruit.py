@@ -177,7 +177,7 @@ class Fruit():
                 self.setup_fruit_for_trial()
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
 
-    def setup_fruit_for_trial(self, repeat=None):
+    def setup_fruit_for_trial(self, repeat='No'):
         # if repeat has 'repeat' in it, use same positions as before (for recall this is only the recall fruit)
         # if repeat is 'new', use new positions
         # if repeat is 'recall', use all new positions if self.pos_list

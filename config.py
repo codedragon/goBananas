@@ -128,8 +128,6 @@ subarea = 8  # this is the starting spot, can be changed by a keypress later on
 # once trained, alpha will be at zero, no banana showing
 alpha = 0.5  # this is for training in the recall task. fully visible is 1, invisible is 0
 
-
-
 # how close is too close together for fruit and avatar? Keep in mind that the distance is between the centers, but
 # when you run into a fruit, you are not at the center, so could be closer than tooClose at that point
 # Therefor, Too close should be at least 1
@@ -152,6 +150,8 @@ if 'Keyboard' in globals():
     keyboard.bind("increase_reward", "w")
     keyboard.bind("decrease_reward", "s")
     keyboard.bind("extra_reward", "space")
+    keyboard.bind("increase_alpha", "e")
+    keyboard.bind("decrease_alpha", "d")
     keyboard.bind("toggle_random", "r")
     keyboard.bind("subarea_1", "1")
     keyboard.bind("subarea_2", "2")

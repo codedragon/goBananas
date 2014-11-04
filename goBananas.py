@@ -41,10 +41,11 @@ class GoBananas:
         self.extra = [config['extra'] * self.numBeeps, self.numBeeps]
         # extra_flag is true if extra is not 1
         self.extra_flag = self.extra[0] > self.numBeeps
-        self.fullTurningSpeed = config['fullTurningSpeed']
-        self.fullForwardSpeed = config['fullForwardSpeed']
+        self.full_turn_speed = config['fullTurningSpeed']
+        self.full_forward_speed = config['fullForwardSpeed']
+        self.min_x = config['min_x']
+        self.min_y = config['min_y']
         # self.weighted_bananas = config['weightedBananas']
-        self.min_dist = [config['minXDistance'], config['minYDistance']]
         self.crosshair = config['crosshair']
         if self.crosshair:
             self.x_alpha = 1
@@ -220,8 +221,8 @@ class GoBananas:
                     # logging for new trial
                     self.log_new_trial()
                 # avatar can move
-                Avatar.getInstance().setMaxTurningSpeed(self.fullTurningSpeed)
-                Avatar.getInstance().setMaxForwardSpeed(self.fullForwardSpeed)
+                Avatar.getInstance().setMaxTurningSpeed(self.full_turn_speed)
+                Avatar.getInstance().setMaxForwardSpeed(self.full_forward_speed)
                 # reward is over
                 self.fruit_models.beeps = None
 
@@ -248,8 +249,8 @@ class GoBananas:
                 # can't send negative numbers or decimals, so
                 # need to translate the numbers
                 #print i.getPos()
-                translate_b = [int((i.getPos()[0] - self.min_dist[0]) * 1000),
-                       int((i.getPos()[1] - self.min_dist[1]) * 1000)]
+                translate_b = [int((i.getPos()[0] - self.min_x) * 1000),
+                       int((i.getPos()[1] - self.min_y) * 1000)]
                 #print foo
                 self.send_events.send_signal(translate_b[0])
                 self.send_strobe.send_signal()

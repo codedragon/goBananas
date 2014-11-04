@@ -41,6 +41,8 @@ class BananaRecall:
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
         print exp.getSessionNum()
         self.config = Conf.getInstance().getConfig()  # Get configuration dictionary.
+        if self.config['fruit_to_remember'] is None:
+            raise Exception("fruit_to_remember in config file must have a value")
         #print config['training']
         #print 'load testing', config['testing']
         # bring some configuration parameters into variables, so can change these
@@ -110,6 +112,8 @@ class BananaRecall:
         vr.inputListen("increase_reward", self.increase_reward)
         vr.inputListen("decrease_reward", self.decrease_reward)
         vr.inputListen("extra_reward", self.extra_reward)
+        vr.inputListen("increase_alpha", self.change_alpha)
+        vr.inputListen("decrease_alpha", self.change_alpha)
         vr.inputListen("toggle_random", self.toggle_random)
         vr.inputListen("NewTrial", self.new_trial)
         vr.inputListen("subarea_1", self.change_subarea)
@@ -122,6 +126,7 @@ class BananaRecall:
         vr.inputListen("subarea_8", self.change_subarea)
         vr.inputListen("subarea_9", self.change_subarea)
         vr.inputListen("subarea_0", self.change_subarea)
+
 
         # set up task to be performed between frames, checks at interval of pump
         #vr.addTask(Task("checkReward",
@@ -347,9 +352,11 @@ class BananaRecall:
 
     def increase_reward(self, input_event):
         self.numBeeps += 1
+        print 'Increased reward, new reward:', self.numBeeps
 
     def decrease_reward(self, input_event):
         self.numBeeps -= 1
+        print 'Decreased reward, new reward:', self.numBeeps
 
     def extra_reward(self, input_event):
         #print 'yup'
@@ -359,6 +366,20 @@ class BananaRecall:
     def toggle_random(self, input_event):
         # toggle random
         self.fruit.repeat_recall = not self.fruit.repeat_recall
+        print "Fruit is random:", self.fruit.repeat_recall
+
+    def change_alpha(self, input_event):
+        print('change alpha')
+        print input_event.eventName
+        if input_event.eventName == 'increase_alpha':
+            self.fruit.alpha += 0.1
+        else:
+            self.fruit.alpha -= 0.1
+        if self.fruit.alpha > 1:
+            self.fruit.alpha = 1
+        elif self.fruit.alpha < 0:
+            self.fruit.alpha = 0
+        print 'new alpha', self.fruit.alpha
 
     def change_subarea(self, input_event):
         print('change subarea')
