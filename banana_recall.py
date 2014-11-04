@@ -167,6 +167,12 @@ class BananaRecall:
         # self.remember_fruit means there is an 'invisible' fruit present,
         # that we will not be colliding into, so check distance
         if self.remember_fruit:
+            if self.fruit.alpha > 0:
+                print 'show fruit at alpha'
+                # if fruit is partially visible, will use callback instead of distance,
+                # but need to set that this was a remembered trial, so we start over after
+                self.remembered_location = True
+                self.remember_fruit = False
             dist_to_banana = self.check_distance_to_fruit()
             #print('dist to banana', dist_to_banana)
             if dist_to_banana <= self.config['distance_goal']:
@@ -193,7 +199,7 @@ class BananaRecall:
             if check_timer(self.reward_timer, self.config['pulseInterval']):
                 self.reward_timer = 0
         elif self.fruit.beeps >= 0:
-            # we should give reward, since there is currently no reward timer going
+            # we can give reward, since there is currently no reward timer going
             self.give_reward()
 
     def give_reward(self):
@@ -224,11 +230,17 @@ class BananaRecall:
             print 'last reward'
             # if fruit visible, fruit disappears, otherwise new trial
             if self.remembered_location:
+                # if alpha is not one, set banana back to full alpha
+                if self.fruit.alpha > 0:
+                    print 'turn off alpha'
+                    self.fruit.flash_recall_fruit(False)
                 self.new_trial()
             else:
                 self.fruit.disappear_fruit()
                 self.remember_fruit = self.fruit.get_next_fruit()
+                # remember_fruit is true or false
                 print('remember_fruit', self.remember_fruit)
+                # this will only matter if there is fruit to remember
                 self.recall_timer = time.clock()
             self.remembered_location = False
             # new fruit appears, either starting over or next fruit in stack
@@ -297,7 +309,7 @@ class BananaRecall:
         self.remember_fruit = False
         # stop flash, if flashing
         if self.flash_timer:
-            self.fruit.flash_recall(False)
+            self.fruit.flash_recall_fruit(False)
             self.flash_timer = 0
         self.trial_num += 1
         self.fruit.setup_trial(self.trial_num)
@@ -330,7 +342,7 @@ class BananaRecall:
     def flash_fruit(self):
         print 'flash fruit'
         # flash where banana was, turn on timer for flash
-        self.fruit.flash_recall(True)
+        self.fruit.flash_recall_fruit(True)
         self.flash_timer = time.clock()
 
     def increase_reward(self, input_event):

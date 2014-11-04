@@ -110,7 +110,7 @@ instructSeeAll = False
 # Experiment-specific settings
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
 fruit = ['plum']
-num_fruit = [1]
+num_fruit = [2]
 #fruit = ['old_banana', 'plum']  # the fruit_to_remember should NOT be part of this list
 #num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
 
@@ -121,10 +121,13 @@ fruit_to_remember = 'banana'
 distance_goal = 3
 repeat_recall_fruit = True  # can be toggled with key, repeats location
 time_to_recall = 10  # number of seconds to get to remembered location
-time_to_flash = 10  # number of seconds to flash fruit, zero for no flashing
+time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
 # for training, fruit_to_remember location can be limited to a small area of the courtyard
 # (areas arranged same as numbers on keypad), zero means can be anywhere
 subarea = 8  # this is the starting spot, can be changed by a keypress later on
+# once trained, alpha will be at zero, no banana showing
+alpha = 0.5  # this is for training in the recall task. fully visible is 1, invisible is 0
+
 
 
 # how close is too close together for fruit and avatar? Keep in mind that the distance is between the centers, but

@@ -21,6 +21,7 @@ class Fruit():
         self.repeat_recall = False
 
         if self.config['fruit_to_remember']:
+            # if doing recall task, fruit to remember is always first
             self.all_fruit.insert(0, self.config['fruit_to_remember'])
             self.num_fruit.insert(0, 1)
             self.recall_node_path = None
@@ -29,6 +30,7 @@ class Fruit():
             self.all_subareas = mB.create_sub_areas(self.config)
             self.subarea = {}
             self.create_subarea_dict(self.config['subarea'])
+            self.alpha = self.config['alpha']
 
         # for repeating a particular configuration
         self.repeat = config['fruit_repeat']  # true or false
@@ -73,10 +75,11 @@ class Fruit():
         # create new model for each count in dictionary of that fruit
         # This is a lot of loops, fortunately they are all small. Might
         # want to make a method for getting stuff out of PlaceModels.
+        print 'making fruit dictionary'
         for fruit, count in fruit_dict.iteritems():
             for i in range(count):
                 item = get_model('name', fruit)
-                #print item.model
+                print item.model
                 name = item.name + "%03d" % i
                 # differentiate the fruit we are remembering, if we are doing
                 # recall_banana task
@@ -86,8 +89,11 @@ class Fruit():
                 # create actual model
                 self.create_fruit_model(item, name)
                 # if we haven't stuck this model in the dictionary yet, do it now
-                if name not in self.index_fruit_dict:
-                    self.index_fruit_dict[name] = model_count
+                # each model gets a unique number
+                # why would the current model ever already have an entry?
+                #self.index_fruit_dict[name] = self.index_fruit_dict.setdefault(name, model_count) + 1
+                #print self.index_fruit_dict
+                self.index_fruit_dict[name] = model_count
                 model_count += 1
 
         # if we are doing recall, set ability to use alpha
@@ -136,7 +142,7 @@ class Fruit():
         return model.name
 
     def setup_trial(self, trial_num):
-        # trials are set up the same, whether showing fruit sequentially or all at once.
+        # trials are set up mostly the same, whether showing fruit sequentially or all at once.
         print('trial number', trial_num)
         #print('trial number to be repeated', self.repeat)
         # self.repeat only refers to regular trials, not sequential trials
@@ -172,7 +178,7 @@ class Fruit():
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
 
     def setup_fruit_for_trial(self, repeat=None):
-        # if repeat is 'repeat', use same positions as before
+        # if repeat has 'repeat' in it, use same positions as before (for recall this is only the recall fruit)
         # if repeat is 'new', use new positions
         # if repeat is 'recall', use all new positions if self.pos_list
         # is empty, and if positions are in self.pos_list, repeat only
@@ -185,10 +191,13 @@ class Fruit():
         pos_list = []
         if 'repeat' in repeat:
             old_list = self.pos_list
+        if repeat == 'recall_repeat' and old_list:
+            first_fruit = index + 1
         #print pos_list
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         # print 'avatar pos', avatarXY
+        first_fruit = None
         for fruit, index in self.index_fruit_dict.iteritems():
             print fruit, index
             #print pos_list
@@ -200,10 +209,14 @@ class Fruit():
                     #print 'repeating the fruit to remember'
                     (x, y) = old_list
                     pos_list.append((x, y))
+                    # make a note this is a repeated position
                 else:
+                    # getting a new position
                     # send in config with sub areas
                     (x, y) = mB.set_xy(pos_list, avatarXY, self.subarea)
                     pos_list.append((x, y))
+                    # this is a new fruit to remember, start with it
+                    first_fruit = index
                 # always be ready to repeat recall fruit, cheap
                 self.pos_list = (x, y)
                 print(x, y)
@@ -212,9 +225,10 @@ class Fruit():
                 pos_list.append((x, y))
             #print x, y
             self.fruit_models[index].setPos(Point3(x, y, 1))
-            self.make_fruit_visible(index)
+            self.make_fruit_visible(index, first_fruit)
             # add to our list
             self.fruit_list.append(fruit)
+            print('fruit list', self.fruit_list)
         #print self.fruit_list
         #print pos_list
 
@@ -224,12 +238,20 @@ class Fruit():
             self.pos_list = pos_list
         #self.stashed = self.num_fruit
 
-    def make_fruit_visible(self, index):
+    def make_fruit_visible(self, index, first_fruit=None):
+        # fruit indexes are given one at a time,
         # if task is remembering fruit,
-        # make all fruit except one to be remembered not-visible
+        # make all fruit except first fruit visible
+        # else (for goBananas) make all fruit visible
         if self.config['fruit_to_remember']:
             self.fruit_models[index].setStashed(True)
-            if self.fruit_models[index].name == self.config['fruit_to_remember']:
+            # normally we start with the fruit to remember, but if we are doing
+            # it in the same place every time, then subject will be in that place
+            # already, and makes no sense, so show it once, than not again until
+            # it moves again. This means removing it from the list and moving on
+            # to the next fruit.
+            #if self.fruit_models[index].name == self.config['fruit_to_remember']:
+            if index == first_fruit:
                 self.fruit_models[index].setStashed(False)
         else:
             self.fruit_models[index].setStashed(False)
@@ -289,6 +311,7 @@ class Fruit():
         self.first_collision = True
 
     def get_next_fruit(self):
+        # not used for goBananas
         # if we are doing fruit sequentially, go to the next one
         # default is not time to find the banana memory
         find_banana_loc = False
@@ -297,6 +320,10 @@ class Fruit():
         # unstash the next fruit, unless it is time to go to the remembered banana
         if not self.fruit_list:
             # if we are searching for the banana, send find_banana as true
+            # if banana is going to be partially visible, turn it on
+            if self.alpha > 0:
+                print 'flash recall fruit'
+                self.flash_recall_fruit(True)
             find_banana_loc = True
             print 'remember banana'
         else:
@@ -308,15 +335,14 @@ class Fruit():
         #print self.stashed
         return find_banana_loc
 
-    def flash_recall(self, flash):
-        # flash the fruit the subject was suppose to find, but didn't,
+    def flash_recall_fruit(self, flash):
+        # flash the fruit the subject is/was suppose to find
         # flash is true or false, depending on whether we are turning it on or off,
         # makes more sense for true to turn on fruit and false turn off, so invert signal
-        # Do I need to somehow turn off callback during flash? Depends on how fast the flash, I think.
         print('flash ', flash)
         self.fruit_models[self.index_fruit_dict[self.config['fruit_to_remember']]].setStashed(not flash)
         if flash:
-            self.recall_node_path.setAlphaScale(0.5)
+            self.recall_node_path.setAlphaScale(self.alpha)
         else:
             self.recall_node_path.setAlphaScale(1)
         print self.index_fruit_dict[self.config['fruit_to_remember']]
