@@ -5,7 +5,6 @@ from pandaepl import Keyboard
 
 # models are in goBananas directory by default
 
-
 path_models = ''
 
 # manual mode allows you to place up to 2 bananas in specific places,
@@ -110,7 +109,7 @@ instructSeeAll = False
 # Experiment-specific settings
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
 #fruit = ['plum']
-fruit = ['old_banana']
+fruit = ['plum']
 num_fruit = [1]
 #fruit = ['old_banana', 'plum']  # the fruit_to_remember should NOT be part of this list
 #num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
