@@ -109,7 +109,7 @@ def load_models():
     plum.scale = 0.005
     plum.model = 'models/fruit/plum.bam'
     plum.roll = 75
-    plum.coll_scale = 1
+    plum.coll_scale = 2
     plum.coll_pos = (-5, 5, 110, 200)
 
 

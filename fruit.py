@@ -125,8 +125,11 @@ class Fruit():
             x, y, z, s = item.coll_pos
             model_sphere = CollisionSphere(x, y, z, s)
             model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
-            model.retrNodePath().getChild(1).node().addSolid(model_sphere)
-            #model.retrNodePath().getChild(1).show()
+            node_path = model.retrNodePath().getChild(1)
+            node_path.setScale(item.coll_scale)
+            print node_path.getScale()
+            node_path.addSolid(model_sphere)
+            node_path.show()
             #print(model.retrNodePath().getChild(1))
             #print(model.retrNodePath().getChild(1).node())
         except AttributeError:
@@ -194,6 +197,8 @@ class Fruit():
         print('num_fruit', self.num_fruit)
         # if repeat is 'repeat', use saved configuration
         # if repeat is 'new' save the configuration creating now
+        # pos_list is used to make sure we are not putting fruit too close
+        # together. This is what we save if we are saving position configuration
         pos_list = []
         old_list = None
         if 'repeat' in repeat:
@@ -204,8 +209,8 @@ class Fruit():
         first_fruit = None
         if repeat == 'recall_repeat' and old_list:
             print 'repeating recall fruit'
-            (x, y) = old_list
-            pos_list.append((x, y))
+            # make sure we are not going to put other fruit too close
+            pos_list.append(old_list)
             first_fruit = 0
         #print pos_list
         avatar = Avatar.Avatar.getInstance()
@@ -232,9 +237,14 @@ class Fruit():
 
                     # always be ready to repeat recall fruit, cheap
                     self.pos_list = (x, y)
+                else:
+                    # now put in the recall fruit position we remembered
+                    (x, y) = old_list
                 print('recall fruit position', x, y)
             else:
                 (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config)
+                # going to end up adding in recall fruit twice if repeating it,
+                # but this should not cause problems
                 pos_list.append((x, y))
             print pos_list
             #print x, y
@@ -291,10 +301,12 @@ class Fruit():
         # which fruit we ran into
         self.current_fruit = collision_info[0].getInto().getIdentifier()
         print self.current_fruit
+        print self.first_collision
         # check to see if the banana was in the camera view when collided,
         # if not, then ignore collision
         collided = collision_info[0].getInto()
         cam_node_path = Camera.Camera.getDefaultCamera().retrNodePath()
+        print collided.retrNodePath().getPos(cam_node_path)
         #print collided.retrNodePath().getPos(cam_node_path)
         #print cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path))
         # Sometimes we collide with a banana multiple times for no damn reason, so setting self.first_collision
