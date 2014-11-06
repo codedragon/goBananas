@@ -23,7 +23,7 @@ except ImportError:
 
 def check_timer(timer, goal):
         if time.clock() - timer >= goal:
-            print('timer up')
+            #print('timer up')
             return True
         return False
 
@@ -178,6 +178,8 @@ class BananaRecall:
                 # but need to set that this was a remembered trial, so we start over after
                 self.remembered_location = True
                 self.remember_fruit = False
+                # since we have an actual fruit, don't want to check distance so exit loop
+                return
             dist_to_banana = self.check_distance_to_fruit()
             #print('dist to banana', dist_to_banana)
             if dist_to_banana <= self.config['distance_goal']:
@@ -208,7 +210,7 @@ class BananaRecall:
             self.give_reward()
 
     def give_reward(self):
-        print 'give reward'
+        #print 'give reward'
         if self.reward:
             self.reward.pumpOut()
         else:

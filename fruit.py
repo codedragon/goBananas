@@ -233,6 +233,7 @@ class Fruit():
             else:
                 (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config)
                 pos_list.append((x, y))
+            print pos_list
             #print x, y
             self.fruit_models[index].setPos(Point3(x, y, 1))
             show_fruit = self.make_fruit_visible(index, first_fruit)
