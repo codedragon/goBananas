@@ -48,6 +48,7 @@ class Fruit():
         self.index_fruit_dict = {}
         # num_fruit dict tells us how many of each fruit we will be showing
         self.num_fruit_dict = {}
+        # list of actual fruit models
         self.fruit_models = []
         # list to keep track of which fruit have shown up
         self.fruit_list = []
@@ -117,6 +118,8 @@ class Fruit():
         model.setScale(item.scale)
         model.name = name
         #print name
+
+        # ONLY WANT ONE COMMAND IN TRY BLOCK!
         try:
             #print(item.coll_pos)
             x, y, z, s = item.coll_pos
