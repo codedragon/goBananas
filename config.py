@@ -7,16 +7,6 @@ from pandaepl import Keyboard
 
 path_models = ''
 
-# manual mode allows you to place up to 2 bananas in specific places,
-# rather than having random placement of x bananas
-manual = False
-
-# remember_manual allows you to place the fruit to remember in a particular
-# starting place. You may then use the j key to jump the fruit to a new
-# location, and it will stay there until you jump again, as long as manual is
-# set. If manual is not set, it is in a new, random location each trial.
-remember_manual = False
-
 # environ types available:
 # 'original', 'circle'
 #environ = 'circle'
@@ -28,11 +18,11 @@ reward = True
 
 # Are we collecting eye data?
 #eyeData = True
-eyeData = False
+eyeData = True
 
 # are we sending data to plexon or blackrock?
 #sendData = True
-sendData = False
+sendData = True
 
 # 3d?
 # framebuffer-stereo 1
@@ -75,12 +65,12 @@ offset = (1, 1)  # (x,y)
 FOV = 60
 
 # Movement
-linearAcceleration = 8
+linearAcceleration = 30
 fullForwardSpeed = 2.8
 fullBackwardSpeed = 0
 turningAcceleration = 130
 # game is normally at 55
-fullTurningSpeed = 30
+fullTurningSpeed = 55
 turningLinearSpeed = 2
 maxTurningLinearSpeed = 90.0
 minTurningLinearSpeed = 1.5

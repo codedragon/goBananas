@@ -19,7 +19,7 @@ try:
 except ImportError:
     LOADED_PYDAQ = False
     print 'Not using PyDaq'
-LOADED_PYDAQ = False
+
 
 def check_timer(timer, goal):
         if time.clock() - timer >= goal:
@@ -173,7 +173,7 @@ class BananaRecall:
         # that we will not be colliding into, so check distance
         if self.remember_fruit:
             if self.fruit.alpha > 0:
-                print 'show fruit at alpha'
+                #print 'show fruit at alpha'
                 # if fruit is partially visible, will use callback instead of distance,
                 # but need to set that this was a remembered trial, so we start over after
                 self.remembered_location = True
@@ -183,7 +183,7 @@ class BananaRecall:
             dist_to_banana = self.check_distance_to_fruit()
             #print('dist to banana', dist_to_banana)
             if dist_to_banana <= self.config['distance_goal']:
-                print 'found it!'
+                #print 'found it!'
                 self.found_banana(dist_to_banana)
             elif self.recall_timer:
                 # check timer for looking for fruit
@@ -234,12 +234,12 @@ class BananaRecall:
         self.fruit.beeps += 1
         # if that was last reward
         if self.fruit.beeps == self.numBeeps:
-            print 'last reward'
+            #print 'last reward'
             # if fruit visible, fruit disappears, otherwise new trial
             if self.remembered_location:
                 # if alpha is not one, set banana back to full alpha
                 if self.fruit.alpha > 0:
-                    print 'turn off alpha'
+                    #print 'turn off alpha'
                     self.fruit.flash_recall_fruit(False)
                     self.fruit.reset_collision()
                 self.new_trial()
@@ -247,12 +247,12 @@ class BananaRecall:
                 self.fruit.disappear_fruit()
                 self.remember_fruit = self.fruit.get_next_fruit()
                 # remember_fruit is true or false
-                print('remember_fruit', self.remember_fruit)
+                #print('remember_fruit', self.remember_fruit)
                 # this will only matter if there is fruit to remember
                 self.recall_timer = time.clock()
             self.remembered_location = False
             # new fruit appears, either starting over or next fruit in stack
-            print 'new fruit'
+            #print 'new fruit'
 
             # avatar can move
             Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
@@ -294,12 +294,12 @@ class BananaRecall:
     def send_new_trial_daq(self):
         self.daq_events.send_signal(1000 + self.trial_num)
         self.daq_strobe.send_signal()
-        for i in self.fruit.fruitModels:
+        for i in self.fruit.fruit_models:
             # can't send negative numbers or decimals, so
             # need to translate the numbers
             # print i.getPos()
-            translate_b = [int((i.getPos()[0] - self.config['minXDistance']) * 1000),
-                           int((i.getPos()[1] - self.config['minYDistance']) * 1000)]
+            translate_b = [int((i.getPos()[0] - self.config['min_x']) * 1000),
+                           int((i.getPos()[1] - self.config['min_y']) * 1000)]
             #print foo
             self.daq_events.send_signal(translate_b[0])
             self.daq_strobe.send_signal()
@@ -321,7 +321,7 @@ class BananaRecall:
             self.flash_timer = 0
         self.trial_num += 1
         self.fruit.setup_trial(self.trial_num)
-        print('new trial', self.trial_num)
+        #print('new trial', self.trial_num)
         if self.daq_events:
             self.send_new_trial_daq()
 
@@ -348,7 +348,7 @@ class BananaRecall:
                 self.envModels.append(model)
 
     def flash_fruit(self):
-        print 'flash fruit'
+        #print 'flash fruit'
         # flash where banana was, turn on timer for flash
         self.fruit.flash_recall_fruit(True)
         self.flash_timer = time.clock()

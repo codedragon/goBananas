@@ -111,7 +111,7 @@ class GoBananas:
                                   False)
 
         # initialize fruit_models
-        self.fruit_models = None
+        self.fruit = None
         # initialize trial number
         self.trial_num = 0
         # Handle keyboard events
@@ -171,13 +171,13 @@ class GoBananas:
         # After last reward, banana disappears and avatar can move.
 
         # print 'current beep', self.beeps
-        if self.fruit_models.beeps is None:
+        if self.fruit.beeps is None:
             return
-        elif self.fruit_models.beeps == 0:
+        elif self.fruit.beeps == 0:
             # just ran into it?
-            VLQ.getInstance().writeLine("Yummy", [self.fruit_models.current_fruit])
-            #print('yummy', self.fruit_models.current_fruit)
-            #print('banana pos', self.fruit_models.bananaModels[int(self.fruit_models.current_fruit[-2:])].getPos())
+            VLQ.getInstance().writeLine("Yummy", [self.fruit.current_fruit])
+            #print('yummy', self.fruit.current_fruit)
+            #print('banana pos', self.fruit.bananaModels[int(self.fruit.current_fruit[-2:])].getPos())
             if self.send_events:
                 self.send_events.send_signal(200)
                 self.send_strobe.send_signal()
@@ -186,35 +186,35 @@ class GoBananas:
         if self.reward:
             self.reward.pumpOut()
         else:
-            print('beep', self.fruit_models.beeps)
+            print('beep', self.fruit.beeps)
 
-        VLQ.getInstance().writeLine('Beeps', [int(self.fruit_models.beeps)])
+        VLQ.getInstance().writeLine('Beeps', [int(self.fruit.beeps)])
         if self.send_events:
             self.send_events.send_signal(201)
             self.send_strobe.send_signal()
         # increment reward
-        self.fruit_models.beeps += 1
+        self.fruit.beeps += 1
 
         # If done, get rid of banana
-        #print 'beeps', self.fruit_models.beeps
+        #print 'beeps', self.fruit.beeps
         #print 'extra', self.extra
-        #print 'stashed', self.fruit_models.stashed
-        if self.fruit_models.beeps == self.numBeeps:
-            #print('fruit list', self.fruit_models.fruit_list)
+        #print 'stashed', self.fruit.stashed
+        if self.fruit.beeps == self.numBeeps:
+            #print('fruit list', self.fruit.fruit_list)
             # check to see if we are doing extra reward, if we are on last fruit
             # and haven't done extra reward yet.
-            if len(self.fruit_models.fruit_list) == 1 and self.extra_flag:
+            if len(self.fruit.fruit_list) == 1 and self.extra_flag:
                 #print 'bonus beeps'
                 self.extra_flag = False
                 self.numBeeps = self.extra[0]
             else:
                 # banana disappears
                 old_trial = self.trial_num
-                self.fruit_models.disappear_fruit()
+                self.fruit.disappear_fruit()
                 # if the list is empty, new trial
-                if not self.fruit_models.fruit_list:
+                if not self.fruit.fruit_list:
                     self.trial_num += 1
-                    self.fruit_models.setup_trial(self.trial_num)
+                    self.fruit.setup_trial(self.trial_num)
                     # reset normal reward and flag for the increased reward for last banana
                     self.numBeeps = self.extra[1]
                     self.extra_flag = self.extra[0] > self.numBeeps
@@ -224,7 +224,7 @@ class GoBananas:
                 Avatar.getInstance().setMaxTurningSpeed(self.full_turn_speed)
                 Avatar.getInstance().setMaxForwardSpeed(self.full_forward_speed)
                 # reward is over
-                self.fruit_models.beeps = None
+                self.fruit.beeps = None
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
@@ -245,7 +245,7 @@ class GoBananas:
         if self.send_events:
             self.send_events.send_signal(1000 + self.trial_num)
             self.send_strobe.send_signal()
-            for i in self.fruit_models.bananaModels:
+            for i in self.fruit.fruit_models:
                 # can't send negative numbers or decimals, so
                 # need to translate the numbers
                 #print i.getPos()
@@ -256,10 +256,10 @@ class GoBananas:
                 self.send_strobe.send_signal()
                 self.send_events.send_signal(translate_b[1])
                 self.send_strobe.send_signal()
-            if self.fruit_models.repeat:
+            if self.fruit.repeat:
                 self.send_events.send_signal(300)
                 self.send_strobe.send_signal()
-                self.send_events.send_signal(self.fruit_models.now_repeat)
+                self.send_events.send_signal(self.fruit.now_repeat)
                 self.send_strobe.send_signal()
 
     def load_environment(self, config):
@@ -323,7 +323,7 @@ class GoBananas:
     def restart(self, inputEvent):
         #print 'current trial aborted, new trial started'
         self.trial_num += 1
-        self.fruit_models.setup_trial(self.trial_num)
+        self.fruit.setup_trial(self.trial_num)
 
     def extra_reward(self, inputEvent):
         #print 'yup'
@@ -338,12 +338,12 @@ class GoBananas:
         # load the environment
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
         self.load_environment(config)
-        self.fruit_models = Fruit(config)
+        self.fruit = Fruit(config)
         all_fruit = config['fruit']
         num_fruit = config['num_fruit']
         num_fruit_dict = dict(zip(all_fruit, num_fruit))
-        self.fruit_models.create_fruit(num_fruit_dict)
-        self.fruit_models.setup_trial(self.trial_num)
+        self.fruit.create_fruit(num_fruit_dict)
+        self.fruit.setup_trial(self.trial_num)
         self.log_new_trial()
         Experiment.getInstance().start()
 
