@@ -106,11 +106,14 @@ def load_models():
     plum = PlaceModels()
     plum.name = 'plum'
     plum.group = 'fruit'
-    plum.scale = 0.004
-    plum.model = 'models/fruit/plum.bam'
+    #plum.scale = 0.004
+    plum.scale = 0.04
+    plum.model = 'models/fruit/plum_mid.egg'
     plum.roll = 75
-    plum.coll_scale = 1.3
-    plum.coll_pos = (-5, 5, 110, 200)
+    # scale is redundant if we are setting the pos (last number is scale)
+    plum.coll_scale = 1
+    #plum.coll_pos = (-5, 5, 110, 200)
+    #plum.coll_pos = (0, 0, 1, 4)
 
 
 def get_model(model_type, model_value):

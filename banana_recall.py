@@ -19,7 +19,7 @@ try:
 except ImportError:
     LOADED_PYDAQ = False
     print 'Not using PyDaq'
-
+LOADED_PYDAQ = False
 
 def check_timer(timer, goal):
         if time.clock() - timer >= goal:

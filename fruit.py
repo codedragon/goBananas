@@ -119,27 +119,34 @@ class Fruit():
         model.name = name
         print('create fruit', name)
 
+        model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
+        #model.retrNodePath().getChild(0).getChild(0).show()
         # ONLY WANT ONE COMMAND IN TRY BLOCK!
-        try:
-            #print(item.coll_pos)
-            x, y, z, s = item.coll_pos
-            #print(model.retrNodePath().getChild(1))
-            #print(model.retrNodePath().getChild(1).node())
-        except AttributeError:
-            model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
-            #model.retrNodePath().getChild(0).getChild(0).show()
-            #print(model.retrNodePath().getChild(0).getChild(0))
-        else:
-            #pass
-            model_sphere = CollisionSphere(x, y, z, s)
-            model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
-            #model.retrNodePath().getChild(1).node().addSolid(model_sphere)
-            #model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
-            node_path = model.retrNodePath().getChild(1)
-            node_path.setScale(item.coll_scale)
-            print node_path.getScale()
-            node_path.node().addSolid(model_sphere)
+        # try:
+        #     #print(item.coll_pos)
+        #     x, y, z, s = item.coll_pos
+        #     #print(model.retrNodePath().getChild(1))
+        #     #print(model.retrNodePath().getChild(1).node())
+        # except AttributeError:
+        #     print model.retrNodePath().getChild(0).getChild(0)
+        #     model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
+        #     model.retrNodePath().getChild(0).getChild(0).show()
+        #     #print(model.retrNodePath().getChild(0).getChild(0))
+        # else:
+        #     pass
+        #     # model_sphere = CollisionSphere(x, y, z, s)
+        #     # model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
+        #     # #model.retrNodePath().getChild(1).node().addSolid(model_sphere)
+        #     # #model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
+        #     print(model.retrNodePath().getChild(0).getChild(0))
+        #     model.retrNodePath().getChild(0).getChild(0).setScale(1)
+        #     model.retrNodePath().getChild(0).getChild(0).show()
+            #node_path = model.retrNodePath().getChild(1)
+            #node_path.setScale(item.coll_scale)
+            #print('scale', node_path.getScale())
+            # node_path.node().addSolid(model_sphere)
             #node_path.show()
+            # print node_path
         #print(model.retrNodePath().getChild(0))
         #print(model.retrNodePath().getChild(0).node())
 
@@ -304,7 +311,7 @@ class Fruit():
         #print 'what is first_collision now?', self.first_collision
         # which fruit we ran into
         self.current_fruit = collision_info[0].getInto().getIdentifier()
-        print self.current_fruit
+        print('collision', self.current_fruit)
         print self.first_collision
         # check to see if the banana was in the camera view when collided,
         # if not, then ignore collision
