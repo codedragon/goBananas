@@ -117,25 +117,29 @@ class Fruit():
         model.setHpr(Point3(random.randint(0, 360), 0, roll))
         model.setScale(item.scale)
         model.name = name
-        #print name
+        print('create fruit', name)
 
         # ONLY WANT ONE COMMAND IN TRY BLOCK!
         try:
             #print(item.coll_pos)
             x, y, z, s = item.coll_pos
-            model_sphere = CollisionSphere(x, y, z, s)
-            model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
-            node_path = model.retrNodePath().getChild(1)
-            node_path.setScale(item.coll_scale)
-            print node_path.getScale()
-            node_path.addSolid(model_sphere)
-            node_path.show()
             #print(model.retrNodePath().getChild(1))
             #print(model.retrNodePath().getChild(1).node())
         except AttributeError:
             model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
             #model.retrNodePath().getChild(0).getChild(0).show()
             #print(model.retrNodePath().getChild(0).getChild(0))
+        else:
+            #pass
+            model_sphere = CollisionSphere(x, y, z, s)
+            model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
+            #model.retrNodePath().getChild(1).node().addSolid(model_sphere)
+            #model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
+            node_path = model.retrNodePath().getChild(1)
+            node_path.setScale(item.coll_scale)
+            print node_path.getScale()
+            node_path.node().addSolid(model_sphere)
+            #node_path.show()
         #print(model.retrNodePath().getChild(0))
         #print(model.retrNodePath().getChild(0).node())
 
