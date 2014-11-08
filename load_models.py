@@ -107,7 +107,7 @@ def load_models():
     plum.name = 'plum'
     plum.group = 'fruit'
     #plum.scale = 0.004
-    plum.scale = 0.05
+    plum.scale = 0.2
     plum.model = 'models/fruit/plum.bam'
     plum.roll = 75
     # scale is redundant if we are setting the pos (last number is scale)

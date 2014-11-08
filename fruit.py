@@ -21,6 +21,7 @@ class Fruit():
         self.repeat_recall = False
 
         if self.config['fruit_to_remember']:
+            print 'recall task'
             # if doing recall task, fruit to remember is always first
             self.all_fruit.insert(0, self.config['fruit_to_remember'])
             self.num_fruit.insert(0, 1)
@@ -28,9 +29,13 @@ class Fruit():
             # bring this into a variable, so we can toggle it.
             self.repeat_recall = config['repeat_recall_fruit']
             self.all_subareas = mB.create_sub_areas(self.config)
-            self.subarea = {}
-            self.create_subarea_dict(self.config['subarea'])
+            print self.all_subareas
+            self.fruit_area = [{}]
+            self.create_fruit_area_dict(self.config['subarea'])
             self.alpha = self.config['alpha']
+        else:
+            self.fruit_area = [{}]
+            self.create_fruit_area_dict(0)
 
         # for repeating a particular configuration
         self.repeat = config['fruit_repeat']  # true or false
@@ -120,39 +125,6 @@ class Fruit():
         #print('create fruit', name)
 
         model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
-        #model.retrNodePath().getChild(0).getChild(0).show()
-        # ONLY WANT ONE COMMAND IN TRY BLOCK!
-        # try:
-        #     #print(item.coll_pos)
-        #     x, y, z, s = item.coll_pos
-        #     #print(model.retrNodePath().getChild(1))
-        #     #print(model.retrNodePath().getChild(1).node())
-        # except AttributeError:
-        #     print model.retrNodePath().getChild(0).getChild(0)
-        #     model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
-        #     model.retrNodePath().getChild(0).getChild(0).show()
-        #     #print(model.retrNodePath().getChild(0).getChild(0))
-        # else:
-        #     pass
-        #     # model_sphere = CollisionSphere(x, y, z, s)
-        #     # model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
-        #     # #model.retrNodePath().getChild(1).node().addSolid(model_sphere)
-        #     # #model.nodePath.attachNewNode(CollisionNode('CollisionSphere'))
-        #     print(model.retrNodePath().getChild(0).getChild(0))
-        #     model.retrNodePath().getChild(0).getChild(0).setScale(1)
-        #     model.retrNodePath().getChild(0).getChild(0).show()
-            #node_path = model.retrNodePath().getChild(1)
-            #node_path.setScale(item.coll_scale)
-            #print('scale', node_path.getScale())
-            # node_path.node().addSolid(model_sphere)
-            #node_path.show()
-            # print node_path
-        #print(model.retrNodePath().getChild(0))
-        #print(model.retrNodePath().getChild(0).node())
-
-        #print(model.retrNodePath().getChild(0).getChild(0))
-        #print(model.retrNodePath().getChild(0).getChild(0).node())
-        #model.retrNodePath().getChild(0).show()
 
         # hide all models on creation
         model.setStashed(True)
@@ -242,18 +214,24 @@ class Fruit():
                     first_fruit = index
                     # getting a new position
                     # send in config with sub areas
-                    (x, y) = mB.set_xy(pos_list, avatar_x_y, self.subarea)
+                    (x, y) = mB.set_xy(pos_list, avatar_x_y, self.fruit_area[0])
                     pos_list.append((x, y))
                     # this is a new fruit to remember, start with it
 
                     # always be ready to repeat recall fruit, cheap
                     self.pos_list = (x, y)
                 else:
-                    # now put in the recall fruit position we remembered
+                    # now put in the recall fruit position we used previously
                     (x, y) = old_list
                 #print('recall fruit position', x, y)
             else:
-                (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config)
+                # use normal area, if gobananas, last dictionary is the only dictionary,
+                # which is the whole space. If recall, uses the last area which is either
+                # special for the fruit not recalling, or the whole space, if recall fruit
+                # is in the whole space
+                print self.fruit_area
+                print self.fruit_area[-1]
+                (x, y) = mB.set_xy(pos_list, avatar_x_y, self.fruit_area[-1])
                 # going to end up adding in recall fruit twice if repeating it,
                 # but this should not cause problems
                 pos_list.append((x, y))
@@ -424,22 +402,70 @@ class Fruit():
                 # don't put them too close together
                 pos_list.append((self.fruit_models[i].getPos()[0], self.fruit_models[i].getPos()[1]))
 
-    def create_subarea_dict(self, subarea_key):
+    def create_fruit_area_dict(self, subarea_key):
         #print('created new dictionary')
         # Need to keep around the original size of the area, and I don't trust the pandaepl config
         # dictionary, because they have done weird things to scope, so create a new dictionary
+        print('key', subarea_key)
+        # start with an empty dictionary every time
+        self.fruit_area = [{}]
         if subarea_key == 0:
+            print 'key is zero'
             # don't get entire self.config dictionary, just bounds of courtyard
-            self.subarea = {'min_x': self.config['min_x'],
-                            'max_x': self.config['max_x'],
-                            'min_y': self.config['min_y'],
-                            'max_y': self.config['max_y']
-                            }
+            self.fruit_area[0].update({'min_x': self.config['min_x'],
+                                       'max_x': self.config['max_x'],
+                                       'min_y': self.config['min_y'],
+                                       'max_y': self.config['max_y']
+                                       })
+            print self.fruit_area
         else:
-            self.subarea.update(self.all_subareas[subarea_key])
-        self.subarea['tooClose'] = self.config['tooClose']
-        self.subarea['avatarRadius'] = self.config['avatarRadius']
-        self.subarea['environ'] = self.config['environ']
+            print 'key is not zero'
+            self.fruit_area[0].update(self.all_subareas[subarea_key])
+            print self.fruit_area
+
+        self.fruit_area[0]['tooClose'] = self.config['tooClose']
+        self.fruit_area[0]['avatarRadius'] = self.config['avatarRadius']
+        self.fruit_area[0]['environ'] = self.config['environ']
+        if 'circle' in self.config['environ']:
+            self.fruit_area[0]['radius'] = self.config['radius']
+        print('after updating tooclose', self.fruit_area)
+
+        #print self.fruit_area
+        if subarea_key > 0:
+            # also make a config dict for the other fruit
+            size_area = self.create_alt_fruit_area(subarea_key)
+            self.fruit_area.append({'min_x': min([self.all_subareas[i]['min_x'] for i in size_area]),
+                                    'max_x': max([self.all_subareas[i]['max_x'] for i in size_area]),
+                                    'min_y': min([self.all_subareas[i]['min_y'] for i in size_area]),
+                                    'max_y': max([self.all_subareas[i]['max_y'] for i in size_area]),
+                                    'tooClose': self.config['tooClose'],
+                                    'avatarRadius': self.config['avatarRadius'],
+                                    'environ': self.config['environ']})
         # make sure we know we moved
         self.pos_list = []
-        #print self.subarea
+
+    def create_alt_fruit_area(self, subarea_key):
+        # plum can be in same area as banana, or one section away
+        # could probably come up with some algorithm for this, but
+        # couldn't be bothered.
+        if subarea_key == 1:
+            area_list = [1, 2, 4, 5]
+        elif subarea_key == 2:
+            area_list = [1, 2, 3, 4, 5, 6]
+        elif subarea_key == 3:
+            area_list = [2, 3, 5, 6]
+        elif subarea_key == 4:
+            area_list = [1, 2, 4, 5, 7, 8]
+        elif subarea_key == 5:
+            area_list = [0]
+        elif subarea_key == 6:
+            area_list = [2, 3, 5, 6, 8, 9]
+        elif subarea_key == 7:
+            area_list = [4, 5, 7, 8]
+        elif subarea_key == 8:
+            area_list = [4, 5, 6, 7, 8, 9]
+        elif subarea_key == 9:
+            area_list = [5, 6, 8, 9]
+        else:
+            area_list = []
+        return area_list
