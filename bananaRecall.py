@@ -386,11 +386,11 @@ class BananaRecall:
 
     def change_subarea(self, input_event):
         print('change subarea')
-        print input_event
+        #print input_event
         print input_event.eventName
-        print input_event.eventName[-1]
+        #print input_event.eventName[-1]
         # create new corresponding dictionary
-        self.fruit.create_subarea_dict(int(input_event.eventName[-1]))
+        self.fruit.create_fruit_area_dict(int(input_event.eventName[-1]))
 
     def start(self):
         """
