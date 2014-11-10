@@ -41,7 +41,7 @@ def set_xy(pos_list, avatar=(0, 0), config = None):
     if config is None:
         config = {}
         execfile('config.py', config)
-    print('in set_xy', config)
+    #print('in set_xy', config)
     too_close = config['tooClose']
     dist_avatar = config['avatarRadius'] + too_close
 

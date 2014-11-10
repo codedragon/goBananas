@@ -105,8 +105,9 @@ class BananaRecall:
                                   [("X", float), ("Y", float)],
                                   False)
         self.fruit = None
-        # initialize trial number
-        self.trial_num = 0
+        # initialize trial number, in bananaRecall, we are increasing the trial_num at the
+        # beginning instead of the end, so start at -1, so trial_num starts at 0
+        self.trial_num = -1
         # Handle keyboard events
         vr.inputListen('close', self.close)
         vr.inputListen("increase_reward", self.increase_reward)
@@ -399,7 +400,7 @@ class BananaRecall:
         # Load environment
         self.load_environment()
         self.fruit = Fruit(self.config)
-        print self.fruit
+        #print self.fruit
         # fruit not remembering
         all_fruit = self.config['fruit']
         all_fruit.insert(0, self.config['fruit_to_remember'])

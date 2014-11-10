@@ -28,7 +28,7 @@ sendData = True
 # framebuffer-stereo 1
 
 # reward
-numBeeps = 3
+numBeeps = 10
 # factor to increase reward for last banana
 # probably shouldn't use this if using weighted bananas
 # (just make it 1)
@@ -114,9 +114,9 @@ time_to_recall = 10  # number of seconds to get to remembered location
 time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
 # for training, fruit_to_remember location can be limited to a small area of the courtyard
 # (areas arranged same as numbers on keypad), zero means can be anywhere
-subarea = 1  # this is the starting spot, can be changed by a keypress later on
+subarea = 9  # this is the starting spot, can be changed by a keypress later on
 # once trained, alpha will be at zero, no banana showing
-alpha = 0.5  # this is for training in the recall task. fully visible is 1, invisible is 0
+alpha = 0.9  # this is for training in the recall task. fully visible is 1, invisible is 0
 
 # how close is too close together for fruit and avatar? Keep in mind that the distance is between the centers, but
 # when you run into a fruit, you are not at the center, so could be closer than tooClose at that point

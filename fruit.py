@@ -21,7 +21,7 @@ class Fruit():
         self.repeat_recall = False
 
         if self.config['fruit_to_remember']:
-            print 'recall task'
+            #print 'recall task'
             # if doing recall task, fruit to remember is always first
             self.all_fruit.insert(0, self.config['fruit_to_remember'])
             self.num_fruit.insert(0, 1)
@@ -29,7 +29,7 @@ class Fruit():
             # bring this into a variable, so we can toggle it.
             self.repeat_recall = config['repeat_recall_fruit']
             self.all_subareas = mB.create_sub_areas(self.config)
-            print self.all_subareas
+            #print self.all_subareas
             self.fruit_area = [{}]
             self.create_fruit_area_dict(self.config['subarea'])
             self.alpha = self.config['alpha']
@@ -229,8 +229,8 @@ class Fruit():
                 # which is the whole space. If recall, uses the last area which is either
                 # special for the fruit not recalling, or the whole space, if recall fruit
                 # is in the whole space
-                print self.fruit_area
-                print self.fruit_area[-1]
+                #print self.fruit_area
+                #print self.fruit_area[-1]
                 (x, y) = mB.set_xy(pos_list, avatar_x_y, self.fruit_area[-1])
                 # going to end up adding in recall fruit twice if repeating it,
                 # but this should not cause problems
@@ -406,29 +406,29 @@ class Fruit():
         #print('created new dictionary')
         # Need to keep around the original size of the area, and I don't trust the pandaepl config
         # dictionary, because they have done weird things to scope, so create a new dictionary
-        print('key', subarea_key)
+        #print('key', subarea_key)
         # start with an empty dictionary every time
         self.fruit_area = [{}]
         if subarea_key == 0:
-            print 'key is zero'
+            #print 'key is zero'
             # don't get entire self.config dictionary, just bounds of courtyard
             self.fruit_area[0].update({'min_x': self.config['min_x'],
                                        'max_x': self.config['max_x'],
                                        'min_y': self.config['min_y'],
                                        'max_y': self.config['max_y']
                                        })
-            print self.fruit_area
+            #print self.fruit_area
         else:
-            print 'key is not zero'
+            #print 'key is not zero'
             self.fruit_area[0].update(self.all_subareas[subarea_key])
-            print self.fruit_area
+            #print self.fruit_area
 
         self.fruit_area[0]['tooClose'] = self.config['tooClose']
         self.fruit_area[0]['avatarRadius'] = self.config['avatarRadius']
         self.fruit_area[0]['environ'] = self.config['environ']
         if 'circle' in self.config['environ']:
             self.fruit_area[0]['radius'] = self.config['radius']
-        print('after updating tooclose', self.fruit_area)
+        #print('after updating tooclose', self.fruit_area)
 
         #print self.fruit_area
         if subarea_key > 0:
