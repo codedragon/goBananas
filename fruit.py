@@ -38,9 +38,9 @@ class Fruit():
             self.create_fruit_area_dict(0)
 
         # for repeating a particular configuration
-        self.repeat = config['fruit_repeat']  # true or false
-        self.repeat_number = config['repeat_number']  # how often to repeat
+        self.repeat = config.get('fruit_repeat', False)  # assume false if none provided
         if self.repeat:
+            self.repeat_number = config['repeat_number']  # how often to repeat
             self.now_repeat = random.choice(range(self.repeat_number))  # choose which trial we are repeating
             print('collect fruit positions from trial', self.now_repeat)
             self.repeat = self.now_repeat  # remember which trial we have repeated
