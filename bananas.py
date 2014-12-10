@@ -49,99 +49,63 @@ class Bananas():
         self.collision = True
         self.pList = []
         if self.manual:
-            self.posBananas = config['posBananas']
-            self.createManualBananas()
+            self.pList = config['posBananas']
+            self.create_bananas(positions=True)
         else:
-            self.createBananas()
+            self.create_bananas()
 
-    def createManualBananas(self):
-        # don't assign bananas randomly, place exactly where we want them
-        # according to config file. Technically, could do more than 2 bananas,
-        # but have never needed to.
-        self.pList = self.posBananas
-        for i in range(self.numBananas):
-            # pop okay, since only doing this for a list of max 4 items
-            #x = self.posBananas.pop(0)
-            #y = self.posBananas.pop(0)
-            x, y = self.pList[i]
-            bananaModel = Model.Model("banana" + "%02d" % i,
-                                      os.path.join(self.dir,
-                                      "banana.bam"),
-                                      Point3(x, y, 1),
-                                      self.collideBanana)
-            bananaModel.setScale(self.scale)
-            # could make this static instead
-            #bananaModel.setH(random.randint(0, 360))
-            bananaModel.setH(280)
-            # make collision sphere around banana really small
-            bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.3)
-            # uncomment to see collision sphere around bananas
-            #bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
-            # what the hell is up with so many banana children?
-            #print 'banana'
-            #print bananaModel.retrNodePath()
-            #print bananaModel.retrNodePath().getChild(0)
-            #print bananaModel.retrNodePath().getChild(0).getChild(0)
-            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0)
-            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node()
-            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node().getFromCollideMask()
-            #print bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).node().getIntoCollideMask()
-            self.bananaModels.append(bananaModel)
-            # if true, object is removed from the environment, but not destroyed
-            # so start with not stashed
-            self.bananaModels[i].setStashed(False)
-
-        #print 'on screen?'
-        print self.pList
-
-    def createBananas(self, start=None):
+    def create_bananas(self, start=None, positions=None):
         #print 'create bananas'
         #print start
-        #self.ballModel = Model.Model("smiley", "smiley",
-        #                        Point3(self.weight_center[0], self.weight_center[1], 1))
-
-        #self.ballModel.setScale(0.1)
+        print 'numBananas', self.numBananas
         # Randomly assign where bananas go and return a banana bananaModel.
         # start allows you to just add new bananas to the bananas already on
         # the field
         if start is None:
             start = 0
-        print 'numBananas', self.numBananas
-        pList = []
+        if positions is None:
+            pList = []
         # get current position of avatar, so bananas not too close.
         avatar = Avatar.Avatar.getInstance()
         avatarXY = (avatar.getPos()[0], avatar.getPos()[1])
         #print avatarXY
-        for i, j in enumerate(range(start, self.numBananas)):
-            #print i
-            #print j
-            (x, y) = mB.setXY(pList, avatarXY)
-            #print i,j
-            #pList += [(x, y)]
-            pList.append((x, y))
-            # Model is a global from pandaepl
-            # Point3 is a global from Panda3d
-            bananaModel = Model.Model("banana" + "%03d" % j,
+        for i in range(start, self.numBananas):
+            if positions:
+                x, y = self.pList[i]
+            else:
+                (x, y) = mB.setXY(pList, avatarXY)
+                pList.append((x, y))
+            self.create_banana_model(i, x, y)
+        #print 'end load bananas'
+        # go ahead and save these banana placements, if we are saving from a different trial,
+        # will just be over-written.
+        if self.repeat and positions is None:
+            self.pList = pList
+        #print pList
+        # if you want to see a smiley ball sitting at the center of the weighted circle,
+        # uncomment here and in changeWeightedCenter
+        #self.ballModel = Model.Model("smiley", "smiley",
+        #                        Point3(self.weight_center[0], self.weight_center[1], 1))
+
+        #self.ballModel.setScale(0.1)
+
+    def create_banana_model(self, i, x, y):
+        banana_model = Model.Model("banana" + "%03d" % i,
                                 os.path.join(self.dir,
                                 "banana.bam"),
                                 Point3(x, y, 1),
                                 self.collideBanana)
-            bananaModel.setScale(self.scale)
-            bananaModel.setH(random.randint(0, 361))
-            # make collision sphere around banana really small
-            bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
-            # uncomment to see collision sphere around bananas
-            #bananaModel.retrNodePath().getChild(0).getChild(0).getChild(0).show()
-            self.bananaModels.append(bananaModel)
-            # if true, object is removed from the environment, but not destroyed
-            # so start with not stashed
-            self.bananaModels[i].setStashed(False)
-        #print 'end load bananas'
-        # go ahead and save these banana placements, if we are saving from a different trial,
-        # will just be over-written.
-        if self.repeat:
-            self.pList = pList
-        #print pList
+        banana_model.setScale(self.scale)
+        banana_model.setH(random.randint(0, 360))
+        # make collision sphere around banana really small
+        banana_model.retrNodePath().getChild(0).getChild(0).getChild(0).setScale(0.2)
+        # uncomment to see collision sphere around bananas
+        print banana_model.retrNodePath().getChild(0).getChild(0).getChild(0).node()
+        #banana_model.retrNodePath().getChild(0).getChild(0).getChild(0).show()
+        self.bananaModels.append(banana_model)
+        # if true, object is removed from the environment, but not destroyed
+        # so start with not stashed
+        self.bananaModels[i].setStashed(False)
 
     def collideBanana(self, collisionInfoList):
         """
@@ -155,12 +119,12 @@ class Bananas():
         # check to see if the banana was in the camera view when collided,
         # if not, then ignore collision
         collided = collisionInfoList[0].getInto()
-        camNodePath = Camera.Camera.getDefaultCamera().retrNodePath()
-        #print collided.retrNodePath().getPos(camNodePath)
-        #print camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath))
+        cam_node_path = Camera.Camera.getDefaultCamera().retrNodePath()
+        #print collided.retrNodePath().getPos(cam_node_path)
+        #print cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path))
         # Sometimes we collide with a banana multiple times for no damn reason, so setting self.collision
         # to keep track of whether this is the first collision
-        if camNodePath.node().isInView(collided.retrNodePath().getPos(camNodePath)) and self.collision:
+        if cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)) and self.collision:
             #print self.byeBanana
             # cannot run inside of banana
             MovingObject.MovingObject.handleRepelCollision(collisionInfoList)
@@ -276,7 +240,7 @@ class Bananas():
         # have to create the new bananas
         # print 'bananas number', len(self.bananaModel)
         if self.numBananas > len(self.bananaModels):
-            self.createBananas(self.numBananas - 5)
+            self.create_bananas(self.numBananas - 5)
             # make new ones show up (also any that have been previously hidden)
         self.replenish_stashed_bananas()
 

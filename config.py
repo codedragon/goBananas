@@ -1,16 +1,14 @@
 # change individual config files, and have script copy to config.py
 # configuration file for goBananas
 from panda3d.core import Point3, Point4
+from pandaepl import Keyboard
 
 # models are in goBananas directory by default
 path_models = ''
-# manual mode allows you to place up to 2 bananas in specific places,
-# rather than having random placement of x bananas
-manual = False
 
 # environ types available:
 # 'original'
-# environ = 'original'
+#environ = 'original'
 environ = 'circle'
 
 # Are we giving rewards?
@@ -29,22 +27,23 @@ sendData = True
 # framebuffer-stereo 1
 
 # reward
-numBeeps = 3
+numBeeps = 4
 # factor to increase reward for last banana
 # probably shouldn't use this if using weighted bananas
 # (just make it 1)
-extra = 1
+extra = 2
 
 # are we repeating a certain configuration of bananas?
 # one of the first x banana configurations will be chosen
 # at random to be repeated.
-bananaRepeat = False
+fruit_repeat = True
+
 # How often to repeat the trial (will be one randomized
 # within this number of trials)
-repeatNumber = 10
+repeat_number = 10
 
 # Are bananas in different areas worth more/less?
-weightedBananas = True
+weightedBananas = False
 # Are we changing the location of the weights during the experiment?
 # False or number of trials to go before switching
 changeWeightLoc = 500
@@ -56,7 +55,7 @@ low_reward = 3
 crosshair = False
 
 # for activating reward system
-pulseInterval = 200  # in ms
+pulseInterval = 200  # in ms still or goBananas
 
 # eye position calibration information
 # since we are getting voltage from IScan of -5:5
@@ -107,29 +106,19 @@ instructSeeAll = False
 # Experiment-specific settings
 
 # Bananas.
-numBananas = 10
+fruit = ['old_banana']
+num_fruit = [10]
 
-#numBananas = 25
-bananaDir = './models/bananas/'
-#bananaZ = 1
-bananaScale = .6
-#bananaRotation = 0  # Rotation speed in degrees/frame.
 # how close is too close together?
 tooClose = 1  # 1
 
 # Banana Positions
-minXDistance = -10
-maxXDistance = 10
-minYDistance = -10
-maxYDistance = 10
+min_x = -10
+max_x = 10
+min_y = -10
+max_y = 10
 
-# Load 2 bananas for testing, know where they are!
-# (no effect if manual False)
-bananaModel = './models/bananas/banana.bam'
-bananaLoc = Point3(5, 3, 1)
-bananaH = 0
-bananaLoc2 = Point3(5.5, 3, 1)
-
+# used for placing bananas in circular environment
 radius = 14
 
 # (Non-default) command keys.

@@ -12,10 +12,11 @@ class PlaceModels(object):
         self.group = 'original'
         self.model = 'models/fixtures/streetlight.bam'
         self.location = Point3(-13, 13, 0)
-        self.scale = 1
         self.head = 0
+        self.scale = 1
         self.callback = None
         self.name = 'streetlight'
+        self.coll_scale = 1
 
 
 # Eventually may want to make this a database
@@ -88,6 +89,44 @@ def load_models():
     #horizon.model = 'models/sky/good_sky_hole.egg'
     #horizon.model = '../play_environ/models/sky_cylinder.egg'
     horizon.location = Point3(0, 0, -0.5)
+
+    banana = PlaceModels()
+    banana.name = 'old_banana'
+    banana.group = 'fruit'
+    banana.scale = 0.5
+    banana.model = 'models/bananas/banana.bam'
+    banana.coll_scale = 1
+
+    banana = PlaceModels()
+    banana.name = 'banana'
+    banana.group = 'fruit'
+    banana.scale = 0.03
+    banana.model = 'models/fruit/banana.bam'
+    banana.roll = 75
+    banana.coll_scale = 1
+
+    plum = PlaceModels()
+    plum.name = 'plum'
+    plum.group = 'fruit'
+    #plum.scale = 0.004
+    #plum.scale = 0.2
+    plum.scale = 0.08
+    plum.model = 'models/fruit/plum.bam'
+    plum.roll = 75
+    # scale is redundant if we are setting the pos (last number is scale)
+    plum.coll_scale = 1
+    #plum.coll_pos = (-5, 5, 110, 200)
+    #plum.coll_pos = (0, 0, 1, 4)
+
+
+def get_model(model_type, model_value):
+    load_models()
+    for item in PlaceModels()._registry:
+        data = getattr(item, model_type)
+        if data == model_value:
+            return item
+    else:
+        print "not found"
 
 #load_models()
 #for item in PlaceModels._registry:
