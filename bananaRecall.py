@@ -203,21 +203,20 @@ class BananaRecall:
             if check_timer(self.flash_timer, self.config['time_to_flash']):
                 self.new_trial()
         # check to see if reward timer is on, otherwise safe to give reward
-        if self.reward_timer:
-            if check_timer(self.reward_timer, self.config['pulseInterval']):
-                self.reward_timer = 0
-        elif self.fruit.beeps >= 0:
+        if self.reward_timer and check_timer(self.reward_timer, self.config['pulseInterval']):
+            self.reward_timer = 0
+        if not self.reward_timer and self.fruit.beeps >= 0:
             # we can give reward, since there is currently no reward timer going
             self.give_reward()
 
     def give_reward(self):
         #print 'give reward'
+        # set reward timer
+        self.reward_timer = time.clock()
         if self.reward:
             self.reward.pumpOut()
         else:
             print('beep', self.fruit.beeps)
-        # now set reward timer
-        self.reward_timer = time.clock()
         # if this is first reward, log that
         if self.fruit.beeps == 0:
             VLQ.getInstance().writeLine("Yummy", [self.fruit.current_fruit])
