@@ -237,13 +237,16 @@ class BananaRecall:
             #print 'last reward'
             # if fruit visible, fruit disappears, otherwise new trial
             if self.remembered_location:
+                print 'remembered location'
                 # if alpha is not one, set banana back to full alpha
                 if self.fruit.alpha > 0:
-                    #print 'turn off alpha'
+                    print 'turn off alpha'
                     self.fruit.flash_recall_fruit(False)
                     self.fruit.reset_collision()
                 self.new_trial()
+                print 'new trial'
             else:
+                print 'else'
                 self.fruit.disappear_fruit()
                 self.remember_fruit = self.fruit.get_next_fruit()
                 # remember_fruit is true or false
@@ -252,7 +255,7 @@ class BananaRecall:
                 self.recall_timer = time.clock()
             self.remembered_location = False
             # new fruit appears, either starting over or next fruit in stack
-            #print 'new fruit'
+            print 'new fruit'
 
             # avatar can move
             Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
@@ -294,12 +297,12 @@ class BananaRecall:
     def send_new_trial_daq(self):
         self.daq_events.send_signal(1000 + self.trial_num)
         self.daq_strobe.send_signal()
-        for i in self.fruit.fruit_models:
+        for model in self.fruit.fruit_models.itervalues():
             # can't send negative numbers or decimals, so
             # need to translate the numbers
             # print i.getPos()
-            translate_b = [int((i.getPos()[0] - self.config['min_x']) * 1000),
-                           int((i.getPos()[1] - self.config['min_y']) * 1000)]
+            translate_b = [int((model.getPos()[0] - self.config['min_x']) * 1000),
+                           int((model.getPos()[1] - self.config['min_y']) * 1000)]
             #print foo
             self.daq_events.send_signal(translate_b[0])
             self.daq_strobe.send_signal()

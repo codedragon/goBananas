@@ -247,12 +247,12 @@ class GoBananas:
         if self.send_events:
             self.send_events.send_signal(1000 + self.trial_num)
             self.send_strobe.send_signal()
-            for i in self.fruit.fruit_models:
+            for model in self.fruit.fruit_models.itervalues():
                 # can't send negative numbers or decimals, so
                 # need to translate the numbers
                 #print i.getPos()
-                translate_b = [int((i.getPos()[0] - self.min_x) * 1000),
-                       int((i.getPos()[1] - self.min_y) * 1000)]
+                translate_b = [int((model.getPos()[0] - self.min_x) * 1000),
+                       int((model.getPos()[1] - self.min_y) * 1000)]
                 #print foo
                 self.send_events.send_signal(translate_b[0])
                 self.send_strobe.send_signal()
@@ -316,10 +316,10 @@ class GoBananas:
     def decrease_reward(self, inputEvent):
         self.numBeeps -= 1
 
-    def increase_bananas(self):
+    def increase_bananas(self, inputEvent):
         pass
 
-    def decrease_bananas(self):
+    def decrease_bananas(self, inputEvent):
         pass
 
     def restart(self, inputEvent):
