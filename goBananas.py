@@ -261,7 +261,7 @@ class GoBananas:
             if self.fruit.repeat:
                 self.send_events.send_signal(300)
                 self.send_strobe.send_signal()
-                self.send_events.send_signal(self.fruit.now_repeat)
+                self.send_events.send_signal(self.fruit.repeat_list[2])
                 self.send_strobe.send_signal()
 
     def load_environment(self, config):

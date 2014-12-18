@@ -1,8 +1,30 @@
 from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
-from panda3d.core import Point3, CollisionNode, CollisionSphere, TransparencyAttrib
+from panda3d.core import Point3, TransparencyAttrib
 from load_models import load_models, get_model
 import moBananas as mB
 import random
+
+
+def check_repeat(trial_num, repeat_list):
+    # first check to see if we are choosing a new trial
+    # number for repeat.
+    fruit_trial = ''
+    if trial_num > 0 and trial_num % repeat_list[0] == 0:
+        # time to choose the next trial that will be a repeat,
+        # choose a number from 0 to repeat number and add it to this trial number
+        repeat_list[2] = trial_num + random.choice(range(repeat_list[0]))
+        print('chose trial', repeat_list[2])
+        # if we are on a now_repeat trial, and now the trial number is less than repeat number,
+        # it is the first one and we are collecting
+    if trial_num == repeat_list[1]:
+        # self.repeat is the trial number for collecting positions
+        print 'collecting positions for repeat'
+        fruit_trial = 'new'
+    elif trial_num == repeat_list[2]:
+        # and now we are repeating
+        print 'repeat'
+        fruit_trial = 'repeat'
+    return repeat_list, fruit_trial
 
 
 class Fruit():
@@ -40,12 +62,14 @@ class Fruit():
         # for repeating a particular configuration
         self.repeat = config.get('fruit_repeat', False)  # assume false if none provided
         if self.repeat:
-            self.repeat_number = config['repeat_number']  # how often to repeat
-            self.now_repeat = random.choice(range(self.repeat_number))  # choose which trial we are repeating
-            print('collect fruit positions from trial', self.now_repeat)
-            self.repeat = self.now_repeat  # remember which trial we have repeated
-        else:
-            self.now_repeat = None  # never repeat
+            start_number = random.choice(range(config['repeat_number']))
+            # repeat_list is [frequency of repeat, start number, next number]
+            self.repeat_list = [config['repeat_number'], start_number, start_number]
+            #self.repeat_number = config['repeat_number']  # how often to repeat
+            #self.now_repeat = random.choice(range(self.repeat_number))  # choose which trial we are repeating
+            #print('collect fruit positions from trial', self.now_repeat)
+            print('collect fruit positions from trial', self.repeat_list[1])
+            # self.repeat = self.now_repeat  # remember which trial we have repeated
 
         # index_fruit_dict keeps track of which index number in the fruit_model list corresponds to which
         # name/model, because this is easier than running a for loop every time to find the one
@@ -135,44 +159,30 @@ class Fruit():
     def setup_trial(self, trial_num):
         # trials are set up mostly the same, whether showing fruit sequentially or all at once.
         print('trial number', trial_num)
-        print('trial number to be repeated', self.repeat)
+        print('trial number to be repeated', self.repeat_list[1])
+        fruit_trial = ''
         # self.repeat only refers to regular trials, not sequential trials
         if self.repeat:
-            # first check to see if we are choosing a new trial
-            # number for repeat.
-            if trial_num > 0:
-                print trial_num % self.repeat_number
-            if trial_num > 0 and trial_num % self.repeat_number == 0:
-                # time to choose the next trial that will be a repeat,
-                # choose a number from 0 to repeat number and add it to this trial number
-                self.now_repeat = trial_num + random.choice(range(self.repeat_number))
-                print('chose trial', self.now_repeat)
-            # if we are on a now_repeat trial, and now the trial number is less than repeat number,
-            # it is the first one and we are collecting
-            if trial_num == self.repeat:
-                # self.repeat is the trial number for collecting positions
-                #print 'collecting positions for repeat'
-                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
-                self.setup_fruit_for_trial('new')
-            elif trial_num == self.now_repeat:
-                # and now we are repeating
-                #print 'repeat'
-                VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
-                self.setup_fruit_for_trial('repeat')
-            else:
-                self.setup_fruit_for_trial()
+            self.repeat_list, fruit_trial = check_repeat(trial_num, self.repeat_list)
+            print('got stuff back', fruit_trial)
         else:
+            print 'not repeating'
             if self.config['fruit_to_remember']:
                 # repeat_recall can be toggled with button press
                 if self.repeat_recall:
-                    self.setup_fruit_for_trial('recall_repeat')
+                    fruit_trial = 'recall_repeat'
                 else:
-                    self.setup_fruit_for_trial('recall')
+                    fruit_trial = 'recall'
             else:
-                self.setup_fruit_for_trial()
+                    print 'else'
+        self.setup_fruit_for_trial(fruit_trial)
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
+        if fruit_trial == 'new' or fruit_trial == 'repeat':
+            print 'log repeat'
+            VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
 
     def setup_fruit_for_trial(self, repeat='No'):
+        print('repeat_fruit_trial', repeat)
         #print 'setup fruit for trial'
         # get positions for fruit
         # if repeat has 'repeat' in it, use same positions as before
