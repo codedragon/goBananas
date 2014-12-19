@@ -118,6 +118,19 @@ def load_models():
     #plum.coll_pos = (-5, 5, 110, 200)
     #plum.coll_pos = (0, 0, 1, 4)
 
+    cherry = PlaceModels()
+    cherry.name = 'cherry'
+    cherry.group = 'fruit'
+    #cherry.scale = 0.004
+    #cherry.scale = 0.2
+    cherry.scale = 0.08
+    cherry.model = 'models/fruit/cherry.egg'
+    cherry.roll = 0
+    # scale is redundant if we are setting the pos (last number is scale)
+    cherry.coll_scale = 1
+    #cherry.coll_pos = (-5, 5, 110, 200)
+    #cherry.coll_pos = (0, 0, 1, 4)
+
 
 def get_model(model_type, model_value):
     load_models()
@@ -126,7 +139,7 @@ def get_model(model_type, model_value):
         if data == model_value:
             return item
     else:
-        print "not found"
+        print(model_value, "not found")
 
 #load_models()
 #for item in PlaceModels._registry:
