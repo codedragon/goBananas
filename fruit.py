@@ -123,9 +123,12 @@ class Fruit():
         model.setScale(item.scale)
         model.name = name
         #print('create fruit', name)
-
-        model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
-
+        try:
+            model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
+        except AssertionError:
+            print "no collision sphere detected"
+        # uncomment to show collision sphere
+        #model.retrNodePath().getChild(0).getChild(0).show()
         # hide all models on creation
         model.setStashed(True)
         self.fruit_models.append(model)

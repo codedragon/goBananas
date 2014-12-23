@@ -52,7 +52,7 @@ class TrainingBananas(JoystickHandler):
         if not unittest:
             # if doing unittests, there is no window
             wp = WindowProperties()
-            wp.setSize(1280, 800)
+            wp.setSize(1024, 768)
             #wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
             wp.setCursorHidden(True)
@@ -114,12 +114,15 @@ class TrainingBananas(JoystickHandler):
             sky.setPos(Point3(0, 0, 0))
             sky.reparentTo(self.base.render)
         # set up banana
-        self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
+        #self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
+        #self.banana.setScale(0.5)
+        self.banana = self.base.loader.loadModel("models/fruit/cherries.egg")
+        self.banana.setScale(0.08)
         # banana always in the same position, just move avatar.
         self.banana.setPos(Point3(0, 0, 1))
         self.banana.setH(280)
         #self.banana.setH(0)
-        self.banana.setScale(0.5)
+
         self.banana.reparentTo(self.base.render)
         self.banana_node_path = self.banana.find('**/+CollisionNode')
         # usually 0.1

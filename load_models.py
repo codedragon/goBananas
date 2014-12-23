@@ -124,7 +124,7 @@ def load_models():
     #cherry.scale = 0.004
     #cherry.scale = 0.2
     cherry.scale = 0.08
-    cherry.model = 'models/fruit/cherry.egg'
+    cherry.model = 'models/fruit/cherries.egg'
     cherry.roll = 0
     # scale is redundant if we are setting the pos (last number is scale)
     cherry.coll_scale = 1
