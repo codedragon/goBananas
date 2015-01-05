@@ -128,7 +128,8 @@ class Fruit():
         except AssertionError:
             print "no collision sphere detected"
         # uncomment to show collision sphere
-        #model.retrNodePath().getChild(0).getChild(0).show()
+        # print model.retrNodePath().getChild(0).getChild(0).getChild(0)
+        # model.retrNodePath().getChild(0).getChild(0).getChild(0).show()
         # hide all models on creation
         model.setStashed(True)
         self.fruit_models.append(model)

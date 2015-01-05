@@ -113,20 +113,29 @@ class TrainingBananas(JoystickHandler):
             sky = self.base.loader.loadModel("models/sky/sky.bam")
             sky.setPos(Point3(0, 0, 0))
             sky.reparentTo(self.base.render)
+
         # set up banana
-        #self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
-        #self.banana.setScale(0.5)
-        self.banana = self.base.loader.loadModel("models/fruit/cherries.egg")
-        self.banana.setScale(0.08)
+        self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
+        self.banana.setScale(0.5)
         # banana always in the same position, just move avatar.
         self.banana.setPos(Point3(0, 0, 1))
+
+        # or cherry as banana?
+        #self.banana = self.base.loader.loadModel("models/fruit/cherries.bam")
+        #self.banana.setScale(0.08)  # cherry
+        # cherries need to be lower than banana, need to fix this!
+        #self.banana.setPos(Point3(0, 0, 0.9))
+
         self.banana.setH(280)
         #self.banana.setH(0)
 
         self.banana.reparentTo(self.base.render)
         self.banana_node_path = self.banana.find('**/+CollisionNode')
-        # usually 0.1
-        self.banana_node_path.setScale(0.1)
+        print self.banana_node_path
+
+        # usually 0.1 for banana
+        #self.banana_node_path.setScale(0.1)
+        #self.banana_node_path.setScale(10)
         self.banana_mask = BitMask32(0x1)
         # banana intoCollideMask will change depending on which level we
         # are training on.
@@ -162,7 +171,8 @@ class TrainingBananas(JoystickHandler):
         #self.base.cTrav.showCollisions(self.base.render)
         #self.ray_node_path.show()
         #self.sphere_node_path.show()
-        #banana_node_path.show()
+        #self.banana_node_path.show()
+        #self.base.render.find('**/+CollisionNode').show()
 
         # Camera
         self.base.camLens.setFov(60)
