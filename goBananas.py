@@ -172,7 +172,6 @@ class GoBananas:
         # banana hasn't disappeared yet.
         # After last reward, banana disappears and avatar can move.
 
-        # print 'current beep', self.beeps
         if self.fruit.beeps is None:
             return
         elif self.fruit.beeps == 0:
@@ -187,6 +186,7 @@ class GoBananas:
         # Still here? Give reward!
         if self.reward:
             self.reward.pumpOut()
+            # print('beep', self.fruit.beeps)
         else:
             print('beep', self.fruit.beeps)
 

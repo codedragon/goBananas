@@ -370,9 +370,10 @@ class BananaRecall:
             self.reward.pumpOut()
 
     def toggle_random(self, input_event):
-        # toggle random
+        # toggle random,
         self.fruit.repeat_recall = not self.fruit.repeat_recall
-        print "Fruit is random:", self.fruit.repeat_recall
+        # which is the opposite of repeat...
+        print "Fruit is random:", not self.fruit.repeat_recall
 
     def change_alpha(self, input_event):
         print('change alpha')

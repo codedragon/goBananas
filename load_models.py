@@ -118,6 +118,12 @@ def load_models():
     #plum.coll_pos = (-5, 5, 110, 200)
     #plum.coll_pos = (0, 0, 1, 4)
 
+    cherry = PlaceModels()
+    cherry.name = 'cherry'
+    cherry.group = 'fruit'
+    cherry.scale = 0.08
+    cherry.model = 'models/fruit/cherries.bam'
+    cherry.coll_scale = 1
 
 def get_model(model_type, model_value):
     load_models()
