@@ -41,6 +41,8 @@ class BananaRecall:
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
         print exp.getSessionNum()
         self.config = Conf.getInstance().getConfig()  # Get configuration dictionary.
+        # raise an exception here, because config is probably wrong on several accounts
+        # if fruit to remember is none when trying to run bananaRecall
         if self.config['fruit_to_remember'] is None:
             raise Exception("fruit_to_remember in config file must have a value")
         #print config['training']
@@ -48,6 +50,8 @@ class BananaRecall:
         # bring some configuration parameters into variables, so can change these
         # variables dynamically
         self.numBeeps = self.config['numBeeps']
+        # variable to keep track if we gave extra beeps for remembering fruit.
+        self.extra_beeps = True
         # toggle if got to fruit location
         self.remembered_location = False
         # variable to track if we are checking to see if the avatar is
@@ -128,7 +132,6 @@ class BananaRecall:
         vr.inputListen("subarea_9", self.change_subarea)
         vr.inputListen("subarea_0", self.change_subarea)
 
-
         # set up task to be performed between frames, checks at interval of pump
         #vr.addTask(Task("checkReward",
         #                lambda taskInfo:
@@ -184,7 +187,7 @@ class BananaRecall:
             dist_to_banana = self.check_distance_to_fruit()
             #print('dist to banana', dist_to_banana)
             if dist_to_banana <= self.config['distance_goal']:
-                #print 'found it!'
+                print 'found it!'
                 self.found_banana(dist_to_banana)
             elif self.recall_timer:
                 # check timer for looking for fruit
@@ -196,6 +199,7 @@ class BananaRecall:
                     if self.config['time_to_flash']:
                         self.flash_fruit()
                     else:
+                        print('time up')
                         self.new_trial()
         elif self.flash_timer:
             # if we flashed the fruit to show where it was, check to see if it
@@ -214,6 +218,7 @@ class BananaRecall:
         # set reward timer
         self.reward_timer = time.clock()
         if self.reward:
+            print('beep', self.fruit.beeps)
             self.reward.pumpOut()
         else:
             print('beep', self.fruit.beeps)
@@ -234,19 +239,26 @@ class BananaRecall:
         self.fruit.beeps += 1
         # if that was last reward
         if self.fruit.beeps == self.numBeeps:
-            #print 'last reward'
             # if fruit visible, fruit disappears, otherwise new trial
             if self.remembered_location:
-                print 'remembered location'
-                # if alpha is not one, set banana back to full alpha
-                if self.fruit.alpha > 0:
-                    print 'turn off alpha'
-                    self.fruit.flash_recall_fruit(False)
-                    self.fruit.reset_collision()
-                self.new_trial()
-                print 'new trial'
+                if self.extra_beeps:
+                    self.numBeeps *= self.config['extra']
+                    self.extra_beeps = False
+                    return
+                else:
+                    print 'last reward'
+                    self.numBeeps /= self.config['extra']
+                    self.extra_beeps = True
+                    print 'remembered location'
+                    # if alpha is not one, set banana back to full alpha
+                    if self.fruit.alpha > 0:
+                        print 'turn off alpha'
+                        self.fruit.flash_recall_fruit(False)
+                        self.fruit.reset_collision()
+                    self.new_trial()
+                    print 'new trial'
             else:
-                print 'else'
+                print 'did not have to remember location'
                 self.fruit.disappear_fruit()
                 self.remember_fruit = self.fruit.get_next_fruit()
                 # remember_fruit is true or false
@@ -255,7 +267,7 @@ class BananaRecall:
                 self.recall_timer = time.clock()
             self.remembered_location = False
             # new fruit appears, either starting over or next fruit in stack
-            print 'new fruit'
+            print 'new fruit appears'
 
             # avatar can move
             Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
@@ -266,7 +278,7 @@ class BananaRecall:
     def check_distance_to_fruit(self):
         avatar = Avatar.getInstance()
         avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
-        banana = self.fruit.fruit_models[self.fruit.index_fruit_dict[self.config['fruit_to_remember']]]
+        banana = self.fruit.fruit_models[self.config['fruit_to_remember']]
         banana_pos = (banana.getPos()[0], banana.getPos()[1])
         dist_to_banana = get_distance(avatar_pos, banana_pos)
         return dist_to_banana
