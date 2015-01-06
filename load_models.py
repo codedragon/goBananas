@@ -122,7 +122,7 @@ def load_models():
     cherry.name = 'cherry'
     cherry.group = 'fruit'
     cherry.scale = 0.08
-    cherry.model = 'models/fruit/cherries_low.egg'
+    cherry.model = 'models/fruit/cherries.egg'
     cherry.coll_scale = 2
 
 def get_model(model_type, model_value):
