@@ -52,8 +52,8 @@ class TrainingBananas(JoystickHandler):
         if not unittest:
             # if doing unittests, there is no window
             wp = WindowProperties()
-            wp.setSize(1280, 800)
-            #wp.setSize(1024, 768)
+            #wp.setSize(1280, 800)
+            wp.setSize(1024, 768)
             wp.setOrigin(0, 0)
             wp.setCursorHidden(True)
             self.base.win.requestProperties(wp)
@@ -120,10 +120,22 @@ class TrainingBananas(JoystickHandler):
         self.banana.setH(280)
         #self.banana.setH(0)
         self.banana.setScale(0.5)
+
+        # or cherry as banana?
+        #self.banana = self.base.loader.loadModel("models/fruit/cherries.bam")
+        #self.banana.setScale(0.08)  # cherry
+        # cherries need to be lower than banana, need to fix this!
+        #self.banana.setPos(Point3(0, 0, 0.8))
+
         self.banana.reparentTo(self.base.render)
+        # can't get built in cherry collision node to work properly...
+        #cs = CollisionSphere(0, 0, 0, 1)
+        #self.banana_node_path = self.banana.attachNewNode(CollisionNode('c_node'))
+        #self.banana_node_path.node().addSolid(cs)
         self.banana_node_path = self.banana.find('**/+CollisionNode')
-        # usually 0.1
-        self.banana_node_path.setScale(0.1)
+
+        # usually 0.1 for banana
+        self.banana_node_path.setScale(1)
         self.banana_mask = BitMask32(0x1)
         # banana intoCollideMask will change depending on which level we
         # are training on.
@@ -159,7 +171,7 @@ class TrainingBananas(JoystickHandler):
         #self.base.cTrav.showCollisions(self.base.render)
         #self.ray_node_path.show()
         #self.sphere_node_path.show()
-        #banana_node_path.show()
+        #self.banana_node_path.show()
 
         # Camera
         self.base.camLens.setFov(60)
@@ -355,7 +367,7 @@ class TrainingBananas(JoystickHandler):
                 # if we need to be stopping and leaving (holding) crosshair over banana,
                 # make sure still in target zone.
                 if self.check_zone:
-                    #print('check hold')
+                    print('check hold')
                     # not sure if I will use a zone for going forward yet
                     # The 'zone' is whenever the ray is colliding with the banana.
                     # use zone for both left-right training and for forward training,
@@ -364,7 +376,7 @@ class TrainingBananas(JoystickHandler):
                     # lined up the crosshair and banana again.
                     #print collide_banana
                     if collide_banana:
-                        #print('still in the zone')
+                        print('still in the zone')
                         #if self.free_move == 4 or task.time > self.hold_time:
                         if task.time > self.hold_time:
                             #print('hold aim', self.hold_aim)
@@ -470,7 +482,7 @@ class TrainingBananas(JoystickHandler):
                         collide_banana = True
                 #print entry.getFromNodePath()
         elif self.collHandler.getNumEntries() > 0:
-            #print 'collided'
+            print 'collided'
             # the only object we can be running into is the banana, so there you go...
             collide_banana = True
             #print self.collHandler.getEntries()
@@ -659,11 +671,11 @@ class TrainingBananas(JoystickHandler):
             elif self.check_zone is None:
                 # if check_zone is None, than went past banana target zone,
                 # and we want to go slow
-                #print 'went past zone'
+                print 'went past zone'
                 delta_heading = self.x_mag * self.slow_speed * dt
                 #delta_heading = self.x_mag * self.initial_speed * dt
             elif self.free_move == 1:
-                #print 'free move is 1'
+                print 'free move is 1'
                 # self.free_move is one, only allowed to go towards banana
                 delta_heading = 0
             elif self.free_move == 2:
