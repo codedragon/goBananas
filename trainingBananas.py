@@ -114,33 +114,11 @@ class TrainingBananas(JoystickHandler):
             sky.setPos(Point3(0, 0, 0))
             sky.reparentTo(self.base.render)
         # set up banana
-        self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
-        # banana always in the same position, just move avatar.
-        self.banana.setPos(Point3(0, 0, 1))
-        self.banana.setH(280)
-        #self.banana.setH(0)
-        self.banana.setScale(0.5)
-
-        # or cherry as banana?
-        #self.banana = self.base.loader.loadModel("models/fruit/cherries.bam")
-        #self.banana.setScale(0.08)  # cherry
-        # cherries need to be lower than banana, need to fix this!
-        #self.banana.setPos(Point3(0, 0, 0.8))
-
-        self.banana.reparentTo(self.base.render)
-        # can't get built in cherry collision node to work properly...
-        #cs = CollisionSphere(0, 0, 0, 1)
-        #self.banana_node_path = self.banana.attachNewNode(CollisionNode('c_node'))
-        #self.banana_node_path.node().addSolid(cs)
-        self.banana_node_path = self.banana.find('**/+CollisionNode')
-
-        # usually 0.1 for banana
-        self.banana_node_path.setScale(1)
-        self.banana_mask = BitMask32(0x1)
-        # banana intoCollideMask will change depending on which level we
-        # are training on.
-        self.banana_coll_node = self.banana_node_path.node()
-        self.banana_coll_node.setIntoCollideMask(self.mask_list[0])
+        self.banana = None
+        self.banana_mask = None
+        self.banana_node_path = None
+        self.banana_coll_node = None
+        self.load_fruit(config.get('fruit', 'banana'))
 
         # set up collision system and collision ray to camera
         self.base.cTrav = CollisionTraverser()
@@ -257,8 +235,6 @@ class TrainingBananas(JoystickHandler):
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         self.frameTask.delay = -0.1  # want initial delay less than zero
         self.frameTask.last = 0  # task time of the last frame
-        # set variables to their actual starting values
-        self.reset_variables()
         #print self.avatar_h
         #print self.base.camera.getH()
         #print self.avatar_pos
@@ -269,6 +245,8 @@ class TrainingBananas(JoystickHandler):
         #print self.base.camLens.getAspectRatio()
         self.base.camLens.setNear(avatar_radius/3.0)
         #print self.banana.getPos()
+        # set variables to their actual starting values
+        self.reset_variables()
 
     def frame_loop(self, task):
         #print self.training
@@ -482,7 +460,7 @@ class TrainingBananas(JoystickHandler):
                         collide_banana = True
                 #print entry.getFromNodePath()
         elif self.collHandler.getNumEntries() > 0:
-            print 'collided'
+            # print 'collided'
             # the only object we can be running into is the banana, so there you go...
             collide_banana = True
             #print self.collHandler.getEntries()
@@ -671,11 +649,11 @@ class TrainingBananas(JoystickHandler):
             elif self.check_zone is None:
                 # if check_zone is None, than went past banana target zone,
                 # and we want to go slow
-                print 'went past zone'
+                #print 'went past zone'
                 delta_heading = self.x_mag * self.slow_speed * dt
                 #delta_heading = self.x_mag * self.initial_speed * dt
             elif self.free_move == 1:
-                print 'free move is 1'
+                #print 'free move is 1'
                 # self.free_move is one, only allowed to go towards banana
                 delta_heading = 0
             elif self.free_move == 2:
@@ -945,6 +923,7 @@ class TrainingBananas(JoystickHandler):
         else:
             self.avatar_h = self.config_avatar_h
         self.base.camera.setH(self.multiplier * self.avatar_h)
+        print self.base.camera.getH()
         #print('default camera position', self.base.camera.getPos())
         self.base.camera.setPos(self.avatar_pos)
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
@@ -1029,6 +1008,35 @@ class TrainingBananas(JoystickHandler):
         print('must release', self.must_release)
         print('random', self.random_banana)
         print('require aim', self.require_aim)
+
+    def load_fruit(self, fruit):
+        if fruit == 'banana':
+            self.banana = self.base.loader.loadModel("models/bananas/banana.bam")
+            self.banana.setH(280)
+            # self.banana.setH(0)
+            self.banana.setScale(0.5)
+            # banana always in the same position, just move avatar.
+            self.banana.setPos(Point3(0, 0, 1))
+            self.banana_node_path = self.banana.find('**/+CollisionNode')
+        elif fruit == 'cherry':
+            # or cherry as banana?
+            self.banana = self.base.loader.loadModel("models/fruit/cherries_low.egg")
+            self.banana.setScale(0.08)  # cherry
+            # banana always in the same position, just move avatar.
+            self.banana.setPos(Point3(0.08, 0, 1))
+            # can't get built in cherry collision node to work properly...
+            cs = CollisionSphere(0, 0, 0, 1)
+            self.banana_node_path = self.banana.attachNewNode(CollisionNode('c_node'))
+            self.banana_node_path.node().addSolid(cs)
+
+        self.banana.reparentTo(self.base.render)
+        # usually 0.1 for banana
+        self.banana_node_path.setScale(1)
+        self.banana_mask = BitMask32(0x1)
+        # banana intoCollideMask will change depending on which level we
+        # are training on.
+        self.banana_coll_node = self.banana_node_path.node()
+        self.banana_coll_node.setIntoCollideMask(self.mask_list[0])
 
     def open_data_file(self, config):
         # open file for recording eye data

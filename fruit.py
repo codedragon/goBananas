@@ -15,16 +15,16 @@ def check_repeat(trial_num, repeat_list):
         # time to choose the next trial that will be a repeat,
         # choose a number from 0 to repeat number and add it to this trial number
         repeat_list[2] = trial_num + random.choice(range(repeat_list[0]))
-        # # print('chose trial', repeat_list[2])
+        # print('chose trial', repeat_list[2])
         # if we are on a now_repeat trial, and now the trial number is less than repeat number,
         # it is the first one and we are collecting
     if trial_num == repeat_list[1]:
         # self.repeat is the trial number for collecting positions
-        # # print 'collecting positions for repeat'
+        # print 'collecting positions for repeat'
         fruit_trial = 'new'
     elif trial_num == repeat_list[2]:
         # and now we are repeating
-        # # print 'repeat'
+        # print 'repeat'
         fruit_trial = 'repeat'
     return repeat_list, fruit_trial
 
@@ -45,7 +45,7 @@ class Fruit():
         self.repeat_recall = False
 
         if self.config['fruit_to_remember']:
-            # # print 'recall task'
+            # print 'recall task'
             # if doing recall task, fruit to remember is always first
             all_fruit.insert(0, self.config['fruit_to_remember'])
             num_fruit.insert(0, 1)
@@ -53,7 +53,7 @@ class Fruit():
             # bring this into a variable, so we can toggle it.
             self.repeat_recall = config['repeat_recall_fruit']
             self.all_subareas = mB.create_sub_areas(self.config)
-            # # print self.all_subareas
+            # print self.all_subareas
             self.fruit_area = [{}]
             self.create_fruit_area_dict(self.config['subarea'])
             self.alpha = self.config['alpha']
@@ -91,24 +91,24 @@ class Fruit():
     def create_fruit(self, fruit_dict):
         self.num_fruit_dict = fruit_dict
         # return a fruitModel.
-        # # print 'create bananas'
-        # # print 'dict of number fruit', fruit_dict
+        # print 'create bananas'
+        # print 'dict of number fruit', fruit_dict
         # load the models
         load_models()
         # for each fruit in our dictionary, find corresponding model,
         # create new model for each count in dictionary of that fruit
         # This is a couple of loops, fortunately they are all small.
-        # # print 'making fruit dictionary'
+        # print 'making fruit dictionary'
         for fruit, count in fruit_dict.iteritems():
             for i in range(count):
                 item = get_model('name', fruit)
-                # # print item.model
+                # print item.model
                 name = item.name + "%03d" % i
                 # differentiate the fruit we are remembering, if we are doing
                 # recall_banana task
                 if self.config['fruit_to_remember'] and item.name == self.config['fruit_to_remember']:
                     name = item.name
-                # # print name
+                # print name
                 # create actual model
                 self.create_fruit_model(item, name)
 
@@ -117,8 +117,8 @@ class Fruit():
             fruit_index = self.config['fruit_to_remember']
             self.recall_node_path = self.fruit_models[fruit_index].retrNodePath()
             self.recall_node_path.setTransparency(TransparencyAttrib.MAlpha)
-        # # print self.fruit_models
-        # # print 'end create fruit'
+        # print self.fruit_models
+        # print 'end create fruit'
 
     def create_fruit_model(self, item, name):
         # initial position does not matter
@@ -131,25 +131,25 @@ class Fruit():
         model.setHpr(Point3(random.randint(0, 360), 0, roll))
         model.setScale(item.scale)
         model.name = name
-        # # print('create fruit', name)
+        # print('create fruit', name)
         # set collision sphere scale
         model.retrNodePath().getChild(0).getChild(0).setScale(item.coll_scale)
-
+        # model.retrNodePath().getChild(0).getChild(0).show()
         # hide all models on creation
         model.setStashed(True)
         self.fruit_models[name] = model
         
     def setup_trial(self, trial_num):
         # trials are set up mostly the same, whether showing fruit sequentially or all at once.
-        # # print('trial number', trial_num)
-        # # print('trial number to be repeated', self.repeat_list[1])
+        print('trial number', trial_num)
+        # print('trial number to be repeated', self.repeat_list[1])
         fruit_trial = ''
         # self.repeat only refers to regular trials, not sequential trials
         if self.repeat:
             self.repeat_list, fruit_trial = check_repeat(trial_num, self.repeat_list)
-            # # print('got stuff back', fruit_trial)
+            # print('got stuff back', fruit_trial)
         else:
-            # # print 'not repeating'
+            # print 'not repeating'
             if self.config['fruit_to_remember']:
                 # repeat_recall can be toggled with button press
                 # print('recall_repeat this trial is', self.repeat_recall)
@@ -160,12 +160,12 @@ class Fruit():
         self.setup_fruit_for_trial(fruit_trial)
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
         if fruit_trial == 'new' or fruit_trial == 'repeat':
-            # # print 'log repeat'
+            # print 'log repeat'
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
 
     def setup_fruit_for_trial(self, repeat='No'):
-        # # print('repeat_fruit_trial', repeat)
-        # # print 'setup fruit for trial'
+        # print('repeat_fruit_trial', repeat)
+        # print 'setup fruit for trial'
         # get positions for fruit
         # if repeat has 'repeat' in it, use same positions as before
         # (for recall this only applies to the recall fruit)
@@ -185,40 +185,45 @@ class Fruit():
         # or False
         choose_first_fruit = False
         if repeat == 'recall_repeat':
+            # if we are repeating a previous location,
+            # we will not show the recall fruit (random instead)
             # variable to identify which fruit to show first
             choose_first_fruit = 'random'
             # want to repeat the location, but doesn't work
             # if there is no location saved.
-            # # print 'repeating recall fruit'
+            # print 'repeating recall fruit'
             if self.pos_dict:
+                # print 'random fruit first'
                 # we have a position saved, so go ahead and
                 # add it to the starting list, so other fruit
                 # is not assigned too close to it.
                 pos_list.append(self.pos_dict[self.config['fruit_to_remember']])
             else:
-                # # print 'but no positions to recall'
+                # print 'but no positions to recall'
                 repeat = 'recall'
         if repeat == 'recall':
+            # print 'choose recall fruit first'
             choose_first_fruit = self.config['fruit_to_remember']
-        # # print pos_list
+        # print('first fruit is', choose_first_fruit)
+        # print pos_list
         avatar = Avatar.Avatar.getInstance()
         avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
-        # # print 'avatar pos', avatar_x_y
+        # print 'avatar pos', avatar_x_y
 
         for name, fruit in self.fruit_models.iteritems():
-            # # print name
-            # # print pos_list
+            # print name
+            # print pos_list
             if repeat == 'repeat':
                 # will only do this for regular task, not recall
                 (x, y) = self.pos_dict[name]
             elif name == self.config['fruit_to_remember']:
                 if 'repeat' in repeat:
-                    # # print 'repeat the same position for the banana again'
+                    # print 'repeat the same position for the banana again'
                     # if not a new position, put in the recall fruit position
                     # we used previously, already added to pos_list, so good.
                     (x, y) = self.pos_dict[name]
                 else:
-                    # # print 'new recall fruit position'
+                    # print 'new recall fruit position'
                     # getting a new position
                     # send in config with sub areas
                     (x, y) = mB.set_xy(pos_list, avatar_x_y, self.fruit_area[0])
@@ -233,12 +238,12 @@ class Fruit():
                 # in this else statement, we are only dealing with
                 # the fruit not remembering, which is always the
                 # last index in the self.fruit_area
-                # # print self.fruit_area
-                # # print self.fruit_area[-1]
+                # print self.fruit_area
+                # print self.fruit_area[-1]
                 (x, y) = mB.set_xy(pos_list, avatar_x_y, self.fruit_area[-1])
                 pos_list.append((x, y))
-            # # print pos_list
-            # # print('current positions', name, x, y)
+            # print pos_list
+            # print('current positions', name, x, y)
             self.fruit_models[name].setPos(Point3(x, y, 1))
             choose_first_fruit = self.make_fruit_visible(name, choose_first_fruit)
             # if we have decided on the first fruit, then 
@@ -248,13 +253,13 @@ class Fruit():
             # repeat is only exactly 'new' for gobananas, so won't interfere
             # with recall task
             if repeat == 'new':
-                # # print 'save new'
+                # print 'save new'
                 # save new banana placements
                 self.pos_dict[name] = (x, y)
-        # # print('fruit list', self.fruit_list)    
+        # print('fruit list', self.fruit_list)
 
     def make_fruit_visible(self, name, choose_first_fruit=None):
-        ## print 'choose_first_fruit', choose_first_fruit
+        # print 'choose_first_fruit', choose_first_fruit
         # fruit indexes are given one at a time,
         # if task is remembering fruit,
         # create a list of fruit we will be showing consecutively 
@@ -271,10 +276,13 @@ class Fruit():
             # if choose_first_fruit is random
             first = False
             # are we assigning the first fruit this time?
+            # is this the recall fruit?
             if name == recall_fruit == choose_first_fruit:
                 first = True
             elif choose_first_fruit == 'random':
-                first = True
+                # if this is the recall fruit, wait for next random one
+                if name != recall_fruit:
+                    first = True
             if first:
                 # this will be either the recall fruit, or
                 # another fruit, if recall fruit is in the same
@@ -288,8 +296,10 @@ class Fruit():
                 # don't show the recall fruit this trial!
                 self.fruit_models[name].setStashed(True)
             else:
-                ## print('show this fruit eventually', name)
-                # eventually show this fruit
+                # all fruits but the recall fruit and the first fruit
+                # (which could be the same thing), are added to the list
+                # of fruits that will show up later in the task
+                # print('show this fruit eventually', name)
                 self.fruit_list.append(name)
         else:
             self.fruit_models[name].setStashed(False)
@@ -303,64 +313,64 @@ class Fruit():
         @param collision_info:
         @return:
         """
-        ## print 'collision'
-        ### print 'what is first_collision now?', self.first_collision
+        # print 'collision'
+        # print 'what is first_collision now?', self.first_collision
         # which fruit we ran into
         self.current_fruit = collision_info[0].getInto().getIdentifier()
-        ### print('collision', self.current_fruit)
-        ### print self.first_collision
+        # print('collision', self.current_fruit)
+        # print self.first_collision
         # check to see if the banana was in the camera view when collided,
         # if not, then ignore collision
         collided = collision_info[0].getInto()
         cam_node_path = Camera.Camera.getDefaultCamera().retrNodePath()
-        ### print collided.retrNodePath().getPos(cam_node_path)
-        ### print collided.retrNodePath().getPos(cam_node_path)
-        ### print cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path))
+        # print collided.retrNodePath().getPos(cam_node_path)
+        # print collided.retrNodePath().getPos(cam_node_path)
+        # print cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path))
         # Sometimes we collide with a banana multiple times for no damn reason, so setting self.first_collision
         # to keep track of whether this is the first collision
-        ### print('collision', self.first_collision)
-        ### print('camera', Camera.Camera.getDefaultCamera().getPos())
-        ### print('collision position', collided.retrNodePath().getPos(cam_node_path))
+        # print('collision', self.first_collision)
+        # print('camera', Camera.Camera.getDefaultCamera().getPos())
+        # print('collision position', collided.retrNodePath().getPos(cam_node_path))
         #for fruit in self.fruit_models:
-        #    ## print fruit.getPos()
-        ### print('in view', cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)))
+        #    # print fruit.getPos()
+        # print('in view', cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)))
         if cam_node_path.node().isInView(collided.retrNodePath().getPos(cam_node_path)) and self.first_collision:
-            ### print 'first collision, in view'
-            ### print self.current_fruit
+            # print 'first collision, in view'
+            # print self.current_fruit
             # cannot run inside of banana - can't I just do this earlier for all of the fruit?
             MovingObject.MovingObject.handleRepelCollision(collision_info)
-            ### print 'stop moving'
+            # print 'stop moving'
             # Makes it so Avatar cannot turn or go forward
             Avatar.Avatar.getInstance().setMaxTurningSpeed(0)
             Avatar.Avatar.getInstance().setMaxForwardSpeed(0)
             #VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", ['stop moving!'])
             # Setting self.beeps to 0 is signal to give reward
             self.beeps = 0
-            ### print self.beeps
+            # print self.beeps
             self.first_collision = False
 
     def disappear_fruit(self):
-        ## print 'disappear fruit'
+        # print 'disappear fruit'
         # fruit that is currently visible is stashed
-        ### print('fruit should go away', self.current_fruit)
-        ### print('this fruit index', current_index)
+        ## print('fruit should go away', self.current_fruit)
+        # print('this fruit index', current_index)
 
         # remove the current fruit from list of possible fruit
         self.fruit_list.remove(self.current_fruit)
-        ## print 'removed a fruit from the list', self.fruit_list
+        # print 'removed a fruit from the list', self.fruit_list
         # stash the fruit we just ran into,
         self.fruit_models[self.current_fruit].setStashed(True)
         self.reset_collision()
 
     def reset_collision(self):
-        ## print 'reset collision'
+        # print 'reset collision'
         # log collected banana
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.current_fruit])
         self.first_collision = True
 
     def get_next_fruit(self):
-        ## print 'get next fruit'
-        ## print 'fruit list, if empty, remembering', self.fruit_list
+        # print 'get next fruit'
+        # print 'fruit list, if empty, remembering', self.fruit_list
         # not used for goBananas
         # if we are doing fruit sequentially, go to the next one
         # default is not time to find the banana memory
@@ -373,22 +383,22 @@ class Fruit():
             # if we are searching for the banana, send find_banana as true
             # if banana is going to be partially visible, turn it on
             if self.alpha > 0:
-                ### print 'flash recall fruit'
+                # print 'flash recall fruit'
                 self.flash_recall_fruit(True)
             find_banana_loc = True
-            ### print 'remember banana'
+            # print 'remember banana'
         else:
-            ### print('next fruit in list', self.fruit_list[0])
+            # print('next fruit in list', self.fruit_list[0])
             self.fruit_models[self.fruit_list[0]].setStashed(False)
-        ### print 'banana gone', self.current_fruit
-        ### print self.stashed
+        # print 'banana gone', self.current_fruit
+        # print self.stashed
         return find_banana_loc
 
     def flash_recall_fruit(self, flash):
         # flash the fruit the subject is/was suppose to find
         # flash is true or false, depending on whether we are turning it on or off,
         # makes more sense for true to turn on fruit and false turn off, so invert signal
-        ### print('flash ', flash)
+        # print('flash ', flash)
         self.fruit_models[self.config['fruit_to_remember']].setStashed(not flash)
         if flash:
             self.recall_node_path.setAlphaScale(self.alpha)
@@ -396,34 +406,34 @@ class Fruit():
             self.recall_node_path.setAlphaScale(1)
         
     def create_fruit_area_dict(self, subarea_key):
-        ### print('created new dictionary')
+        # print('created new dictionary')
         # Need to keep around the original size of the area, and I don't trust the pandaepl config
         # dictionary, because they have done weird things to scope, so create a new dictionary
-        ### print('key', subarea_key)
+        # print('key', subarea_key)
         # start with an empty dictionary every time
         self.fruit_area = [{}]
         if subarea_key == 0:
-            ### print 'key is zero'
+            # print 'key is zero'
             # don't get entire self.config dictionary, just bounds of courtyard
             self.fruit_area[0].update({'min_x': self.config['min_x'],
                                        'max_x': self.config['max_x'],
                                        'min_y': self.config['min_y'],
                                        'max_y': self.config['max_y']
                                        })
-            ### print self.fruit_area
+            # print self.fruit_area
         else:
-            ### print 'key is not zero'
+            # print 'key is not zero'
             self.fruit_area[0].update(self.all_subareas[subarea_key])
-            ### print self.fruit_area
+            # print self.fruit_area
 
         self.fruit_area[0]['tooClose'] = self.config['tooClose']
         self.fruit_area[0]['avatarRadius'] = self.config['avatarRadius']
         self.fruit_area[0]['environ'] = self.config['environ']
         if 'circle' in self.config['environ']:
             self.fruit_area[0]['radius'] = self.config['radius']
-        ### print('after updating tooclose', self.fruit_area)
+        # print('after updating tooclose', self.fruit_area)
 
-        ### print self.fruit_area
+        # print self.fruit_area
         if subarea_key > 0:
             # also make a config dict for the other fruit
             size_area = self.create_alt_fruit_area(subarea_key)

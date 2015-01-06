@@ -100,7 +100,7 @@ def load_models():
     banana = PlaceModels()
     banana.name = 'banana'
     banana.group = 'fruit'
-    banana.scale = 0.03
+    banana.scale = 0.015
     banana.model = 'models/fruit/banana.bam'
     banana.roll = 75
     banana.coll_scale = 1
@@ -122,8 +122,8 @@ def load_models():
     cherry.name = 'cherry'
     cherry.group = 'fruit'
     cherry.scale = 0.08
-    cherry.model = 'models/fruit/cherries.bam'
-    cherry.coll_scale = 1
+    cherry.model = 'models/fruit/cherries_low.egg'
+    cherry.coll_scale = 2
 
 def get_model(model_type, model_value):
     load_models()
