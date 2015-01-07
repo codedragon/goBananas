@@ -50,7 +50,9 @@ class BananaRecall:
         # bring some configuration parameters into variables, so can change these
         # variables dynamically
         self.numBeeps = self.config['numBeeps']
-        # toggle if got to fruit location
+        # toggle if got to fruit location, True means found fruit when wasn't visible,
+        # False means was not looking for fruit
+        # None means found fruit by collision (alpha was greater than 0)
         self.remembered_location = False
         # variable to track if we are checking to see if it is time for the avatar
         # to look for remembered location of fruit
@@ -180,7 +182,7 @@ class BananaRecall:
                 #print 'show fruit at alpha'
                 # if fruit is partially visible, will use callback instead of distance,
                 # but need to set that this was a remembered trial, so we start over after
-                self.remembered_location = True
+                self.remembered_location = None
                 self.find_recall_fruit = False
                 # since we have an actual fruit, don't want to check distance so exit loop
                 return
@@ -230,7 +232,7 @@ class BananaRecall:
             if self.daq_events:
                 self.daq_events.send_signal(200)
                 self.daq_strobe.send_signal()
-            # how many rewards are we giving?
+            # how many rewards are we giving? if fruit was not visible, but found it, bigger reward
             if self.remembered_location:
                 self.numBeeps = self.config['numBeeps'] * self.config['extra']
             elif len(self.fruit.fruit_list) == 1:
@@ -249,9 +251,9 @@ class BananaRecall:
         # if that was last reward
         if self.fruit.beeps == self.numBeeps:
             print 'last reward'
-            # if fruit visible, fruit disappears, otherwise new trial
-            if self.remembered_location:
-                print 'remembered location'
+            # if fruit visible, fruit disappears, in any case, new trial
+            if self.remembered_location != False:
+                print 'found recall fruit'
                 # if alpha is not one, set banana back to full alpha
                 if self.fruit.alpha > 0:
                     print 'turn off alpha'
