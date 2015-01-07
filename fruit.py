@@ -170,9 +170,9 @@ class Fruit():
         # if repeat has 'repeat' in it, use same positions as before
         # (for recall this only applies to the recall fruit)
         # if repeat is 'new', use new positions, save configuration
-        # if repeat is 'recall' with no repeat, use the proper
-        # dictionary entry in self.pos_dict for the recall fruit
-        
+        # if repeat is 'recall' with no repeat, get a new position for
+        # the recall fruit, from appropriate area
+
         # pos_list is used to make sure we are not putting fruit too close
         # together or too close to the avatar
         pos_list = []
@@ -180,20 +180,12 @@ class Fruit():
         self.fruit_list = []
         # if we are repeating the recall fruit, need to
         # do keep track, so random positions are placed
-        # proper distance from it, and for sequence order
-        # choose_first_fruit can be 'random', the recall fruit
-        # or False
-        choose_first_fruit = False
+        # proper distance from it
         if repeat == 'recall_repeat':
-            # if we are repeating a previous location,
-            # we will not show the recall fruit (random instead)
-            # variable to identify which fruit to show first
-            choose_first_fruit = 'random'
             # want to repeat the location, but doesn't work
             # if there is no location saved.
             # print 'repeating recall fruit'
             if self.pos_dict:
-                # print 'random fruit first'
                 # we have a position saved, so go ahead and
                 # add it to the starting list, so other fruit
                 # is not assigned too close to it.
@@ -201,15 +193,10 @@ class Fruit():
             else:
                 # print 'but no positions to recall'
                 repeat = 'recall'
-        if repeat == 'recall':
-            # print 'choose recall fruit first'
-            choose_first_fruit = self.config['fruit_to_remember']
-        # print('first fruit is', choose_first_fruit)
         # print pos_list
         avatar = Avatar.Avatar.getInstance()
         avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
         # print 'avatar pos', avatar_x_y
-
         for name, fruit in self.fruit_models.iteritems():
             # print name
             # print pos_list
@@ -235,7 +222,7 @@ class Fruit():
             else:
                 # will use whole area if gobananas: in this case, 
                 # the last area is the only self.fruit_area.
-                # in this else statement, we are only dealing with
+                # for recall, we are only dealing here with
                 # the fruit not remembering, which is always the
                 # last index in the self.fruit_area
                 # print self.fruit_area
@@ -245,7 +232,7 @@ class Fruit():
             # print pos_list
             # print('current positions', name, x, y)
             self.fruit_models[name].setPos(Point3(x, y, 1))
-            choose_first_fruit = self.make_fruit_visible(name, choose_first_fruit)
+            self.make_fruit_visible(name)
             # if we have decided on the first fruit, then 
             # won't have to figure this out next time through the loop
             #if started == 'Done':
@@ -258,7 +245,7 @@ class Fruit():
                 self.pos_dict[name] = (x, y)
         # print('fruit list', self.fruit_list)
 
-    def make_fruit_visible(self, name, choose_first_fruit=None):
+    def make_fruit_visible(self, name):
         # print 'choose_first_fruit', choose_first_fruit
         # fruit indexes are given one at a time,
         # if task is remembering fruit,
@@ -267,44 +254,13 @@ class Fruit():
         # else (for goBananas) make all fruit visible
         recall_fruit = self.config['fruit_to_remember']
         if recall_fruit:
-            # if choose_first_fruit is a name, this is the first fruit to show,
-            # if it is random, show the first random fruit we run into.
-            # normally the first fruit will be the recall fruit, but if we are showing
-            # it in the same place every time, then subject will be in that
-            # place already, and makes no sense. So show it once at a given
-            # position, then not again until it moves again. Know it has moved
-            # if choose_first_fruit is random
-            first = False
-            # are we assigning the first fruit this time?
-            # is this the recall fruit?
-            if name == recall_fruit == choose_first_fruit:
-                first = True
-            elif choose_first_fruit == 'random':
-                # if this is the recall fruit, wait for next random one
-                if name != recall_fruit:
-                    first = True
-            if first:
-                # this will be either the recall fruit, or
-                # another fruit, if recall fruit is in the same
-                # place as last time
-                # print('show this fruit first!', name)
+            if name == recall_fruit:
+                # always show the recall fruit first
                 self.fruit_models[name].setStashed(False)
-                self.fruit_list.append(name)
-                choose_first_fruit = False
-            elif name == recall_fruit:
-                # print("don't show the recall fruit this trial", name)
-                # don't show the recall fruit this trial!
-                self.fruit_models[name].setStashed(True)
-            else:
-                # all fruits but the recall fruit and the first fruit
-                # (which could be the same thing), are added to the list
-                # of fruits that will show up later in the task
-                # print('show this fruit eventually', name)
-                self.fruit_list.append(name)
+            self.fruit_list.append(name)
         else:
             self.fruit_models[name].setStashed(False)
             self.fruit_list.append(name)
-        return choose_first_fruit
             
     def collide_fruit(self, collision_info):
         """
@@ -384,7 +340,7 @@ class Fruit():
             # if banana is going to be partially visible, turn it on
             if self.alpha > 0:
                 # print 'flash recall fruit'
-                self.flash_recall_fruit(True)
+                self.flash_on_recall_fruit(True)
             find_banana_loc = True
             # print 'remember banana'
         else:
@@ -394,7 +350,7 @@ class Fruit():
         # print self.stashed
         return find_banana_loc
 
-    def flash_recall_fruit(self, flash):
+    def flash_on_recall_fruit(self, flash):
         # flash the fruit the subject is/was suppose to find
         # flash is true or false, depending on whether we are turning it on or off,
         # makes more sense for true to turn on fruit and false turn off, so invert signal

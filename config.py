@@ -116,8 +116,8 @@ time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
 # (areas arranged same as numbers on keypad), zero means can be anywhere
 subarea = 1  # this is the starting spot, can be changed by a keypress later on
 # once trained, alpha will be at zero, no banana showing, then dependent on remembering
-alpha = 0  # this is for training in the recall task. fully visible is 1, invisible is 0
-
+alpha = 0.5  # this is for training in the recall task. fully visible is 1, invisible is 0
+# increment in 0.1
 # how close is too close together for fruit and avatar? Keep in mind that the distance is between the centers, but
 # when you run into a fruit, you are not at the center, so could be closer than tooClose at that point
 # Therefor, Too close should be at least 1. For recall, it should be at least as far as the distance goal, so
