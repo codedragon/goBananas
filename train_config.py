@@ -1,19 +1,20 @@
 # change individual config files, and have script copy to config.py
 # configuration file for trainBananas
 #
-subject = 'Gromit'
+#subject = 'Gromit'
 #subject = 'Test'
-#subject = 'MP'
+subject = 'MP'
 
 # whether to show the environment in the background
 background = False
 
+#fruit = 'cherry'
 # direction subject has to push the joystick to get the banana
 #trainingDirection = 'Right'
 trainingDirection = 'Left'
 
-#training = 2.3
-training = 3.0
+training = 2.0
+#training = 3.0
 
 # Set Training Level - only using 2 and above in this program
 # for all training 2, no forward movement (go_forward = False)
@@ -99,7 +100,8 @@ training = 3.0
 #                                        getting partial reward and allowed to go forward)
 
 # starting angle between avatar and banana  (turning training)
-avatar_start_h = 1.5
+#avatar_start_h = 1.5
+avatar_start_h = 6
 
 # starting distance between avatar and banana (forward training)
 # with turning training, this is 2.5, so further than this for
@@ -110,12 +112,18 @@ avatar_start_d = 3.5
 #random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 7.5], [3, 5, 7.5, 8], [3, 5, 7.5, 8.5], [3, 5, 7.5, 8.5, 9],
 #                [3, 5, 7.5, 8.5, 9.5, 10], [3, 5, 7, 8, 9, 10, 11]]
 
-random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 6.5, 7.5], [3, 5, 7, 8], [3, 5, 7, 9], [3, 5, 7, 9.5], [4, 6, 7, 10],
-                [4, 5, 8, 10.5], [4, 6, 9, 11], [4, 6, 8, 10, 12], [4, 6, 8, 10, 13], [4, 7, 10, 12, 14],
-                [4, 7, 10, 13, 15], [5, 8, 11, 14, 16], [5, 8, 11, 14, 17], [4, 6, 9, 12, 15, 18],
-                [4, 6, 10, 13, 16, 19], [4, 7, 10, 14, 17, 20], [4, 7, 10, 14, 18, 21], [4, 7, 10, 14, 18, 22]]
+# random_lists = [[3, 5, 6.5], [3, 5, 7], [3, 5, 6.5, 7.5], [3, 5, 7, 8], [3, 5, 7, 9],
+#                 [3, 5, 7, 9.5], [4, 6, 7, 10], [4, 5, 8, 10.5], [4, 6, 9, 11], [4, 6, 8, 10, 12],
+#                 [4, 6, 8, 10, 13], [4, 7, 10, 12, 14], [4, 7, 10, 13, 15], [5, 8, 11, 14, 16], [5, 8, 11, 14, 17],
+#                 [4, 6, 9, 12, 15, 18], [4, 6, 10, 13, 16, 19], [4, 7, 10, 14, 17, 20], [4, 7, 10, 14, 18, 21],
+#                 [4, 7, 10, 14, 18, 22], ]
+# # choose starting number of random_lists.
+# random_selection = 21
+
+# for cherries, go no closer than 8, 23 is fully on screen
+random_lists = [[8, 11, 14, 17, 20, 23]]
 # choose starting number of random_lists.
-random_selection = 20
+random_selection = 1
 
 # random bias means that it is not strictly random, if there are 2 bananas in a row
 # on one side, the next banana will always switch sides.

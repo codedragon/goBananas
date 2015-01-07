@@ -1020,18 +1020,19 @@ class TrainingBananas(JoystickHandler):
             self.banana_node_path = self.banana.find('**/+CollisionNode')
         elif fruit == 'cherry':
             # or cherry as banana?
-            self.banana = self.base.loader.loadModel("models/fruit/cherries_low.egg")
+            self.banana = self.base.loader.loadModel("models/fruit/cherries_no_cn.egg")
             self.banana.setScale(0.08)  # cherry
             # banana always in the same position, just move avatar.
             self.banana.setPos(Point3(0.08, 0, 1))
             # can't get built in cherry collision node to work properly...
-            cs = CollisionSphere(0, 0, 0, 1)
+            cs = CollisionSphere(-10, 0, 0, 11)
             self.banana_node_path = self.banana.attachNewNode(CollisionNode('c_node'))
             self.banana_node_path.node().addSolid(cs)
 
         self.banana.reparentTo(self.base.render)
         # usually 0.1 for banana
-        self.banana_node_path.setScale(1)
+        #self.banana_node_path = self.banana.find('**/+CollisionNode')
+        #self.banana_node_path.setScale(1)
         self.banana_mask = BitMask32(0x1)
         # banana intoCollideMask will change depending on which level we
         # are training on.
