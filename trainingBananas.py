@@ -1009,6 +1009,7 @@ class TrainingBananas(JoystickHandler):
             self.banana_node_path = self.banana.find('**/+CollisionNode')
         elif fruit == 'cherry':
             # or cherry as banana?
+            #self.banana = self.base.loader.loadModel("models/fruit/cherries.bam")
             self.banana = self.base.loader.loadModel("models/fruit/cherries_no_cn.egg")
             self.banana.setScale(0.08)  # cherry
             # banana always in the same position, just move avatar.

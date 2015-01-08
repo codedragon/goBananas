@@ -46,7 +46,6 @@ class GoBananas:
         self.full_forward_speed = config['fullForwardSpeed']
         self.min_x = config['min_x']
         self.min_y = config['min_y']
-        # self.weighted_bananas = config['weightedBananas']
         self.crosshair = config['crosshair']
         if self.crosshair:
             self.x_alpha = 1
