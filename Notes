@@ -4,7 +4,7 @@ come with development version)
 install panda3d, Panda3D-2014.06.24-346.exe, known, tested
 open up pycharm, re-set interpreter, and let it install pip and setuptools
 install numpy from here: http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
-install pygame
+install pygame: http://www.lfd.uci.edu/~gohlke/pythonlibs/#pygame
 install pandaEPL (fix stuff)
 install pydaqmx (can use pip)
 

@@ -172,7 +172,6 @@ class GoBananas:
         # banana hasn't disappeared yet.
         # After last reward, banana disappears and avatar can move.
 
-        # print 'current beep', self.beeps
         if self.fruit.beeps is None:
             return
         elif self.fruit.beeps == 0:
@@ -187,6 +186,7 @@ class GoBananas:
         # Still here? Give reward!
         if self.reward:
             self.reward.pumpOut()
+            # print('beep', self.fruit.beeps)
         else:
             print('beep', self.fruit.beeps)
 
@@ -247,12 +247,12 @@ class GoBananas:
         if self.send_events:
             self.send_events.send_signal(1000 + self.trial_num)
             self.send_strobe.send_signal()
-            for i in self.fruit.fruit_models:
+            for model in self.fruit.fruit_models.itervalues():
                 # can't send negative numbers or decimals, so
                 # need to translate the numbers
                 #print i.getPos()
-                translate_b = [int((i.getPos()[0] - self.min_x) * 1000),
-                       int((i.getPos()[1] - self.min_y) * 1000)]
+                translate_b = [int((model.getPos()[0] - self.min_x) * 1000),
+                       int((model.getPos()[1] - self.min_y) * 1000)]
                 #print foo
                 self.send_events.send_signal(translate_b[0])
                 self.send_strobe.send_signal()
@@ -261,7 +261,7 @@ class GoBananas:
             if self.fruit.repeat:
                 self.send_events.send_signal(300)
                 self.send_strobe.send_signal()
-                self.send_events.send_signal(self.fruit.now_repeat)
+                self.send_events.send_signal(self.fruit.repeat_list[2])
                 self.send_strobe.send_signal()
 
     def load_environment(self, config):
@@ -316,10 +316,10 @@ class GoBananas:
     def decrease_reward(self, inputEvent):
         self.numBeeps -= 1
 
-    def increase_bananas(self):
+    def increase_bananas(self, inputEvent):
         pass
 
-    def decrease_bananas(self):
+    def decrease_bananas(self, inputEvent):
         pass
 
     def restart(self, inputEvent):
