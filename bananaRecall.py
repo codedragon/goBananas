@@ -173,19 +173,9 @@ class BananaRecall:
             self.daq_events = None
 
     def frame_loop(self):
-        # self.find_recall_fruit means there is an 'invisible' fruit present,
-        # that we will not be colliding into, so check distance. for training
-        # 'invisible' fruit may mean translucent.
+        # self.find_recall_fruit means there is no fruit present, so checking
+        # distance to original (remembered) location
         if self.find_recall_fruit:
-            # if it is visible, no need to check distance
-            if self.fruit.alpha > 0:
-                #print 'show fruit at alpha'
-                # if fruit is partially visible, will use callback instead of distance,
-                # but need to set that this was a remembered trial, so we start over after
-                self.remembered_location = None
-                self.find_recall_fruit = False
-                # since we have an actual fruit, don't want to check distance so exit loop
-                return
             dist_to_banana = self.check_distance_to_fruit()
             #print('dist to banana', dist_to_banana)
             if dist_to_banana <= self.config['distance_goal']:
@@ -252,6 +242,8 @@ class BananaRecall:
         if self.fruit.beeps == self.numBeeps:
             print 'last reward'
             # if fruit visible, fruit disappears, in any case, new trial
+            # remembered location is either true for memory trial
+            # or none for translucent recall fruit
             if self.remembered_location != False:
                 print 'found recall fruit'
                 # if alpha is not one, set banana back to full alpha
@@ -261,15 +253,17 @@ class BananaRecall:
                     self.fruit.reset_collision()
                 self.new_trial()
                 print 'new trial'
+                self.remembered_location = False
             else:
                 print 'did not have to remember location'
                 self.fruit.disappear_fruit()
                 self.find_recall_fruit = self.fruit.get_next_fruit()
+                self.remembered_location = self.find_recall_fruit
                 # find_recall_fruit is true or false
                 #print('find_recall_fruit', self.find_recall_fruit)
                 # this will only matter if there is fruit to remember
                 self.recall_timer = time.clock()
-            self.remembered_location = False
+            #self.remembered_location = False
             # new fruit appears, either starting over or next fruit in stack
             print 'new fruit appears'
 

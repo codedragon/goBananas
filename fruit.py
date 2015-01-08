@@ -3,6 +3,7 @@ from panda3d.core import Point3, TransparencyAttrib
 from load_models import load_models, get_model
 import moBananas as mB
 import random
+from sys import stdout
 
 
 def check_repeat(trial_num, repeat_list):
@@ -141,7 +142,7 @@ class Fruit():
         
     def setup_trial(self, trial_num):
         # trials are set up mostly the same, whether showing fruit sequentially or all at once.
-        print('trial number', trial_num)
+        stdout.write('trial number' + str(trial_num) + '\n')
         # print('trial number to be repeated', self.repeat_list[1])
         fruit_trial = ''
         # self.repeat only refers to regular trials, not sequential trials
@@ -341,7 +342,9 @@ class Fruit():
             if self.alpha > 0:
                 # print 'flash recall fruit'
                 self.flash_on_recall_fruit(True)
-            find_banana_loc = True
+                find_banana_loc = None
+            else:
+                find_banana_loc = True
             # print 'remember banana'
         else:
             # print('next fruit in list', self.fruit_list[0])

@@ -18,7 +18,7 @@ try:
 except ImportError:
     pydaq = None
     PYDAQ_LOADED = False
-    print 'Not using PyDaq'
+    sys.stdout.write('Not using PyDaq \n')
 
 
 class TrainingBananas(JoystickHandler):
@@ -33,7 +33,7 @@ class TrainingBananas(JoystickHandler):
         if not unittest:
             JoystickHandler.__init__(self)
         self.base.disableMouse()
-        print('Subject is', config['subject'])
+        sys.stdout.write('Subject is ' + str(config['subject']) + '\n')
         self.subject = config['subject']
         self.levels_available = [[2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6], [3, 3.1], [4, 4.1, 4.2]]
 
@@ -44,9 +44,9 @@ class TrainingBananas(JoystickHandler):
             pydaq_loaded = False
         if config['reward'] and pydaq_loaded:
             self.reward = pydaq.GiveReward()
-            print 'Reward system on'
         else:
             self.reward = None
+            sys.stdout.write('Warning: reward system not on \n')
 
         # setup windows
         if not unittest:
@@ -91,9 +91,9 @@ class TrainingBananas(JoystickHandler):
         self.forward_limit = config['forward_limit']
         self.training = config['training']
         if not unittest:
-            print('training level is', self.training)
+            sys.stdout.write('training level: ' + str(self.training) + '\n')
             if self.training < 2.2:
-                print('starting direction is', config['trainingDirection'])
+                sys.stdout.write('starting direction: ' + str(config['trainingDirection']) + '\n')
         # random selection used for training 2.3 and above
         self.all_random_selections = config['random_lists']
         self.current_choice = config['random_selection'] - 1
@@ -345,7 +345,7 @@ class TrainingBananas(JoystickHandler):
                 # if we need to be stopping and leaving (holding) crosshair over banana,
                 # make sure still in target zone.
                 if self.check_zone:
-                    print('check hold')
+                    #print('check hold')
                     # not sure if I will use a zone for going forward yet
                     # The 'zone' is whenever the ray is colliding with the banana.
                     # use zone for both left-right training and for forward training,
@@ -354,7 +354,7 @@ class TrainingBananas(JoystickHandler):
                     # lined up the crosshair and banana again.
                     #print collide_banana
                     if collide_banana:
-                        print('still in the zone')
+                        #print('still in the zone')
                         #if self.free_move == 4 or task.time > self.hold_time:
                         if task.time > self.hold_time:
                             #print('hold aim', self.hold_aim)
@@ -364,7 +364,7 @@ class TrainingBananas(JoystickHandler):
                             # stop moving and get reward
                             if self.free_move == 4:
                                 # partial reward for lining up banana in level 4.x
-                                print 'partial reward'
+                                #print 'partial reward'
                                 self.yay_reward = 'partial'
                                 self.check_zone = False
                             elif self.yay_reward is not None:
@@ -382,7 +382,7 @@ class TrainingBananas(JoystickHandler):
                         self.x_change_color(self.x_start_c)
                         #print('require aim', self.require_aim)
                         if self.require_aim == 'slow':
-                            print 'aim slow'
+                            #print 'aim slow'
                             self.check_zone = None
                         else:
                             #print "don't slow down"
@@ -413,14 +413,14 @@ class TrainingBananas(JoystickHandler):
                             self.yay_reward = True
                     elif collide_banana is None:
                         # partial reward for lining up banana in level 4.x
-                        print 'partial reward'
+                        #print 'partial reward'
                         self.yay_reward = 'partial'
                         #self.yay_reward = True
                         #self.reward_count = self.num_beeps - 1
         return task.cont
 
     def give_reward(self):
-        print('beep')
+        #print('beep')
         if self.reward:
             self.reward.pumpOut()
         if not unittest:
@@ -541,7 +541,8 @@ class TrainingBananas(JoystickHandler):
         # reset
         self.base.camera.setPos(self.avatar_pos)
         #print self.base.camera.getPos()
-        print self.base.camera.getH()
+        #print self.base.camera.getH()
+        sys.stdout.write('current angle: ' + str(self.base.camera.getH()) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'banana position, ' +
@@ -669,7 +670,6 @@ class TrainingBananas(JoystickHandler):
         return delta_heading
 
     def inc_angle(self):
-        print 'increase angle'
         #print('old pos', self.avatar_h)
         #self.avatar_h[0] = self.avatar_h[0] * 1.5
         #self.avatar_h *= 1.5
@@ -679,7 +679,7 @@ class TrainingBananas(JoystickHandler):
             self.avatar_h = self.multiplier * self.max_angle
         # y is always going to be positive
         #self.avatar_h[1] = sqrt(25 - self.avatar_h[0] ** 2)
-        print('new heading', self.avatar_h)
+        sys.stdout.write('increase angle, new angle: ' + str(self.avatar_h) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, increase angle ' +
@@ -687,7 +687,6 @@ class TrainingBananas(JoystickHandler):
         #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
 
     def dec_angle(self):
-        print 'decrease angle'
         #print('old pos', self.avatar_h)
         #self.avatar_h /= 1.5
         self.avatar_h /= 1.1
@@ -695,7 +694,7 @@ class TrainingBananas(JoystickHandler):
             self.avatar_h = self.multiplier * self.min_angle
         #self.banana_pos[0] = x_sign * (abs(self.banana_pos[0]) - 1)
         #self.banana_pos[1] = sqrt(25 - self.banana_pos[0] ** 2)
-        print('new heading', self.avatar_h)
+        sys.stdout.write('decrease angle, new angle: ' + str(self.avatar_h) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, decrease angle ' +
@@ -703,18 +702,16 @@ class TrainingBananas(JoystickHandler):
         #print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
 
     def inc_reward(self):
-        print 'increase reward'
         self.num_beeps += 1
-        print('new reward', self.num_beeps)
+        sys.stdout.write('increase reward, new reward: ' + str(self.num_beeps) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, increase reward ' +
                                  str(self.num_beeps) + '\n')
 
     def dec_reward(self):
-        print 'decrease reward'
         self.num_beeps -= 1
-        print('new reward', self.num_beeps)
+        sys.stdout.write('decrease reward, new reward: ' + str(self.num_beeps) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, decrease reward ' +
@@ -725,7 +722,6 @@ class TrainingBananas(JoystickHandler):
         # at once, self.training will not have increased yet, so
         # check to see what self.change_level is first (don't want
         # to change levels in the middle of a trial)
-        print('increase training level')
         training = self.training
         if self.change_level:
             training = self.change_level
@@ -733,14 +729,15 @@ class TrainingBananas(JoystickHandler):
         # get current position in sequence:
         seq_num = self.get_seq_num(training)
         if training == self.levels_available[-1][-1]:
-            print 'already at most difficult level'
+            sys.stdout.write('already at most difficult level \n')
             self.change_level = training
         elif training == self.levels_available[seq_num][-1]:
-            print 'switching to new sequence'
+            sys.stdout.write('switching to new sequence \n')
             self.change_level = self.levels_available[seq_num + 1][0]
         else:
             self.change_level = round(training + 0.1, 2)
-        print('new level', self.change_level)
+        sys.stdout.write('increase level, new level: ' + str(self.change_level) + '\n')
+        #print('new level', self.change_level)
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, increase level ' +
@@ -751,7 +748,6 @@ class TrainingBananas(JoystickHandler):
         # at once, self.training will not have increased yet, so
         # check to see what self.change_level is first (don't want
         # to change levels in the middle of a trial)
-        print('decrease training level')
         training = self.training
         if self.change_level:
             training = self.change_level
@@ -759,14 +755,14 @@ class TrainingBananas(JoystickHandler):
         # get current position in sequence:
         seq_num = self.get_seq_num(training)
         if training == self.levels_available[0][0]:
-            print 'already at easiest level'
+            sys.stdout.write('already at easiest level \n')
             self.change_level = training
         elif training == self.levels_available[seq_num][0]:
-            print 'switching to new sequence'
+            sys.stdout.write('switching to new sequence \n')
             self.change_level = self.levels_available[seq_num - 1][-1]
         else:
             self.change_level = round(training - 0.1, 2)
-        print('new level', self.change_level)
+        sys.stdout.write('increase level, new level: ' + str(self.change_level) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, decrease level ' +
@@ -781,70 +777,64 @@ class TrainingBananas(JoystickHandler):
         return seq_num
 
     def inc_wrong_speed(self):
-        print 'increase speed in wrong direction'
         if self.wrong_speed >= self.initial_speed:
             self.wrong_speed = self.initial_speed
-            print 'now same speed as towards the banana'
+            sys.stdout.write('now same speed as towards the banana \n')
         else:
             self.wrong_speed += 0.01
-        print('new speed', self.wrong_speed)
+        sys.stdout.write('increase speed in wrong direction, new: ' + str(self.wrong_speed) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, increase wrong speed ' +
                                  str(self.wrong_speed) + '\n')
 
     def dec_wrong_speed(self):
-        print 'decrease speed in wrong direction'
         self.wrong_speed -= 0.01
-        print('new speed', self.wrong_speed)
+        sys.stdout.write('decrease speed in wrong direction, new: ' + str(self.wrong_speed) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, decrease wrong speed ' +
                                  str(self.wrong_speed) + '\n')
 
     def inc_random(self):
-        print 'increase selection of random bananas'
         if self.current_choice == len(self.all_random_selections) - 1:
-            print('already at max')
+            sys.stdout.write('already at max \n')
         else:
             # current is the current length, which conveniently
             # enough is the next number to use, because of zero indexing
             self.current_choice += 1
             self.random_choices = self.all_random_selections[self.current_choice]
-        print('selection', self.random_choices)
+        sys.stdout.write('increase selection of random bananas, new: ' + str(self.random_choices) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, increase random selection ' +
                                  str(self.random_choices) + '\n')
 
     def dec_random(self):
-        print 'decrease selection of random bananas'
         if self.current_choice == 0:
-            print('already at min')
+            sys.stdout.write('already at min \n')
         else:
             # current is the current length, so we need to subtract
             # by two, because of zero indexing
             self.current_choice -= 1
             self.random_choices = self.all_random_selections[self.current_choice]
-        print('selection', self.random_choices)
+        sys.stdout.write('decrease selection of random bananas, new: ' + str(self.random_choices) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, decrease random selection ' +
                                  str(self.random_choices) + '\n')
 
     def inc_forward_speed(self):
-        print 'increase forward speed'
         self.initial_forward_speed += 0.01
-        print('new speed', self.initial_forward_speed)
+        sys.stdout.write('increase forward speed, new: ' + str(self.initial_forward_speed) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, increase forward speed ' +
                                  str(self.initial_forward_speed) + '\n')
 
     def dec_forward_speed(self):
-        print 'decrease forward speed'
         self.initial_forward_speed -= 0.01
-        print('new speed', self.initial_forward_speed)
+        sys.stdout.write('decrease forward speed, new: ' + str(self.initial_forward_speed) + '\n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, decrease forward speed ' +
@@ -852,20 +842,20 @@ class TrainingBananas(JoystickHandler):
 
     def change_left(self):
         self.new_dir = -1
-        print('new dir: left')
+        sys.stdout.write('new dir: left \n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, new dir left' + '\n')
 
     def change_right(self):
         self.new_dir = 1
-        print('new dir: right')
+        sys.stdout.write('new dir: right \n')
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, new dir right' + '\n')
 
     def extra_reward(self):
-        print('beep')
+        sys.stdout.write('beep \n')
         if self.reward:
             self.reward.pumpOut()
 
@@ -918,12 +908,12 @@ class TrainingBananas(JoystickHandler):
         if self.random_banana:
             self.random_choices = self.all_random_selections[self.current_choice]
             self.avatar_h = random.choice(self.random_choices)
-            print('current angles available ', self.random_choices)
+            sys.stdout.write('current angles available ' + str(self.random_choices) + '\n')
             #print self.
         else:
             self.avatar_h = self.config_avatar_h
         self.base.camera.setH(self.multiplier * self.avatar_h)
-        print self.base.camera.getH()
+        sys.stdout.write('current angle: ' + str(self.base.camera.getH()) + '\n')
         #print('default camera position', self.base.camera.getPos())
         self.base.camera.setPos(self.avatar_pos)
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
@@ -999,15 +989,13 @@ class TrainingBananas(JoystickHandler):
         if self.random_banana:
             self.random_choices = self.all_random_selections[self.current_choice]
             self.avatar_h = random.choice(self.random_choices)
-            print('current angles available ', self.random_choices)
-            #print self.
+            sys.stdout.write('current angles available ' + str(self.random_choices) + '\n')
         else:
             self.avatar_h = self.config_avatar_h
-        print('forward', self.go_forward)
-        print('free move', self.free_move)
-        print('must release', self.must_release)
-        print('random', self.random_banana)
-        print('require aim', self.require_aim)
+        sys.stdout.write('forward: ' + str(self.go_forward) + '\n')
+        sys.stdout.write('free move: ' + str(self.free_move) + '\n')
+        sys.stdout.write('random: ' + str(self.random_banana) + '\n')
+        sys.stdout.write('require aim: ' + str(self.require_aim) + '\n')
 
     def load_fruit(self, fruit):
         if fruit == 'banana':
@@ -1045,7 +1033,7 @@ class TrainingBananas(JoystickHandler):
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
         self.data_file_name = data_dir + '/' + config['subject'] + '_TR_' + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
-        print('open', self.data_file_name)
+        sys.stdout.write('data file: ' + str(self.data_file_name) + '\n')
         # open file for recording eye positions
         self.data_file = open(self.data_file_name, 'w')
         self.data_file.write('timestamp, joystick input, for subject: ' + config['subject'] + '\n')
