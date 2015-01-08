@@ -1044,7 +1044,7 @@ class TrainingBananas(JoystickHandler):
         data_dir = 'data/' + config['subject']
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
-        self.data_file_name = data_dir + '/t_bananas_' + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
+        self.data_file_name = data_dir + '/' + config['subject'] + '_TR_' + datetime.datetime.now().strftime("%y_%m_%d_%H_%M")
         print('open', self.data_file_name)
         # open file for recording eye positions
         self.data_file = open(self.data_file_name, 'w')
