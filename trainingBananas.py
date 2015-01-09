@@ -148,10 +148,10 @@ class TrainingBananas(JoystickHandler):
         self.base.cTrav.addCollider(self.ray_node_path, self.collHandler)
         self.base.cTrav.addCollider(self.sphere_node_path, self.collHandler)
         # self.base.cTrav.showCollisions(self.base.render)
-        # self.ray_node_path.show()
-        # self.sphere_node_path.show()
-        # self.banana_node_path.show()
-        # self.base.render.find('**/+CollisionNode').show()
+        self.ray_node_path.show()
+        self.sphere_node_path.show()
+        self.banana_node_path.show()
+        self.base.render.find('**/+CollisionNode').show()
 
         # Camera
         self.base.camLens.setFov(60)
@@ -499,6 +499,7 @@ class TrainingBananas(JoystickHandler):
         if self.change_level:
             # print 'actually change level now'
             self.set_level_variables(self.change_level)
+            print('angle', self.base.camera.getH())
             self.change_level = False
         # check to see if banana is on random
         if self.random_banana:
@@ -534,9 +535,9 @@ class TrainingBananas(JoystickHandler):
             # the sign here as well.
             # print 'move'
             self.move('x', -self.x_mag)
-        if self.free_move != 0:
+        # if self.free_move != 0:
             # print('rotate avatar back so at correct angle:', self.avatar_h)
-            self.base.camera.setH(self.multiplier * abs(self.avatar_h))
+        self.base.camera.setH(self.multiplier * abs(self.avatar_h))
             # print('avatar heading', self.base.camera.getH())
         # position does not change, if not doing forward training, so just
         # reset
@@ -901,18 +902,19 @@ class TrainingBananas(JoystickHandler):
         self.slow_speed = self.wrong_speed
         # toggle for when trial begins
         self.start_trial = True
-        if self.training > self.levels_available[0][-1]:
-            # if training is 3 or greater, use starting position from config,
-            # otherwise use default
-            self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
-            # self.fullForwardSpeed = config['fullForwardSpeed']
-        if self.random_banana:
-            self.random_choices = self.all_random_selections[self.current_choice]
-            self.avatar_h = random.choice(self.random_choices)
-            sys.stdout.write('current angles available ' + str(self.random_choices) + '\n')
-            # print self.
-        else:
-            self.avatar_h = self.config_avatar_h
+        print('am i doing this twice? this seems silly')
+        # if self.training > self.levels_available[0][-1]:
+        #     # if training is 3 or greater, use starting position from config,
+        #     # otherwise use default
+        #     self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
+        #     # self.fullForwardSpeed = config['fullForwardSpeed']
+        # if self.random_banana:
+        #     self.random_choices = self.all_random_selections[self.current_choice]
+        #     self.avatar_h = random.choice(self.random_choices)
+        #     sys.stdout.write('current angles available ' + str(self.random_choices) + '\n')
+        #     # print self.
+        # else:
+        #     self.avatar_h = self.config_avatar_h
         self.base.camera.setH(self.multiplier * self.avatar_h)
         sys.stdout.write('current angle: ' + str(self.base.camera.getH()) + '\n')
         # print('default camera position', self.base.camera.getPos())
@@ -955,7 +957,6 @@ class TrainingBananas(JoystickHandler):
         # level 3 training
         if training > self.levels_available[0][-1]:
             # print '3.0'
-            self.avatar_h = 0
             self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
             self.banana_coll_node.setIntoCollideMask(self.mask_list[1])
             # defaults for level 3 training
@@ -969,7 +970,7 @@ class TrainingBananas(JoystickHandler):
             self.must_release = True
         # level 4 training
         if training > self.levels_available[1][-1]:
-            self.banana_node_path.setScale(0.2)
+            #self.banana_node_path.setScale(0.2)
             # print '4.0'
             self.banana_coll_node.setIntoCollideMask(self.mask_list[2])
             self.go_forward = False
@@ -986,13 +987,21 @@ class TrainingBananas(JoystickHandler):
         if training > self.levels_available[2][2]:
             # print '4.3'
             self.require_aim = True
+        #print('what sequence?', self.get_seq_num(training))
         # In case random_bananas changed:
         if self.random_banana:
             self.random_choices = self.all_random_selections[self.current_choice]
             self.avatar_h = random.choice(self.random_choices)
             sys.stdout.write('current angles available ' + str(self.random_choices) + '\n')
+        elif self.get_seq_num(training) == 1:
+            # really should have started out with training zero,
+            # then numbering would be better...
+            #print 'sequence 3?'
+            self.avatar_h = 0
         else:
             self.avatar_h = self.config_avatar_h
+        # print self.banana.getH()
+        # print self.avatar_h
         sys.stdout.write('forward: ' + str(self.go_forward) + '\n')
         sys.stdout.write('free move: ' + str(self.free_move) + '\n')
         sys.stdout.write('random: ' + str(self.random_banana) + '\n')
@@ -1007,18 +1016,23 @@ class TrainingBananas(JoystickHandler):
             # banana always in the same position, just move avatar.
             self.banana.setPos(Point3(0, 0, 1))
             self.banana_node_path = self.banana.find('**/+CollisionNode')
+            self.banana.reparentTo(self.base.render)
         elif fruit == 'cherry':
             # or cherry as banana?
-            self.banana = self.base.loader.loadModel("models/fruit/cherries_no_cn.egg")
+            self.banana = self.base.render.attachNewNode('root')
+            # banana center is off, re-center with new node
+            new_node_path = self.base.loader.loadModel("models/fruit/cherries_no_cn.egg")
+            new_node_path.reparentTo(self.banana)
+            new_node_path.setPos(0, 0, 0)
+            #new_node_path.setScale(0.08)
             self.banana.setScale(0.08)  # cherry
-            # banana always in the same position, just move avatar.
+            # move the center of the cherries
             self.banana.setPos(Point3(0.08, 0, 1))
             # can't get built in cherry collision node to work properly...
             cs = CollisionSphere(-10, 0, 0, 11)
-            self.banana_node_path = self.banana.attachNewNode(CollisionNode('c_node'))
+            self.banana_node_path = new_node_path.attachNewNode(CollisionNode('c_node'))
             self.banana_node_path.node().addSolid(cs)
 
-        self.banana.reparentTo(self.base.render)
         # usually 0.1 for banana
         # self.banana_node_path = self.banana.find('**/+CollisionNode')
         # self.banana_node_path.setScale(1)

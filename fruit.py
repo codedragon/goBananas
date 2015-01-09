@@ -30,7 +30,7 @@ def check_repeat(trial_num, repeat_list):
     return repeat_list, fruit_trial
 
 
-def create_alt_fruit_area(self, subarea_key):
+def create_alt_fruit_area(subarea_key):
     # alternate fruit can be in same area as banana, or one section away
     # could probably come up with some algorithm for this, but
     # couldn't be bothered.
