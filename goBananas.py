@@ -37,7 +37,6 @@ class GoBananas:
         # reload the config file multiple times, also allows us to change these
         # variables dynamically
         #base.setFrameRateMeter(True)
-        #self.numBeeps = config['numBeeps']
         # extra is factor to multiply reward by for last fruit
         self.extra = config['extra']
         # num_beeps keeps track of reward for fruit we just ran into
@@ -182,7 +181,7 @@ class GoBananas:
         elif self.fruit.beeps == 0:
             # just ran into it?
             VLQ.getInstance().writeLine("Yummy", [self.fruit.current_fruit])
-            #print('yummy', self.fruit.current_fruit)
+            print('yummy', self.fruit.current_fruit)
             #print('banana pos', self.fruit.bananaModels[int(self.fruit.current_fruit[-2:])].getPos())
             if self.send_events:
                 self.send_events.send_signal(200)

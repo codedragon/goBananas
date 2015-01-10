@@ -27,8 +27,6 @@ sendData = True
 # 3d?
 # framebuffer-stereo 1
 
-# reward
-numBeeps = 3
 # factor to increase reward for last banana
 # probably shouldn't use this if using weighted bananas
 # (just make it 1)
@@ -101,12 +99,14 @@ instructSeeAll = False
 #fruit = ['plum']
 fruit = ['cherry']
 num_fruit = [1]
+num_beeps = [3]
 #fruit = ['old_banana', 'plum']  # the fruit_to_remember should NOT be part of this list
 #num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
+#reward = [3, 5]
 
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
-fruit_to_remember = 'banana'
-#fruit_to_remember = None
+#fruit_to_remember = 'banana'
+fruit_to_remember = None
 # how close to remembered location to get reward?
 distance_goal = 3
 repeat_recall_fruit = True  # can be toggled with key, repeats location

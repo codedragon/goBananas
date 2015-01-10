@@ -194,7 +194,7 @@ class TrainingBananas(JoystickHandler):
         self.random_banana = False
         self.require_aim = False
         self.go_forward = False
-        self.set_level_variables(self.training)
+        #self.set_level_variables(self.training)
 
         # setup keyboard/joystick inputs
         self.setup_inputs()
@@ -231,12 +231,6 @@ class TrainingBananas(JoystickHandler):
         # self.check_time = 0
         # toggle for when trial begins
         self.start_trial = True
-        # set up main loop. this will be removed and added again in reset variables,
-        # which is what happens anyway if we need to reset variables during the task,
-        # so no big deal
-        self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
-        self.frameTask.delay = -0.1  # want initial delay less than zero
-        self.frameTask.last = 0  # task time of the last frame
         # print self.avatar_h
         # print self.base.camera.getH()
         # print self.avatar_pos
@@ -249,6 +243,16 @@ class TrainingBananas(JoystickHandler):
         # print self.banana.getPos()
         # set variables to their actual starting values
         self.reset_variables()
+        self.set_level_variables(self.training)
+        self.set_camera()
+        # start stuff happening!
+        self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
+        self.frameTask.delay = -0.1  # want initial delay less than zero
+        self.frameTask.last = 0  # task time of the last frame
+        if not unittest:
+            self.data_file.write(str(self.frameTask.time) + ', ' +
+                                 'banana position, ' +
+                                 str(self.multiplier * self.avatar_h) + '\n')
 
     def frame_loop(self, task):
         # print self.training
@@ -495,7 +499,6 @@ class TrainingBananas(JoystickHandler):
             # print 'move'
             self.move('x', -self.x_mag)
             # print('change direction')
-
         if self.change_level:
             # print 'actually change level now'
             self.set_level_variables(self.change_level)
@@ -535,21 +538,11 @@ class TrainingBananas(JoystickHandler):
             # the sign here as well.
             # print 'move'
             self.move('x', -self.x_mag)
-        # if self.free_move != 0:
-            # print('rotate avatar back so at correct angle:', self.avatar_h)
-        self.base.camera.setH(self.multiplier * abs(self.avatar_h))
-            # print('avatar heading', self.base.camera.getH())
-        # position does not change, if not doing forward training, so just
-        # reset
-        self.base.camera.setPos(self.avatar_pos)
-        # print self.base.camera.getPos()
-        # print self.base.camera.getH()
-        sys.stdout.write('current angle: ' + str(self.base.camera.getH()) + '\n')
+        self.set_camera()
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'banana position, ' +
                                  str(self.multiplier * self.avatar_h) + '\n')
-
         # print('min time to reward:', sqrt(2 * self.avatar_h / 0.05 * 0.01))
         # for training 4, switch from going forward to left/right
         if self.free_move == 4:
@@ -559,6 +552,15 @@ class TrainingBananas(JoystickHandler):
         # print 'avatar can move again, new trial starting'
         self.moving = True
         # print('yay', self.yay_reward)
+
+    def set_camera(self):
+        self.base.camera.setH(self.multiplier * abs(self.avatar_h))
+        self.base.camera.setPos(self.avatar_pos)
+        #print self.base.camera.getPos()
+        #print self.banana.getPos()
+        # print self.base.camera.getH()
+        sys.stdout.write('current angle: ' + str(self.base.camera.getH()) + '\n')
+
 
     def x_change_color(self, color):
         # print self.crosshair.getColor()
@@ -862,6 +864,7 @@ class TrainingBananas(JoystickHandler):
             self.reward.pumpOut()
 
     def reset_variables(self):
+        # this is only called once, from init
         self.base.taskMgr.remove("frame_loop")
         # set/reset to the original state of variables
         # self.max_angle = 26
@@ -902,26 +905,6 @@ class TrainingBananas(JoystickHandler):
         self.slow_speed = self.wrong_speed
         # toggle for when trial begins
         self.start_trial = True
-        print('am i doing this twice? this seems silly')
-        # if self.training > self.levels_available[0][-1]:
-        #     # if training is 3 or greater, use starting position from config,
-        #     # otherwise use default
-        #     self.avatar_pos = Point3(0.01, self.config_avatar_d, 1)
-        #     # self.fullForwardSpeed = config['fullForwardSpeed']
-        # if self.random_banana:
-        #     self.random_choices = self.all_random_selections[self.current_choice]
-        #     self.avatar_h = random.choice(self.random_choices)
-        #     sys.stdout.write('current angles available ' + str(self.random_choices) + '\n')
-        #     # print self.
-        # else:
-        #     self.avatar_h = self.config_avatar_h
-        self.base.camera.setH(self.multiplier * self.avatar_h)
-        sys.stdout.write('current angle: ' + str(self.base.camera.getH()) + '\n')
-        # print('default camera position', self.base.camera.getPos())
-        self.base.camera.setPos(self.avatar_pos)
-        self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
-        self.frameTask.delay = -0.1  # want initial delay less than zero
-        self.frameTask.last = 0  # task time of the last frame
 
     def set_level_variables(self, training):
         # default is lowest training level
@@ -1001,6 +984,7 @@ class TrainingBananas(JoystickHandler):
         else:
             self.avatar_h = self.config_avatar_h
         # print self.banana.getH()
+        print self.avatar_pos
         # print self.avatar_h
         sys.stdout.write('forward: ' + str(self.go_forward) + '\n')
         sys.stdout.write('free move: ' + str(self.free_move) + '\n')
