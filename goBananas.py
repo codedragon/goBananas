@@ -39,7 +39,7 @@ class GoBananas:
         #base.setFrameRateMeter(True)
         self.numBeeps = config['numBeeps']
         # extra is a list, first is the bonus reward, second is the regular reward
-        self.extra = [config['extra'] * self.numBeeps, self.numBeeps]
+        self.extra = [config['extra'] * self.numBeeps, self.numBeeps, self.numBeeps + 2]
         # extra_flag is true if extra is not 1
         self.extra_flag = self.extra[0] > self.numBeeps
         self.full_turn_speed = config['fullTurningSpeed']
@@ -177,7 +177,7 @@ class GoBananas:
         elif self.fruit.beeps == 0:
             # just ran into it?
             VLQ.getInstance().writeLine("Yummy", [self.fruit.current_fruit])
-            #print('yummy', self.fruit.current_fruit)
+            print('yummy', self.fruit.current_fruit)
             #print('banana pos', self.fruit.bananaModels[int(self.fruit.current_fruit[-2:])].getPos())
             if self.send_events:
                 self.send_events.send_signal(200)
@@ -209,6 +209,9 @@ class GoBananas:
                 #print 'bonus beeps'
                 self.extra_flag = False
                 self.numBeeps = self.extra[0]
+            elif 'cherry' in self.fruit.current_fruit:
+                print 'bonus'
+                self.numBeeps = self.extra[2]
             else:
                 # banana disappears
                 old_trial = self.trial_num
