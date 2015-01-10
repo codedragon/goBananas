@@ -37,11 +37,16 @@ class GoBananas:
         # reload the config file multiple times, also allows us to change these
         # variables dynamically
         #base.setFrameRateMeter(True)
-        self.numBeeps = config['numBeeps']
-        # extra is a list, first is the bonus reward, second is the regular reward
-        self.extra = [config['extra'] * self.numBeeps, self.numBeeps]
+        #self.numBeeps = config['numBeeps']
+        # extra is factor to multiply reward by for last fruit
+        self.extra = config['extra']
+        # num_beeps keeps track of reward for fruit we just ran into
+        self.num_beeps = 0
+        # in case we haven't set reward for different fruit, make reward same for all fruit
+        reward_list = config.get('num_beeps', 3 * len(config['fruit']))
+        self.beep_dict = dict(zip(config['fruit'], reward_list))
         # extra_flag is true if extra is not 1
-        self.extra_flag = self.extra[0] > self.numBeeps
+        #self.extra_flag = self.extra[0] > self.numBeeps
         self.full_turn_speed = config['fullTurningSpeed']
         self.full_forward_speed = config['fullForwardSpeed']
         self.min_x = config['min_x']
@@ -182,6 +187,8 @@ class GoBananas:
             if self.send_events:
                 self.send_events.send_signal(200)
                 self.send_strobe.send_signal()
+            # determine how much reward we are giving
+            self.num_beeps = self.get_reward_level(self.fruit.current_fruit)
 
         # Still here? Give reward!
         if self.reward:
@@ -201,32 +208,30 @@ class GoBananas:
         #print 'beeps', self.fruit.beeps
         #print 'extra', self.extra
         #print 'stashed', self.fruit.stashed
-        if self.fruit.beeps == self.numBeeps:
-            #print('fruit list', self.fruit.fruit_list)
-            # check to see if we are doing extra reward, if we are on last fruit
-            # and haven't done extra reward yet.
-            if len(self.fruit.fruit_list) == 1 and self.extra_flag:
-                #print 'bonus beeps'
-                self.extra_flag = False
-                self.numBeeps = self.extra[0]
-            else:
-                # banana disappears
-                old_trial = self.trial_num
-                self.fruit.disappear_fruit()
-                # if the list is empty, new trial
-                if not self.fruit.fruit_list:
-                    self.trial_num += 1
-                    self.fruit.setup_trial(self.trial_num)
-                    # reset normal reward and flag for the increased reward for last banana
-                    self.numBeeps = self.extra[1]
-                    self.extra_flag = self.extra[0] > self.numBeeps
-                    # logging for new trial
-                    self.log_new_trial()
-                # avatar can move
-                Avatar.getInstance().setMaxTurningSpeed(self.full_turn_speed)
-                Avatar.getInstance().setMaxForwardSpeed(self.full_forward_speed)
-                # reward is over
-                self.fruit.beeps = None
+        if self.fruit.beeps == self.num_beeps:
+            # banana disappears
+            self.fruit.disappear_fruit()
+            # if the list is empty, new trial
+            if not self.fruit.fruit_list:
+                self.trial_num += 1
+                self.fruit.setup_trial(self.trial_num)
+                # logging for new trial
+                self.log_new_trial()
+            # avatar can move
+            Avatar.getInstance().setMaxTurningSpeed(self.full_turn_speed)
+            Avatar.getInstance().setMaxForwardSpeed(self.full_forward_speed)
+            # reward is over
+            self.fruit.beeps = None
+
+    def get_reward_level(self, current_fruit):
+        # current_fruit is going to have a number representation at the end to make it unique,
+        # so don't use last three indices
+        print current_fruit
+        reward = self.beep_dict[current_fruit[:-3]]
+        if len(self.fruit.fruit_list) == 1:
+            # last fruit
+            reward *= self.extra
+        return reward
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
