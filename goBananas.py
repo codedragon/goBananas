@@ -180,7 +180,7 @@ class GoBananas:
         elif self.fruit.beeps == 0:
             # just ran into it?
             VLQ.getInstance().writeLine("Yummy", [self.fruit.current_fruit])
-            print('yummy', self.fruit.current_fruit)
+            #print('yummy', self.fruit.current_fruit)
             #print('banana pos', self.fruit.bananaModels[int(self.fruit.current_fruit[-2:])].getPos())
             if self.send_events:
                 self.send_events.send_signal(200)
@@ -224,7 +224,7 @@ class GoBananas:
     def get_reward_level(self, current_fruit):
         # current_fruit is going to have a number representation at the end to make it unique,
         # so don't use last three indices
-        print current_fruit
+        #print current_fruit
         reward = self.beep_dict[current_fruit[:-3]]
         if len(self.fruit.fruit_list) == 1:
             # last fruit

@@ -146,7 +146,7 @@ class Fruit():
             fruit_index = self.config['fruit_to_remember']
             self.recall_node_path = self.fruit_models[fruit_index].retrNodePath()
             self.recall_node_path.setTransparency(TransparencyAttrib.MAlpha)
-        if self.config.get('alpha', False):
+        if self.config.get('go_alpha', False):
             print 'make a banana 1/2 alpha'
             # will choose the last banana created
             random_node_path = self.fruit_models[name].retrNodePath()

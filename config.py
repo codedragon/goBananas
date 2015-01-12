@@ -104,6 +104,11 @@ num_beeps = [3]
 #num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
 #reward = [3, 5]
 
+# can be set to make one fruit half alpha
+# need to make this a string declaring which fruit, then check for fruit to make alpha
+# currently just chooses a random fruit, so could be any fruit showing
+go_alpha = True
+
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
 #fruit_to_remember = 'banana'
 fruit_to_remember = None
