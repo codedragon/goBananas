@@ -244,11 +244,14 @@ class TrainingBananas(JoystickHandler):
         # set variables to their actual starting values
         self.reset_variables()
         self.set_level_variables(self.training)
+        print 'set level'
         self.set_camera()
+        print 'set camera'
         # start stuff happening!
         self.frameTask = self.base.taskMgr.add(self.frame_loop, "frame_loop")
         self.frameTask.delay = -0.1  # want initial delay less than zero
         self.frameTask.last = 0  # task time of the last frame
+        print 'set task'
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'banana position, ' +
@@ -498,7 +501,7 @@ class TrainingBananas(JoystickHandler):
             # the original signal had its sign changed, so switch the sign here as well.
             # print 'move'
             self.move('x', -self.x_mag)
-            # print('change direction')
+            #print('change direction', -self.x_mag)
         if self.change_level:
             # print 'actually change level now'
             self.set_level_variables(self.change_level)
@@ -847,6 +850,7 @@ class TrainingBananas(JoystickHandler):
     def change_left(self):
         self.new_dir = -1
         sys.stdout.write('new dir: left \n')
+        print('new direction', self.new_dir)
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, new dir left' + '\n')
@@ -854,6 +858,7 @@ class TrainingBananas(JoystickHandler):
     def change_right(self):
         self.new_dir = 1
         sys.stdout.write('new dir: right \n')
+        print('new direction', self.new_dir)
         if not unittest:
             self.data_file.write(str(self.frameTask.time) + ', ' +
                                  'keypress, new dir right' + '\n')
@@ -907,6 +912,7 @@ class TrainingBananas(JoystickHandler):
         self.start_trial = True
 
     def set_level_variables(self, training):
+        print 'really setting level variables'
         # default is lowest training level
         self.training = training
         self.free_move = 1

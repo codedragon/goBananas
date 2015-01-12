@@ -108,17 +108,19 @@ class TrainingBananaTestsT2(unittest.TestCase):
         print('after', self.tb.base.camera.getH())
 
     def move_to_center_for_reward(self, stay=None):
-        #print 'move to center for reward'
+        print 'move to center for reward'
         # only works if we are not allowed to go past center,
         # so less than 2.3
+        print('multiplier', self.tb.multiplier)
         if self.tb.training > 2.2:
             raise Exception("This method only for training less than 2.3")
         messenger.send('x_axis', [4 * self.tb.multiplier])
         if abs(self.tb.base.camera.getH()) < 4:
             messenger.send('x_axis', [self.tb.multiplier * 1])
         # go until we get reward
+
         while self.tb.reward_count < self.tb.num_beeps:
-            print('camera head', self.tb.base.camera.getH())
+            #print('camera head', self.tb.base.camera.getH())
             taskMgr.step()
         print 'got reward'
         print('camera head', self.tb.base.camera.getH())
@@ -350,7 +352,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
             return lambda func: func
         return unittest.skip('skipped test, training > 2.4')
 
-    def test_after_changing_side_joystick_is_no_longer_allowed_to_go_original_direction(self):
+    def test_after_changing_to_left_joystick_is_no_longer_allowed_to_go_left(self):
         """
         test that can only move towards center, even if side changes (right to left)
         This test is true if free_move is false. This is tested with a different test
@@ -358,21 +360,23 @@ class TrainingBananaTestsT2(unittest.TestCase):
         """
         #print self.tb.training
         if self.tb.training < 2.2:
+            # make sure banana is on the right
             messenger.send('r')
             self.tb.restart_bananas()
             #print self.tb.training
             old_dir = self.tb.multiplier
             before = self.tb.base.camera.getH()
-            #print old_dir
-            #print before
+            print('should be right, 1', old_dir)
+            print before
             # should change to left after reward,
             # when restart bananas happens
             messenger.send('l')
+            print('should still be right, 1', self.tb.multiplier)
             # go to center for reward, and stay until moving is allowed again.
-            #print 'move to center'
+            print 'move to center'
             self.move_to_center_for_reward('stay')
             # should be on left side now.
-            #print 'banana on new side now'
+            print 'banana on new side now'
             self.assertTrue(self.tb.multiplier == -old_dir)
             # should be same distance, but opposite side
             self.assertTrue(self.tb.base.camera.getH() / before == -1)
@@ -388,7 +392,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
             return lambda func: func
         return unittest.skip('skipped test, training > 2.1')
 
-    def test_after_changing_side_joystick_is_no_longer_allowed_to_go_original_direction_left(self):
+    def test_after_changing_to_right_joystick_is_no_longer_allowed_to_go_right(self):
         """
         test that can only move towards center, even if side changes (left to right)
         This test is true if free_move is false. This is tested with a different test
@@ -399,11 +403,12 @@ class TrainingBananaTestsT2(unittest.TestCase):
             messenger.send('l')
             self.tb.restart_bananas()
             old_dir = self.tb.multiplier
-            #print old_dir
+            print('should be left, -1', old_dir)
             before = self.tb.base.camera.getH()
             #print before
             # this will take effect after reward
             messenger.send('r')
+            print('should still be left, -1', self.tb.multiplier)
             self.move_to_center_for_reward('stay')
             # should be on right side now.
             #print 'banana on new side now'
