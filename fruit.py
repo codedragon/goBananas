@@ -124,6 +124,8 @@ class Fruit():
         # print 'dict of number fruit', fruit_dict
         # load the models
         load_models()
+        # random alpha?
+        test_alpha = self.config.get('go_alpha', False)
         # for each fruit in our dictionary, find corresponding model,
         # create new model for each count in dictionary of that fruit
         # This is a couple of loops, fortunately they are all small.
@@ -140,18 +142,19 @@ class Fruit():
                 # print name
                 # create actual model
                 self.create_fruit_model(item, name)
+                if test_alpha and item.name == test_alpha:
+                    print('make a fruit 1/2 alpha', name)
+                    # will choose the last banana created
+                    random_node_path = self.fruit_models[name].retrNodePath()
+                    random_node_path.setTransparency(TransparencyAttrib.MAlpha)
+                    random_node_path.setAlphaScale(self.config['alpha'])
+                    test_alpha = False  # only do one fruit
 
         # if we are doing recall, set ability to use alpha
         if self.config['fruit_to_remember']:
             fruit_index = self.config['fruit_to_remember']
             self.recall_node_path = self.fruit_models[fruit_index].retrNodePath()
             self.recall_node_path.setTransparency(TransparencyAttrib.MAlpha)
-        if self.config.get('go_alpha', False):
-            print 'make a banana 1/2 alpha'
-            # will choose the last banana created
-            random_node_path = self.fruit_models[name].retrNodePath()
-            random_node_path.setTransparency(TransparencyAttrib.MAlpha)
-            random_node_path.setAlphaScale(0.5)
         # print self.fruit_models
         # print 'end create fruit'
 

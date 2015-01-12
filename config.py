@@ -47,7 +47,7 @@ repeat_number = 3
 crosshair = False
 
 # for activating reward system
-pulseInterval = 0.200  # in s
+pulseInterval = 200  # in s
 
 # eye position calibration information
 # since we are getting voltage from IScan of -5:5
@@ -97,9 +97,9 @@ instructSeeAll = False
 # Experiment-specific settings
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
 #fruit = ['plum']
-fruit = ['cherry']
-num_fruit = [1]
-num_beeps = [3]
+fruit = ['cherry', 'banana']
+num_fruit = [2, 3]
+num_beeps = [3, 4]
 #fruit = ['old_banana', 'plum']  # the fruit_to_remember should NOT be part of this list
 #num_fruit = [9, 1]  # number of fruit, other than fruit to remember or other special fruit
 #reward = [3, 5]
@@ -107,7 +107,7 @@ num_beeps = [3]
 # can be set to make one fruit half alpha
 # need to make this a string declaring which fruit, then check for fruit to make alpha
 # currently just chooses a random fruit, so could be any fruit showing
-go_alpha = True
+go_alpha = 'banana'  # can adjust how much alpha by changing alpha below
 
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
 #fruit_to_remember = 'banana'
