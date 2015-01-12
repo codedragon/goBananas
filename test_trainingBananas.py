@@ -47,10 +47,10 @@ class TrainingBananaTestsT2(unittest.TestCase):
         cls.tb.reward_time = 0.01
         cls.tb.num_beeps = 1
         cls.tb.avatar_h = 1.5
-        print cls.tb.training
+        #print cls.tb.training
 
     def setUp(self):
-        print self.tb.training
+        #print self.tb.training
         # this will reset x_mag to zero, clearing any joystick pushes,
         # as well resetting other things
         self.tb.reset_variables()
@@ -59,6 +59,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        self.tb.start_task()
         print self.tb.training
 
     #def test_purposely_fails(self):
@@ -69,10 +70,10 @@ class TrainingBananaTestsT2(unittest.TestCase):
         # it is currently on (2.5 and above)
         if before is None:
             before = self.tb.base.camera.getH()
-        print('before', before)
+        #print('before', before)
         # we are moving to the other side, so let's do this quickly
         messenger.send('x_axis', [self.tb.multiplier * abs(before/2)])
-        print('sent in', self.tb.multiplier * abs(before/2))
+        #print('sent in', self.tb.multiplier * abs(before/2))
         after = -before
         #print('after will be', after)
         #print self.tb.wrong_speed
@@ -88,7 +89,7 @@ class TrainingBananaTestsT2(unittest.TestCase):
             while self.tb.base.camera.getH() > close:
                 #print self.tb.base.camera.getH()
                 taskMgr.step()
-            print('getting close', self.tb.base.camera.getH())
+            #print('getting close', self.tb.base.camera.getH())
             messenger.send('x_axis', [self.tb.multiplier * 1])
             while self.tb.base.camera.getH() > after:
                 #print self.tb.base.camera.getH()
@@ -116,9 +117,8 @@ class TrainingBananaTestsT2(unittest.TestCase):
             raise Exception("This method only for training less than 2.3")
         messenger.send('x_axis', [4 * self.tb.multiplier])
         if abs(self.tb.base.camera.getH()) < 4:
-            messenger.send('x_axis', [self.tb.multiplier * 1])
+            messenger.send('x_axis', [self.tb.multiplier])
         # go until we get reward
-
         while self.tb.reward_count < self.tb.num_beeps:
             #print('camera head', self.tb.base.camera.getH())
             taskMgr.step()
@@ -518,6 +518,7 @@ class TrainingBananaTestsT2_1(TrainingBananaTestsT2):
         # reset banana - makes sure correct training level, avatar
         # heading, etc.
         self.tb.restart_bananas()
+        self.tb.start_task()
 
     def test_must_let_go_of_joystick_for_new_banana(self):
         """
@@ -596,6 +597,7 @@ class TrainingBananaTestsT2_2(TrainingBananaTestsT2_1):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        self.tb.start_task()
 
     def test_can_move_joystick_in_direction_of_banana(self):
         """
@@ -734,6 +736,7 @@ class TrainingBananaTestsT2_3(TrainingBananaTestsT2_2):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        self.tb.start_task()
 
     def test_allowed_to_go_in_direction_opposite_banana(self):
         #print 'opposite direction of banana'
@@ -847,6 +850,7 @@ class TrainingBananaTestsT2_4(TrainingBananaTestsT2_3):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        self.tb.start_task()
 
     def test_allowed_to_go_in_direction_opposite_banana(self):
         #print 'opposite direction of banana'
@@ -940,6 +944,7 @@ class TrainingBananaTestsT2_5(TrainingBananaTestsT2_4):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        self.tb.start_task()
         self.start = time.time()
 
     def test_move_to_opposite_side(self):
@@ -1284,6 +1289,7 @@ class TrainingBananaTestsT2_6(TrainingBananaTestsT2_5):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        self.tb.start_task()
         self.start = time.time()
 
     def test_max_speed_does_not_slow_down_after_passing_banana(self):
@@ -1359,6 +1365,7 @@ class TrainingBananaTestsT3(unittest.TestCase):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        self.tb.start_task()
 
     def test_can_move_forward(self):
         # test can now move forward
@@ -1452,6 +1459,7 @@ class TrainingBananaTestsT3_1(TrainingBananaTestsT3):
         # reset banana - this is often done in the test, if we want
         # to ensure a certain direction, but not necessarily
         self.tb.restart_bananas()
+        self.tb.start_task()
 
     def test_does_not_start_next_trial_if_holding_joystick(self):
         messenger.send('y_axis', [-2])
@@ -1504,6 +1512,7 @@ class TrainingBananaTestsKeys(unittest.TestCase):
         self.tb.set_level_variables(level)
         # make sure training level is set
         self.tb.restart_bananas()
+        self.tb.start_task()
         #print 'end setup'
 
     def test_move_using_right_arrow_key(self):
