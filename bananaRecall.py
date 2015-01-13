@@ -49,7 +49,10 @@ class BananaRecall:
         #print 'load testing', config['testing']
         # bring some configuration parameters into variables, so can change these
         # variables dynamically
-        self.numBeeps = self.config['numBeeps']
+        # list of all possible rewards
+        self.beep_list = self.config['num_beeps']
+        # how much reward for current fruit
+        self.num_beeps = 0
         # toggle if got to fruit location, True means found fruit when wasn't visible,
         # False means was not looking for fruit
         # None means found fruit by collision (alpha was greater than 0)
@@ -63,6 +66,8 @@ class BananaRecall:
         self.flash_timer = 0
         # how long since last reward
         self.reward_timer = 0
+        # variable to hold changes in alpha until new trial
+        self.new_alpha = self.config['alpha']
         # get rid of cursor
         win_props = WindowProperties()
         #print win_props
@@ -227,13 +232,14 @@ class BananaRecall:
                 self.daq_strobe.send_signal()
             # how many rewards are we giving? if fruit was not visible, but found it, bigger reward
             if self.remembered_location:
-                self.numBeeps = self.config['numBeeps'] * self.config['extra']
+                #print 'remembered location, bonanza!'
+                self.num_beeps = min(self.beep_list) * self.config['extra']
             elif len(self.fruit.fruit_list) == 1:
                 # last fruit before remembering gets different reward
                 # so knows next will be remembering
-                self.numBeeps = self.config['numBeeps'] * self.config['extra']
+                self.num_beeps = max(self.beep_list)
             else:
-                self.numBeeps = self.config['numBeeps']
+                self.num_beeps = min(self.beep_list)
         # log which reward we are on
         VLQ.getInstance().writeLine('Beeps', [int(self.fruit.beeps)])
         if self.daq_events:
@@ -242,33 +248,35 @@ class BananaRecall:
         # increment reward
         self.fruit.beeps += 1
         # if that was last reward
-        if self.fruit.beeps == self.numBeeps:
-            print 'last reward'
-            # if fruit visible, fruit disappears, in any case, new trial
-            # remembered location is either true for memory trial
-            # or none for translucent recall fruit
-            if self.remembered_location != False:
-                print 'found recall fruit'
+        if self.fruit.beeps == self.num_beeps:
+            #print 'last reward'
+            # if fruit visible, fruit disappears
+            # new trial if we remembered where the fruit was or had an alpha fruit
+            # if we didn't remember, we don't get reward, and never make it here
+            # technically we could do if self.find_recall_fruit != False, but this
+            # seems more intuitive.
+            if self.remembered_location or self.find_recall_fruit is None:
+                #print('either found alpha or remembered, new trial')
                 # if alpha is not one, set banana back to full alpha
                 if self.fruit.alpha > 0:
-                    print 'turn off alpha'
+                    #print 'turn off alpha'
                     self.fruit.flash_on_recall_fruit(False)
                     self.fruit.reset_collision()
                 self.new_trial()
-                print 'new trial'
+                #print 'new trial'
                 self.remembered_location = False
             else:
-                print 'did not have to remember location'
+                #print 'did not have to remember location'
                 self.fruit.disappear_fruit()
                 self.find_recall_fruit = self.fruit.get_next_fruit()
-                self.remembered_location = self.find_recall_fruit
+                #print('remembered location again', self.remembered_location)
                 # find_recall_fruit is true or false
                 #print('find_recall_fruit', self.find_recall_fruit)
                 # this will only matter if there is fruit to remember
                 self.recall_timer = time.clock()
             #self.remembered_location = False
             # new fruit appears, either starting over or next fruit in stack
-            print 'new fruit appears'
+            #print 'new fruit appears'
 
             # avatar can move
             Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
@@ -328,7 +336,8 @@ class BananaRecall:
             self.daq_strobe.send_signal()
 
     def new_trial(self):
-        # starting over again with a new banana position,
+        print 'new trial'
+        # starting over again with a possible new banana position,
         # make sure not still checking on old banana
         self.find_recall_fruit = False
         # stop flash, if flashing
@@ -336,6 +345,9 @@ class BananaRecall:
             self.fruit.flash_on_recall_fruit(False)
             self.flash_timer = 0
         self.trial_num += 1
+        # can change alpha now
+        print('alpha in recall', self.new_alpha)
+        self.fruit.alpha = self.new_alpha
         self.fruit.setup_trial(self.trial_num)
         #print('new trial', self.trial_num)
         if self.daq_events:
@@ -369,13 +381,11 @@ class BananaRecall:
         self.fruit.flash_on_recall_fruit(True)
         self.flash_timer = time.clock()
 
-    def increase_reward(self, input_event):
-        self.numBeeps += 1
-        print 'Increased reward, new reward:', self.numBeeps
+    def increase_reward(self, inputEvent):
+        self.beep_list = [x+1 for x in self.beep_list]
 
-    def decrease_reward(self, input_event):
-        self.numBeeps -= 1
-        print 'Decreased reward, new reward:', self.numBeeps
+    def decrease_reward(self, inputEvent):
+        self.beep_list = [x-1 for x in self.beep_list]
 
     def extra_reward(self, input_event):
         #print 'yup'
@@ -389,17 +399,17 @@ class BananaRecall:
         print "Fruit is random:", not self.fruit.repeat_recall
 
     def change_alpha(self, input_event):
-        print('change alpha')
+        # print('change alpha')
         print input_event.eventName
         if input_event.eventName == 'increase_alpha':
-            self.fruit.alpha += 0.1
+            self.new_alpha += 0.1
         else:
-            self.fruit.alpha -= 0.1
-        if self.fruit.alpha > 1:
-            self.fruit.alpha = 1
-        elif self.fruit.alpha < 0:
-            self.fruit.alpha = 0
-        print 'new alpha', self.fruit.alpha
+            self.new_alpha -= 0.1
+        if self.new_alpha > 1:
+            self.new_alpha = 1
+        elif self.new_alpha < 0.1:
+            self.new_alpha = 0
+        print 'new alpha', self.new_alpha
 
     def change_subarea(self, input_event):
         print('change subarea')

@@ -322,10 +322,12 @@ class GoBananas:
             text_node_path.setPos(crosshair_pos)
 
     def increase_reward(self, inputEvent):
-        self.num_beeps = [x+1 for x in self.num_beeps]
+        # increase all rewards by one
+        self.beep_dict = {key: value + 1 for key, value in self.beep_dict.items()}
 
     def decrease_reward(self, inputEvent):
-        self.num_beeps = [x-1 for x in self.num_beeps]
+        # decrease all rewards by one
+        self.beep_dict = {key: value - 1 for key, value in self.beep_dict.items()}
 
     def increase_bananas(self, inputEvent):
         pass

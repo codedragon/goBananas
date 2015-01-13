@@ -85,6 +85,7 @@ class Fruit():
             self.fruit_area = [{}]
             self.create_fruit_area_dict(self.config['subarea'])
             self.alpha = self.config['alpha']
+            print('alpha', self.alpha)
         else:
             self.fruit_area = [{}]
             self.create_fruit_area_dict(0)
@@ -135,28 +136,22 @@ class Fruit():
                 item = get_model('name', fruit)
                 # print item.model
                 name = item.name + "%03d" % i
-                # differentiate the fruit we are remembering, if we are doing
-                # recall_banana task
+                # differentiate the fruit we are remembering,
+                # if we are doing recall_banana task
                 if self.config['fruit_to_remember'] and item.name == self.config['fruit_to_remember']:
                     name = item.name
-                print name
+                # print name
                 # create actual model
                 self.create_fruit_model(item, name)
+                # check if we are making a fruit semi-transparent
+                # will choose the first fruit of the given type
                 if test_alpha and item.name == test_alpha:
-                    print('make a fruit 1/2 alpha', name)
-                    # will choose the last banana created
-                    random_node_path = self.fruit_models[name].retrNodePath()
-                    random_node_path.setTransparency(TransparencyAttrib.MAlpha)
-                    random_node_path.setAlphaScale(self.config['alpha'])
-                    # log it
-                    VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [name + ' ' + str(self.config['alpha'])])
-                    test_alpha = False  # only do one fruit
+                    test_alpha = self.make_fruit_alpha(name, True)
 
         # if we are doing recall, set ability to use alpha
         if self.config['fruit_to_remember']:
-            fruit_index = self.config['fruit_to_remember']
-            self.recall_node_path = self.fruit_models[fruit_index].retrNodePath()
-            self.recall_node_path.setTransparency(TransparencyAttrib.MAlpha)
+            self.recall_node_path = self.make_fruit_alpha(self.config['fruit_to_remember'])
+
         # print self.fruit_models
         # print 'end create fruit'
 
@@ -184,6 +179,7 @@ class Fruit():
         self.fruit_models[name] = model
         
     def setup_trial(self, trial_num):
+        # print('alpha in fruit', self.alpha)
         # trials are set up mostly the same, whether showing fruit sequentially or all at once.
         stdout.write('trial number ' + str(trial_num) + '\n')
         # print('trial number to be repeated', self.repeat_list[1])
@@ -196,11 +192,12 @@ class Fruit():
             # print 'not repeating'
             if self.config['fruit_to_remember']:
                 # repeat_recall can be toggled with button press
-                # print('recall_repeat this trial is', self.repeat_recall)
+                #print('recall_repeat this trial is', self.repeat_recall)
                 if self.repeat_recall:
                     fruit_trial = 'recall_repeat'
                 else:
                     fruit_trial = 'recall'
+                #print('fruit trial', fruit_trial)
         self.setup_fruit_for_trial(fruit_trial)
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
         if fruit_trial == 'new' or fruit_trial == 'repeat':
@@ -228,7 +225,7 @@ class Fruit():
         if repeat == 'recall_repeat':
             # want to repeat the location, but doesn't work
             # if there is no location saved.
-            # print 'repeating recall fruit'
+            print 'repeating recall fruit'
             if self.pos_dict:
                 # we have a position saved, so go ahead and
                 # add it to the starting list, so other fruit
@@ -242,14 +239,15 @@ class Fruit():
         avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
         # print 'avatar pos', avatar_x_y
         for name, fruit in self.fruit_models.iteritems():
-            # print name
-            # print pos_list
+            #print name
+            #print pos_list
+            #print('repeat', repeat)
             if repeat == 'repeat':
                 # will only do this for regular task, not recall
                 (x, y) = self.pos_dict[name]
             elif name == self.config['fruit_to_remember']:
                 if 'repeat' in repeat:
-                    # print 'repeat the same position for the banana again'
+                    print 'repeat the same position for the banana again'
                     # if not a new position, put in the recall fruit position
                     # we used previously, already added to pos_list, so good.
                     (x, y) = self.pos_dict[name]
@@ -287,7 +285,7 @@ class Fruit():
                 # print 'save new'
                 # save new banana placements
                 self.pos_dict[name] = (x, y)
-        # print('fruit list', self.fruit_list)
+        #print('fruit list', self.fruit_list)
 
     def make_fruit_visible(self, name):
         # print 'choose_first_fruit', choose_first_fruit
@@ -305,7 +303,21 @@ class Fruit():
         else:
             self.fruit_models[name].setStashed(False)
             self.fruit_list.append(name)
-            
+
+    def make_fruit_alpha(self, name, alpha=None):
+        # set up fruit to be alpha, may also actually change to alpha
+        # if alpha is true
+        alpha_node_path = self.fruit_models[name].retrNodePath()
+        alpha_node_path.setTransparency(TransparencyAttrib.MAlpha)
+        if alpha:
+            print('make a fruit alpha', name, self.config['alpha'])
+            alpha_node_path.setAlphaScale(self.config['alpha'])
+            # log it
+            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [name + ' ' + str(self.config['alpha'])])
+            return False  # only do one fruit
+        else:
+            return alpha_node_path
+
     def collide_fruit(self, collision_info):
         """
         Handle the subject colliding with fruit, document fruit collision, subject
@@ -369,6 +381,7 @@ class Fruit():
         self.first_collision = True
 
     def get_next_fruit(self):
+        # only for bananaRecall
         # print 'get next fruit'
         # print 'fruit list, if empty, remembering', self.fruit_list
         # not used for goBananas
@@ -383,14 +396,14 @@ class Fruit():
             # if we are searching for the banana, send find_banana as true
             # if banana is going to be partially visible, turn it on
             if self.alpha > 0:
-                # print 'flash recall fruit'
+                print 'alpha recall fruit'
                 self.flash_on_recall_fruit(True)
                 find_banana_loc = None
             else:
                 find_banana_loc = True
-            # print 'remember banana'
+                print 'return to remembered location'
         else:
-            # print('next fruit in list', self.fruit_list[0])
+            #print('next fruit in list', self.fruit_list[0])
             self.fruit_models[self.fruit_list[0]].setStashed(False)
         # print 'banana gone', self.current_fruit
         # print self.stashed
