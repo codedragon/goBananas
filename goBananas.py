@@ -93,13 +93,13 @@ class GoBananas:
 
         # Register Custom Log Entries
         # This one corresponds to colliding with a banana
-        Log.getInstance().addType("Yummy", [("BANANA", basestring)],
+        Log.getInstance().addType("Yummy", [("Banana", basestring)],
                                   False)
         # Reward
         Log.getInstance().addType('Beeps', [('Reward', int)],
                                             False)
         # Done getting reward, banana disappears
-        Log.getInstance().addType("Finished", [("BANANA", basestring)],
+        Log.getInstance().addType("Finished", [("Banana", basestring)],
                                   False)
         # New Trial
         Log.getInstance().addType("NewTrial", [("Trial", int)],
@@ -113,7 +113,9 @@ class GoBananas:
         # If a trial is a repeat configuration
         Log.getInstance().addType("RepeatTrial", [("Repeat", int)],
                                   False)
-
+        # log if a banana is alpha
+        Log.getInstance().addType("Alpha", [("Alpha", basestring)],
+                                  False)
         # initialize fruit_models
         self.fruit = None
 
@@ -174,19 +176,24 @@ class GoBananas:
         # If we are, there was a collision, and avatar can't move and
         # banana hasn't disappeared yet.
         # After last reward, banana disappears and avatar can move.
-
+        current_fruit = self.fruit.current_fruit
         if self.fruit.beeps is None:
             return
         elif self.fruit.beeps == 0:
-            # just ran into it?
-            VLQ.getInstance().writeLine("Yummy", [self.fruit.current_fruit])
-            #print('yummy', self.fruit.current_fruit)
-            #print('banana pos', self.fruit.bananaModels[int(self.fruit.current_fruit[-2:])].getPos())
+            # just ran into it, log which banana
+            VLQ.getInstance().writeLine("Yummy", [current_fruit])
+            # log if alpha was turned on
+            if self.fruit.fruit_models[current_fruit].retrNodePath().getTransparency():
+                #print 'alpha'
+                alpha = self.fruit.fruit_models[current_fruit].retrNodePath().getColorScale()[3]
+                VLQ.getInstance().writeLine("Alpha", [current_fruit + ' ' + str(alpha)])
+            #print('yummy', current_fruit)
+            #print('banana pos', self.fruit.bananaModels[int(current_fruit[-2:])].getPos())
             if self.send_events:
                 self.send_events.send_signal(200)
                 self.send_strobe.send_signal()
             # determine how much reward we are giving
-            self.num_beeps = self.get_reward_level(self.fruit.current_fruit)
+            self.num_beeps = self.get_reward_level(current_fruit)
 
         # Still here? Give reward!
         if self.reward:
@@ -225,6 +232,9 @@ class GoBananas:
         # current_fruit is going to have a number representation at the end to make it unique,
         # so don't use last three indices
         #print current_fruit
+        # proof we can increase reward for alpha...
+        #if self.fruit.fruit_models[current_fruit].retrNodePath().getTransparency():
+            #print 'alpha'
         reward = self.beep_dict[current_fruit[:-3]]
         if len(self.fruit.fruit_list) == 1:
             # last fruit

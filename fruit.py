@@ -139,7 +139,7 @@ class Fruit():
                 # recall_banana task
                 if self.config['fruit_to_remember'] and item.name == self.config['fruit_to_remember']:
                     name = item.name
-                # print name
+                print name
                 # create actual model
                 self.create_fruit_model(item, name)
                 if test_alpha and item.name == test_alpha:
@@ -148,6 +148,8 @@ class Fruit():
                     random_node_path = self.fruit_models[name].retrNodePath()
                     random_node_path.setTransparency(TransparencyAttrib.MAlpha)
                     random_node_path.setAlphaScale(self.config['alpha'])
+                    # log it
+                    VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [name + ' ' + str(self.config['alpha'])])
                     test_alpha = False  # only do one fruit
 
         # if we are doing recall, set ability to use alpha
