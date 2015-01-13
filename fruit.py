@@ -401,11 +401,17 @@ class Fruit():
         # flash is true or false, depending on whether we are turning it on or off,
         # makes more sense for true to turn on fruit and false turn off, so invert signal
         # print('flash ', flash)
-        self.fruit_models[self.config['fruit_to_remember']].setStashed(not flash)
+        recall_fruit = self.config['fruit_to_remember']
+        self.fruit_models[recall_fruit].setStashed(not flash)
         if flash:
             self.recall_node_path.setAlphaScale(self.alpha)
+            # log what alpha we flashed at
+            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [recall_fruit + ' ' + str(self.alpha)])
         else:
             self.recall_node_path.setAlphaScale(1)
+            # log we returned to full alpha, should be also stashed at this point,
+            # but that is logged automatically
+            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [recall_fruit + ' ' + str(1)])
         
     def create_fruit_area_dict(self, subarea_key):
         # print('created new dictionary')

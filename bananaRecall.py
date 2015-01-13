@@ -104,6 +104,9 @@ class BananaRecall:
         # New Trial
         Log.getInstance().addType("NewTrial", [("Trial", int)],
                                   False)
+        # log if a banana is alpha
+        Log.getInstance().addType("Alpha", [("Alpha", basestring)],
+                                  False)
         # Eye data
         Log.getInstance().addType("EyeData",
                                   [("X", float), ("Y", float)],

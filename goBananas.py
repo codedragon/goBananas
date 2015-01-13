@@ -201,14 +201,12 @@ class GoBananas:
             # print('beep', self.fruit.beeps)
         else:
             print('beep', self.fruit.beeps)
-
         VLQ.getInstance().writeLine('Beeps', [int(self.fruit.beeps)])
         if self.send_events:
             self.send_events.send_signal(201)
             self.send_strobe.send_signal()
         # increment reward
         self.fruit.beeps += 1
-
         # If done, get rid of banana
         #print 'beeps', self.fruit.beeps
         #print 'extra', self.extra
