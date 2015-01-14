@@ -3,32 +3,33 @@
 from panda3d.core import Point3, Point4
 from pandaepl import Keyboard
 
-
 # Experiment-specific settings
 
 # environ types available:
 # 'original'
 environ = 'original'
-#environ = 'circle'
+# environ = 'circle'
 
 # Bananas.
-#fruit = ['old_banana','cherry']
-#num_fruit = [5, 5]
-#num_beeps = [3, 5]
-fruit = ['old_banana']
-num_fruit = [10]
-num_beeps = [4]
+# fruit = ['old_banana','cherry']
+# num_fruit = [5, 5]
+# num_beeps = [3, 5]
+fruit = ['old_banana', 'cherry']
+num_fruit = [5]  # if length is one, assumes same amount of all fruit
+# num_beeps = [4]  # if length is one, make all rewards the same
+num_beeps = [4, 3]
 
 # factor to increase reward for last banana
 extra = 2
 
-# which fruit to make alpha, False for none (goBananas only)
-go_alpha = 'old_banana'
+# which fruit to make alpha, False or None for none
+# default none (goBananas only)
+# go_alpha = 'old_banana'
 
 # set how much alpha using for either recall or gobananas
 # fully visible is 1, invisible is 0,
 # in recall can adjust in 0.1 increments
-alpha = 0.5
+alpha = 0.3
 
 # how close is too close together?
 tooClose = 1  # 1
@@ -83,7 +84,7 @@ offset = (1, 1)  # (x,y)
 # 3d?
 # framebuffer-stereo 1
 
-#### Core PandaEPL settings ####
+# ### Core PandaEPL settings ####
 
 FOV = 60
 
