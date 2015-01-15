@@ -1,3 +1,12 @@
+Stuff to do:
+GoBananas: add ability to have banana that is at lowered alpha come to full
+alpha when gets within certain distance of it
+
+BananaRecall: make it so that it shows the banana when you get within the radius,
+and you get rewarded for running into the banana.
+For final task have banana be alpha every so many trials? Maybe 3 modes, always alpha, always invisible,
+and every 3 trials alpha?
+
 Installing 64bit version:
 uninstall old one (save out sample programs, since this folder doesn't
 come with development version)
