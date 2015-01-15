@@ -77,7 +77,6 @@ class Fruit():
             # if doing recall task, fruit to remember is always first
             all_fruit.insert(0, self.config['fruit_to_remember'])
             num_fruit.insert(0, 1)
-            self.recall_node_path = None
             # bring this into a variable, so we can toggle it.
             self.repeat_recall = config['repeat_recall_fruit']
             self.all_subareas = mB.create_sub_areas(self.config)
@@ -89,15 +88,20 @@ class Fruit():
         else:
             self.fruit_area = [{}]
             self.create_fruit_area_dict(0)
-
+        if self.config.get('go_alpha', False):
+            self.alpha = self.config['alpha']
+            self.alpha_fruit = None
+            print('alpha', self.alpha)
+        if self.config.get('alpha', False):
+            self.alpha_node_path = None
         # for repeating a particular configuration
-        self.repeat = config.get('fruit_repeat', False)  # assume false if none provided
+        self.repeat = self.config.get('fruit_repeat', False)  # assume false if none provided
         if self.repeat:
-            start_number = random.choice(range(config['repeat_number']))
+            start_number = random.choice(range(self.config['repeat_number']))
             # repeat_list is a list of variables we care about for repeating trials
             # the first two will not change, last one changes each time we enter a new block
             # [frequency of repeat, start number, next number]
-            self.repeat_list = [config['repeat_number'], start_number, start_number]
+            self.repeat_list = [self.config['repeat_number'], start_number, start_number]
 
         # num_fruit dict will tell us how many of each fruit we will be showing
         self.num_fruit_dict = {}
@@ -146,11 +150,13 @@ class Fruit():
                 # check if we are making a fruit semi-transparent
                 # will choose the first fruit of the given type
                 if test_alpha and item.name == test_alpha:
+                    self.alpha_fruit = name
+                    print self.alpha_fruit
                     test_alpha = self.make_fruit_alpha(name, True)
 
         # if we are doing recall, set ability to use alpha
         if self.config['fruit_to_remember']:
-            self.recall_node_path = self.make_fruit_alpha(self.config['fruit_to_remember'])
+            self.make_fruit_alpha(self.config['fruit_to_remember'])
 
         # print self.fruit_models
         # print 'end create fruit'
@@ -301,22 +307,22 @@ class Fruit():
                 self.fruit_models[name].setStashed(False)
             self.fruit_list.append(name)
         else:
+            if name == self.alpha_fruit:
+                self.change_alpha_fruit('on_alpha', name)
             self.fruit_models[name].setStashed(False)
             self.fruit_list.append(name)
 
     def make_fruit_alpha(self, name, alpha=None):
-        # set up fruit to be alpha, may also actually change to alpha
-        # if alpha is true
-        alpha_node_path = self.fruit_models[name].retrNodePath()
-        alpha_node_path.setTransparency(TransparencyAttrib.MAlpha)
+        # set up fruit to be alpha, may also change alpha
+        # immediately, if alpha is true
+        self.alpha_node_path = self.fruit_models[name].retrNodePath()
+        self.alpha_node_path.setTransparency(TransparencyAttrib.MAlpha)
         if alpha:
             print('make a fruit alpha', name, self.config['alpha'])
-            alpha_node_path.setAlphaScale(self.config['alpha'])
+            self.alpha_node_path.setAlphaScale(self.config['alpha'])
             # log it
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [name + ' ' + str(self.config['alpha'])])
-            return False  # only do one fruit
-        else:
-            return alpha_node_path
+        return False  # only do one fruit
 
     def collide_fruit(self, collision_info):
         """
@@ -381,7 +387,7 @@ class Fruit():
         self.first_collision = True
 
     def get_next_fruit(self):
-        # only for bananaRecall
+        # only for bananaRecall - I think this really belongs in banana recall?
         # print 'get next fruit'
         # print 'fruit list, if empty, remembering', self.fruit_list
         # not used for goBananas
@@ -397,7 +403,7 @@ class Fruit():
             # if banana is going to be partially visible, turn it on
             if self.alpha > 0:
                 print 'alpha recall fruit'
-                self.flash_on_recall_fruit(True)
+                self.change_alpha_fruit('on_alpha')
                 find_banana_loc = None
             else:
                 find_banana_loc = True
@@ -409,23 +415,35 @@ class Fruit():
         # print self.stashed
         return find_banana_loc
 
-    def flash_on_recall_fruit(self, flash):
-        # flash the fruit the subject is/was suppose to find
-        # flash is true or false, depending on whether we are turning it on or off,
-        # makes more sense for true to turn on fruit and false turn off, so invert signal
-        # print('flash ', flash)
-        recall_fruit = self.config['fruit_to_remember']
-        self.fruit_models[recall_fruit].setStashed(not flash)
-        if flash:
-            self.recall_node_path.setAlphaScale(self.alpha)
+    def change_alpha_fruit(self, mode=None, fruit=None):
+        # fruit default is the recall fruit
+        # mode can be three states, on, alpha_on, off. Default is alpha_on
+        if mode is None:
+            mode = 'alpha_on'
+        if fruit is None:
+            fruit = self.config['fruit_to_remember']
+        # for alpha, we only care if we are turning on alpha or on full,
+        # if turning off, just leave in same state. Otherwise the logs will
+        # be confusing with alpha changing when fruit disappears.
+        if 'alpha' in mode:
+            self.alpha_node_path.setAlphaScale(self.alpha)
             # log what alpha we flashed at
-            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [recall_fruit + ' ' + str(self.alpha)])
-        else:
-            self.recall_node_path.setAlphaScale(1)
+            print('alpha', self.alpha)
+            print('fruit', fruit)
+            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha",
+                                                                [fruit + ' ' + str(self.alpha)])
+        elif 'on' in mode:
+            self.alpha_node_path.setAlphaScale(1)
             # log we returned to full alpha, should be also stashed at this point,
             # but that is logged automatically
-            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [recall_fruit + ' ' + str(1)])
-        
+            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha",
+                                                                [fruit + ' ' + str(1)])
+        if 'on' in mode:
+            print('should be on at this alpha ', self.alpha)
+            self.fruit_models[fruit].setStashed(False)
+        else:
+            self.fruit_models[fruit].setStashed(True)
+
     def create_fruit_area_dict(self, subarea_key):
         # print('created new dictionary')
         # Need to keep around the original size of the area, and I don't trust the pandaepl config
@@ -467,3 +485,11 @@ class Fruit():
                                     'environ': self.config['environ']})
         # make sure we know we moved
         self.pos_list = []
+
+    def check_distance_to_fruit(self, target_fruit):
+        avatar = Avatar.Avatar.getInstance()
+        avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
+        banana = self.fruit_models[target_fruit]
+        banana_pos = (banana.getPos()[0], banana.getPos()[1])
+        dist_to_banana = mB.get_distance(avatar_pos, banana_pos)
+        return dist_to_banana

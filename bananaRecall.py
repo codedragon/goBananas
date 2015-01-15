@@ -1,11 +1,8 @@
 # cringe #
 from pandaepl.common import *
 from panda3d.core import WindowProperties
-from panda3d.core import TextNode
 from load_models import PlaceModels, load_models
 from fruit import Fruit
-from math import sqrt
-from moBananas import get_distance
 import datetime
 import time
 import sys
@@ -184,7 +181,7 @@ class BananaRecall:
         # self.find_recall_fruit means there is no fruit present, so checking
         # distance to original (remembered) location
         if self.find_recall_fruit:
-            dist_to_banana = self.check_distance_to_fruit()
+            dist_to_banana = self.fruit.check_distance_to_fruit(self.config['fruit_to_remember'])
             #print('dist to banana', dist_to_banana)
             if dist_to_banana <= self.config['distance_goal']:
                 print 'found it!'
@@ -260,7 +257,7 @@ class BananaRecall:
                 # if alpha is not one, set banana back to full alpha
                 if self.fruit.alpha > 0:
                     #print 'turn off alpha'
-                    self.fruit.flash_on_recall_fruit(False)
+                    self.fruit.change_alpha_fruit('off')
                     self.fruit.reset_collision()
                 self.new_trial()
                 #print 'new trial'
@@ -283,14 +280,6 @@ class BananaRecall:
             Avatar.getInstance().setMaxForwardSpeed(self.config['fullForwardSpeed'])
             # reward is over
             self.fruit.beeps = None
-
-    def check_distance_to_fruit(self):
-        avatar = Avatar.getInstance()
-        avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
-        banana = self.fruit.fruit_models[self.config['fruit_to_remember']]
-        banana_pos = (banana.getPos()[0], banana.getPos()[1])
-        dist_to_banana = get_distance(avatar_pos, banana_pos)
-        return dist_to_banana
 
     def found_banana(self, dist_to_banana):
         VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
@@ -340,9 +329,9 @@ class BananaRecall:
         # starting over again with a possible new banana position,
         # make sure not still checking on old banana
         self.find_recall_fruit = False
-        # stop flash, if flashing
+        # get rid of recall fruit, if we flashed it up
         if self.flash_timer:
-            self.fruit.flash_on_recall_fruit(False)
+            self.fruit.change_alpha_fruit('off')
             self.flash_timer = 0
         self.trial_num += 1
         # can change alpha now
@@ -377,8 +366,9 @@ class BananaRecall:
 
     def flash_fruit(self):
         #print 'flash fruit'
-        # flash where banana was, turn on timer for flash
-        self.fruit.flash_on_recall_fruit(True)
+        # flash where banana was, full alpha
+        # turn on timer for flash
+        self.fruit.change_alpha_fruit('on')
         self.flash_timer = time.clock()
 
     def increase_reward(self, inputEvent):

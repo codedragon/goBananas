@@ -29,7 +29,9 @@ class GoBananas:
         # Set session to today's date and time
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
         print exp.getSessionNum()
-        config = Conf.getInstance().getConfig()  # Get configuration dictionary.
+        # I should go ahead and make config a class variable. Is in memory, because
+        # it is a class variable in fruit, so doubling many variables here.
+        self.config = Conf.getInstance().getConfig()  # Get configuration dictionary.
         # print config['training']
         # print 'load testing', config['testing']
         # bring some configuration parameters into memory, so we don't need to
@@ -38,25 +40,18 @@ class GoBananas:
         # base.setFrameRateMeter(True)
         # Models must be attached to self
         self.env_models = []
-        # extra is factor to multiply reward by for last fruit
-        self.extra = config['extra']
         # num_beeps keeps track of reward for fruit we just ran into
         self.num_beeps = 0
         # in case we haven't set reward for different fruit, make reward same for all fruit
-        reward_list = config.get('num_beeps', 3 * len(config['fruit']))
+        reward_list = self.config.get('num_beeps', 3 * len(self.config['fruit']))
         if len(reward_list) == 1:
-            reward_list = config['num_beeps'] * len(config['fruit'])
-        elif len(config['fruit']) != len(reward_list):
+            reward_list = self.config['num_beeps'] * len(self.config['fruit'])
+        elif len(self.config['fruit']) != len(reward_list):
             raise Exception("Fix the length of num_beeps!")
-        self.beep_dict = dict(zip(config['fruit'], reward_list))
-        print self.beep_dict
-        # extra_flag is true if extra is not 1
-        # self.extra_flag = self.extra[0] > self.numBeeps
-        self.full_turn_speed = config['fullTurningSpeed']
-        self.full_forward_speed = config['fullForwardSpeed']
-        self.min_x = config['min_x']
-        self.min_y = config['min_y']
-        self.cross_hair = config['crosshair']
+        self.beep_dict = dict(zip(self.config['fruit'], reward_list))
+        # print self.beep_dict
+        # cross_hair gets changed, so go ahead and make a new variable
+        self.cross_hair = self.config['crosshair']
         self.x_start_c = None
         self.x_stop_c = None
         if self.cross_hair:
@@ -134,23 +129,30 @@ class GoBananas:
         vr.addTask(Task("checkReward",
                         lambda task_info:
                         self.check_reward(),
-                        config['pulseInterval']))
+                        self.config['pulseInterval']))
+
+        if self.config['go_alpha']:
+            vr.addTask(Task("check_alpha",
+                            lambda task_info:
+                            self.alpha_frame_loop()))
+
         # send avatar position to blackrock/plexon
-        if config['sendData'] and LOADED_PYDAQ:
+        if self.config['sendData'] and LOADED_PYDAQ:
             vr.addTask(Task("sendAvatar",
                             lambda task_info:
                             self.check_avatar()))
 
         # set up reward system
-        if config['reward'] and LOADED_PYDAQ:
+        if self.config['reward'] and LOADED_PYDAQ:
             self.reward = pydaq.GiveReward()
         else:
             self.reward = None
 
         # start recording eye position
-        if config['eyeData'] and LOADED_PYDAQ:
-            self.gain = config['gain']
-            self.offset = config['offset']
+        if self.config['eyeData'] and LOADED_PYDAQ:
+            # gain and offset can be changed in the program
+            self.gain = self.config['gain']
+            self.offset = self.config['offset']
             self.eye_task = pydaq.EOGTask()
             self.eye_task.SetCallback(self.get_eye_data)
             self.eye_task.StartTask()
@@ -158,7 +160,7 @@ class GoBananas:
             self.eye_task = None
 
         # send digital signals to blackrock or plexon
-        if config['sendData'] and LOADED_PYDAQ:
+        if self.config['sendData'] and LOADED_PYDAQ:
             self.send_x_pos_task = pydaq.OutputAvatarXPos()
             self.send_y_pos_task = pydaq.OutputAvatarYPos()
             self.send_events = pydaq.OutputEvents()
@@ -167,6 +169,17 @@ class GoBananas:
         else:
             self.send_pos_task = None
             self.send_events = None
+
+    def alpha_frame_loop(self):
+        # need a variable that changes when there is a new trial
+        # I'm starting to get a lot of alpha, should I make an alpha class?
+        # or a dict? how much varies?
+        if self.find_alpha:
+            dist_to_banana = self.fruit.check_distance_to_fruit(self.fruit.alpha_fruit)
+            if dist_to_banana <= self.config.get('distance_goal', 2):
+                # turn on banana to full
+                self.fruit.change_alpha_fruit('on', self.fruit.alpha_fruit)
+                self.find_alpha = False
 
     def check_reward(self):
         # Runs every 200ms
@@ -219,8 +232,8 @@ class GoBananas:
                 # logging for new trial
                 self.log_new_trial()
             # avatar can move
-            Avatar.getInstance().setMaxTurningSpeed(self.full_turn_speed)
-            Avatar.getInstance().setMaxForwardSpeed(self.full_forward_speed)
+            Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
+            Avatar.getInstance().setMaxForwardSpeed(self.config['fullForwardSpeed'])
             # reward is over
             self.fruit.beeps = None
 
@@ -234,7 +247,7 @@ class GoBananas:
         reward = self.beep_dict[current_fruit[:-3]]
         if len(self.fruit.fruit_list) == 1:
             # last fruit
-            reward *= self.extra
+            reward *= self.config['extra']
         return reward
 
     def get_eye_data(self, eye_data):
@@ -259,8 +272,8 @@ class GoBananas:
             for model in self.fruit.fruit_models.itervalues():
                 # can't send negative numbers or decimals, so
                 # need to translate the numbers
-                translate_b = [int((model.getPos()[0] - self.min_x) * 1000),
-                               int((model.getPos()[1] - self.min_y) * 1000)]
+                translate_b = [int((model.getPos()[0] - self.config['min_x']) * 1000),
+                               int((model.getPos()[1] - self.config['min_y']) * 1000)]
                 self.send_events.send_signal(translate_b[0])
                 self.send_strobe.send_signal()
                 self.send_events.send_signal(translate_b[1])
