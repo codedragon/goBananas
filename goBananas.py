@@ -32,6 +32,7 @@ class GoBananas:
         # I should go ahead and make config a class variable. Is in memory, because
         # it is a class variable in fruit, so doubling many variables here.
         self.config = Conf.getInstance().getConfig()  # Get configuration dictionary.
+        print self.config['environ']
         # print config['training']
         # print 'load testing', config['testing']
         # bring some configuration parameters into memory, so we don't need to
@@ -117,7 +118,7 @@ class GoBananas:
         # Handle keyboard events
         vr.inputListen('toggleDebug',
                        lambda input_event:
-                       Vr.getInstance().setDebug(not Vr.getInstance().isDebug * ()))
+                       vr.getInstance().setDebug(not vr.getInstance().isDebug * ()))
         vr.inputListen('close', self.close)
         vr.inputListen("increase_reward", self.increase_reward)
         vr.inputListen("decrease_reward", self.decrease_reward)
@@ -132,6 +133,7 @@ class GoBananas:
                         self.config['pulseInterval']))
 
         if self.config['go_alpha']:
+            self.find_alpha = True
             vr.addTask(Task("check_alpha",
                             lambda task_info:
                             self.alpha_frame_loop()))
@@ -175,9 +177,11 @@ class GoBananas:
         # I'm starting to get a lot of alpha, should I make an alpha class?
         # or a dict? how much varies?
         if self.find_alpha:
+            #print 'find the alpha banana'
             dist_to_banana = self.fruit.check_distance_to_fruit(self.fruit.alpha_fruit)
             if dist_to_banana <= self.config.get('distance_goal', 2):
                 # turn on banana to full
+                print 'change alpha'
                 self.fruit.change_alpha_fruit('on', self.fruit.alpha_fruit)
                 self.find_alpha = False
 
@@ -228,6 +232,8 @@ class GoBananas:
             # if the list is empty, new trial
             if not self.fruit.fruit_list:
                 self.trial_num += 1
+                if self.config['go_alpha']:
+                    self.find_alpha = True
                 self.fruit.setup_trial(self.trial_num)
                 # logging for new trial
                 self.log_new_trial()
@@ -236,6 +242,7 @@ class GoBananas:
             Avatar.getInstance().setMaxForwardSpeed(self.config['fullForwardSpeed'])
             # reward is over
             self.fruit.beeps = None
+
 
     def get_reward_level(self, current_fruit):
         # current_fruit is going to have a number representation at the end to make it unique,
