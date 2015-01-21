@@ -352,7 +352,7 @@ class GoBananas:
 
     def override_alpha(self, input_event):
         # make alpha banana brighter
-        self.fruit.change_alpha_fruit('on_alpha')
+        self.fruit.change_alpha_fruit('on', self.fruit.alpha_fruit)
 
     def restart(self, input_event):
         # print 'current trial aborted, new trial started'
