@@ -90,10 +90,10 @@ class Fruit():
             self.create_fruit_area_dict(0)
         if self.config.get('go_alpha', False):
             self.alpha = self.config['alpha']
-            self.alpha_fruit = None
             print('alpha', self.alpha)
         if self.config.get('alpha', False):
             self.alpha_node_path = None
+        self.alpha_fruit = False
         # for repeating a particular configuration
         self.repeat = self.config.get('fruit_repeat', False)  # assume false if none provided
         if self.repeat:
@@ -426,20 +426,22 @@ class Fruit():
         # if turning off, just leave in same state. Otherwise the logs will
         # be confusing with alpha changing when fruit disappears.
         if 'alpha' in mode:
+            #print('should be on at this alpha ', self.alpha)
             self.alpha_node_path.setAlphaScale(self.alpha)
             # log what alpha we flashed at
-            print('alpha', self.alpha)
-            print('fruit', fruit)
+            #print('alpha', self.alpha)
+            #print('fruit', fruit)
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha",
                                                                 [fruit + ' ' + str(self.alpha)])
         elif 'on' in mode:
+            #print('should be on at this alpha ', 1)
             self.alpha_node_path.setAlphaScale(1)
             # log we returned to full alpha, should be also stashed at this point,
             # but that is logged automatically
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha",
                                                                 [fruit + ' ' + str(1)])
         if 'on' in mode:
-            print('should be on at this alpha ', self.alpha)
+            # turn it on, should already be at correct alpha
             self.fruit_models[fruit].setStashed(False)
         else:
             self.fruit_models[fruit].setStashed(True)

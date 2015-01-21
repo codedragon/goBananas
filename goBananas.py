@@ -50,6 +50,7 @@ class GoBananas:
         elif len(self.config['fruit']) != len(reward_list):
             raise Exception("Fix the length of num_beeps!")
         self.beep_dict = dict(zip(self.config['fruit'], reward_list))
+        self.config.setdefault('go_alpha', None)
         # print self.beep_dict
         # cross_hair gets changed, so go ahead and make a new variable
         self.cross_hair = self.config['crosshair']
@@ -142,7 +143,7 @@ class GoBananas:
         if self.config['sendData'] and LOADED_PYDAQ:
             vr.addTask(Task("sendAvatar",
                             lambda task_info:
-                            self.check_avatar()))
+                            self.avatar_frame_loop()))
 
         # set up reward system
         if self.config['reward'] and LOADED_PYDAQ:
@@ -173,17 +174,23 @@ class GoBananas:
             self.send_events = None
 
     def alpha_frame_loop(self):
-        # need a variable that changes when there is a new trial
-        # I'm starting to get a lot of alpha, should I make an alpha class?
-        # or a dict? how much varies?
+        # check to see if subject has found the alpha fruit yet this trial
         if self.find_alpha:
             #print 'find the alpha banana'
             dist_to_banana = self.fruit.check_distance_to_fruit(self.fruit.alpha_fruit)
-            if dist_to_banana <= self.config.get('distance_goal', 2):
+            if dist_to_banana <= self.config.get('distance_goal', 1):
                 # turn on banana to full
-                print 'change alpha'
+                #print 'change alpha'
                 self.fruit.change_alpha_fruit('on', self.fruit.alpha_fruit)
                 self.find_alpha = False
+
+    def avatar_frame_loop(self):
+        avatar = Avatar.getInstance()
+        # max voltage is 5 volts. Kiril's courtyard is not actually square,
+        # 10 in one direction, 11 in the other, so multiply avatar position by 0.4
+        # to send voltage
+        self.send_x_pos_task.send_signal(avatar.getPos()[0] * 0.2)
+        self.send_y_pos_task.send_signal(avatar.getPos()[1] * 0.2)
 
     def check_reward(self):
         # Runs every 200ms
@@ -243,7 +250,6 @@ class GoBananas:
             # reward is over
             self.fruit.beeps = None
 
-
     def get_reward_level(self, current_fruit):
         # current_fruit is going to have a number representation at the end to make it unique,
         # so don't use last three indices
@@ -262,14 +268,6 @@ class GoBananas:
         VLQ.getInstance().writeLine("EyeData",
                                     [((eye_data[0] * self.gain[0]) - self.offset[0]),
                                      ((eye_data[1] * self.gain[1]) - self.offset[1])])
-
-    def check_avatar(self):
-        avatar = Avatar.getInstance()
-        # max voltage is 5 volts. Kiril's courtyard is not actually square,
-        # 10 in one direction, 11 in the other, so multiply avatar position by 0.4
-        # to send voltage
-        self.send_x_pos_task.send_signal(avatar.getPos()[0] * 0.2)
-        self.send_y_pos_task.send_signal(avatar.getPos()[1] * 0.2)
 
     def log_new_trial(self):
         # print('new trial', self.trial_num)
