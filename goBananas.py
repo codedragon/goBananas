@@ -125,6 +125,7 @@ class GoBananas:
         vr.inputListen("decrease_reward", self.decrease_reward)
         vr.inputListen("increaseBananas", self.increase_bananas)
         vr.inputListen("decreaseBananas", self.decrease_bananas)
+        vr.inputListen("override_alpha", self.override_alpha)
         vr.inputListen("extra_reward", self.extra_reward)
         vr.inputListen("restart", self.restart)
         # set up task to be performed between frames, checks at interval of pump
@@ -346,6 +347,10 @@ class GoBananas:
 
     def decrease_bananas(self, input_event):
         pass
+
+    def override_alpha(self, input_event):
+        # make alpha banana brighter
+        self.fruit.change_alpha_fruit('on', self.fruit.alpha_fruit)
 
     def restart(self, input_event):
         # print 'current trial aborted, new trial started'

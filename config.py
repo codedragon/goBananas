@@ -132,5 +132,6 @@ if 'Keyboard' in globals():
     keyboard.bind("decrease_reward", "s")
     keyboard.bind("increaseBananas", "e")
     keyboard.bind("decreaseBananas", "d")
+    keyboard.bind("override_alpha", "a")
     keyboard.bind("extra_reward", "space")
     keyboard.bind("changeWeightedCenter", "c")
