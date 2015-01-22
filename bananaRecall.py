@@ -178,21 +178,21 @@ class BananaRecall:
             self.daq_events = None
 
     def frame_loop(self):
-        # self.find_recall_fruit means there is no fruit present, so checking
-        # distance to original (remembered) location
+        # self.find_recall_fruit means it is time to remember the position of the
+        # fruit. The recall fruit might be visible at low alpha, or invisible,
+        # either way, becomes fully visible when within distance_goal
         if self.find_recall_fruit:
             dist_to_banana = self.fruit.check_distance_to_fruit(self.config['fruit_to_remember'])
             #print('dist to banana', dist_to_banana)
             if dist_to_banana <= self.config['distance_goal']:
                 print 'found it!'
-                self.fruit.change_alpha_fruit('on')
-                #self.found_banana(dist_to_banana)
+                self.found_banana()
             elif self.recall_timer:
                 # check timer for looking for fruit
                 if check_timer(self.recall_timer, self.config['time_to_recall']):
                     self.recall_timer = 0
                     # if time is up, no longer checking to see if close to fruit
-                    self.find_recall_fruit = False
+                    self.find_recall_fruit = None
                     # if flashing fruit, go for it, otherwise start over
                     if self.config['time_to_flash']:
                         self.flash_fruit()
@@ -205,7 +205,7 @@ class BananaRecall:
             if check_timer(self.flash_timer, self.config['time_to_flash']):
                 self.new_trial()
         # check to see if reward timer is on, otherwise safe to give reward
-        if self.reward_timer and check_timer(self.reward_timer, self.config['pulseInterval']):
+        if self.reward_timer and check_timer(self.reward_timer, self.config['pulseInterval'] / 10000.0):
             self.reward_timer = 0
         if not self.reward_timer and self.fruit.beeps >= 0:
             # we can give reward, since there is currently no reward timer going
@@ -229,10 +229,11 @@ class BananaRecall:
                 self.daq_events.send_signal(200)
                 self.daq_strobe.send_signal()
             # how many rewards are we giving? if fruit was not visible, but found it, bigger reward
-            if self.remembered_location:
-                #print 'remembered location, bonanza!'
-                self.num_beeps = min(self.beep_list) * self.config['extra']
-            elif len(self.fruit.fruit_list) == 1:
+            #if self.remembered_location:
+            #    #print 'remembered location, bonanza!'
+            #    self.num_beeps = min(self.beep_list) * self.config['extra']
+            if len(self.fruit.fruit_list) == 1:
+                print 'next fruit is recall, so bigger reward now'
                 # last fruit before remembering gets different reward
                 # so knows next will be remembering
                 self.num_beeps = max(self.beep_list)
@@ -253,13 +254,14 @@ class BananaRecall:
             # if we didn't remember, we don't get reward, and never make it here
             # technically we could do if self.find_recall_fruit != False, but this
             # seems more intuitive.
-            if self.remembered_location or self.find_recall_fruit is None:
+            print('did we find the recall fruit?', self.find_recall_fruit)
+            if self.find_recall_fruit is None:
                 #print('either found alpha or remembered, new trial')
-                # if alpha is not one, set banana back to full alpha
-                if self.fruit.alpha > 0:
-                    #print 'turn off alpha'
-                    self.fruit.change_alpha_fruit('off')
-                    self.fruit.reset_collision()
+                # if alpha is visible,
+                #if self.fruit.alpha > 0:
+                #print 'turn off alpha'
+                self.fruit.change_alpha_fruit('off')
+                self.fruit.reset_collision()
                 self.new_trial()
                 #print 'new trial'
                 self.remembered_location = False
@@ -269,7 +271,7 @@ class BananaRecall:
                 self.find_recall_fruit = self.fruit.get_next_fruit()
                 #print('remembered location again', self.remembered_location)
                 # find_recall_fruit is true or false
-                #print('find_recall_fruit', self.find_recall_fruit)
+                print('find_recall_fruit', self.find_recall_fruit)
                 # this will only matter if there is fruit to remember
                 self.recall_timer = time.clock()
             #self.remembered_location = False
@@ -282,14 +284,13 @@ class BananaRecall:
             # reward is over
             self.fruit.beeps = None
 
-    def found_banana(self, dist_to_banana):
-        VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
-        # note this reward was due to remembering where fruit was
+    def found_banana(self):
+        #VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
+        # change fruit alpha (make visible)
+        self.fruit.change_alpha_fruit('on')
         self.remembered_location = True
         # no longer checking location
-        self.find_recall_fruit = False
-        # start giving reward
-        self.fruit.beeps = 0
+        self.find_recall_fruit = None
 
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
@@ -330,10 +331,10 @@ class BananaRecall:
         # starting over again with a possible new banana position,
         # make sure not still checking on old banana
         self.find_recall_fruit = False
-        # get rid of recall fruit, if we flashed it up
-        if self.flash_timer:
-            self.fruit.change_alpha_fruit('off')
-            self.flash_timer = 0
+        # get rid of recall fruit. May already be off, either way
+        # doesn't hurt
+        self.fruit.change_alpha_fruit('off')
+        self.flash_timer = 0
         self.trial_num += 1
         # can change alpha now
         print('alpha in recall', self.new_alpha)
