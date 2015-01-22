@@ -185,7 +185,8 @@ class BananaRecall:
             #print('dist to banana', dist_to_banana)
             if dist_to_banana <= self.config['distance_goal']:
                 print 'found it!'
-                self.found_banana(dist_to_banana)
+                self.fruit.change_alpha_fruit('on')
+                #self.found_banana(dist_to_banana)
             elif self.recall_timer:
                 # check timer for looking for fruit
                 if check_timer(self.recall_timer, self.config['time_to_recall']):
