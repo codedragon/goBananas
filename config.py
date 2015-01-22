@@ -8,16 +8,16 @@ from pandaepl import Keyboard
 
 # environ types available:
 # 'original'
-#environ = 'original'
-environ = 'circle'
+environ = 'original'
+#environ = 'circle'
 
 # Bananas.
 #fruit = ['old_banana','cherry']
 #num_fruit = [5, 5]
 #num_beeps = [3, 5]
 fruit = ['old_banana','cherry']
-num_fruit = [3,3]
-num_beeps = [4,6]
+num_fruit = [2,2]
+num_beeps = [4,4]
 
 # factor to increase reward for last banana
 extra = 2
@@ -28,7 +28,7 @@ go_alpha = 'old_banana'
 # set how much alpha using for either recall or gobananas
 # fully visible is 1, invisible is 0,
 # in recall can adjust in 0.1 increments
-alpha = 0.4
+alpha = 0.2
 
 # how close is too close together?
 tooClose = 1  # 1
@@ -127,11 +127,9 @@ if 'Keyboard' in globals():
     keyboard = Keyboard.Keyboard.getInstance()
     keyboard.bind("close", ["escape", "q"])
     keyboard.bind("restart", "y")
-    keyboard.bind("toggleDebug", ["escape", "d"])
     keyboard.bind("increase_reward", "w")
     keyboard.bind("decrease_reward", "s")
-    keyboard.bind("increaseBananas", "e")
-    keyboard.bind("decreaseBananas", "d")
-    keyboard.bind("override_alpha", "a")
+    keyboard.bind("increase_bananas", "e")
+    keyboard.bind("decrease_bananas", "d")
     keyboard.bind("extra_reward", "space")
-    keyboard.bind("changeWeightedCenter", "c")
+    keyboard.bind("override_alpha", "a")

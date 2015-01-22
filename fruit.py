@@ -7,11 +7,12 @@ from sys import stdout
 
 
 def check_repeat(trial_num, repeat_list):
+    # used in gobananas
     # this function decides what kind of trial we are setting up,
     # if starting a new block of trials will decide which one will
     # be the new repeat trial. Do this first, in case this trial
     # (first of new block) is going to be the repeat
-    fruit_trial = ''
+    trial_type = ''
     if trial_num > 0 and trial_num % repeat_list[0] == 0:
         # time to choose the next trial that will be a repeat,
         # choose a number from 0 to repeat number and add it to this trial number
@@ -22,12 +23,12 @@ def check_repeat(trial_num, repeat_list):
     if trial_num == repeat_list[1]:
         # self.repeat is the trial number for collecting positions
         # print 'collecting positions for repeat'
-        fruit_trial = 'new'
+        trial_type = 'new'
     elif trial_num == repeat_list[2]:
         # and now we are repeating
         # print 'repeat'
-        fruit_trial = 'repeat'
-    return repeat_list, fruit_trial
+        trial_type = 'repeat'
+    return repeat_list, trial_type
 
 
 def create_alt_fruit_area(subarea_key):
@@ -59,50 +60,38 @@ def create_alt_fruit_area(subarea_key):
 
 class Fruit():
     def __init__(self, config):
-
-        # Do all of this prior to calling class, send in two lists,
-        # fruit_types and num_fruit_types
+        # Used in both goBananas and bananaRecall, sometimes referred to as regular
+        # and sequential tasks, respectively.
         self.config = config
-
         # if this is not a sequential memory task, this might not be set
         self.config.setdefault('fruit_to_remember', False)
-
-        # fruit not remembering - these will be adjusted, so make into variables
-        all_fruit = config['fruit']  # list of fruit
-        num_fruit = config['num_fruit']  # list corresponding to list above
-        self.repeat_recall = False
-
         if self.config['fruit_to_remember']:
             # print 'recall task'
-            # if doing recall task, fruit to remember is always first
-            all_fruit.insert(0, self.config['fruit_to_remember'])
-            num_fruit.insert(0, 1)
             # bring this into a variable, so we can toggle it.
-            self.repeat_recall = config['repeat_recall_fruit']
+            self.repeat = config['repeat_recall_fruit']
             self.all_subareas = mB.create_sub_areas(self.config)
             # print self.all_subareas
             self.fruit_area = [{}]
             self.create_fruit_area_dict(self.config['subarea'])
             self.alpha = self.config['alpha']
             print('alpha', self.alpha)
-            self.repeat = False
         else:
             self.fruit_area = [{}]
             self.create_fruit_area_dict(0)
             # for repeating a particular configuration
             self.repeat = self.config.get('fruit_repeat', False)  # assume false if none provided
+            if self.repeat:
+                start_number = random.choice(range(self.config['repeat_number']))
+                # repeat_list is a list of variables we care about for repeating trials
+                # the first two will not change, last one changes each time we enter a new block
+                # [frequency of repeat, start number, next number]
+                self.repeat_list = [self.config['repeat_number'], start_number, start_number]
         if self.config.get('go_alpha', False):
             self.alpha = self.config['alpha']
             print('alpha', self.alpha)
         if self.config.get('alpha', False):
             self.alpha_node_path = None
         self.alpha_fruit = False
-        if self.repeat:
-            start_number = random.choice(range(self.config['repeat_number']))
-            # repeat_list is a list of variables we care about for repeating trials
-            # the first two will not change, last one changes each time we enter a new block
-            # [frequency of repeat, start number, next number]
-            self.repeat_list = [self.config['repeat_number'], start_number, start_number]
 
         # num_fruit dict will tell us how many of each fruit we will be showing
         self.num_fruit_dict = {}
@@ -184,36 +173,42 @@ class Fruit():
         # hide all models on creation
         model.setStashed(True)
         self.fruit_models[name] = model
-        
-    def setup_trial(self, trial_num):
+
+    def setup_gobananas_trial(self, trial_num):
+        trial_type = ''
+        if self.repeat:
+            self.repeat_list, trial_type = check_repeat(trial_num, self.repeat_list)
+            # print('got stuff back', trial_type)
+        self.setup_all_trials(trial_type, trial_num)
+
+    def setup__recall_trial(self, trial_num):
         # print('alpha in fruit', self.alpha)
         # trials are set up mostly the same, whether showing fruit sequentially or all at once.
         stdout.write('trial number ' + str(trial_num) + '\n')
         # print('trial number to be repeated', self.repeat_list[1])
-        fruit_trial = ''
-        # self.repeat only refers to regular trials, not sequential trials
-        if self.repeat:
-            self.repeat_list, fruit_trial = check_repeat(trial_num, self.repeat_list)
-            # print('got stuff back', fruit_trial)
+        # repeat_recall can be toggled with button press
+        print('recall_repeat this trial is', self.repeat)
+        if self.repeat and self.pos_dict:
+            trial_type = 'recall_repeat'
         else:
-            # print 'not repeating or recall'
-            if self.config['fruit_to_remember']:
-                # repeat_recall can be toggled with button press
-                print('recall_repeat this trial is', self.repeat_recall)
-                if self.repeat_recall:
-                    fruit_trial = 'recall_repeat'
-                else:
-                    fruit_trial = 'recall'
-                #print('fruit trial', fruit_trial)
-        self.setup_fruit_for_trial(fruit_trial)
+            trial_type = 'recall'
+
+        self.setup_all_trials(trial_type, trial_num)
+
+    def setup_all_trials(self, trial_type, trial_num):
+        # print('trial_type', trial_type)
+        avatar = Avatar.Avatar.getInstance()
+        avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
+        new_pos_dict = self.setup_fruit_for_trial(avatar_x_y, trial_type)
+        self.change_positions(new_pos_dict)
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
-        if fruit_trial == 'new' or fruit_trial == 'repeat':
-            print fruit_trial
+        if trial_type == 'new' or 'repeat' in trial_type:
+            print trial_type
             # print 'log repeat'
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
 
-    def setup_fruit_for_trial(self, repeat='No'):
-        # print('repeat_fruit_trial', repeat)
+    def setup_fruit_for_trial(self, avatar_x_y, repeat='No'):
+        # print('repeat_trial_type', repeat)
         # print 'setup fruit for trial'
         # get positions for fruit
         # if repeat has 'repeat' in it, use same positions as before
@@ -225,26 +220,20 @@ class Fruit():
         # pos_list is used to make sure we are not putting fruit too close
         # together or too close to the avatar
         pos_list = []
+
+        # pos_dict is returned so we have a dictionary of the new positions
+        pos_dict = {}
         # make sure start with empty list
         self.fruit_list = []
         # if we are repeating the recall fruit, need to
         # keep track, so random positions are placed
         # proper distance from it
         if repeat == 'recall_repeat':
-            # want to repeat the location, but doesn't work
-            # if there is no location saved.
-            print 'attempting to repeat recall fruit'
-            if self.pos_dict:
-                # we have a position saved, so go ahead and
-                # add it to the starting list, so other fruit
-                # is not assigned too close to it.
-                pos_list.append(self.pos_dict[self.config['fruit_to_remember']])
-            else:
-                # print 'but no positions to recall'
-                repeat = 'recall'
+            # we have a position saved, so go ahead and
+            # add it to the starting list, so other fruit
+            # is not assigned too close to it.
+            pos_list.append(self.pos_dict[self.config['fruit_to_remember']])
         # print pos_list
-        avatar = Avatar.Avatar.getInstance()
-        avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
         # print 'avatar pos', avatar_x_y
         for name, fruit in self.fruit_models.iteritems():
             #print name
@@ -281,15 +270,21 @@ class Fruit():
                 pos_list.append((x, y))
             # print pos_list
             # print('current positions', name, x, y)
-            self.fruit_models[name].setPos(Point3(x, y, 1))
+            pos_dict[name] = (x, y)
             self.make_fruit_visible(name, repeat)
             # repeat is only exactly 'new' for gobananas, so won't interfere
             # with recall task
-            if repeat == 'new':
-                # print 'save new'
-                # save new banana placements
-                self.pos_dict[name] = (x, y)
+        if repeat == 'new':
+            # 'new' is only used for gobananas, bananaRecall saves positions above
+            # print 'save new'
+            # save new banana placements
+            self.pos_dict = pos_dict
         print('fruit list', self.fruit_list)
+        return pos_dict
+
+    def change_positions(self, pos_dict):
+        for key, value in pos_dict.iteritems():
+            self.fruit_models[key].setPos(Point3(value[0], value[1], 1))
 
     def make_fruit_visible(self, name, repeat=None):
         # print 'choose_first_fruit', choose_first_fruit
@@ -302,12 +297,15 @@ class Fruit():
         if recall_fruit:
             # bananaRecall
             if 'repeat' in repeat:
+                print "repeating banana, don't show it"
                 # if repeating recall fruit in same place, do not show recall fruit,
                 # (was just shown there!)
                 # instead show first non-recall fruit. since not showing it, also do
                 # not append recall fruit to list
                 if name != recall_fruit:
-                    if self.fruit_list:
+                    # if we haven't picked a fruit yet, go ahead and pick one
+                    if not self.fruit_list:
+                        print 'show other fruit'
                         self.fruit_models[name].setStashed(False)
                     self.fruit_list.append(name)
             elif name == recall_fruit:

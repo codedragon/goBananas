@@ -106,6 +106,10 @@ class BananaRecall:
         # New Trial
         Log.getInstance().addType("NewTrial", [("Trial", int)],
                                   False)
+        # Repeat Trial (only recall fruit is repeated)
+        # If a trial is a repeat configuration
+        Log.getInstance().addType("RepeatTrial", [("Repeat", int)],
+                                  False)
         # log if a banana is alpha
         Log.getInstance().addType("Alpha", [("Alpha", basestring)],
                                   False)
@@ -205,7 +209,7 @@ class BananaRecall:
             if check_timer(self.flash_timer, self.config['time_to_flash']):
                 self.new_trial()
         # check to see if reward timer is on, otherwise safe to give reward
-        if self.reward_timer and check_timer(self.reward_timer, self.config['pulseInterval'] / 10000.0):
+        if self.reward_timer and check_timer(self.reward_timer, self.config['pulseInterval'] / 1000.0):
             self.reward_timer = 0
         if not self.reward_timer and self.fruit.beeps >= 0:
             # we can give reward, since there is currently no reward timer going
@@ -320,11 +324,6 @@ class BananaRecall:
             self.daq_strobe.send_signal()
             self.daq_events.send_signal(translate_b[1])
             self.daq_strobe.send_signal()
-        if self.fruit.repeat:
-            self.daq_events.send_signal(300)
-            self.daq_strobe.send_signal()
-            self.daq_events.send_signal(self.fruit.now_repeat)
-            self.daq_strobe.send_signal()
 
     def new_trial(self):
         print 'new trial'
@@ -339,7 +338,7 @@ class BananaRecall:
         # can change alpha now
         print('alpha in recall', self.new_alpha)
         self.fruit.alpha = self.new_alpha
-        self.fruit.setup_trial(self.trial_num)
+        self.fruit.setup__recall_trial(self.trial_num)
         #print('new trial', self.trial_num)
         if self.daq_events:
             self.send_new_trial_daq()

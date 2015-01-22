@@ -72,7 +72,7 @@ sendData = True
 crosshair = False
 
 # for activating reward system
-pulseInterval = 0.200  # in s for bananaRecall
+pulseInterval = 200
 
 # models are in goBananas directory by default
 path_models = ''

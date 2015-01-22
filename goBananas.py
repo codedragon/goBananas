@@ -239,7 +239,7 @@ class GoBananas:
                 self.trial_num += 1
                 if self.config['go_alpha']:
                     self.find_alpha = True
-                self.fruit.setup_trial(self.trial_num)
+                self.fruit.setup_gobananas_trial(self.trial_num)
                 # logging for new trial
                 self.log_new_trial()
             # avatar can move
@@ -352,7 +352,7 @@ class GoBananas:
     def restart(self, input_event):
         # print 'current trial aborted, new trial started'
         self.trial_num += 1
-        self.fruit.setup_trial(self.trial_num)
+        self.fruit.setup_gobananas_trial(self.trial_num)
 
     def extra_reward(self, input_event):
         # print 'yup'
@@ -375,7 +375,7 @@ class GoBananas:
             #print('new', num_fruit)
         num_fruit_dict = dict(zip(all_fruit, num_fruit))
         self.fruit.create_fruit(num_fruit_dict)
-        self.fruit.setup_trial(self.trial_num)
+        self.fruit.setup_gobananas_trial(self.trial_num)
         self.log_new_trial()
         Experiment.getInstance().start()
 
