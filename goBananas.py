@@ -117,19 +117,16 @@ class GoBananas:
         # initialize trial number
         self.trial_num = 0
         # Handle keyboard events
-        vr.inputListen('toggleDebug',
-                       lambda input_event:
-                       vr.getInstance().setDebug(not vr.getInstance().isDebug * ()))
         vr.inputListen('close', self.close)
         vr.inputListen("increase_reward", self.increase_reward)
         vr.inputListen("decrease_reward", self.decrease_reward)
-        vr.inputListen("increaseBananas", self.increase_bananas)
-        vr.inputListen("decreaseBananas", self.decrease_bananas)
+        vr.inputListen("increase_bananas", self.increase_bananas)
+        vr.inputListen("decrease_bananas", self.decrease_bananas)
         vr.inputListen("override_alpha", self.override_alpha)
         vr.inputListen("extra_reward", self.extra_reward)
         vr.inputListen("restart", self.restart)
         # set up task to be performed between frames, checks at interval of pump
-        vr.addTask(Task("checkReward",
+        vr.addTask(Task("check_reward",
                         lambda task_info:
                         self.check_reward(),
                         self.config['pulseInterval']))
