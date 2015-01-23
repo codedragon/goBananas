@@ -107,10 +107,6 @@ class Fruit():
         self.current_fruit = None
         # dictionary to save positions for repeated trials or single fruit
         self.pos_dict = {}
-        # for testing can send in a list, for recall, just where the banana
-        # is, for non-sequential tasks, need one position for each fruit
-        # self.pos_list = [5, -5]
-        self.pos_list = []
 
     def create_fruit(self, fruit_dict):
         self.num_fruit_dict = fruit_dict
@@ -192,7 +188,6 @@ class Fruit():
             trial_type = 'recall_repeat'
         else:
             trial_type = 'recall'
-
         self.setup_all_trials(trial_type, trial_num)
 
     def setup_all_trials(self, trial_type, trial_num):
@@ -279,7 +274,8 @@ class Fruit():
             # print 'save new'
             # save new banana placements
             self.pos_dict = pos_dict
-        print('fruit list', self.fruit_list)
+        # print pos_dict
+        #print('fruit list', self.fruit_list)
         return pos_dict
 
     def change_positions(self, pos_dict):
@@ -297,7 +293,6 @@ class Fruit():
         if recall_fruit:
             # bananaRecall
             if 'repeat' in repeat:
-                print "repeating banana, don't show it"
                 # if repeating recall fruit in same place, do not show recall fruit,
                 # (was just shown there!)
                 # instead show first non-recall fruit. since not showing it, also do
@@ -305,7 +300,7 @@ class Fruit():
                 if name != recall_fruit:
                     # if we haven't picked a fruit yet, go ahead and pick one
                     if not self.fruit_list:
-                        print 'show other fruit'
+                        print 'repeating banana, so start with other fruit'
                         self.fruit_models[name].setStashed(False)
                     self.fruit_list.append(name)
             elif name == recall_fruit:
@@ -495,7 +490,7 @@ class Fruit():
                                     'avatarRadius': self.config['avatarRadius'],
                                     'environ': self.config['environ']})
         # make sure we know we moved
-        self.pos_list = []
+        self.pos_dict = {}
 
     def check_distance_to_fruit(self, target_fruit):
         avatar = Avatar.Avatar.getInstance()

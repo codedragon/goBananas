@@ -20,7 +20,8 @@ except ImportError:
 
 def check_timer(timer, goal):
         if time.clock() - timer >= goal:
-            #print('timer up')
+            print goal
+            print('time up', time.clock() - timer)
             return True
         return False
 
@@ -199,6 +200,7 @@ class BananaRecall:
                     self.find_recall_fruit = None
                     # if flashing fruit, go for it, otherwise start over
                     if self.config['time_to_flash']:
+                        print('flash fruit')
                         self.flash_fruit()
                     else:
                         print('time up')
@@ -260,7 +262,7 @@ class BananaRecall:
             # seems more intuitive.
             print('did we find the recall fruit?', self.find_recall_fruit)
             if self.find_recall_fruit is None:
-                #print('either found alpha or remembered, new trial')
+                print('either found alpha or remembered, new trial')
                 # if alpha is visible,
                 #if self.fruit.alpha > 0:
                 #print 'turn off alpha'
@@ -270,7 +272,7 @@ class BananaRecall:
                 #print 'new trial'
                 self.remembered_location = False
             else:
-                #print 'did not have to remember location'
+                print 'it was not time to find the recall fruit'
                 self.fruit.disappear_fruit()
                 self.find_recall_fruit = self.fruit.get_next_fruit()
                 #print('remembered location again', self.remembered_location)
@@ -385,9 +387,9 @@ class BananaRecall:
 
     def toggle_random(self, input_event):
         # toggle random,
-        self.fruit.repeat_recall = not self.fruit.repeat_recall
+        self.fruit.repeat = not self.fruit.repeat
         # which is the opposite of repeat...
-        print "Fruit is random:", not self.fruit.repeat_recall
+        print "Fruit is random:", not self.fruit.repeat
 
     def change_alpha(self, input_event):
         # print('change alpha')
