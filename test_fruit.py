@@ -1,6 +1,5 @@
 import unittest
 from fruit import Fruit, check_repeat, create_alt_fruit_area
-import random
 
 
 class FruitTests(unittest.TestCase):
@@ -8,20 +7,22 @@ class FruitTests(unittest.TestCase):
     def test_check_repeat_first_trial_normal(self):
         # if first trial, not choosing next repeat trial, so the list should stay
         # the same. trial_type should be empty string, since neither new nor repeat.
-        start_number = 3
-        # initial_list is [size of set, saved trial, next]
-        initial_list = [10, start_number, start_number]
-        new_list, trial_type = check_repeat(0, initial_list)
+        repeat_number = 3
+        trial_number = 0
+        # initial_list is [size of set, repeat trial, next time to repeat]
+        initial_list = [10, repeat_number, repeat_number]
+        new_list, trial_type = check_repeat(trial_number, initial_list)
         self.assertEquals(new_list, initial_list)
         self.assertEquals(trial_type, '')
 
     def test_check_repeat_first_trial_save(self):
         # if first trial, not choosing next repeat trial, so the list should stay
         # the same. trial_type should be 'new', since we are saving this trial.
-        start_number = 0
-        # initial_list is [size of set, saved trial, next]
-        initial_list = [10, start_number, start_number]
-        new_list, trial_type = check_repeat(0, initial_list)
+        repeat_number = 0
+        trial_number = 0
+        # initial_list is [size of set, repeat trial, next time to repeat]
+        initial_list = [10, repeat_number, repeat_number]
+        new_list, trial_type = check_repeat(trial_number, initial_list)
         self.assertEquals(new_list, initial_list)
         self.assertEquals(trial_type, 'new')
 
@@ -31,16 +32,13 @@ class FruitTests(unittest.TestCase):
         # same as initial_list[2] or '' if not. I don't think we can
         # get around the conditional, since the initial_list[2] number
         # is randomly chosen
-        start_number = 7
-        # initial_list is [size of set, saved trial, next]
-        initial_list = [10, start_number, start_number]
-        print('repeat list', initial_list)
-        new_list, trial_type = check_repeat(10, initial_list)
-        print('repeat list', initial_list)
-        print trial_type
-        print 'ok'
+        repeat_number = 7
+        trial_number = 10
+        # initial_list is [size of set, repeat trial, next time to repeat]
+        initial_list = [10, repeat_number, repeat_number]
+        new_list, trial_type = check_repeat(trial_number, initial_list)
         self.assertNotEquals(new_list, initial_list)
-        if start_number == initial_list[2]:
+        if trial_number == new_list[2]:
             self.assertEquals(trial_type, 'repeat')
         else:
             self.assertEquals(trial_type, '')

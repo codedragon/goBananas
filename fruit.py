@@ -6,12 +6,13 @@ import random
 from sys import stdout
 
 
-def check_repeat(trial_num, repeat_list):
+def check_repeat(trial_num, original_list):
     # used in gobananas
     # this function decides what kind of trial we are setting up,
     # if starting a new block of trials will decide which one will
     # be the new repeat trial. Do this first, in case this trial
     # (first of new block) is going to be the repeat
+    repeat_list = original_list[:]
     trial_type = ''
     if trial_num > 0 and trial_num % repeat_list[0] == 0:
         # time to choose the next trial that will be a repeat,
@@ -21,7 +22,7 @@ def check_repeat(trial_num, repeat_list):
         # if we are on a now_repeat trial, and now the trial number is less than repeat number,
         # it is the first one and we are collecting
     if trial_num == repeat_list[1]:
-        # self.repeat is the trial number for collecting positions
+        # repeat_list[1] is the trial number for collecting positions
         # print 'collecting positions for repeat'
         trial_type = 'new'
     elif trial_num == repeat_list[2]:
@@ -75,10 +76,13 @@ class Fruit():
             self.create_fruit_area_dict(self.config['subarea'])
             self.alpha = self.config['alpha']
             print('alpha', self.alpha)
+            self.num_shows = 0
         else:
             self.fruit_area = [{}]
             self.create_fruit_area_dict(0)
             # for repeating a particular configuration
+            # able to toggle this in bananaRecall, so making it a variable in both games to
+            # simplify things.
             self.repeat = self.config.get('fruit_repeat', False)  # assume false if none provided
             if self.repeat:
                 start_number = random.choice(range(self.config['repeat_number']))
@@ -175,23 +179,24 @@ class Fruit():
         if self.repeat:
             self.repeat_list, trial_type = check_repeat(trial_num, self.repeat_list)
             # print('got stuff back', trial_type)
+            # print('trial number to be repeated', self.repeat_list[1])
         self.setup_all_trials(trial_type, trial_num)
 
     def setup__recall_trial(self, trial_num):
         # print('alpha in fruit', self.alpha)
-        # trials are set up mostly the same, whether showing fruit sequentially or all at once.
         stdout.write('trial number ' + str(trial_num) + '\n')
-        # print('trial number to be repeated', self.repeat_list[1])
-        # repeat_recall can be toggled with button press
         print('recall_repeat this trial is', self.repeat)
+        # repeat_recall can be toggled with button press
         if self.repeat and self.pos_dict:
             trial_type = 'recall_repeat'
         else:
             trial_type = 'recall'
+            # this is not a repeat, so re-set num_shows
+            self.num_shows = 0
         self.setup_all_trials(trial_type, trial_num)
 
     def setup_all_trials(self, trial_type, trial_num):
-        # print('trial_type', trial_type)
+        print('trial_type', trial_type)
         avatar = Avatar.Avatar.getInstance()
         avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
         new_pos_dict = self.setup_fruit_for_trial(avatar_x_y, trial_type)
@@ -375,8 +380,8 @@ class Fruit():
     def disappear_fruit(self):
         # print 'disappear fruit'
         # fruit that is currently visible is stashed
-        # print('fruit should go away', self.current_fruit)
-        # print('this fruit index', current_index)
+        print('fruit should go away', self.current_fruit)
+        print self.fruit_list
 
         # remove the current fruit from list of possible fruit
         self.fruit_list.remove(self.current_fruit)
@@ -404,14 +409,24 @@ class Fruit():
         # unstash the next fruit, unless it is time to go to the remembered banana
         # (list is empty)
         if not self.fruit_list:
-            # if we are searching for the banana, send find_banana as true
+            self.num_shows += 1
+            # if we are searching for the banana (alpha or invisible), send find_banana as true
+            # if we are re-enforcing the banana position, show again full on, add back to list
             # if banana is going to be partially visible, turn it on
+            find_banana_loc = True
+            if self.num_shows < self.config['num_repeat_visible']:
+                # once it has been shown x times in one place, does not show back up as full on
+                # again until it moves, so num_shows reset in setup__recall_trial
+                self.change_alpha_fruit('on')
+                self.fruit_list.append(self.config['fruit_to_remember'])
+                find_banana_loc = None  # not looking for banana, already full on
+                return find_banana_loc
             if self.alpha > 0:
                 print 'alpha recall fruit'
                 self.change_alpha_fruit('on_alpha')
             else:
                 print 'recall fruit invisible'
-            find_banana_loc = True
+
         else:
             #print('next fruit in list', self.fruit_list[0])
             self.fruit_models[self.fruit_list[0]].setStashed(False)

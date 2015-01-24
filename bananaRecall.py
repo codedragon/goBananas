@@ -20,8 +20,8 @@ except ImportError:
 
 def check_timer(timer, goal):
         if time.clock() - timer >= goal:
-            print goal
-            print('time up', time.clock() - timer)
+            # print goal
+            # print('time up', time.clock() - timer)
             return True
         return False
 
