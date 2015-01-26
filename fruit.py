@@ -182,7 +182,7 @@ class Fruit():
             # print('trial number to be repeated', self.repeat_list[1])
         self.setup_all_trials(trial_type, trial_num)
 
-    def setup__recall_trial(self, trial_num):
+    def setup_recall_trial(self, trial_num):
         # print('alpha in fruit', self.alpha)
         # repeat_recall can be toggled with button press
         # print('recall_repeat this trial is', self.repeat)

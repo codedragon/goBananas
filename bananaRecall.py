@@ -66,6 +66,8 @@ class BananaRecall:
         self.reward_timer = 0
         # variable to hold changes in alpha until new trial
         self.new_alpha = self.config['alpha']
+        # variable to change distance goal for invisible recall fruit
+        self.distance_goal = self.config['distance_goal'][1]
         # get rid of cursor
         # Models must be attached to self
         self.env_models = []
@@ -126,6 +128,8 @@ class BananaRecall:
         vr.inputListen("increase_alpha", self.change_alpha)
         vr.inputListen("decrease_alpha", self.change_alpha)
         vr.inputListen("toggle_random", self.toggle_random)
+        vr.inputListen("increase_dist_goal", self.change_goal)
+        vr.inputListen("decrease_dist_goal", self.change_goal)
         vr.inputListen("NewTrial", self.new_trial)
         vr.inputListen("subarea_1", self.change_subarea)
         vr.inputListen("subarea_2", self.change_subarea)
@@ -178,10 +182,15 @@ class BananaRecall:
         # fruit. The recall fruit might be visible at low alpha, or invisible,
         # either way, becomes fully visible when within distance_goal
         if self.find_recall_fruit:
+            if self.fruit.alpha > 0:
+                recall_dist = self.config['distance_goal'][0]
+            else:
+                recall_dist = self.distance_goal
             dist_to_banana = self.fruit.check_distance_to_fruit(self.config['fruit_to_remember'])
             # print('dist to banana', dist_to_banana)
-            if dist_to_banana <= self.config['distance_goal']:
-                print 'found it!'
+            if dist_to_banana <= recall_dist:
+                # print dist_to_banana
+                # print 'found it!'
                 self.found_banana()
             elif self.recall_timer:
                 # check timer for looking for fruit
@@ -321,7 +330,7 @@ class BananaRecall:
         # can change alpha now
         # print('alpha in recall', self.new_alpha)
         self.fruit.alpha = self.new_alpha
-        self.fruit.setup__recall_trial(self.trial_num)
+        self.fruit.setup_recall_trial(self.trial_num)
         # print('new trial', self.trial_num)
         if self.daq_events:
             self.send_new_trial_daq()
@@ -381,6 +390,17 @@ class BananaRecall:
         elif self.new_alpha < 0.1:
             self.new_alpha = 0
         print 'new alpha', self.new_alpha
+
+    def change_goal(self, input_event):
+        # print('change alpha')
+        print input_event.eventName
+        if input_event.eventName == 'increase_dist_goal':
+            self.distance_goal += 0.5
+        else:
+            self.distance_goal -= 0.5
+        if self.distance_goal < 0.5:
+            self.distance_goal = 0
+        print 'new distance goal', self.distance_goal
 
     def change_subarea(self, input_event):
         print('change subarea')

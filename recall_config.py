@@ -13,19 +13,21 @@ environ = 'original'
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
 # for recallBanana, this list does NOT include the recall fruit
 fruit = ['cherry']
-num_fruit = [1]
+num_fruit = [2]
 # for bananaRecall, num_beeps should be one or two numbers
 # if two numbers, second number will be used for fruit directly before
 # subject has to look for missing fruit
-num_beeps = [2]
+num_beeps = [4]
 # num_beeps = [3, 5]
 
 # RecallBanana configurations
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
 fruit_to_remember = 'old_banana'
 # fruit_to_remember = None
-# how close to remembered location to get reward?
-distance_goal = 3
+# how close to remembered location to show banana?
+# list, first number is distance when recall fruit is partially visible,
+# second number when recall fruit invisible
+distance_goal = [1, 3]
 repeat_recall_fruit = True  # can be toggled with key, repeats location
 time_to_recall = 10  # number of seconds to get to remembered location
 time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
@@ -150,6 +152,8 @@ if 'Keyboard' in globals():
     keyboard.bind("extra_reward", "space")
     keyboard.bind("increase_alpha", "e")
     keyboard.bind("decrease_alpha", "d")
+    keyboard.bind("increase_dist_goal", "t")
+    keyboard.bind("decrease_dist_goal", "g")
     keyboard.bind("toggle_random", "r")
     keyboard.bind("subarea_1", "1")
     keyboard.bind("subarea_2", "2")
