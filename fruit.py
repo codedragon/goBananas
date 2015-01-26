@@ -386,6 +386,7 @@ class Fruit():
 
         # remove the current fruit from list of possible fruit
         self.fruit_list.remove(self.current_fruit)
+        print('number of fruit left this trial ', len(self.fruit_list))
         # print 'removed a fruit from the list', self.fruit_list
         # stash the fruit we just ran into,
         self.fruit_models[self.current_fruit].setStashed(True)
