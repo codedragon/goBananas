@@ -12,16 +12,17 @@ try:
     sys.path.insert(1, '../pydaq')
     import pydaq
     LOADED_PYDAQ = True
-    #print 'loaded PyDaq'
+    # print 'loaded PyDaq'
 except ImportError:
+    pydaq = None
     LOADED_PYDAQ = False
     print 'Not using PyDaq'
 
 
 def check_timer(timer, goal):
         if time.clock() - timer >= goal:
-            #print goal
-            #print('time up', time.clock() - timer)
+            # print goal
+            # print('time up', time.clock() - timer)
             return True
         return False
 
@@ -142,7 +143,7 @@ class BananaRecall:
                         self.frame_loop(),
                         ))
         # send avatar position to blackrock/plexon
-        if self.config['send_data'] and LOADED_PYDAQ:
+        if self.config['sendData'] and LOADED_PYDAQ:
             vr.addTask(Task("sendAvatar",
                             lambda task_info:
                             self.send_avatar_daq()))
@@ -178,7 +179,7 @@ class BananaRecall:
         # either way, becomes fully visible when within distance_goal
         if self.find_recall_fruit:
             dist_to_banana = self.fruit.check_distance_to_fruit(self.config['fruit_to_remember'])
-            #print('dist to banana', dist_to_banana)
+            # print('dist to banana', dist_to_banana)
             if dist_to_banana <= self.config['distance_goal']:
                 print 'found it!'
                 self.found_banana()
@@ -208,7 +209,7 @@ class BananaRecall:
             self.give_reward()
 
     def give_reward(self):
-        #print 'give reward'
+        # print 'give reward'
         # set reward timer
         self.reward_timer = time.clock()
         if self.reward:
@@ -219,15 +220,12 @@ class BananaRecall:
         # if this is first reward, log that
         if self.fruit.beeps == 0:
             VLQ.getInstance().writeLine("Yummy", [self.fruit.current_fruit])
-            #print('logged', self.fruit.byeBanana)
-            #print('fruit pos', self.fruit.fruitModels[int(self.fruit.byeBanana[-2:])].getPos())
+            # print('logged', self.fruit.byeBanana)
+            # print('fruit pos', self.fruit.fruitModels[int(self.fruit.byeBanana[-2:])].getPos())
             if self.daq_events:
                 self.daq_events.send_signal(200)
                 self.daq_strobe.send_signal()
-            # how many rewards are we giving? if fruit was not visible, but found it, bigger reward
-            #if self.remembered_location:
-            #    #print 'remembered location, bonanza!'
-            #    self.num_beeps = min(self.beep_list) * self.config['extra']
+            # amount of reward can vary
             if len(self.fruit.fruit_list) == 1:
                 # print 'next fruit is recall, so bigger reward now'
                 # last fruit before remembering gets different reward
@@ -253,13 +251,9 @@ class BananaRecall:
             # print('did we find the recall fruit?', self.find_recall_fruit)
             if self.find_recall_fruit is None:
                 # print('either found alpha or remembered, new trial')
-                # if alpha is visible,
-                #if self.fruit.alpha > 0:
-                #print 'turn off alpha'
                 self.fruit.change_alpha_fruit('off')
                 self.fruit.reset_collision()
                 self.new_trial()
-                #print 'new trial'
                 self.remembered_location = False
             else:
                 # print 'it was not time to find the recall fruit'
@@ -279,7 +273,7 @@ class BananaRecall:
             self.fruit.beeps = None
 
     def found_banana(self):
-        #VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
+        # VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
         # change fruit alpha (make visible)
         self.fruit.change_alpha_fruit('on')
         self.remembered_location = True
@@ -290,7 +284,7 @@ class BananaRecall:
         # pydaq calls this function every time it calls back to get eye data
         VLQ.getInstance().writeLine("EyeData",
                                     [((eye_data[0] * self.gain[0]) - self.offset[0]),
-                                    ((eye_data[1] * self.gain[1]) - self.offset[1])])
+                                        ((eye_data[1] * self.gain[1]) - self.offset[1])])
 
     def send_avatar_daq(self):
         avatar = Avatar.getInstance()
@@ -422,15 +416,4 @@ class BananaRecall:
         Experiment.getInstance().stop()
 
 if __name__ == '__main__':
-    #print 'main?'
     BananaRecall().start()
-else:
-    print 'not main?'
-    #import argparse
-    #p = argparse.ArgumentParser()
-    #p.add_argument('-scrap')
-    #import sys
-    #sys.argv.extend(['stest'])
-    #sys.argv = ['goBananas','-stest']
-    #,'--no-eeg','--no-fs']
-    #GoBananas().start()

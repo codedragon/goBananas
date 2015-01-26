@@ -34,6 +34,9 @@ time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
 subarea = 9  # this is the starting spot, can be changed by a keypress later on
 # once trained, alpha will be at zero, no banana showing
 alpha = 0.4  # this is for training in the recall task. fully visible is 1, invisible is 0
+# how many times to repeat the recall fruit at full visible before
+# subject has to remember where the fruit is.
+num_repeat_visible = 2
 
 # which fruit to make alpha, False for none (goBananas only)
 go_alpha = False
