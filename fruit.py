@@ -74,7 +74,7 @@ class Fruit():
             self.fruit_area = [{}]
             self.create_fruit_area_dict(self.config['subarea'])
             self.alpha = self.config['alpha']
-            print('alpha', self.alpha)
+            # print('alpha', self.alpha)
         else:
             self.fruit_area = [{}]
             self.create_fruit_area_dict(0)
@@ -88,7 +88,7 @@ class Fruit():
                 self.repeat_list = [self.config['repeat_number'], start_number, start_number]
         if self.config.get('go_alpha', False):
             self.alpha = self.config['alpha']
-            print('alpha', self.alpha)
+            # print('alpha', self.alpha)
         if self.config.get('alpha', False):
             self.alpha_node_path = None
         self.alpha_fruit = False
@@ -137,7 +137,7 @@ class Fruit():
                 # will choose the first fruit of the given type
                 if test_alpha and item.name == test_alpha:
                     self.alpha_fruit = name
-                    print self.alpha_fruit
+                    # print self.alpha_fruit
                     test_alpha = self.set_alpha_fruit(name, True)
 
         # if we are doing recall, set ability to use alpha
@@ -180,7 +180,6 @@ class Fruit():
     def setup__recall_trial(self, trial_num):
         # print('alpha in fruit', self.alpha)
         # trials are set up mostly the same, whether showing fruit sequentially or all at once.
-        stdout.write('trial number ' + str(trial_num) + '\n')
         # print('trial number to be repeated', self.repeat_list[1])
         # repeat_recall can be toggled with button press
         print('recall_repeat this trial is', self.repeat)
@@ -191,6 +190,7 @@ class Fruit():
         self.setup_all_trials(trial_type, trial_num)
 
     def setup_all_trials(self, trial_type, trial_num):
+        stdout.write('trial number ' + str(trial_num) + '\n')
         # print('trial_type', trial_type)
         avatar = Avatar.Avatar.getInstance()
         avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
@@ -198,7 +198,7 @@ class Fruit():
         self.change_positions(new_pos_dict)
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
         if trial_type == 'new' or 'repeat' in trial_type:
-            print trial_type
+            # print trial_type
             # print 'log repeat'
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
 
@@ -231,9 +231,9 @@ class Fruit():
         # print pos_list
         # print 'avatar pos', avatar_x_y
         for name, fruit in self.fruit_models.iteritems():
-            #print name
-            #print pos_list
-            #print('repeat', repeat)
+            # print name
+            # print pos_list
+            # print('repeat', repeat)
             if repeat == 'repeat':
                 # will only do this for regular task, not recall
                 (x, y) = self.pos_dict[name]
@@ -275,7 +275,7 @@ class Fruit():
             # save new banana placements
             self.pos_dict = pos_dict
         # print pos_dict
-        #print('fruit list', self.fruit_list)
+        # print('fruit list', self.fruit_list)
         return pos_dict
 
     def change_positions(self, pos_dict):
@@ -300,7 +300,7 @@ class Fruit():
                 if name != recall_fruit:
                     # if we haven't picked a fruit yet, go ahead and pick one
                     if not self.fruit_list:
-                        print 'repeating banana, so start with other fruit'
+                        # print 'repeating banana, so start with other fruit'
                         self.fruit_models[name].setStashed(False)
                     self.fruit_list.append(name)
             elif name == recall_fruit:
@@ -413,7 +413,7 @@ class Fruit():
                 print 'recall fruit invisible'
             find_banana_loc = True
         else:
-            #print('next fruit in list', self.fruit_list[0])
+            # print('next fruit in list', self.fruit_list[0])
             self.fruit_models[self.fruit_list[0]].setStashed(False)
         # print 'banana gone', self.current_fruit
         # print self.stashed
@@ -430,15 +430,15 @@ class Fruit():
         # if turning off, just leave in same state. Otherwise the logs will
         # be confusing with alpha changing when fruit disappears.
         if 'alpha' in mode:
-            #print('should be on at this alpha ', self.alpha)
+            # print('should be on at this alpha ', self.alpha)
             self.alpha_node_path.setAlphaScale(self.alpha)
             # log what alpha we flashed at
-            #print('alpha', self.alpha)
-            #print('fruit', fruit)
+            # print('alpha', self.alpha)
+            # print('fruit', fruit)
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha",
                                                                 [fruit + ' ' + str(self.alpha)])
         elif 'on' in mode:
-            #print('should be on at this alpha ', 1)
+            # print('should be on at this alpha ', 1)
             self.alpha_node_path.setAlphaScale(1)
             # log we returned to full alpha, should be also stashed at this point,
             # but that is logged automatically

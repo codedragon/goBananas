@@ -20,8 +20,8 @@ except ImportError:
 
 def check_timer(timer, goal):
         if time.clock() - timer >= goal:
-            print goal
-            print('time up', time.clock() - timer)
+            #print goal
+            #print('time up', time.clock() - timer)
             return True
         return False
 
@@ -32,9 +32,8 @@ class BananaRecall:
         Initialize the experiment
         """
         # Get experiment instance.
-        #print 'init'
+        # print 'init'
         exp = Experiment.getInstance()
-        #exp.setSessionNum(0)
         # Set session to today's date and time
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
         print exp.getSessionNum()
@@ -43,8 +42,8 @@ class BananaRecall:
         # if fruit to remember is none when trying to run bananaRecall
         if self.config['fruit_to_remember'] is None:
             raise Exception("fruit_to_remember in config file must have a value")
-        #print config['training']
-        #print 'load testing', config['testing']
+        # print config['training']
+        # print 'load testing', config['testing']
         # bring some configuration parameters into variables, so can change these
         # variables dynamically
         # list of all possible rewards
@@ -67,11 +66,11 @@ class BananaRecall:
         # variable to hold changes in alpha until new trial
         self.new_alpha = self.config['alpha']
         # get rid of cursor
+        # Models must be attached to self
+        self.env_models = []
         win_props = WindowProperties()
-        #print win_props
+        # print win_props
         win_props.setCursorHidden(True)
-        #win_props.setOrigin(20, 20)  # make it so windows aren't on top of each other
-        #win_props.setSize(800, 600)  # normal panda window
         # base is global, used by pandaepl from panda3d
         # would be great to load this so it isn't just a global from nowhere,
         # but pandaepl makes it impossible
@@ -79,17 +78,13 @@ class BananaRecall:
 
         # Get vr environment object
         vr = Vr.getInstance()
-        #vr.cTrav.showCollisions(render)
+        # vr.cTrav.showCollisions(render)
 
-        # not using experiment state currently
-        #if not exp.getState():
-            #bananas = []
-
-        # Get avatar object
-        #avatar = Avatar.getInstance()
-        #collisionNode = avatar.retrNodePath().find('**/+CollisionNode')
-        #collisionNode.show()
-        #collisionNode.setTwoSided(True)
+        # Get avatar object, seems I can't actually see the collision node, ever
+        # avatar = Avatar.getInstance()
+        # collisionNode = avatar.retrNodePath().find('**/+CollisionNode')
+        # collisionNode.show()
+        # collisionNode.setTwoSided(True)
 
         # Register Custom Log Entries
         # This one corresponds to colliding with a fruit
@@ -142,19 +137,14 @@ class BananaRecall:
         vr.inputListen("subarea_9", self.change_subarea)
         vr.inputListen("subarea_0", self.change_subarea)
 
-        # set up task to be performed between frames, checks at interval of pump
-        #vr.addTask(Task("checkReward",
-        #                lambda taskInfo:
-        #                self.check_reward(),
-        #                self.config['pulseInterval']))
         vr.addTask(Task("frame_loop",
-                        lambda taskInfo:
+                        lambda task_info:
                         self.frame_loop(),
                         ))
         # send avatar position to blackrock/plexon
-        if self.config['sendData'] and LOADED_PYDAQ:
+        if self.config['send_data'] and LOADED_PYDAQ:
             vr.addTask(Task("sendAvatar",
-                            lambda taskInfo:
+                            lambda task_info:
                             self.send_avatar_daq()))
 
         # set up reward system
@@ -222,7 +212,7 @@ class BananaRecall:
         # set reward timer
         self.reward_timer = time.clock()
         if self.reward:
-            print('beep', self.fruit.beeps)
+            # print('beep', self.fruit.beeps)
             self.reward.pumpOut()
         else:
             print('beep', self.fruit.beeps)
@@ -239,7 +229,7 @@ class BananaRecall:
             #    #print 'remembered location, bonanza!'
             #    self.num_beeps = min(self.beep_list) * self.config['extra']
             if len(self.fruit.fruit_list) == 1:
-                print 'next fruit is recall, so bigger reward now'
+                # print 'next fruit is recall, so bigger reward now'
                 # last fruit before remembering gets different reward
                 # so knows next will be remembering
                 self.num_beeps = max(self.beep_list)
@@ -254,15 +244,15 @@ class BananaRecall:
         self.fruit.beeps += 1
         # if that was last reward
         if self.fruit.beeps == self.num_beeps:
-            #print 'last reward'
+            # print 'last reward'
             # if fruit visible, fruit disappears
             # new trial if we remembered where the fruit was or had an alpha fruit
             # if we didn't remember, we don't get reward, and never make it here
             # technically we could do if self.find_recall_fruit != False, but this
             # seems more intuitive.
-            print('did we find the recall fruit?', self.find_recall_fruit)
+            # print('did we find the recall fruit?', self.find_recall_fruit)
             if self.find_recall_fruit is None:
-                print('either found alpha or remembered, new trial')
+                # print('either found alpha or remembered, new trial')
                 # if alpha is visible,
                 #if self.fruit.alpha > 0:
                 #print 'turn off alpha'
@@ -272,17 +262,15 @@ class BananaRecall:
                 #print 'new trial'
                 self.remembered_location = False
             else:
-                print 'it was not time to find the recall fruit'
+                # print 'it was not time to find the recall fruit'
                 self.fruit.disappear_fruit()
+                # check to see if next fruit is recall fruit
                 self.find_recall_fruit = self.fruit.get_next_fruit()
-                #print('remembered location again', self.remembered_location)
-                # find_recall_fruit is true or false
-                print('find_recall_fruit', self.find_recall_fruit)
+                # print('find_recall_fruit', self.find_recall_fruit)
                 # this will only matter if there is fruit to remember
                 self.recall_timer = time.clock()
-            #self.remembered_location = False
             # new fruit appears, either starting over or next fruit in stack
-            #print 'new fruit appears'
+            # print 'new fruit appears'
 
             # avatar can move
             Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
@@ -321,14 +309,13 @@ class BananaRecall:
             # print i.getPos()
             translate_b = [int((model.getPos()[0] - self.config['min_x']) * 1000),
                            int((model.getPos()[1] - self.config['min_y']) * 1000)]
-            #print foo
             self.daq_events.send_signal(translate_b[0])
             self.daq_strobe.send_signal()
             self.daq_events.send_signal(translate_b[1])
             self.daq_strobe.send_signal()
 
     def new_trial(self):
-        print 'new trial'
+        # print 'new trial'
         # starting over again with a possible new banana position,
         # make sure not still checking on old banana
         self.find_recall_fruit = False
@@ -338,37 +325,34 @@ class BananaRecall:
         self.flash_timer = 0
         self.trial_num += 1
         # can change alpha now
-        print('alpha in recall', self.new_alpha)
+        # print('alpha in recall', self.new_alpha)
         self.fruit.alpha = self.new_alpha
         self.fruit.setup__recall_trial(self.trial_num)
-        #print('new trial', self.trial_num)
+        # print('new trial', self.trial_num)
         if self.daq_events:
             self.send_new_trial_daq()
 
     def load_environment(self):
         load_models()
-        # Models must be attached to self
-        self.envModels = []
-        #print self.config['environ']
+        # print self.config['environ']
         for item in PlaceModels._registry:
-            #print item.group
-            #print item.name
+            # print item.group
+            # print item.name
             if self.config['environ'] in item.group:
-            #if 'better' in item.group:
-                #print item.name
+                # print item.name
                 item.model = self.config['path_models'] + item.model
-                #print item.model
+                # print item.model
                 model = Model(item.name, item.model, item.location)
                 if item.callback is not None:
-                    #print 'not none'
+                    # print 'not none'
                     model.setCollisionCallback(eval(item.callback))
 
                 model.setScale(item.scale)
                 model.setH(item.head)
-                self.envModels.append(model)
+                self.env_models.append(model)
 
     def flash_fruit(self):
-        #print 'flash fruit'
+        # print 'flash fruit'
         # flash where banana was, full alpha
         # turn on timer for flash
         self.fruit.change_alpha_fruit('on')
@@ -381,7 +365,7 @@ class BananaRecall:
         self.beep_list = [x-1 for x in self.beep_list]
 
     def extra_reward(self, input_event):
-        #print 'yup'
+        # print 'yup'
         if self.reward:
             self.reward.pumpOut()
 
@@ -406,9 +390,9 @@ class BananaRecall:
 
     def change_subarea(self, input_event):
         print('change subarea')
-        #print input_event
+        # print input_event
         print input_event.eventName
-        #print input_event.eventName[-1]
+        # print input_event.eventName[-1]
         # create new corresponding dictionary
         self.fruit.create_fruit_area_dict(int(input_event.eventName[-1]))
 
@@ -419,7 +403,7 @@ class BananaRecall:
         # Load environment
         self.load_environment()
         self.fruit = Fruit(self.config)
-        #print self.fruit
+        # print self.fruit
         # fruit not remembering
         all_fruit = self.config['fruit']
         all_fruit.insert(0, self.config['fruit_to_remember'])
@@ -428,7 +412,7 @@ class BananaRecall:
         num_fruit_dict = dict(zip(all_fruit, num_fruit))
         self.fruit.create_fruit(num_fruit_dict)
         self.new_trial()
-        #print 'start'
+        # print 'start'
         Experiment.getInstance().start()
 
     def close(self, inputEvent):
