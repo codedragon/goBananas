@@ -3,6 +3,7 @@ from pandaepl.common import *
 from panda3d.core import WindowProperties
 from load_models import PlaceModels, load_models
 from fruit import Fruit
+from logFruit import LogFruit
 import datetime
 import time
 import sys
@@ -116,6 +117,7 @@ class BananaRecall:
         Log.getInstance().addType("EyeData",
                                   [("X", float), ("Y", float)],
                                   False)
+        self.log = None
         self.fruit = None
         # initialize trial number, in bananaRecall, we are increasing the trial_num at the
         # beginning instead of the end, so start at -1, so trial_num starts at 0
@@ -330,10 +332,10 @@ class BananaRecall:
         # can change alpha now
         # print('alpha in recall', self.new_alpha)
         self.fruit.alpha = self.new_alpha
-        self.fruit.setup_recall_trial(self.trial_num)
+        trial_type = self.fruit.setup_recall_trial(self.trial_num)
         # print('new trial', self.trial_num)
-        if self.daq_events:
-            self.send_new_trial_daq()
+        self.log.log_new_trial(self.trial_num, self.fruit, trial_type)
+        self.fruit.setup_all_trials(self.trial_type)
 
     def load_environment(self):
         load_models()
@@ -416,6 +418,7 @@ class BananaRecall:
         """
         # Load environment
         self.load_environment()
+        self.log = LogFruit(self.config)
         self.fruit = Fruit(self.config)
         # print self.fruit
         # fruit not remembering

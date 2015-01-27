@@ -4,6 +4,7 @@ from panda3d.core import WindowProperties
 from panda3d.core import TextNode
 from load_models import PlaceModels, load_models
 from fruit import Fruit
+from logFruit import LogFruit
 import datetime
 import sys
 # only load pydaq if it's available
@@ -111,6 +112,10 @@ class GoBananas:
         # log if a banana is alpha
         Log.getInstance().addType("Alpha", [("Alpha", basestring)],
                                   False)
+
+        # initialize logging
+        self.log = None
+
         # initialize fruit_models
         self.fruit = None
 
@@ -201,17 +206,14 @@ class GoBananas:
             return
         elif self.fruit.beeps == 0:
             # just ran into it, log which banana
-            VLQ.getInstance().writeLine("Yummy", [current_fruit])
+            self.log.log_action("Yummy", current_fruit)
             # log if alpha was turned on
             if self.fruit.fruit_models[current_fruit].retrNodePath().getTransparency():
                 # print 'alpha'
                 alpha = self.fruit.fruit_models[current_fruit].retrNodePath().getColorScale()[3]
-                VLQ.getInstance().writeLine("Alpha", [current_fruit + ' ' + str(alpha)])
+                self.log.log_action("Alpha", current_fruit + ' ' + str(alpha))
             # print('yummy', current_fruit)
             # print('banana pos', self.fruit.bananaModels[int(current_fruit[-2:])].getPos())
-            if self.send_events:
-                self.send_events.send_signal(200)
-                self.send_strobe.send_signal()
             # determine how much reward we are giving
             self.num_beeps = self.get_reward_level(current_fruit)
 
@@ -221,10 +223,7 @@ class GoBananas:
             # print('beep', self.fruit.beeps)
         else:
             print('beep', self.fruit.beeps)
-        VLQ.getInstance().writeLine('Beeps', [int(self.fruit.beeps)])
-        if self.send_events:
-            self.send_events.send_signal(201)
-            self.send_strobe.send_signal()
+        self.log.log_action("Beeps", int(self.fruit.beeps))
         # increment reward
         self.fruit.beeps += 1
         # If done, get rid of banana
@@ -234,14 +233,10 @@ class GoBananas:
         if self.fruit.beeps == self.num_beeps:
             # banana disappears
             self.fruit.disappear_fruit()
+            self.log.log_action("Finished", self.fruit.current_fruit)
             # if the list is empty, new trial
             if not self.fruit.fruit_list:
-                self.trial_num += 1
-                if self.config['go_alpha']:
-                    self.find_alpha = True
-                self.fruit.setup_gobananas_trial(self.trial_num)
-                # logging for new trial
-                self.log_new_trial()
+                self.start_new_trial()
             # avatar can move
             Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
             Avatar.getInstance().setMaxForwardSpeed(self.config['fullForwardSpeed'])
@@ -261,31 +256,20 @@ class GoBananas:
             reward *= self.config['extra']
         return reward
 
+    def start_new_trial(self):
+        self.trial_num += 1
+        if self.config['go_alpha']:
+            self.find_alpha = True
+        trial_type = self.fruit.setup_gobananas_trial(self.trial_num)
+        # logging for new trial
+        self.log.log_new_trial(self.trial_num, self.fruit, trial_type)
+        self.fruit.setup_all_trials(self.trial_type)
+
     def get_eye_data(self, eye_data):
         # pydaq calls this function every time it calls back to get eye data
         VLQ.getInstance().writeLine("EyeData",
                                     [((eye_data[0] * self.gain[0]) - self.offset[0]),
                                      ((eye_data[1] * self.gain[1]) - self.offset[1])])
-
-    def log_new_trial(self):
-        # print('new trial', self.trial_num)
-        if self.send_events:
-            self.send_events.send_signal(1000 + self.trial_num)
-            self.send_strobe.send_signal()
-            for model in self.fruit.fruit_models.itervalues():
-                # can't send negative numbers or decimals, so
-                # need to translate the numbers
-                translate_b = [int((model.getPos()[0] - self.config['min_x']) * 1000),
-                               int((model.getPos()[1] - self.config['min_y']) * 1000)]
-                self.send_events.send_signal(translate_b[0])
-                self.send_strobe.send_signal()
-                self.send_events.send_signal(translate_b[1])
-                self.send_strobe.send_signal()
-            if self.fruit.repeat:
-                self.send_events.send_signal(300)
-                self.send_strobe.send_signal()
-                self.send_events.send_signal(self.fruit.repeat_list[2])
-                self.send_strobe.send_signal()
 
     def load_environment(self, config):
         load_models()
@@ -351,8 +335,7 @@ class GoBananas:
 
     def restart(self, input_event):
         # print 'current trial aborted, new trial started'
-        self.trial_num += 1
-        self.fruit.setup_gobananas_trial(self.trial_num)
+        self.start_new_trial()
 
     def extra_reward(self, input_event):
         # print 'yup'
@@ -367,6 +350,7 @@ class GoBananas:
         # load the environment
         config = Conf.getInstance().getConfig()  # Get configuration dictionary.
         self.load_environment(config)
+        self.log = LogFruit(config)
         self.fruit = Fruit(config)
         all_fruit = config['fruit']
         num_fruit = config['num_fruit']
@@ -375,8 +359,8 @@ class GoBananas:
             #print('new', num_fruit)
         num_fruit_dict = dict(zip(all_fruit, num_fruit))
         self.fruit.create_fruit(num_fruit_dict)
-        self.fruit.setup_gobananas_trial(self.trial_num)
-        self.log_new_trial()
+        self.start_new_trial()
+        #self.log_new_trial()
         Experiment.getInstance().start()
 
     def close(self, input_event):

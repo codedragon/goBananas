@@ -1,9 +1,9 @@
-from pandaepl import Model, MovingObject, Avatar, VideoLogQueue, Camera
+from pandaepl import Model, MovingObject, Avatar, Camera
 from panda3d.core import Point3, TransparencyAttrib
 from load_models import load_models, get_model
+from logFruit import LogFruit
 import moBananas as mB
 import random
-from sys import stdout
 
 
 def check_repeat(trial_num, original_list):
@@ -63,6 +63,8 @@ class Fruit():
     def __init__(self, config):
         # Used in both goBananas and bananaRecall, sometimes referred to as regular
         # and sequential tasks, respectively.
+        # Only logging done from here is for alpha
+        self.log = LogFruit(config)
         self.config = config
         # if this is not a sequential memory task, this might not be set
         self.config.setdefault('fruit_to_remember', False)
@@ -180,7 +182,7 @@ class Fruit():
             self.repeat_list, trial_type = check_repeat(trial_num, self.repeat_list)
             # print('got stuff back', trial_type)
             # print('trial number to be repeated', self.repeat_list[1])
-        self.setup_all_trials(trial_type, trial_num)
+        return trial_type
 
     def setup_recall_trial(self, trial_num):
         # print('alpha in fruit', self.alpha)
@@ -193,20 +195,14 @@ class Fruit():
             trial_type = 'recall'
             # this is not a repeat, so re-set num_shows
             self.num_shows = 0
-        self.setup_all_trials(trial_type, trial_num)
+        return trial_type
 
-    def setup_all_trials(self, trial_type, trial_num):
-        stdout.write('trial number ' + str(trial_num) + '\n')
+    def setup_all_trials(self, trial_type):
         # print('trial_type', trial_type)
         avatar = Avatar.Avatar.getInstance()
         avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
         new_pos_dict = self.setup_fruit_for_trial(avatar_x_y, trial_type)
         self.change_positions(new_pos_dict)
-        VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
-        if trial_type == 'new' or 'repeat' in trial_type:
-            # print trial_type
-            # print 'log repeat'
-            VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
 
     def setup_fruit_for_trial(self, avatar_x_y, repeat='No'):
         # print('repeat_trial_type', repeat)
@@ -332,7 +328,7 @@ class Fruit():
             print('make a fruit alpha', name, self.config['alpha'])
             self.alpha_node_path.setAlphaScale(self.config['alpha'])
             # log it
-            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [name + ' ' + str(self.config['alpha'])])
+            self.log.log_action("Alpha", name + ' ' + str(self.config['alpha']))
         return False  # only do one fruit
 
     def collide_fruit(self, collision_info):
@@ -372,7 +368,6 @@ class Fruit():
             # Makes it so Avatar cannot turn or go forward
             Avatar.Avatar.getInstance().setMaxTurningSpeed(0)
             Avatar.Avatar.getInstance().setMaxForwardSpeed(0)
-            # VideoLogQueue.VideoLogQueue.getInstance().writeLine("Yummy", ['stop moving!'])
             # Setting self.beeps to 0 is signal to give reward
             self.beeps = 0
             # print self.beeps
@@ -392,12 +387,6 @@ class Fruit():
         # print 'removed a fruit from the list', self.fruit_list
         # stash the fruit we just ran into,
         self.fruit_models[self.current_fruit].setStashed(True)
-        self.reset_collision()
-
-    def reset_collision(self):
-        # print 'reset collision'
-        # log collected banana
-        VideoLogQueue.VideoLogQueue.getInstance().writeLine("Finished", [self.current_fruit])
         self.first_collision = True
 
     def get_next_fruit(self):
@@ -454,15 +443,13 @@ class Fruit():
             # log what alpha we flashed at
             # print('alpha', self.alpha)
             # print('fruit', fruit)
-            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha",
-                                                                [fruit + ' ' + str(self.alpha)])
+            self.log.log_action("Alpha", fruit + ' ' + str(self.alpha))
         elif 'on' in mode:
             # print('should be on at this alpha ', 1)
             self.alpha_node_path.setAlphaScale(1)
             # log we returned to full alpha, should be also stashed at this point,
             # but that is logged automatically
-            VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha",
-                                                                [fruit + ' ' + str(1)])
+            self.log.log_action("Alpha", fruit + ' ' + str(1))
         if 'on' in mode:
             # turn it on, should already be at correct alpha
             self.fruit_models[fruit].setStashed(False)
