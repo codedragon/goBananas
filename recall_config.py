@@ -152,6 +152,7 @@ if 'Keyboard' in globals():
     keyboard.bind("extra_reward", "space")
     keyboard.bind("increase_alpha", "e")
     keyboard.bind("decrease_alpha", "d")
+    keyboard.bind("override_alpha", "a")
     keyboard.bind("increase_dist_goal", "t")
     keyboard.bind("decrease_dist_goal", "g")
     keyboard.bind("toggle_random", "r")

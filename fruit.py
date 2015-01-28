@@ -462,7 +462,7 @@ class Fruit():
             # log we returned to full alpha, should be also stashed at this point,
             # but that is logged automatically
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha",
-                                                                [fruit + ' ' + str(1)])
+                                                                [fruit + ' 1'])
         if 'on' in mode:
             # turn it on, should already be at correct alpha
             self.fruit_models[fruit].setStashed(False)

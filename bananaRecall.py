@@ -127,6 +127,7 @@ class BananaRecall:
         vr.inputListen("extra_reward", self.extra_reward)
         vr.inputListen("increase_alpha", self.change_alpha)
         vr.inputListen("decrease_alpha", self.change_alpha)
+        vr.inputListen("override_alpha", self.override_alpha)
         vr.inputListen("toggle_random", self.toggle_random)
         vr.inputListen("increase_dist_goal", self.change_goal)
         vr.inputListen("decrease_dist_goal", self.change_goal)
@@ -390,6 +391,10 @@ class BananaRecall:
         elif self.new_alpha < 0.1:
             self.new_alpha = 0
         print 'new alpha', self.new_alpha
+
+    def override_alpha(self, input_event):
+        # make alpha banana brighter
+        self.fruit.change_alpha_fruit('on')
 
     def change_goal(self, input_event):
         # print('change alpha')
