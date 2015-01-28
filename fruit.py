@@ -36,26 +36,30 @@ def create_alt_fruit_area(subarea_key):
     # alternate fruit can be in same area as banana, or one section away
     # could probably come up with some algorithm for this, but
     # couldn't be bothered.
-    if subarea_key == 1:
-        area_list = [1, 2, 4, 5]
-    elif subarea_key == 2:
-        area_list = [1, 2, 3, 4, 5, 6]
-    elif subarea_key == 3:
-        area_list = [2, 3, 5, 6]
-    elif subarea_key == 4:
-        area_list = [1, 2, 4, 5, 7, 8]
-    elif subarea_key == 5:
-        area_list = [0]
-    elif subarea_key == 6:
-        area_list = [2, 3, 5, 6, 8, 9]
-    elif subarea_key == 7:
-        area_list = [4, 5, 7, 8]
-    elif subarea_key == 8:
-        area_list = [4, 5, 6, 7, 8, 9]
-    elif subarea_key == 9:
-        area_list = [5, 6, 8, 9]
-    else:
-        area_list = []
+    area_list = range(1, 10)
+    print subarea_key
+    area_list.remove(subarea_key)
+    # if subarea_key == 1:
+    #     area_list = [1, 2, 4, 5]
+    # elif subarea_key == 2:
+    #     area_list = [1, 2, 3, 4, 5, 6]
+    # elif subarea_key == 3:
+    #     area_list = [2, 3, 5, 6]
+    # elif subarea_key == 4:
+    #     area_list = [1, 2, 4, 5, 7, 8]
+    # elif subarea_key == 5:
+    #     area_list = [0]
+    # elif subarea_key == 6:
+    #     area_list = [2, 3, 5, 6, 8, 9]
+    # elif subarea_key == 7:
+    #     area_list = [4, 5, 7, 8]
+    # elif subarea_key == 8:
+    #     area_list = [4, 5, 6, 7, 8, 9]
+    # elif subarea_key == 9:
+    #     area_list = [5, 6, 8, 9]
+    # else:
+    #     area_list = []
+    print area_list
     return area_list
 
 
@@ -285,7 +289,7 @@ class Fruit():
             # print 'save new'
             # save new banana placements
             self.pos_dict = pos_dict
-        print pos_dict
+        # print pos_dict
         # print('fruit list', self.fruit_list)
         return pos_dict
 
