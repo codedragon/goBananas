@@ -111,6 +111,9 @@ class Fruit():
         self.current_fruit = None
         # dictionary to save positions for repeated trials or single fruit
         self.pos_dict = {}
+        #if self.config['fruit_to_remember'] and self.config.get('recall_pos'):
+        #    self.pos_dict[self.config['fruit_to_remember']] = self.config['recall_pos']
+        #    print self.pos_dict
 
     def create_fruit(self, fruit_dict):
         self.num_fruit_dict = fruit_dict
@@ -254,6 +257,8 @@ class Fruit():
                     # getting a new position
                     # send in config with sub areas
                     (x, y) = mB.set_xy(pos_list, avatar_x_y, self.fruit_area[0])
+                    if self.config.get('recall_pos'):
+                        (x, y) = self.config['recall_pos']
                     pos_list.append((x, y))
                     # always be ready to repeat recall fruit, cheap
                     self.pos_dict[name] = (x, y)
@@ -280,7 +285,7 @@ class Fruit():
             # print 'save new'
             # save new banana placements
             self.pos_dict = pos_dict
-        # print pos_dict
+        print pos_dict
         # print('fruit list', self.fruit_list)
         return pos_dict
 
