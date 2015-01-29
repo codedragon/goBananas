@@ -383,12 +383,12 @@ class BananaRecall:
         # print('change alpha')
         print input_event.eventName
         if input_event.eventName == 'increase_alpha':
-            self.new_alpha += 0.1
+            self.new_alpha += 0.05
         else:
-            self.new_alpha -= 0.1
+            self.new_alpha -= 0.05
         if self.new_alpha > 1:
             self.new_alpha = 1
-        elif self.new_alpha < 0.1:
+        elif self.new_alpha < 0.05:
             self.new_alpha = 0
         print 'new alpha', self.new_alpha
 
