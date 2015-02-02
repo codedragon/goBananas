@@ -37,8 +37,28 @@ def create_alt_fruit_area(subarea_key):
     # could probably come up with some algorithm for this, but
     # couldn't be bothered.
     area_list = range(1, 10)
-    print subarea_key
-    area_list.remove(subarea_key)
+    print('recall fruit in area: ', subarea_key)
+    # area_list.remove(subarea_key)
+    if subarea_key == 1:
+        area_list = [1, 2, 4, 5]
+    elif subarea_key == 2:
+        area_list = [1, 2, 3, 4, 5, 6]
+    elif subarea_key == 3:
+        area_list = [2, 3, 5, 6]
+    elif subarea_key == 4:
+        area_list = [1, 2, 4, 5, 7, 8]
+    elif subarea_key == 5:
+        area_list = [0]
+    elif subarea_key == 6:
+        area_list = [2, 3, 5, 6, 8, 9]
+    elif subarea_key == 7:
+        area_list = [8]
+    elif subarea_key == 8:
+        area_list = [4, 5, 6, 7, 8, 9]
+    elif subarea_key == 9:
+        area_list = [5, 6, 8, 9]
+    else:
+        area_list = []
     # if subarea_key == 1:
     #     area_list = [1, 2, 4, 5]
     # elif subarea_key == 2:
@@ -59,7 +79,7 @@ def create_alt_fruit_area(subarea_key):
     #     area_list = [5, 6, 8, 9]
     # else:
     #     area_list = []
-    print area_list
+    print('cherries in area:', area_list)
     return area_list
 
 

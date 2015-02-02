@@ -236,13 +236,15 @@ class BananaRecall:
                 self.daq_events.send_signal(200)
                 self.daq_strobe.send_signal()
             # amount of reward can vary
-            if len(self.fruit.fruit_list) == 1:
-                # print 'next fruit is recall, so bigger reward now'
-                # last fruit before remembering gets different reward
-                # so knows next will be remembering
-                self.num_beeps = max(self.beep_list)
+            if len(self.fruit.fruit_list) == 0:
+                # recall fruit gets different reward
+                # print 'big reward'
+                # print self.beep_list[0]
+                self.num_beeps = self.beep_list[0]
             else:
-                self.num_beeps = min(self.beep_list)
+                # print self.beep_list[1]
+                # print 'small reward'
+                self.num_beeps = self.beep_list[1]
         # log which reward we are on
         VLQ.getInstance().writeLine('Beeps', [int(self.fruit.beeps)])
         if self.daq_events:
@@ -364,9 +366,11 @@ class BananaRecall:
 
     def increase_reward(self, inputEvent):
         self.beep_list = [x+1 for x in self.beep_list]
+        print('increase reward, now:', self.beep_list)
 
     def decrease_reward(self, inputEvent):
         self.beep_list = [x-1 for x in self.beep_list]
+        print('decrease reward, now:', self.beep_list)
 
     def extra_reward(self, input_event):
         # print 'yup'
