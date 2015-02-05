@@ -32,33 +32,17 @@ def check_repeat(trial_num, original_list):
     return repeat_list, trial_type
 
 
-def create_alt_fruit_area(subarea_key):
+def create_alt_fruit_area(subarea_key, alt_subarea):
     # alternate fruit can be in same area as banana, or one section away
     # could probably come up with some algorithm for this, but
     # couldn't be bothered.
-    area_list = range(1, 10)
-    print('recall fruit in area: ', subarea_key)
-    # area_list.remove(subarea_key)
-    if subarea_key == 1:
-        area_list = [1, 2, 4, 5]
-    elif subarea_key == 2:
-        area_list = [1, 2, 3, 4, 5, 6]
-    elif subarea_key == 3:
-        area_list = [2, 3, 5, 6]
-    elif subarea_key == 4:
-        area_list = [1, 2, 4, 5, 7, 8]
-    elif subarea_key == 5:
-        area_list = [0]
-    elif subarea_key == 6:
-        area_list = [2, 3, 5, 6, 8, 9]
-    elif subarea_key == 7:
-        area_list = [8]
-    elif subarea_key == 8:
-        area_list = [4, 5, 6, 7, 8, 9]
-    elif subarea_key == 9:
-        area_list = [5, 6, 8, 9]
+    # if alt_subarea is given, then alternate fruit area
+    # has been directed by researcher, and we just return that again
+    if alt_subarea:
+        area_list = alt_subarea
     else:
-        area_list = []
+        area_list = range(1, 10)
+        area_list.remove(subarea_key)
     # if subarea_key == 1:
     #     area_list = [1, 2, 4, 5]
     # elif subarea_key == 2:
@@ -79,7 +63,7 @@ def create_alt_fruit_area(subarea_key):
     #     area_list = [5, 6, 8, 9]
     # else:
     #     area_list = []
-    print('cherries in area:', area_list)
+    print('alternate fruit in area:', area_list)
     return area_list
 
 
@@ -97,7 +81,7 @@ class Fruit():
             self.all_subareas = mB.create_sub_areas(self.config)
             # print self.all_subareas
             self.fruit_area = [{}]
-            self.create_fruit_area_dict(self.config['subarea'])
+            self.create_fruit_area_dict(self.config.get('subarea', 0))
             self.alpha = self.config['alpha']
             # print('alpha', self.alpha)
             self.num_shows = 0
@@ -526,10 +510,15 @@ class Fruit():
             self.fruit_area[0]['radius'] = self.config['radius']
         # print('after updating tooclose', self.fruit_area)
 
+        if self.config.get('recall_pos'):
+            print('recall fruit position: ', self.config['recall_pos'])
+        else:
+            print('recall fruit in area: ', subarea_key)
+        alt_subarea = self.config.get('alt_subarea')
         # print self.fruit_area
-        if subarea_key > 0:
+        if subarea_key > 0 or alt_subarea:
             # also make a config dict for the other fruit
-            size_area = create_alt_fruit_area(subarea_key)
+            size_area = create_alt_fruit_area(subarea_key, alt_subarea)
             self.fruit_area.append({'min_x': min([self.all_subareas[i]['min_x'] for i in size_area]),
                                     'max_x': max([self.all_subareas[i]['max_x'] for i in size_area]),
                                     'min_y': min([self.all_subareas[i]['min_y'] for i in size_area]),

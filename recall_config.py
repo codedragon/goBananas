@@ -29,9 +29,12 @@ time_to_recall = 120  # number of seconds to get to remembered location
 time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
 # for training, fruit_to_remember location can be limited to a small area of the courtyard
 # (areas arranged same as numbers on keypad), zero means can be anywhere
-subarea = 7  # this is the starting spot, can be changed by a keypress later on
+# subarea = 7  # this is the starting spot, can be changed by a keypress later on
 # once trained, alpha will be at zero, no banana showing
 recall_pos = (9.5, 9.5)
+# can use this to set specific area for alternate fruit to show up. if not set, alternate
+# fruit can show up anywhere except the subarea where the recall fruit is. List
+alt_subarea = [3]
 alpha = 0.1  # this is for training in the recall task. fully visible is 1, invisible is 0
 # how many times to repeat the recall fruit at full visible before
 # subject has to remember where the fruit is.
