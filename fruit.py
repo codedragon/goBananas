@@ -264,7 +264,7 @@ class Fruit():
                     # print 'new recall fruit position'
                     # getting a new position
                     # send in config with sub areas
-                    (x, y) = mB.set_xy(pos_list, avatar_x_y, self.fruit_area[0])
+                    (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config, self.fruit_area[0])
                     if self.config.get('recall_pos'):
                         (x, y) = self.config['recall_pos']
                     pos_list.append((x, y))
@@ -280,7 +280,7 @@ class Fruit():
                 # last index in the self.fruit_area
                 # print self.fruit_area
                 # print self.fruit_area[-1]
-                (x, y) = mB.set_xy(pos_list, avatar_x_y, self.fruit_area[-1])
+                (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config, self.fruit_area[-1])
                 pos_list.append((x, y))
             # print pos_list
             # print('current positions', name, x, y)
@@ -503,13 +503,6 @@ class Fruit():
             self.fruit_area[0].update(self.all_subareas[subarea_key])
             # print self.fruit_area
 
-        self.fruit_area[0]['tooClose'] = self.config['tooClose']
-        self.fruit_area[0]['avatarRadius'] = self.config['avatarRadius']
-        self.fruit_area[0]['environ'] = self.config['environ']
-        if 'circle' in self.config['environ']:
-            self.fruit_area[0]['radius'] = self.config['radius']
-        # print('after updating tooclose', self.fruit_area)
-
         if self.config.get('recall_pos'):
             print('recall fruit position: ', self.config['recall_pos'])
         else:
@@ -523,9 +516,7 @@ class Fruit():
                                     'max_x': max([self.all_subareas[i]['max_x'] for i in size_area]),
                                     'min_y': min([self.all_subareas[i]['min_y'] for i in size_area]),
                                     'max_y': max([self.all_subareas[i]['max_y'] for i in size_area]),
-                                    'tooClose': self.config['tooClose'],
-                                    'avatarRadius': self.config['avatarRadius'],
-                                    'environ': self.config['environ']})
+                                    })
         # make sure we know we moved
         self.pos_dict = {}
 

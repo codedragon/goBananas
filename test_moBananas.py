@@ -40,10 +40,12 @@ class MoBananasTests(unittest.TestCase):
         away from points already on the list
         """
         pList = []
-        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
-                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'environ': 'original'}
+
+        area = {'min_x': -10, 'max_x': 10, 'min_y': -10, 'max_y': 10}
         avatar = (0, 0)
-        p0 = mb.set_xy(pList, avatar, config)
+
+        p0 = mb.set_xy(pList, avatar, config, area)
         #print p0
         for p in pList:
             #print p

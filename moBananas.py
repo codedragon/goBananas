@@ -17,19 +17,18 @@ def get_distance(p0, p1):
     return dist
 
 
-def get_random_xy(config):
+def get_random_xy(config, area):
     # get a random x and y coordinate
-    environ = config['environ']
-    if environ and 'circle' in environ:
+    if 'circle' in config.get('environ', ''):
         radius = config['radius']
         x, y = get_circle_point(radius)
     else:
-        x = random.uniform(config['min_x'], config['max_x'])
-        y = random.uniform(config['min_y'], config['max_y'])
+        x = random.uniform(area['min_x'], area['max_x'])
+        y = random.uniform(area['min_y'], area['max_y'])
     return x, y
 
 
-def set_xy(pos_list, avatar=(0, 0), config = None):
+def set_xy(pos_list, avatar=(0, 0), config = None, area = None):
     """
     (list) -> tuple
     Returns a point (x,y) that is more than the minimum distance set by tooClose
@@ -41,11 +40,13 @@ def set_xy(pos_list, avatar=(0, 0), config = None):
     if config is None:
         config = {}
         execfile('config.py', config)
+    if area is None:
+        area = config
     #print('in set_xy', config)
     too_close = config['tooClose']
     dist_avatar = config['avatarRadius'] + too_close
 
-    x, y = get_random_xy(config)
+    x, y = get_random_xy(config, area)
     #print('x, y', x, y)
     # check the distance to points already on the list and to the avatar
     if pos_list:

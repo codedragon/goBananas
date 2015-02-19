@@ -39,6 +39,15 @@ alpha = 0.1  # this is for training in the recall task. fully visible is 1, invi
 # how many times to repeat the recall fruit at full visible before
 # subject has to remember where the fruit is.
 num_repeat_visible = 2
+points = {1: (-9.5, -9.5),
+          2: (0, -9.5),
+          3: (9.5, -9.5),
+          4: (-9.5, 0),
+          5: (0, 0),
+          6: (9.5, 0),
+          7: (-9.5, 9.5),
+          8: (0, 9.5),
+          9: (9.5, 9.5)}
 
 # which fruit to make alpha, False for none (goBananas only)
 go_alpha = False
