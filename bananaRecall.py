@@ -390,8 +390,8 @@ class BananaRecall:
             self.new_alpha += 0.05
         else:
             self.new_alpha -= 0.05
-        if self.new_alpha > 1:
-            self.new_alpha = 1
+        if self.new_alpha > 1.0:
+            self.new_alpha = 1.0
         elif self.new_alpha < 0.05:
             self.new_alpha = 0
         print 'new alpha', self.new_alpha
