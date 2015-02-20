@@ -24,14 +24,16 @@ fruit_to_remember = 'old_banana'
 # fruit_to_remember = None
 # how close to remembered location to get reward?
 distance_goal = [3, 3]
+manual = True  # using pre-configured locations or random locations (either way can specify sub-area)
 repeat_recall_fruit = True  # can be toggled with key, repeats location
 time_to_recall = 120  # number of seconds to get to remembered location
 time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
 # for training, fruit_to_remember location can be limited to a small area of the courtyard
 # (areas arranged same as numbers on keypad), zero means can be anywhere
-# subarea = 7  # this is the starting spot, can be changed by a keypress later on
+# if manual is true, this specifies a particular position in this subarea
+subarea = 7  # this is the starting spot, can be changed by a keypress later on
 # once trained, alpha will be at zero, no banana showing
-recall_pos = (9.5, 9.5)
+# recall_pos = (9.5, 9.5)
 # can use this to set specific area for alternate fruit to show up. if not set, alternate
 # fruit can show up anywhere except the subarea where the recall fruit is. List
 alt_subarea = [3]
@@ -164,7 +166,8 @@ if 'Keyboard' in globals():
     keyboard.bind("override_alpha", "a")
     keyboard.bind("increase_dist_goal", "t")
     keyboard.bind("decrease_dist_goal", "g")
-    keyboard.bind("toggle_random", "r")
+    keyboard.bind("toggle_manual", "m")
+    keyboard.bind("toggle_repeat", "r")
     keyboard.bind("subarea_1", "1")
     keyboard.bind("subarea_2", "2")
     keyboard.bind("subarea_3", "3")

@@ -32,7 +32,7 @@ def check_repeat(trial_num, original_list):
     return repeat_list, trial_type
 
 
-def create_alt_fruit_area(subarea_key, alt_subarea):
+def create_alt_fruit_area(subarea_key, alt_subarea=None):
     # alternate fruit can be in same area as banana, or one section away
     # could probably come up with some algorithm for this, but
     # couldn't be bothered.
@@ -76,18 +76,20 @@ class Fruit():
         self.config.setdefault('fruit_to_remember', False)
         if self.config['fruit_to_remember']:
             # print 'recall task'
+            self.fruit_area = [{}]
             # bring this into a variable, so we can toggle it.
             self.repeat = config['repeat_recall_fruit']
+            self.manual = config.get('manual')
+            self.subarea_key = config.get('subarea', 0)
+            # print('subarea', self.subarea_key)
             self.all_subareas = mB.create_sub_areas(self.config)
+            self.create_fruit_area_dict()
             # print self.all_subareas
-            self.fruit_area = [{}]
-            self.create_fruit_area_dict(self.config.get('subarea', 0))
             self.alpha = self.config['alpha']
             # print('alpha', self.alpha)
             self.num_shows = 0
         else:
-            self.fruit_area = [{}]
-            self.create_fruit_area_dict(0)
+            self.fruit_area = [None]
             # for repeating a particular configuration
             # able to toggle this in bananaRecall, so making it a variable in both games to
             # simplify things.
@@ -98,6 +100,7 @@ class Fruit():
                 # the first two will not change, last one changes each time we enter a new block
                 # [frequency of repeat, start number, next number]
                 self.repeat_list = [self.config['repeat_number'], start_number, start_number]
+
         if self.config.get('go_alpha', False):
             self.alpha = self.config['alpha']
             # print('alpha', self.alpha)
@@ -191,7 +194,9 @@ class Fruit():
             self.repeat_list, trial_type = check_repeat(trial_num, self.repeat_list)
             # print('got stuff back', trial_type)
             # print('trial number to be repeated', self.repeat_list[1])
-        self.setup_all_trials(trial_type, trial_num)
+        avatar_x_y = self.log_new_trial(trial_type, trial_num)
+        new_pos_dict = self.setup_fruit_for_trial(avatar_x_y, trial_type)
+        self.change_positions(new_pos_dict)
 
     def setup_recall_trial(self, trial_num):
         # print('alpha in fruit', self.alpha)
@@ -204,22 +209,58 @@ class Fruit():
             trial_type = 'recall'
             # this is not a repeat, so re-set num_shows
             self.num_shows = 0
-        self.setup_all_trials(trial_type, trial_num)
+        avatar_x_y = self.log_new_trial(trial_type, trial_num)
+        new_pos_dict = self.setup_fruit_for_recall_trial(avatar_x_y, trial_type)
+        self.change_positions(new_pos_dict)
 
-    def setup_all_trials(self, trial_type, trial_num):
+    def log_new_trial(self, trial_type, trial_num):
         stdout.write('trial number ' + str(trial_num) + '\n')
         # print('trial_type', trial_type)
-        avatar = Avatar.Avatar.getInstance()
-        avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
-        new_pos_dict = self.setup_fruit_for_trial(avatar_x_y, trial_type)
-        self.change_positions(new_pos_dict)
         VideoLogQueue.VideoLogQueue.getInstance().writeLine("NewTrial", [trial_num])
         if trial_type == 'new' or 'repeat' in trial_type:
             # print trial_type
             # print 'log repeat'
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("RepeatTrial", [trial_num])
+        avatar = Avatar.Avatar.getInstance()
+        avatar_x_y = (avatar.getPos()[0], avatar.getPos()[1])
+        return avatar_x_y
 
     def setup_fruit_for_trial(self, avatar_x_y, repeat='No'):
+        # print('repeat_trial_type', repeat)
+        # print 'setup fruit for trial'
+        # get positions for fruit
+        # if repeat has 'repeat' in it, use same positions as before
+        # if repeat is 'new', use new positions, save configuration
+        # pos_list is used to make sure we are not putting fruit too close
+        # together or too close to the avatar
+        pos_list = []
+        # pos_dict is returned so we have a dictionary of the new positions
+        pos_dict = {}
+        # make sure start with empty list
+        self.fruit_list = []
+        for name, fruit in self.fruit_models.iteritems():
+            # print name
+            # print pos_list
+            # print('repeat', repeat)
+            if repeat == 'repeat':
+                # will only do this for regular task, not recall
+                (x, y) = self.pos_dict[name]
+            else:
+                (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config)
+                pos_list.append((x, y))
+            # print pos_list
+            # print('current positions', name, x, y)
+            pos_dict[name] = (x, y)
+            self.make_fruit_visible(name, repeat)
+        if repeat == 'new':
+            # print 'save new'
+            # save new banana placements
+            self.pos_dict = pos_dict
+        # print pos_dict
+        # print('fruit list', self.fruit_list)
+        return pos_dict
+
+    def setup_fruit_for_recall_trial(self, avatar_x_y, repeat='No'):
         # print('repeat_trial_type', repeat)
         # print 'setup fruit for trial'
         # get positions for fruit
@@ -251,10 +292,7 @@ class Fruit():
             # print name
             # print pos_list
             # print('repeat', repeat)
-            if repeat == 'repeat':
-                # will only do this for regular task, not recall
-                (x, y) = self.pos_dict[name]
-            elif name == self.config['fruit_to_remember']:
+            if name == self.config['fruit_to_remember']:
                 if 'repeat' in repeat:
                     # print 'repeat the same position for the banana again'
                     # if not a new position, put in the recall fruit position
@@ -264,35 +302,28 @@ class Fruit():
                     # print 'new recall fruit position'
                     # getting a new position
                     # send in config with sub areas
-                    (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config, self.fruit_area[0])
-                    if self.config.get('recall_pos'):
-                        (x, y) = self.config['recall_pos']
+                    if self.manual and self.subarea_key > 0:
+                        # print self.subarea_key
+                        # print self.config['points']
+                        (x, y) = self.config['points'].get(self.subarea_key)
+                    else:
+                        (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config, self.fruit_area[0])
                     pos_list.append((x, y))
                     # always be ready to repeat recall fruit, cheap
                     self.pos_dict[name] = (x, y)
                     # make sure we know to show it, since not a repeat
                 # print('recall fruit position', x, y)
             else:
-                # will use whole area if gobananas: in this case, 
-                # the last area is the only self.fruit_area.
                 # for recall, we are only dealing here with
                 # the fruit not remembering, which is always the
                 # last index in the self.fruit_area
                 # print self.fruit_area
-                # print self.fruit_area[-1]
                 (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config, self.fruit_area[-1])
                 pos_list.append((x, y))
             # print pos_list
             # print('current positions', name, x, y)
             pos_dict[name] = (x, y)
             self.make_fruit_visible(name, repeat)
-            # repeat is only exactly 'new' for gobananas, so won't interfere
-            # with recall task
-        if repeat == 'new':
-            # 'new' is only used for gobananas, bananaRecall saves positions above
-            # print 'save new'
-            # save new banana placements
-            self.pos_dict = pos_dict
         # print pos_dict
         # print('fruit list', self.fruit_list)
         return pos_dict
@@ -482,41 +513,43 @@ class Fruit():
         else:
             self.fruit_models[fruit].setStashed(True)
 
-    def create_fruit_area_dict(self, subarea_key):
+    def choose_recall_position(self, subarea_key):
+        print('new subarea key', subarea_key)
+        self.subarea_key = subarea_key
+        self.create_fruit_area_dict()
+
+    def create_fruit_area_dict(self):
         # print('created new dictionary')
         # Need to keep around the original size of the area, and I don't trust the pandaepl config
         # dictionary, because they have done weird things to scope, so create a new dictionary
         # print('key', subarea_key)
         # start with an empty dictionary every time
         self.fruit_area = [{}]
-        if subarea_key == 0:
-            # print 'key is zero'
-            # don't get entire self.config dictionary, just bounds of courtyard
-            self.fruit_area[0].update({'min_x': self.config['min_x'],
-                                       'max_x': self.config['max_x'],
-                                       'min_y': self.config['min_y'],
-                                       'max_y': self.config['max_y']
-                                       })
-            # print self.fruit_area
+        #print self.all_subareas
+        #print self.subarea_key
+        self.fruit_area[0].update(self.all_subareas[self.subarea_key])
+        # print self.fruit_area
+        if self.manual:
+            print('recall fruit position: ', self.config['points'].get(self.subarea_key))
         else:
-            # print 'key is not zero'
-            self.fruit_area[0].update(self.all_subareas[subarea_key])
-            # print self.fruit_area
+            print('recall fruit in area: ', self.subarea_key)
 
-        if self.config.get('recall_pos'):
-            print('recall fruit position: ', self.config['recall_pos'])
-        else:
-            print('recall fruit in area: ', subarea_key)
         alt_subarea = self.config.get('alt_subarea')
         # print self.fruit_area
-        if subarea_key > 0 or alt_subarea:
+        size_area = []
+        if self.manual:
+            size_area = create_alt_fruit_area(self.subarea_key)
+        elif self.subarea_key > 0 or alt_subarea:
             # also make a config dict for the other fruit
-            size_area = create_alt_fruit_area(subarea_key, alt_subarea)
+            size_area = create_alt_fruit_area(self.subarea_key, alt_subarea)
+        if size_area:
+            # print 'size area'
             self.fruit_area.append({'min_x': min([self.all_subareas[i]['min_x'] for i in size_area]),
                                     'max_x': max([self.all_subareas[i]['max_x'] for i in size_area]),
                                     'min_y': min([self.all_subareas[i]['min_y'] for i in size_area]),
                                     'max_y': max([self.all_subareas[i]['max_y'] for i in size_area]),
                                     })
+        # print self.fruit_area
         # make sure we know we moved
         self.pos_dict = {}
 

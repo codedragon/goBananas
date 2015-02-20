@@ -34,6 +34,7 @@ class BananaRecall:
         """
         # Get experiment instance.
         # print 'init'
+
         exp = Experiment.getInstance()
         # Set session to today's date and time
         exp.setSessionNum(datetime.datetime.now().strftime("%y_%m_%d_%H_%M"))
@@ -128,7 +129,8 @@ class BananaRecall:
         vr.inputListen("increase_alpha", self.change_alpha)
         vr.inputListen("decrease_alpha", self.change_alpha)
         vr.inputListen("override_alpha", self.override_alpha)
-        vr.inputListen("toggle_random", self.toggle_random)
+        vr.inputListen("toggle_repeat", self.toggle_repeat)
+        vr.inputListen("toggle_manual", self.toggle_manual)
         vr.inputListen("increase_dist_goal", self.change_goal)
         vr.inputListen("decrease_dist_goal", self.change_goal)
         vr.inputListen("NewTrial", self.new_trial)
@@ -321,6 +323,7 @@ class BananaRecall:
             self.daq_strobe.send_signal()
 
     def new_trial(self):
+        # print self.fruit.fruit_area
         # print 'new trial'
         # starting over again with a possible new banana position,
         # make sure not still checking on old banana
@@ -377,11 +380,16 @@ class BananaRecall:
         if self.reward:
             self.reward.pumpOut()
 
-    def toggle_random(self, input_event):
-        # toggle random,
+    def toggle_repeat(self, input_event):
+        # toggle repeat
         self.fruit.repeat = not self.fruit.repeat
         # which is the opposite of repeat...
-        print "Fruit is random:", not self.fruit.repeat
+        print "Fruit is repeat:", self.fruit.repeat
+
+    def toggle_manual(self, input_event):
+        # toggle manual
+        self.fruit.manual = not self.fruit.manual
+        print "Fruit is manual:", self.fruit.manual
 
     def change_alpha(self, input_event):
         # print('change alpha')
@@ -416,8 +424,9 @@ class BananaRecall:
         # print input_event
         print input_event.eventName
         # print input_event.eventName[-1]
-        # create new corresponding dictionary
-        self.fruit.create_fruit_area_dict(int(input_event.eventName[-1]))
+        # send this to fruit, to update position or subarea
+        self.fruit.choose_recall_position(int(input_event.eventName[-1]))
+        # print('banana', self.fruit.fruit_area)
 
     def start(self):
         """

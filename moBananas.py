@@ -45,7 +45,6 @@ def set_xy(pos_list, avatar=(0, 0), config = None, area = None):
     #print('in set_xy', config)
     too_close = config['tooClose']
     dist_avatar = config['avatarRadius'] + too_close
-
     x, y = get_random_xy(config, area)
     #print('x, y', x, y)
     # check the distance to points already on the list and to the avatar
@@ -86,7 +85,10 @@ def create_sub_areas(dimensions):
     # 1, 2, 3
     # returns a dictionary where each number represents a section
     # of the field: (min_x, min_y, max_x, max_y)
-    sub_areas = {1: {'min_x': min_x, 'max_x': min_x + x_dist,
+    # zero subfield is the whole field
+    sub_areas = {0: {'min_x': min_x, 'max_x': max_x,
+                     'min_y': min_y, 'max_y': max_y},
+                 1: {'min_x': min_x, 'max_x': min_x + x_dist,
                      'min_y': min_y, 'max_y': min_y + y_dist},
                  2: {'min_x': min_x + x_dist, 'max_x': min_x + 2 * x_dist,
                      'min_y': min_y,  'max_y': min_y + y_dist},

@@ -167,10 +167,12 @@ class MoBananasTests(unittest.TestCase):
             #print len(pList)
 
     def test_create_sub_areas(self):
+        # crazy square to see if it divides stuff up correctly
         my_dict = {'min_x': 0, 'max_x': 9, 'min_y': 3, 'max_y': 12}
         min_and_max = mb.create_sub_areas(my_dict)
         print min_and_max
-        self.assertTrue(min_and_max == {1: {'min_x': 0, 'max_x': 3, 'min_y': 3, 'max_y': 6},
+        self.assertTrue(min_and_max == {0: {'min_x': 0, 'max_x': 9, 'min_y': 3, 'max_y': 12},
+                                        1: {'min_x': 0, 'max_x': 3, 'min_y': 3, 'max_y': 6},
                                         2: {'min_x': 3, 'max_x': 6, 'min_y': 3, 'max_y': 6},
                                         3: {'min_x': 6, 'max_x': 9, 'min_y': 3, 'max_y': 6},
                                         4: {'min_x': 0, 'max_x': 3, 'min_y': 6, 'max_y': 9},
@@ -185,7 +187,8 @@ class MoBananasTests(unittest.TestCase):
         my_dict = {'min_x': -30, 'max_x': 30, 'min_y': -30, 'max_y': 30}
         min_and_max = mb.create_sub_areas(my_dict)
         #print min_and_max
-        self.assertTrue(min_and_max == {1: {'min_x': -30, 'max_x': -10, 'min_y': -30, 'max_y': -10},
+        self.assertTrue(min_and_max == {0: {'min_x': -30, 'max_x': 30, 'min_y': -30, 'max_y': 30},
+                                        1: {'min_x': -30, 'max_x': -10, 'min_y': -30, 'max_y': -10},
                                         2: {'min_x': -10, 'max_x': 10, 'min_y': -30, 'max_y': -10},
                                         3: {'min_x': 10, 'max_x': 30, 'min_y': -30, 'max_y': -10},
                                         4: {'min_x': -30, 'max_x': -10, 'min_y': -10, 'max_y': 10},
