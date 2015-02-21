@@ -40,12 +40,11 @@ class MoBananasTests(unittest.TestCase):
         away from points already on the list
         """
         pList = []
-        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'environ': 'original'}
-
-        area = {'min_x': -10, 'max_x': 10, 'min_y': -10, 'max_y': 10}
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'environ': 'original',
+                  'min_x': -10, 'max_x': 10, 'min_y': -10, 'max_y': 10}
         avatar = (0, 0)
 
-        p0 = mb.set_xy(pList, avatar, config, area)
+        p0 = mb.set_xy(pList, avatar, config)
         #print p0
         for p in pList:
             #print p
@@ -166,59 +165,133 @@ class MoBananasTests(unittest.TestCase):
             #print pList
             #print len(pList)
 
+    def test_exclude_area_get_good_random_placement(self):
+        pList = []
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
+                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
+        avatar = (0, 0)
+        area = range(1, 10)
+        area.remove(3)
+        x_range = (3.3333, 10.0)
+        y_range = (-10, -3.3333)
+
+        for i in range(1000):
+            (x, y) = mb.set_xy(pList, avatar, config, area)
+            # make sure points not in excluded section
+            print 'new set', x, y
+            print x_range
+            print y_range
+            self.assertFalse(x_range[0] < x < x_range[1] and y_range[0] < y < y_range[1])
+
+    def test_small_area_get_good_random_placement(self):
+        pList = []
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
+                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
+        avatar = (0, 0)
+        area = [7]
+        x_range = (-10, -3.3333)
+        y_range = (3.3333, 10)
+
+        for i in range(30):
+            (x, y) = mb.set_xy(pList, avatar, config, area)
+            # make sure points not in excluded section
+            # print x, y
+            self.assertTrue(x_range[0] < x < x_range[1] and y_range[0] < y < y_range[1])
+
+    def test_combine_areas_get_good_random_placement(self):
+        pList = []
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
+                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
+        avatar = (0, 0)
+        area = [7, 8, 9]
+        x_range = (-10, 10)
+        y_range = (3.3333, 10)
+
+        for i in range(30):
+            (x, y) = mb.set_xy(pList, avatar, config, area)
+            # make sure points not in excluded section
+            # print x, y
+            self.assertTrue(x_range[0] < x < x_range[1] and y_range[0] < y < y_range[1])
+
     def test_create_sub_areas(self):
         # crazy square to see if it divides stuff up correctly
         my_dict = {'min_x': 0, 'max_x': 9, 'min_y': 3, 'max_y': 12}
-        min_and_max = mb.create_sub_areas(my_dict)
-        print min_and_max
-        self.assertTrue(min_and_max == {0: {'min_x': 0, 'max_x': 9, 'min_y': 3, 'max_y': 12},
-                                        1: {'min_x': 0, 'max_x': 3, 'min_y': 3, 'max_y': 6},
-                                        2: {'min_x': 3, 'max_x': 6, 'min_y': 3, 'max_y': 6},
-                                        3: {'min_x': 6, 'max_x': 9, 'min_y': 3, 'max_y': 6},
-                                        4: {'min_x': 0, 'max_x': 3, 'min_y': 6, 'max_y': 9},
-                                        5: {'min_x': 3, 'max_x': 6, 'min_y': 6, 'max_y': 9},
-                                        6: {'min_x': 6, 'max_x': 9, 'min_y': 6, 'max_y': 9},
-                                        7: {'min_x': 0, 'max_x': 3, 'min_y': 9, 'max_y': 12},
-                                        8: {'min_x': 3, 'max_x': 6, 'min_y': 9, 'max_y': 12},
-                                        9: {'min_x': 6, 'max_x': 9, 'min_y': 9, 'max_y': 12}})
+        areas = [(0, 3, 3, 6),
+                 (3, 6, 3, 6),
+                 (6, 9, 3, 6),
+                 (0, 3, 6, 9),
+                 (3, 6, 6, 9),
+                 (6, 9, 6, 9),
+                 (0, 3, 9, 12),
+                 (3, 6, 9, 12),
+                 (6, 9, 9, 12)]
+        for i in range(1, 10):
+            answer = mb.get_x_y_sub_area(my_dict, i)
+            self.assertTrue(answer == areas[i - 1])
 
     def test_create_sub_areas_with_neg(self):
         # try with easy negative numbers
         my_dict = {'min_x': -30, 'max_x': 30, 'min_y': -30, 'max_y': 30}
-        min_and_max = mb.create_sub_areas(my_dict)
-        #print min_and_max
-        self.assertTrue(min_and_max == {0: {'min_x': -30, 'max_x': 30, 'min_y': -30, 'max_y': 30},
-                                        1: {'min_x': -30, 'max_x': -10, 'min_y': -30, 'max_y': -10},
-                                        2: {'min_x': -10, 'max_x': 10, 'min_y': -30, 'max_y': -10},
-                                        3: {'min_x': 10, 'max_x': 30, 'min_y': -30, 'max_y': -10},
-                                        4: {'min_x': -30, 'max_x': -10, 'min_y': -10, 'max_y': 10},
-                                        5: {'min_x': -10, 'max_x': 10, 'min_y': -10, 'max_y': 10},
-                                        6: {'min_x': 10, 'max_x': 30, 'min_y': -10, 'max_y': 10},
-                                        7: {'min_x': -30, 'max_x': -10, 'min_y': 10, 'max_y': 30},
-                                        8: {'min_x': -10, 'max_x': 10, 'min_y': 10, 'max_y': 30},
-                                        9: {'min_x': 10, 'max_x': 30, 'min_y': 10, 'max_y': 30}})
+        areas = [(-30, -10, -30, -10),
+                 (-10, 10, -30, -10),
+                 (10, 30, -30, -10),
+                 (-30, -10, -10, 10),
+                 (-10, 10, -10, 10),
+                 (10, 30, -10, 10),
+                 (-30, -10, 10, 30),
+                 (-10, 10, 10, 30),
+                 (10, 30, 10, 30)]
+        for i in range(1, 10):
+            answer = mb.get_x_y_sub_area(my_dict, i)
+            self.assertTrue(answer == areas[i - 1])
 
     def test_subareas_line_up_in_courtyard(self):
-        # want the number keys to correspond with the way the avatar is facing when the game starts.
+        # want the number keys to correspond with the way the avatar is
+        # facing when the game starts.
         # 7 8 9   -x,y      x,y
         # 4 5 6
         # 1 2 3   -x,-y     x,-y
         #
-        # So 7 should give you a negative x, positive y, etc., since mapping to avatar at 5, looking at 8.
+        # first check actual numbers
         my_dict = {'min_x': -10, 'max_x': 10, 'min_y': -10, 'max_y': 10}
-        min_and_max = mb.create_sub_areas(my_dict)
+        areas = [(-10, -3.33, -10, -3.33),
+                 (-3.33, 3.33, -10, -3.33),
+                 (3.33, 10, -10, -3.33),
+                 (-10, -3.33, -3.33, 3.33),
+                 (-3.33, 3.33, -3.33, 3.33),
+                 (3.33, 10, -3.33, 3.33),
+                 (-10, -3.33, 3.33, 10),
+                 (-3.33, 3.33, 3.33, 10),
+                 (3.33, 10, 3.33, 10)]
+        for i in range(1, 10):
+            answer = mb.get_x_y_sub_area(my_dict, i)
+            print i, answer
+            new_area = areas[i - 1]
+            for result, test in zip(answer, new_area):
+                self.assertAlmostEqual(result, test, 2)
+        # So 7 should give you a negative x, positive y, etc., since mapping to avatar at 5,
+        # looking at 8.
+        # this is really repeating above test, but that one is hard to figure out for mapping
         # 7 x neg, y pos
-        self.assertTrue(min_and_max[7]['min_x'] < 0)
-        self.assertTrue(min_and_max[7]['min_y'] > 0)
+        answer = mb.get_x_y_sub_area(my_dict, 7)
+        self.assertTrue(answer[0] < 0)
+        self.assertTrue(answer[2] > 0)
+
         # 9 both pos
-        self.assertTrue(min_and_max[9]['min_x'] > 0)
-        self.assertTrue(min_and_max[9]['min_y'] > 0)
+        answer = mb.get_x_y_sub_area(my_dict, 9)
+        self.assertTrue(answer[0] > 0)
+        self.assertTrue(answer[2] > 0)
+
         # 1 both neg
-        self.assertTrue(min_and_max[1]['min_x'] < 0)
-        self.assertTrue(min_and_max[1]['min_y'] < 0)
+        answer = mb.get_x_y_sub_area(my_dict, 1)
+        self.assertTrue(answer[0] < 0)
+        self.assertTrue(answer[2] < 0)
+
         # 3 x pos, y neg
-        self.assertTrue(min_and_max[3]['min_x'] > 0)
-        self.assertTrue(min_and_max[3]['min_y'] < 0)
+        answer = mb.get_x_y_sub_area(my_dict, 3)
+        print answer
+        self.assertTrue(answer[0] > 0)
+        self.assertTrue(answer[2] < 0)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

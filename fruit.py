@@ -33,36 +33,14 @@ def check_repeat(trial_num, original_list):
 
 
 def create_alt_fruit_area(subarea_key, alt_subarea=None):
-    # alternate fruit can be in same area as banana, or one section away
-    # could probably come up with some algorithm for this, but
-    # couldn't be bothered.
-    # if alt_subarea is given, then alternate fruit area
-    # has been directed by researcher, and we just return that again
+    # alternate fruit can be directed to a specific subarea, or can be
+    # chosen automatically as any section except the one the recall fruit
+    # is in.
     if alt_subarea:
         area_list = alt_subarea
     else:
         area_list = range(1, 10)
         area_list.remove(subarea_key)
-    # if subarea_key == 1:
-    #     area_list = [1, 2, 4, 5]
-    # elif subarea_key == 2:
-    #     area_list = [1, 2, 3, 4, 5, 6]
-    # elif subarea_key == 3:
-    #     area_list = [2, 3, 5, 6]
-    # elif subarea_key == 4:
-    #     area_list = [1, 2, 4, 5, 7, 8]
-    # elif subarea_key == 5:
-    #     area_list = [0]
-    # elif subarea_key == 6:
-    #     area_list = [2, 3, 5, 6, 8, 9]
-    # elif subarea_key == 7:
-    #     area_list = [4, 5, 7, 8]
-    # elif subarea_key == 8:
-    #     area_list = [4, 5, 6, 7, 8, 9]
-    # elif subarea_key == 9:
-    #     area_list = [5, 6, 8, 9]
-    # else:
-    #     area_list = []
     print('alternate fruit in area:', area_list)
     return area_list
 
@@ -76,6 +54,9 @@ class Fruit():
         self.config.setdefault('fruit_to_remember', False)
         if self.config['fruit_to_remember']:
             # print 'recall task'
+            # this is the area that the fruit can be chosen from
+            # list of 2 dictionaries, first for recall fruit,
+            # 2nd for other fruit
             self.fruit_area = [{}]
             # bring this into a variable, so we can toggle it.
             self.repeat = config['repeat_recall_fruit']
@@ -317,7 +298,7 @@ class Fruit():
                 # for recall, we are only dealing here with
                 # the fruit not remembering, which is always the
                 # last index in the self.fruit_area
-                # print self.fruit_area
+                print self.fruit_area[-1]
                 (x, y) = mB.set_xy(pos_list, avatar_x_y, self.config, self.fruit_area[-1])
                 pos_list.append((x, y))
             # print pos_list
