@@ -18,23 +18,31 @@ def get_distance(p0, p1):
 
 
 def get_random_xy(pos_list, avatar=(0, 0), config=None, area=None):
+    # pos_list is all of the current fruit positions
+    # avatar is the current avatar position
+    # config is dict with minimum entries:
+    # 'tooClose' how close fruit can be to other fruit or avatar
+    # 'avatarRadius' how big the avatar is (additional distance to tooClose for avatar)
+    # 'environ' tells us shape of environment
+    # if environ is rectangle, need min_x, min_y, max_x, max_y for x and y of corners
+    # if environ is circle, need radius (assumes center at 0,0)
+    # area is a list of numbers signifying what subset of area requesting. so far only
+    # true for rectangle. 9 sections, so can be up to nine numbers (full area or just send
+    # None for whole area)
     if config is None:
         config = {}
         execfile('config.py', config)
-    #
-    # area should be list of sections x,y allowed to be in.
-    # get a random x and y coordinate.
-    # If no area given, assume using entire area
-    # circle never involves subareas, so return right away
     # print('pos list', pos_list)
     # print('avatar', avatar)
     # print('config', config)
     # print('area', area)
+    # first check stuff that can return right away, circle has no sub-areas
     if 'circle' in config.get('environ', ''):
         # print 'circle'
         x, y = get_circle_point(pos_list, avatar, config)
         # print 'after point'
         return x, y
+    # using whole area
     if not area or len(area) == 9:
         # print 'user whole area'
         # use entire area
@@ -43,6 +51,8 @@ def get_random_xy(pos_list, avatar=(0, 0), config=None, area=None):
             y = random.uniform(config['min_y'], config['max_y'])
             if check_distances_good(x, y, pos_list, avatar, config):
                 return x, y
+    # need to figure out geometry. may be easier to exclude areas if using
+    # most of field
     x_y_limits = []
     total_set = range(1, 10)
     non_area = [num for num in total_set if num not in area]
@@ -84,10 +94,8 @@ def get_random_xy_subarea(pos_list, avatar, config, x_y_limits, area):
     while True:
         x = random.uniform(config['min_x'], config['max_x'])
         y = random.uniform(config['min_y'], config['max_y'])
-
-        # make sure in correct sub-area, check smaller
-        # checking areas it can be in, so just go
-        # until match
+        # make sure in correct sub-area, check each area it can be in,
+        # go until match
         # print x_y_limits
         for x_y in x_y_limits:
             if check_distances_good(x, y, pos_list, avatar, config) and point_inside_square(x, y, x_y):
@@ -101,10 +109,9 @@ def get_random_xy_not_subarea(pos_list, avatar, config, x_y_limits, area):
         x = random.uniform(config['min_x'], config['max_x'])
         y = random.uniform(config['min_y'], config['max_y'])
 
-        # make sure in correct sub-area, check smaller
-        # if we are checking areas it can be in, just go
-        # until match, but if checking non-areas, must
-        # test all non-areas,
+        # make sure in correct sub-area, check each area
+        # to make sure not in any excluded areas, makes it through all tests,
+        # return
         for x_y in x_y_limits:
             # using non_areas, so need to go through all subareas,
             # and make sure x, y not in any of them. If inside an
@@ -135,12 +142,11 @@ def point_inside_square(x, y, limits):
 
 def check_distances_good(x, y, pos_list, avatar=(0, 0), config=None):
     """
-    (list) -> tuple
-    Returns a point (x,y) that is more than the minimum distance set by tooClose
+
+    Verifies a point (x,y) is more than the minimum distance set by tooClose
     in the config.py file from existing points in pos_list. Also cannot be too
-    close to the avatar, which is at the origin in the beginning.
-    This algorithm is pretty inefficient for large numbers of fruit, and should
-    eventually be optimized.
+    close to the avatar, which has additional radius
+    Returns True or False,
     """
 
     # print('check distances', config)
@@ -178,7 +184,9 @@ def get_circle_point(pos_list, avatar, config):
 
 
 def get_x_y_sub_area(config, area_key):
-    # get total area
+    # divides space into 9 sections, corresponding to number key pad.
+    # get total area, gets outer boundary from config file, returns sub-area
+    # that corresponds to area_key, which is a single number.
     min_x = config['min_x']
     max_x = config['max_x']
     min_y = config['min_y']
