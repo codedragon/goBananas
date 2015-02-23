@@ -44,7 +44,7 @@ class MoBananasTests(unittest.TestCase):
                   'min_x': -10, 'max_x': 10, 'min_y': -10, 'max_y': 10}
         avatar = (0, 0)
 
-        p0 = mb.set_xy(pList, avatar, config)
+        p0 = mb.get_random_xy(pList, avatar, config)
         #print p0
         for p in pList:
             #print p
@@ -57,9 +57,10 @@ class MoBananasTests(unittest.TestCase):
         avatar = (0, 0)
         pList = []
         # test all the points are in a circle less than the radius size
-        for i in range(30):
-            (x, y) = mb.set_xy(pList, avatar, config)
-            #print 'new point', p0
+        for i in range(100):
+            # print('new loop', i)
+            (x, y) = mb.get_random_xy(pList, avatar, config)
+            # print 'new point', x, y
             dist = mb.get_distance((x, y), (0, 0))
             self.assertTrue(dist < config['radius'])
             pList += [(x, y)]
@@ -73,7 +74,7 @@ class MoBananasTests(unittest.TestCase):
         config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
                   'min_y': -10, 'max_y': 10, 'environ': 'original'}
         avatar = (0, 0)
-        p0 = mb.set_xy(pList, avatar, config)
+        p0 = mb.get_random_xy(pList, avatar, config)
         #print p0
         for p in pList:
             #print p
@@ -90,8 +91,8 @@ class MoBananasTests(unittest.TestCase):
         config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
                   'min_y': -10, 'max_y': 10, 'environ': 'original'}
         avatar = (0, 0)
-        for i in range(30):
-            (x, y) = mb.set_xy(pList, avatar, config)
+        for i in range(100):
+            (x, y) = mb.get_random_xy(pList, avatar, config)
             #print 'new point', p0
             for p in pList:
                 dist = mb.get_distance((x, y), p)
@@ -111,8 +112,8 @@ class MoBananasTests(unittest.TestCase):
                   'min_y': -10, 'max_y': 10, 'environ': 'original'}
         avatar = (0, 0)
         avatar_min_dist = config['avatarRadius'] * 2
-        for i in range(50):
-            (x, y) = mb.set_xy(pList, avatar, config)
+        for i in range(100):
+            (x, y) = mb.get_random_xy(pList, avatar, config)
             dist = mb.get_distance((x, y), origin)
             self.assertTrue(dist >= avatar_min_dist)
             pList += [(x, y)]
@@ -129,8 +130,8 @@ class MoBananasTests(unittest.TestCase):
         config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
                   'min_y': -10, 'max_y': 10, 'environ': 'original'}
         avatar_min_dist = config['avatarRadius'] * 2
-        for i in range(50):
-            (x, y) = mb.set_xy(pList, avatar, config)
+        for i in range(100):
+            (x, y) = mb.get_random_xy(pList, avatar, config)
             dist = mb.get_distance((x, y), avatar)
             self.assertTrue(dist >= avatar_min_dist)
             pList += [(x, y)]
@@ -158,14 +159,33 @@ class MoBananasTests(unittest.TestCase):
         if numBananas > 20:
             numBananas = 20
         for i in range(numBananas):
-            (x, y) = mb.set_xy(pList, avatar, config)
+            (x, y) = mb.get_random_xy(pList, avatar, config)
             dist = mb.get_distance((x, y), avatar)
             self.assertTrue(dist >= avatar_min_dist)
             pList += [(x, y)]
             #print pList
             #print len(pList)
 
-    def test_exclude_area_get_good_random_placement(self):
+    def test_get_random_xy_exclude_area_get_good_random_placement(self):
+        pList = []
+        config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
+                  'min_y': -10, 'max_y': 10, 'environ': 'original'}
+        avatar = (0, 0)
+        area = range(1, 10)
+        area.remove(3)
+        x_range = (3.3333, 10.0)
+        y_range = (-10, -3.3333)
+        pList = []
+
+        for i in range(100):
+            (x, y) = mb.get_random_xy(pList, avatar, config, area)
+            # make sure points not in excluded section
+            # print 'new set', x, y
+            # print x_range
+            # print y_range
+            self.assertFalse(x_range[0] < x < x_range[1] and y_range[0] < y < y_range[1])
+
+    def test_set_xy_exclude_area_get_good_random_placement(self):
         pList = []
         config = {'tooClose': 0.5, 'avatarRadius': 0.2, 'min_x': -10, 'max_x': 10,
                   'min_y': -10, 'max_y': 10, 'environ': 'original'}
@@ -175,12 +195,13 @@ class MoBananasTests(unittest.TestCase):
         x_range = (3.3333, 10.0)
         y_range = (-10, -3.3333)
 
-        for i in range(1000):
-            (x, y) = mb.set_xy(pList, avatar, config, area)
+        for i in range(100):
+            # print 'new loop', i
+            (x, y) = mb.get_random_xy(pList, avatar, config, area)
             # make sure points not in excluded section
-            print 'new set', x, y
-            print x_range
-            print y_range
+            # print 'new set', x, y
+            # print x_range
+            # print y_range
             self.assertFalse(x_range[0] < x < x_range[1] and y_range[0] < y < y_range[1])
 
     def test_small_area_get_good_random_placement(self):
@@ -192,8 +213,8 @@ class MoBananasTests(unittest.TestCase):
         x_range = (-10, -3.3333)
         y_range = (3.3333, 10)
 
-        for i in range(30):
-            (x, y) = mb.set_xy(pList, avatar, config, area)
+        for i in range(100):
+            (x, y) = mb.get_random_xy(pList, avatar, config, area)
             # make sure points not in excluded section
             # print x, y
             self.assertTrue(x_range[0] < x < x_range[1] and y_range[0] < y < y_range[1])
@@ -207,8 +228,8 @@ class MoBananasTests(unittest.TestCase):
         x_range = (-10, 10)
         y_range = (3.3333, 10)
 
-        for i in range(30):
-            (x, y) = mb.set_xy(pList, avatar, config, area)
+        for i in range(100):
+            (x, y) = mb.get_random_xy(pList, avatar, config, area)
             # make sure points not in excluded section
             # print x, y
             self.assertTrue(x_range[0] < x < x_range[1] and y_range[0] < y < y_range[1])
@@ -265,7 +286,7 @@ class MoBananasTests(unittest.TestCase):
                  (3.33, 10, 3.33, 10)]
         for i in range(1, 10):
             answer = mb.get_x_y_sub_area(my_dict, i)
-            print i, answer
+            # print i, answer
             new_area = areas[i - 1]
             for result, test in zip(answer, new_area):
                 self.assertAlmostEqual(result, test, 2)
@@ -289,7 +310,7 @@ class MoBananasTests(unittest.TestCase):
 
         # 3 x pos, y neg
         answer = mb.get_x_y_sub_area(my_dict, 3)
-        print answer
+        # print answer
         self.assertTrue(answer[0] > 0)
         self.assertTrue(answer[2] < 0)
 
