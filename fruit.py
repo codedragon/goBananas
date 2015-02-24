@@ -224,9 +224,9 @@ class Fruit():
         # or new random position:
         # need to return remember = True, if banana is not full bright (will be searching)
         #
-        print 'setup recall trial'
-        print self.new_subarea_key
-        print self.num_shows
+        # print 'setup recall trial'
+        # print self.new_subarea_key
+        # print self.num_shows
         remember = False
         if self.num_shows == self.config['num_repeat_visible']:
             # first trial after required visible repeats is required,
@@ -296,7 +296,7 @@ class Fruit():
             # is not assigned too close to it.
             pos_list.append(self.pos_dict[self.config['fruit_to_remember']])
         elif 'manual' in repeat:
-            print 'switch subareas'
+            # print 'switch subareas'
             # we switched subareas
             self.subarea_key = self.new_subarea_key
             self.new_subarea_key = None
@@ -327,7 +327,7 @@ class Fruit():
                         # print self.config['points']
                         (x, y) = self.config['points'].get(self.subarea_key)
                     else:
-                        #print 'get random'
+                        # print 'get random'
                         (x, y) = mB.get_random_xy(pos_list, avatar_x_y, self.config, [self.subarea_key])
                     pos_list.append((x, y))
                     # always be ready to repeat recall fruit, cheap
@@ -376,7 +376,7 @@ class Fruit():
                 # decide if we have shown required number of times at full bright.
                 if 'bright' in repeat:
                     # first x trials solid on, set in config how many
-                    print 'on solid'
+                    # print 'on solid'
                     self.change_alpha_fruit('on')
                 elif 'alpha' in repeat and self.alpha == 0:
                     # get alpha from config

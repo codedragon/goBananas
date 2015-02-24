@@ -240,8 +240,8 @@ class BananaRecall:
             # amount of reward can vary
             if self.fruit.current_fruit == self.fruit.config['fruit_to_remember'] and self.remembered_location:
                 # extra reward
-                print self.fruit.current_fruit
-                print 'yes!'
+                # print self.fruit.current_fruit
+                # print 'yes!'
                 self.num_beeps = self.beep_list[0]
             else:
                 # print self.beep_list[1]
@@ -265,10 +265,12 @@ class BananaRecall:
             # for random, may want to check if this was an alpha or not?
             new_trial = False
             if self.find_recall_fruit is None:
-                print('either found alpha or remembered')
-                print('check to see if we are moving')
+                # print('either found alpha or remembered')
+                # print('check to see if we are moving')
                 self.fruit.change_alpha_fruit('off')
                 self.remembered_location = False
+                # after finding recall fruit, we may be re-starting,
+                # if key press for new subarea or if on random
                 if self.fruit.new_subarea_key or not self.fruit.manual:
                     new_trial = True
 
@@ -278,9 +280,6 @@ class BananaRecall:
             Avatar.getInstance().setMaxForwardSpeed(self.config['fullForwardSpeed'])
 
             # new fruit appears, either starting over or next fruit in stack
-            # print 'new fruit appears'
-            ### NEED TO CHECK HERE TO SEE IF WE ARE MOVING. IF WE JUST FINISHED FINDING THE BANANA,
-            ### AND WE ARE MOVING, ABORT REST OF FRUIT, AND SHOW NEW BANANA!
             if not self.fruit.fruit_list or new_trial:
                 self.new_trial()
             else:
@@ -331,7 +330,7 @@ class BananaRecall:
         # print('alpha in recall', self.new_alpha)
         self.fruit.alpha = self.new_alpha
         self.find_recall_fruit = self.fruit.setup_recall_trial(self.trial_num)
-        print('time to remember', self.find_recall_fruit)
+        # print('time to remember', self.find_recall_fruit)
         if self.find_recall_fruit:
             # this will only matter if there is fruit to remember
             self.recall_timer = time.clock()
