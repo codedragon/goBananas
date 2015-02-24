@@ -238,10 +238,10 @@ class BananaRecall:
                 self.daq_events.send_signal(200)
                 self.daq_strobe.send_signal()
             # amount of reward can vary
-            if len(self.fruit.fruit_list) == 0:
-                # recall fruit gets different reward
-                # print 'big reward'
-                # print self.beep_list[0]
+            if self.fruit.current_fruit == self.fruit.config['fruit_to_remember'] and self.remembered_location:
+                # extra reward
+                print self.fruit.current_fruit
+                print 'yes!'
                 self.num_beeps = self.beep_list[0]
             else:
                 # print self.beep_list[1]
@@ -256,35 +256,35 @@ class BananaRecall:
         self.fruit.beeps += 1
         # if that was last reward
         if self.fruit.beeps == self.num_beeps:
-            # print 'last reward'
+            # reward is over
+            # print 'reward over'
+            self.fruit.beeps = None
             # if fruit visible, fruit disappears
-            # new trial if we remembered where the fruit was or had an alpha fruit
-            # if we didn't remember, we don't get reward, and never make it here
-            # technically we could do if self.find_recall_fruit != False, but this
-            # seems more intuitive.
-            # print('did we find the recall fruit?', self.find_recall_fruit)
+            # new trial if we are out of fruit
+            # or if we found recall fruit and are moving to location
+            # for random, may want to check if this was an alpha or not?
+            new_trial = False
             if self.find_recall_fruit is None:
-                # print('either found alpha or remembered, new trial')
+                print('either found alpha or remembered')
+                print('check to see if we are moving')
                 self.fruit.change_alpha_fruit('off')
-                self.fruit.reset_collision()
-                self.new_trial()
                 self.remembered_location = False
-            else:
-                # print 'it was not time to find the recall fruit'
-                self.fruit.disappear_fruit()
-                # check to see if next fruit is recall fruit
-                self.find_recall_fruit = self.fruit.get_next_fruit()
-                # print('find_recall_fruit', self.find_recall_fruit)
-                # this will only matter if there is fruit to remember
-                self.recall_timer = time.clock()
-            # new fruit appears, either starting over or next fruit in stack
-            # print 'new fruit appears'
+                if self.fruit.new_subarea_key or not self.fruit.manual:
+                    new_trial = True
 
+            self.fruit.disappear_fruit()
             # avatar can move
             Avatar.getInstance().setMaxTurningSpeed(self.config['fullTurningSpeed'])
             Avatar.getInstance().setMaxForwardSpeed(self.config['fullForwardSpeed'])
-            # reward is over
-            self.fruit.beeps = None
+
+            # new fruit appears, either starting over or next fruit in stack
+            # print 'new fruit appears'
+            ### NEED TO CHECK HERE TO SEE IF WE ARE MOVING. IF WE JUST FINISHED FINDING THE BANANA,
+            ### AND WE ARE MOVING, ABORT REST OF FRUIT, AND SHOW NEW BANANA!
+            if not self.fruit.fruit_list or new_trial:
+                self.new_trial()
+            else:
+                self.fruit.get_next_fruit()
 
     def found_banana(self):
         # VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
@@ -325,18 +325,16 @@ class BananaRecall:
     def new_trial(self):
         # print self.fruit.fruit_area
         # print 'new trial'
-        # starting over again with a possible new banana position,
-        # make sure not still checking on old banana
-        self.find_recall_fruit = False
-        # get rid of recall fruit. May already be off, either way
-        # doesn't hurt
-        self.fruit.change_alpha_fruit('off')
         self.flash_timer = 0
         self.trial_num += 1
         # can change alpha now
         # print('alpha in recall', self.new_alpha)
         self.fruit.alpha = self.new_alpha
-        self.fruit.setup_recall_trial(self.trial_num)
+        self.find_recall_fruit = self.fruit.setup_recall_trial(self.trial_num)
+        print('time to remember', self.find_recall_fruit)
+        if self.find_recall_fruit:
+            # this will only matter if there is fruit to remember
+            self.recall_timer = time.clock()
         # print('new trial', self.trial_num)
         if self.daq_events:
             self.send_new_trial_daq()
