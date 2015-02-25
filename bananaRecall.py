@@ -20,11 +20,15 @@ except ImportError:
 
 
 def check_timer(timer, goal):
-        if time.clock() - timer >= goal:
-            # print goal
-            # print('time up', time.clock() - timer)
-            return True
-        return False
+    # print goal
+    # print('time elapsed', time.clock() - timer)
+    if time.clock() - timer >= goal:
+        # print 'goal', goal
+        # print timer
+        # print time.clock()
+        # print('time up', time.clock() - timer)
+        return True
+    return False
 
 
 class BananaRecall:
@@ -196,6 +200,7 @@ class BananaRecall:
                 # print 'found it!'
                 self.found_banana()
             elif self.recall_timer:
+                # print 'check recall timer', self.config['time_to_recall']
                 # check timer for looking for fruit
                 if check_timer(self.recall_timer, self.config['time_to_recall']):
                     self.recall_timer = 0
@@ -206,8 +211,12 @@ class BananaRecall:
                         print('flash fruit')
                         self.flash_fruit()
                     else:
+                        # when we time out, want to skip the banana, and go directly to
+                        # cherries.
                         print('time up')
-                        self.new_trial()
+                        self.fruit.fruit_models[self.config['fruit_to_remember']].setStashed(True)
+                        self.fruit.fruit_list.remove(self.config['fruit_to_remember'])
+                        self.fruit.get_next_fruit()
         elif self.flash_timer:
             # if we flashed the fruit to show where it was, check to see if it
             # is time to turn it off.
@@ -336,6 +345,7 @@ class BananaRecall:
         if self.find_recall_fruit:
             # this will only matter if there is fruit to remember
             self.recall_timer = time.clock()
+            # print 'set timer', self.recall_timer
         # print('new trial', self.trial_num)
         if self.daq_events:
             self.send_new_trial_daq()

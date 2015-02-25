@@ -219,9 +219,13 @@ class Fruit():
 
     def start_recall_trial(self, trial_num):
         remember, trial_type = self.setup_recall_trial(trial_num)
+        # print 'setup'
         avatar_x_y = self.log_new_trial(trial_type, trial_num)
+        # print 'log'
         new_pos_dict = self.setup_fruit_for_recall_trial(avatar_x_y, trial_type)
+        # print 'fruit'
         self.change_positions(new_pos_dict)
+        # print 'move fruit'
         return remember
 
     def setup_recall_trial(self, trial_num):
@@ -491,7 +495,7 @@ class Fruit():
         # print 'get next fruit'
         # print 'fruit gone', self.current_fruit
         self.fruit_models[self.fruit_list[0]].setStashed(False)
-        # print('next fruit', self.fruit_list[0])
+        # print('fruit unstashed', self.fruit_list[0])
 
     def change_alpha_fruit(self, mode=None, fruit=None):
         # fruit default is the recall fruit
