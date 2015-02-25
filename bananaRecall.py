@@ -279,8 +279,8 @@ class BananaRecall:
                 self.fruit.change_alpha_fruit('off')
                 self.remembered_location = False
                 # after finding recall fruit, we may be re-starting,
-                # if key press for new subarea or if on random
-                if self.fruit.new_subarea_key or not self.fruit.manual:
+                # if key press for new subarea or if not repeating
+                if self.fruit.new_subarea_key or not self.fruit.repeat:
                     new_trial = True
 
             self.fruit.disappear_fruit()
@@ -398,6 +398,10 @@ class BananaRecall:
     def toggle_manual(self, input_event):
         # toggle manual
         self.fruit.manual = not self.fruit.manual
+        # if we are manually choosing fruit, always repeat
+        # until a new place is chosen.
+        if self.fruit.manual:
+            self.fruit.repeat = True
         print "Fruit is manual:", self.fruit.manual
 
     def change_alpha(self, input_event):

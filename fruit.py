@@ -64,7 +64,7 @@ class Fruit():
             else:
                 self.repeat = config['repeat_recall_fruit']
             self.subarea_key = config.get('subarea', 0)
-            # print 'fruit init', self.manual, self.subarea_key
+            print 'fruit manual, repeat, area', self.manual, self.repeat, self.subarea_key
             self.new_subarea_key = None
             if self.subarea_key:
                 # print 'true'
@@ -254,29 +254,40 @@ class Fruit():
         elif self.num_shows > self.config['num_repeat_visible']:
             # print 'okay to change areas'
             # okay to change position
-            if self.new_subarea_key:
-                self.num_shows = 0
-                trial_type = 'manual_bright'
-            elif not self.manual and not self.repeat:
-                self.num_shows = 0
-                trial_type = 'random_bright'
-            else:
-                trial_type = 'repeat'
-                remember = True
+            remember, trial_type = self.choose_new_recall_trial_type()
         elif self.repeat and self.pos_dict:
             # this is repeat because required, so always full bright,
             # print 'repeating same place, make bright'
             trial_type = 'repeat_bright'
         else:
-            # print 'new'
-            if self.new_subarea_key:
-                trial_type = 'manual_bright'
-                self.num_shows = 0
-            else:
-                trial_type = 'random_bright'
-                self.num_shows = 0
-        # print('trial type', trial_type)
+            remember, trial_type = self.choose_new_recall_trial_type()
+        print('remember', remember)
+        print('trial type', trial_type)
         self.num_shows += 1
+        return remember, trial_type
+
+    def choose_new_recall_trial_type(self):
+        # possible to change position of fruit, check to see if we are,
+        # and if so, how
+        reset_num_shows = True
+        if self.new_subarea_key and self.manual:
+            trial_type = 'manual_bright'
+        elif self.new_subarea_key and not self.manual:
+            print 'random and new subarea chosen'
+            trial_type = 'random_bright'
+        elif not self.manual and not self.repeat:
+            print 'random and not repeating, so force new position'
+            trial_type = 'random_force_bright'
+        else:
+            trial_type = 'repeat'
+            reset_num_shows = False
+        if reset_num_shows:
+            # if resetting num_shows, than new trial,
+            # so not remembering
+            self.num_shows = 0
+            remember = False
+        else:
+            remember = True
         return remember, trial_type
 
     def setup_fruit_for_recall_trial(self, avatar_x_y, repeat='No'):
@@ -306,7 +317,7 @@ class Fruit():
             # add it to the starting list, so other fruit
             # is not assigned too close to it.
             pos_list.append(self.pos_dict[self.config['fruit_to_remember']])
-        elif 'manual' in repeat:
+        elif repeat == 'manual_bright' or repeat == 'random_bright':
             # print 'switch subareas'
             # we switched subareas
             self.subarea_key = self.new_subarea_key
@@ -344,7 +355,7 @@ class Fruit():
                     # always be ready to repeat recall fruit, cheap
                     self.pos_dict[name] = (x, y)
                     # make sure we know to show it, since not a repeat
-                # print('recall fruit position', x, y)
+                print('recall fruit position', x, y)
             else:
                 # fruit not remembering is in alternate area, if we have specified an area for the recall
                 # fruit
