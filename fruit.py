@@ -41,7 +41,7 @@ def create_alt_fruit_area(subarea_key, alt_subarea=None):
     else:
         area_list = range(1, 10)
         area_list.remove(subarea_key)
-    print('alternate fruit in area:', area_list)
+    # print('alternate fruit in area:', area_list)
     return area_list
 
 
@@ -235,7 +235,7 @@ class Fruit():
         #
         # print 'setup recall trial'
         # print self.new_subarea_key
-        print('num_shows', self.num_shows)
+        # print('num_shows', self.num_shows)
         remember = False
         if self.num_shows == self.config['num_repeat_visible']:
             # first trial after required visible repeats is required,
@@ -247,7 +247,7 @@ class Fruit():
             else:
                 trial_type = 'repeat'
         elif self.num_shows > self.config['num_repeat_visible']:
-            print 'okay to change areas'
+            # print 'okay to change areas'
             # okay to change position
             if self.new_subarea_key:
                 self.num_shows = 0
@@ -260,17 +260,17 @@ class Fruit():
                 remember = True
         elif self.repeat and self.pos_dict:
             # this is repeat because required, so always full bright,
-            print 'repeating same place, make bright'
+            # print 'repeating same place, make bright'
             trial_type = 'repeat_bright'
         else:
-            print 'new'
+            # print 'new'
             if self.new_subarea_key:
                 trial_type = 'manual_bright'
                 self.num_shows = 0
             else:
                 trial_type = 'random_bright'
                 self.num_shows = 0
-        print('trial type', trial_type)
+        # print('trial type', trial_type)
         self.num_shows += 1
         return remember, trial_type
 
@@ -491,7 +491,7 @@ class Fruit():
         # print 'get next fruit'
         # print 'fruit gone', self.current_fruit
         self.fruit_models[self.fruit_list[0]].setStashed(False)
-        print('next fruit', self.fruit_list[0])
+        # print('next fruit', self.fruit_list[0])
 
     def change_alpha_fruit(self, mode=None, fruit=None):
         # fruit default is the recall fruit

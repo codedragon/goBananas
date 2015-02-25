@@ -393,9 +393,9 @@ class BananaRecall:
     def change_alpha(self, input_event):
         # print('change alpha')
         print input_event.eventName
-        print self.new_alpha
+        # print self.new_alpha
         if self.new_alpha is None:
-            print 'get alpha', self.new_alpha
+            # print 'get alpha', self.new_alpha
             self.new_alpha = self.fruit.alpha
         if input_event.eventName == 'increase_alpha':
             self.new_alpha += 0.05
