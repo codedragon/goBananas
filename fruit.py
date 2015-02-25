@@ -67,7 +67,8 @@ class Fruit():
             # print 'fruit init', self.manual, self.subarea_key
             self.new_subarea_key = None
             if self.subarea_key:
-                self.new_subarea_key = True
+                # print 'true'
+                self.new_subarea_key = self.subarea_key
             # print('subarea', self.subarea_key)
             self.alpha = self.config['alpha']
             # print('alpha', self.alpha)
@@ -333,7 +334,7 @@ class Fruit():
                     # getting a new position
                     # send in config with sub areas
                     if 'manual' in repeat:
-                        print('switching placement', self.subarea_key)
+                        # print('switching placement', self.subarea_key)
                         # print self.config['points']
                         (x, y) = self.config['points'].get(self.subarea_key)
                     else:
