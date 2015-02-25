@@ -85,9 +85,11 @@ class Fruit():
                 # [frequency of repeat, start number, next number]
                 self.repeat_list = [self.config['repeat_number'], start_number, start_number]
 
+        # just for gobananas
         if self.config.get('go_alpha', False):
             self.alpha = self.config['alpha']
             # print('alpha', self.alpha)
+        # both
         if self.config.get('alpha', False):
             self.alpha_node_path = None
         self.alpha_fruit = False
@@ -215,6 +217,13 @@ class Fruit():
         # print('fruit list', self.fruit_list)
         return pos_dict
 
+    def start_recall_trial(self, trial_num):
+        remember, trial_type = self.setup_recall_trial(trial_num)
+        avatar_x_y = self.log_new_trial(trial_type, trial_num)
+        new_pos_dict = self.setup_fruit_for_recall_trial(avatar_x_y, trial_type)
+        self.change_positions(new_pos_dict)
+        return remember
+
     def setup_recall_trial(self, trial_num):
         # print('recall_repeat this trial is', self.repeat)
         # repeat_recall can be toggled with button press
@@ -226,12 +235,12 @@ class Fruit():
         #
         # print 'setup recall trial'
         # print self.new_subarea_key
-        # print self.num_shows
+        print('num_shows', self.num_shows)
         remember = False
         if self.num_shows == self.config['num_repeat_visible']:
             # first trial after required visible repeats is required,
-            # and is always a repeat
-            # always alpha if set in config
+            # always a repeat
+            # always alpha, if set in config
             remember = True
             if self.config.get('first_fruit_alpha', True):
                 trial_type = 'repeat_alpha'
@@ -263,10 +272,7 @@ class Fruit():
                 self.num_shows = 0
         print('trial type', trial_type)
         self.num_shows += 1
-        avatar_x_y = self.log_new_trial(trial_type, trial_num)
-        new_pos_dict = self.setup_fruit_for_recall_trial(avatar_x_y, trial_type)
-        self.change_positions(new_pos_dict)
-        return remember
+        return remember, trial_type
 
     def setup_fruit_for_recall_trial(self, avatar_x_y, repeat='No'):
         # print('repeat_trial_type', repeat)
@@ -373,6 +379,7 @@ class Fruit():
         recall_fruit = self.config['fruit_to_remember']
         if recall_fruit:
             if name == recall_fruit:
+                # print('alpha', self.alpha)
                 # decide if we have shown required number of times at full bright.
                 if 'bright' in repeat:
                     # first x trials solid on, set in config how many
@@ -382,6 +389,7 @@ class Fruit():
                     # get alpha from config
                     print 'reset recall fruit alpha'
                     self.alpha = self.config['alpha']
+                    print('changed alpha', self.alpha)
                     self.change_alpha_fruit('on_alpha')
                 elif self.alpha > 0:
                     # if alpha is on, use alpha
@@ -393,6 +401,7 @@ class Fruit():
                 self.fruit_list.append(name)
             else:
                 self.fruit_list.append(name)
+            # print('now alpha', self.alpha)
         else:
             # go bananas
             if name == self.alpha_fruit:
@@ -401,8 +410,8 @@ class Fruit():
             self.fruit_list.append(name)
 
     def set_alpha_fruit(self, name, alpha=None):
-        # set up fruit to be alpha, may also change alpha
-        # immediately, if alpha is true
+        # set up fruit to be alpha, done at fruit creation
+        # may also change alpha immediately, if alpha is true
         self.alpha_node_path = self.fruit_models[name].retrNodePath()
         self.alpha_node_path.setTransparency(TransparencyAttrib.MAlpha)
         if alpha:

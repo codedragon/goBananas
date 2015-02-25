@@ -66,7 +66,7 @@ class BananaRecall:
         # how long since last reward
         self.reward_timer = 0
         # variable to hold changes in alpha until new trial
-        self.new_alpha = self.config['alpha']
+        self.new_alpha = None
         # variable to change distance goal for invisible recall fruit
         self.distance_goal = self.config['distance_goal'][1]
         # get rid of cursor
@@ -328,8 +328,10 @@ class BananaRecall:
         self.trial_num += 1
         # can change alpha now
         # print('alpha in recall', self.new_alpha)
-        self.fruit.alpha = self.new_alpha
-        self.find_recall_fruit = self.fruit.setup_recall_trial(self.trial_num)
+        if self.new_alpha is not None:
+            self.fruit.alpha = self.new_alpha
+            self.new_alpha = None
+        self.find_recall_fruit = self.fruit.start_recall_trial(self.trial_num)
         # print('time to remember', self.find_recall_fruit)
         if self.find_recall_fruit:
             # this will only matter if there is fruit to remember
@@ -391,6 +393,10 @@ class BananaRecall:
     def change_alpha(self, input_event):
         # print('change alpha')
         print input_event.eventName
+        print self.new_alpha
+        if self.new_alpha is None:
+            print 'get alpha', self.new_alpha
+            self.new_alpha = self.fruit.alpha
         if input_event.eventName == 'increase_alpha':
             self.new_alpha += 0.05
         else:
