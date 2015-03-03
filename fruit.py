@@ -86,13 +86,16 @@ class Fruit():
                 # [frequency of repeat, start number, next number]
                 self.repeat_list = [self.config['repeat_number'], start_number, start_number]
 
-        # just for gobananas
-        if self.config.get('go_alpha', False):
-            self.alpha = self.config['alpha']
-            # print('alpha', self.alpha)
-        # both
+            # just for gobananas
+            if self.config.get('go_alpha', False):
+                self.alpha = self.config['alpha']
+                # print('alpha', self.alpha)
+
+        # affects alpha in both
         if self.config.get('alpha', False):
             self.alpha_node_path = None
+        # variable to keep track of which fruit is alpha (only important for gobananas,
+        # since alpha fruit is always recall fruit in recall fruit)
         self.alpha_fruit = False
 
         # num_fruit dict will tell us how many of each fruit we will be showing
@@ -222,6 +225,7 @@ class Fruit():
         remember, trial_type = self.setup_recall_trial(trial_num)
         # print 'setup'
         avatar_x_y = self.log_new_trial(trial_type, trial_num)
+
         # print 'log'
         new_pos_dict = self.setup_fruit_for_recall_trial(avatar_x_y, trial_type)
         # print 'fruit'

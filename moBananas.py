@@ -152,6 +152,9 @@ def check_distances_good(x, y, pos_list, avatar=(0, 0), config=None):
     # print('check distances', config)
     too_close = config['tooClose']
     dist_avatar = config['avatarRadius'] + too_close
+    if config.get('fruit_to_remember'):
+        too_close = max(config['distance_goal']) + 0.5
+    # print('distance away from other fruit', too_close)
     # print('x, y', x, y)
 
     # check the distance to points already on the list and to the avatar
@@ -160,11 +163,13 @@ def check_distances_good(x, y, pos_list, avatar=(0, 0), config=None):
         for x1, y1 in pos_list:
             # if either too close to other bananas or avatar, get new points.
             if get_distance((x, y), (x1, y1)) < too_close or get_distance((x, y), avatar) < dist_avatar:
-                #print 'set xy too close'
-                #print 'distance is ', get_distance((x,y), (x1,y1))
-                #print x,y
+                # print 'set xy too close'
+                # print 'bad distance is ', get_distance((x, y), (x1, y1))
+                # print 'or', get_distance((x, y), avatar)
+                # print x,y
                 return False
         else:
+            # print 'distance is ', get_distance((x, y), (x1, y1))
             return True
     else:
         # check the distance to the avatar if there is no list yet

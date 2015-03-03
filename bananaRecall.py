@@ -299,6 +299,7 @@ class BananaRecall:
         # change fruit alpha (make visible)
         self.fruit.change_alpha_fruit('on')
         self.remembered_location = True
+        self.extra_reward()
         # no longer checking location
         self.find_recall_fruit = None
 
@@ -384,7 +385,7 @@ class BananaRecall:
         self.beep_list = [x-1 for x in self.beep_list]
         print('decrease reward, now:', self.beep_list)
 
-    def extra_reward(self, input_event):
+    def extra_reward(self, inputEvent=None):
         # print 'yup'
         if self.reward:
             self.reward.pumpOut()
