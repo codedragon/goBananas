@@ -166,3 +166,41 @@ bounds    = self.retrNodePath().getTightBounds()
 if bounds is None:
     bounds = (Point3(0, 0), Point3(0, 0))
 self.firstLineHeight = bounds[1][2]-bounds[0][2]
+
+From Jonathan:
+
+Vr.py within the function simulateWalkingMotion() - if you are using simulateCarMotion(), the bug may still exist, but the fix should be similar.
+
+The changes come near the end of the function, which, if I'm looking at the correct version of the code, should begin around line 770. New code is below, with the changes highlighted. All I'm doing is checking if the direction of turning has changed as a result of the friction, which shouldn't be allowed to happen and could cause you to move back and forth. The same change could (should?) also be applied to the speed.
+
+# If speed is negligible, clamp it to zero.
+            if not self.inputEvents.has_key('turnLeft') and \
+               not self.inputEvents.has_key('turnRight') and \
+                abs(newTurningSpeed) < 0.1:
+                newTurningSpeed = 0
+                avatar.setTurningSpeed(0) # may not be necessary
+                avatar.setTurningAccel(0)
+
+
+            # Simulate some friction.
+            if newLinearSpeed > 0:
+                newLinearSpeed = newLinearSpeed \
+                                 - dt*config['linearAcceleration']*config['friction']
+            elif newLinearSpeed < 0:
+                newLinearSpeed = newLinearSpeed \
+                                 + dt*config['linearAcceleration']*config['friction']
+
+            if self.inputEvents.has_key('turnLeft') or self.inputEvents.has_key('turnRight'):
+                turningFriction = config['friction']
+            else:
+                turningFriction = config['friction']*3
+            if newTurningSpeed > 0:
+                newTurningSpeed = newTurningSpeed \
+                                  - dt*config['turningAcceleration']*turningFriction
+                if newTurningSpeed < 0:
+                    newTurningSpeed = 0
+            elif newTurningSpeed < 0:
+                newTurningSpeed = newTurningSpeed \
+                                  + dt*config['turningAcceleration']*turningFriction
+                if newTurningSpeed > 0:
+                    newTurningSpeed = 0

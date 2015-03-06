@@ -13,32 +13,47 @@ environ = 'original'
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
 # for recallBanana, this list does NOT include the recall fruit
 fruit = ['cherry']
-num_fruit = [2]
-# for bananaRecall, num_beeps should be one or two numbers
-# if two numbers, second number will be used for fruit directly before
-# subject has to look for missing fruit
-num_beeps = [4]
+num_fruit = [1]
+# for bananaRecall, first number is for recall fruit, second for all other fruit
+num_beeps = [8, 2]
 # num_beeps = [3, 5]
 
 # RecallBanana configurations
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
 fruit_to_remember = 'old_banana'
 # fruit_to_remember = None
-# how close to remembered location to show banana?
-# list, first number is distance when recall fruit is partially visible,
-# second number when recall fruit invisible
-distance_goal = [1, 3]
+# how close to remembered location to get reward?
+distance_goal = [3, 3]
+manual = True  # using pre-configured locations, False: use random locations (either way can specify sub-area)
 repeat_recall_fruit = True  # can be toggled with key, repeats location
-time_to_recall = 10  # number of seconds to get to remembered location
+time_to_recall = 120  # number of seconds to get to remembered location
 time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
 # for training, fruit_to_remember location can be limited to a small area of the courtyard
 # (areas arranged same as numbers on keypad), zero means can be anywhere
-subarea = 9  # this is the starting spot, can be changed by a keypress later on
+# if manual is true, this specifies a particular position in this subarea, otherwise
+# random location in this area
+subarea = 7  # this is the starting spot, can be changed by a keypress later on
 # once trained, alpha will be at zero, no banana showing
-alpha = 0.4  # this is for training in the recall task. fully visible is 1, invisible is 0
+# can use this to set specific area for alternate fruit to show up. if not set, alternate
+# fruit can show up anywhere except the subarea where the recall fruit is. List
+alt_subarea = [3]
+# if alpha is greater than zero in config, when recall fruit moves to a new area will automatically
+# be at this alpha again until changed.
+alpha = 0.1  # this is for training in the recall task. fully visible is 1, invisible is 0
+first_fruit_alpha = True  # make the first recall fruit (after solids) be alpha, even
+# if using invisible for last trial
 # how many times to repeat the recall fruit at full visible before
 # subject has to remember where the fruit is.
 num_repeat_visible = 2
+points = {1: (-9.5, -9.5),
+          2: (0, -9.5),
+          3: (9.5, -9.5),
+          4: (-9.5, 0),
+          5: (0, 0),
+          6: (9.5, 0),
+          7: (-9.5, 9.5),
+          8: (0, 9.5),
+          9: (9.5, 9.5)}
 
 # which fruit to make alpha, False for none (goBananas only)
 go_alpha = False
@@ -76,7 +91,7 @@ sendData = True
 # toggle for adding training crosshair
 crosshair = False
 
-# for activating reward system
+# for activating reward system (ms)
 pulseInterval = 200
 
 # models are in goBananas directory by default
@@ -152,9 +167,11 @@ if 'Keyboard' in globals():
     keyboard.bind("extra_reward", "space")
     keyboard.bind("increase_alpha", "e")
     keyboard.bind("decrease_alpha", "d")
+    keyboard.bind("override_alpha", "a")
     keyboard.bind("increase_dist_goal", "t")
     keyboard.bind("decrease_dist_goal", "g")
-    keyboard.bind("toggle_random", "r")
+    keyboard.bind("toggle_manual", "m")
+    keyboard.bind("toggle_repeat", "r")
     keyboard.bind("subarea_1", "1")
     keyboard.bind("subarea_2", "2")
     keyboard.bind("subarea_3", "3")

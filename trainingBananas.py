@@ -148,10 +148,10 @@ class TrainingBananas(JoystickHandler):
         self.base.cTrav.addCollider(self.ray_node_path, self.collHandler)
         self.base.cTrav.addCollider(self.sphere_node_path, self.collHandler)
         # self.base.cTrav.showCollisions(self.base.render)
-        self.ray_node_path.show()
-        self.sphere_node_path.show()
-        self.banana_node_path.show()
-        self.base.render.find('**/+CollisionNode').show()
+        # self.ray_node_path.show()
+        # self.sphere_node_path.show()
+        # self.banana_node_path.show()
+        # self.base.render.find('**/+CollisionNode').show()
 
         # Camera
         self.base.camLens.setFov(60)

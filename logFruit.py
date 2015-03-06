@@ -20,13 +20,14 @@ class LogFruit:
                              "Beeps": 201,
                              "Repeat": 300,
                              "Alpha": 400}
+            self.min_x = config['min_x']
+            self.min_y = config['min_y']
         else:
             self.send_events = None
         self.go_trial = True
         if config.get('fruit_to_remember', False):
             self.go_trial = False
-        self.min_x = config['min_x']
-        self.min_y = config['min_y']
+
 
     def log_action(self, action, data):
         VideoLogQueue.VideoLogQueue.getInstance().writeLine(action, [data])

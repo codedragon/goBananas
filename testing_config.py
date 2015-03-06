@@ -10,8 +10,7 @@ manual = False
 
 # environ types available:
 # 'original'
-#environ = 'original'
-environ = None
+environ = 'original'
 
 # Are we giving rewards?
 reward = True
