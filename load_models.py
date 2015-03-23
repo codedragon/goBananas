@@ -33,10 +33,10 @@ def load_models():
 
     sky_model = PlaceModels()
     sky_model.name = 'sky'
-    sky_model.group = 'original'
+    sky_model.group = ['original', 'stone']
     # sky_model.group = 'meh'
     sky_model.model = 'models/sky/sky.bam'
-    sky_model.location = Point3(0, 0, 0)
+    sky_model.location = Point3(0, 0, -0.5)
     sky_model.scale = 1.6
 
     # smiley_model = PlaceModels()
@@ -79,9 +79,149 @@ def load_models():
     courtyard.location = Point3(0, 0, 0)
     courtyard.callback = 'MovingObject.handleRepelCollision'
 
+    ground = PlaceModels()
+    ground.group = 'stone'
+    # ground.group = 'other'
+    ground.name = 'ground'
+    ground.model = 'models/play_space/ground.egg'
+    ground.scale = 1.5
+    # ground.scale = Point3(0.5, 0.5, 1)
+    ground.location = Point3(0, 0, 0)
+
+    sq_courtyard = PlaceModels()
+    sq_courtyard.group = 'stone'
+    # courtyard.group = 'other'
+    sq_courtyard.name = 'terrain'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    sq_courtyard.model = 'models/play_space/walls.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    sq_courtyard.scale = 1
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    sq_courtyard.location = Point3(0, 0, 0)
+    sq_courtyard.callback = 'MovingObject.handleRepelCollision'
+
+    mountain = PlaceModels()
+    mountain.group = 'stone'
+    # courtyard.group = 'other'
+    mountain.name = 'mountain'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    mountain.model = 'models/mountain/mountain.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    mountain.scale = 0.0005
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    mountain.location = Point3(0, -30, -0.5)
+
+    mountain2 = PlaceModels()
+    mountain2.group = 'stone'
+    # courtyard.group = 'other'
+    mountain2.name = 'mountain2'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    mountain2.model = 'models/mountain/mountain.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    mountain2.scale = 0.0004
+    mountain2.head = 180
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    mountain2.location = Point3(15, -40, -0.5)
+
+    mountain3 = PlaceModels()
+    mountain3.group = 'stone'
+    # courtyard.group = 'other'
+    mountain3.name = 'mountain3'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    mountain3.model = 'models/mountain/mountain.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    mountain3.scale = 0.0003
+    mountain3.head = 270
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    mountain3.location = Point3(8, -70, -0.5)
+
+    windmill = PlaceModels()
+    windmill.group = 'stone'
+    # courtyard.group = 'other'
+    windmill.name = 'windmill'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    windmill.model = 'models/windmill/windmill.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    windmill.scale = 0.03
+    windmill.head = 15
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    windmill.location = Point3(0, 30, -1)
+
+    tree = PlaceModels()
+    tree.group = 'stone'
+    # courtyard.group = 'other'
+    tree.name = 'tree'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    tree.model = 'models/trees/tree.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    tree.scale = 0.5
+    #tree.head = 15
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    tree.location = Point3(40, 20, 0)
+
+    tree2 = PlaceModels()
+    tree2.group = 'stone'
+    # courtyard.group = 'other'
+    tree2.name = 'tree2'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    tree2.model = 'models/trees/tree.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    tree2.scale = 0.4
+    tree2.head = 90
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    tree2.location = Point3(30, 12, 0)
+
+    fir_tree = PlaceModels()
+    fir_tree.group = 'stone'
+    # courtyard.group = 'other'
+    fir_tree.name = 'fir_tree'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    fir_tree.model = 'models/trees/fir_tree.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    fir_tree.scale = 2
+    #fir_tree.head = 15
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    fir_tree.location = Point3(40, 0, -2)
+
+    fir_tree2 = PlaceModels()
+    fir_tree2.group = 'stone'
+    # courtyard.group = 'other'
+    fir_tree2.name = 'fir_tree2'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    fir_tree2.model = 'models/trees/fir_tree.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    fir_tree2.scale = 2
+    fir_tree2.head = 90
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    fir_tree2.location = Point3(30, 10, 0)
+
+    fir_tree3 = PlaceModels()
+    fir_tree3.group = 'stone'
+    # courtyard.group = 'other'
+    fir_tree3.name = 'fir_tree3'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    fir_tree3.model = 'models/trees/fir_tree.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    fir_tree3.scale = 2.5
+    fir_tree3.head = 180
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    fir_tree3.location = Point3(30, 20, -1)
+
+    fir_tree4 = PlaceModels()
+    fir_tree4.group = 'stone'
+    # courtyard.group = 'other'
+    fir_tree4.name = 'fir_tree4'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    fir_tree4.model = 'models/trees/fir_tree.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    fir_tree4.scale = 3
+    fir_tree4.head = 270
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    fir_tree4.location = Point3(30, 30, -1)
+
     horizon = PlaceModels()
     horizon.name = 'horizon'
-    horizon.group = 'circle'
+    horizon.group = ['circle']
     # horizon.scale = Point3(2, 2, 1)
     horizon.scale = Point3(2, 2, 4)
     # horizon.scale = 0.5
