@@ -100,6 +100,7 @@ def load_models():
     sq_courtyard.location = Point3(0, 0, 0)
     sq_courtyard.callback = 'MovingObject.handleRepelCollision'
 
+    # mountains y is distance from wall,
     mountain = PlaceModels()
     mountain.group = 'stone'
     # courtyard.group = 'other'
@@ -121,7 +122,7 @@ def load_models():
     mountain2.scale = 0.0004
     mountain2.head = 180
     # courtyard.scale = Point3(0.5, 0.5, 1)
-    mountain2.location = Point3(15, -40, -0.5)
+    mountain2.location = Point3(30, -45, -0.5)
 
     mountain3 = PlaceModels()
     mountain3.group = 'stone'
@@ -133,7 +134,7 @@ def load_models():
     mountain3.scale = 0.0003
     mountain3.head = 270
     # courtyard.scale = Point3(0.5, 0.5, 1)
-    mountain3.location = Point3(8, -70, -0.5)
+    mountain3.location = Point3(11, -40, -0.5)
 
     windmill = PlaceModels()
     windmill.group = 'stone'
@@ -145,7 +146,7 @@ def load_models():
     windmill.scale = 0.03
     windmill.head = 15
     # courtyard.scale = Point3(0.5, 0.5, 1)
-    windmill.location = Point3(0, 30, -1)
+    windmill.location = Point3(-10, 30, -1)
 
     tree = PlaceModels()
     tree.group = 'stone'
