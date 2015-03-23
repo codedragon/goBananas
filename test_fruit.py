@@ -49,30 +49,71 @@ class FruitTests(unittest.TestCase):
     # random only: repeat/not repeat
     # alpha/invisible
 
-    def test_recall_first_correct_trials_bright(self):
-        # want to test this for manual and random
+    def test_first_showing_bright(self):
         config = {'fruit_to_remember': 'banana', 'manual': True, 'subarea': 2,
                   'alpha': 0.3, 'num_repeat_visible': 2, 'first_fruit_alpha': True,
                   'sendData': False}
 
         fruit = Fruit(config)
         fruit.pos_dict = {}
-        for i in range(config['num_repeat_visible'] + 3):
-            # print('key', fruit.new_subarea_key)
-            # print('manual', fruit.manual)
-            remember, trial_type = fruit.setup_recall_trial(i)
-            # print remember, trial_type
-            # fake what we do in setup_fruit_for_recall_trial
-            if i == 0:
-                fruit.pos_dict['foo'] = 1  # fake that we are saving
-                fruit.new_subarea_key = None  # no more moving
-                self.assertEquals(trial_type, 'manual_bright')
-            elif i < config['num_repeat_visible']:
-                self.assertEquals(trial_type, 'repeat_bright')
-            elif i == config['num_repeat_visible']:
-                self.assertEquals(trial_type, 'repeat_alpha')
-            else:
-                self.assertEquals(trial_type, 'repeat')
+        # changing positions
+        fruit.num_shows = 0
+        fruit.new_subarea_key = 3
+        remember, trial_type = fruit.setup_recall_trial()
+        self.assertEquals(trial_type, 'manual_bright')
+        self.assertFalse(remember)
+
+    def test_showing_bright_for_num_repeat_visible_not_moving(self):
+        config = {'fruit_to_remember': 'banana', 'manual': True, 'subarea': 2,
+                  'alpha': 0.3, 'num_repeat_visible': 2, 'first_fruit_alpha': True,
+                  'sendData': False}
+
+        fruit = Fruit(config)
+        fruit.pos_dict = {}
+        # showing max number of times (config set up so counting starts at one for researcher's ease)
+        fruit.num_shows = config['num_repeat_visible'] - 1
+        fruit.new_subarea_key = 3
+        remember, trial_type = fruit.setup_recall_trial()
+        self.assertEquals(trial_type, 'manual_bright')
+        self.assertFalse(remember)
+
+    def test_showing_not_bright_when_done_required_showing_even_with_new_subarea(self):
+        config = {'fruit_to_remember': 'banana', 'manual': True, 'subarea': 2,
+                  'alpha': 0.3, 'num_repeat_visible': 2, 'first_fruit_alpha': True,
+                  'sendData': False}
+
+        fruit = Fruit(config)
+        fruit.pos_dict = {}
+        # changing positions
+        fruit.num_shows = 2
+        fruit.new_subarea_key = 3
+        remember, trial_type = fruit.setup_recall_trial()
+        self.assertEquals(trial_type, 'manual_bright')
+
+    # def test_recall_first_correct_trials_bright(self):
+    #     # want to test this for manual and random
+    #     config = {'fruit_to_remember': 'banana', 'manual': True, 'subarea': 2,
+    #               'alpha': 0.3, 'num_repeat_visible': 2, 'first_fruit_alpha': True,
+    #               'sendData': False}
+    #
+    #     fruit = Fruit(config)
+    #     fruit.pos_dict = {}
+    #     for i in range(config['num_repeat_visible'] + 3):
+    #         # print('key', fruit.new_subarea_key)
+    #         # print('manual', fruit.manual)
+    #         remember, trial_type = fruit.setup_recall_trial(i)
+    #         # print remember, trial_type
+    #         # fake what we do in setup_fruit_for_recall_trial
+    #         if i == 0:
+    #             fruit.pos_dict['foo'] = 1  # fake that we are saving
+    #             fruit.new_subarea_key = None  # no more moving
+    #             self.assertEquals(trial_type, 'manual_bright')
+    #         elif i < config['num_repeat_visible']:
+    #             self.assertEquals(trial_type, 'repeat_bright')
+    #         elif i == config['num_repeat_visible']:
+    #             self.assertEquals(trial_type, 'repeat_alpha')
+    #         else:
+    #             self.assertEquals(trial_type, 'repeat')
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
