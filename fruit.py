@@ -40,7 +40,8 @@ def create_alt_fruit_area(subarea_key, alt_subarea=None):
         area_list = alt_subarea
     else:
         area_list = range(1, 10)
-        area_list.remove(subarea_key)
+        if subarea_key < 10:
+            area_list.remove(subarea_key)
     # print('alternate fruit in area:', area_list)
     return area_list
 
@@ -56,19 +57,19 @@ class Fruit():
             # print 'recall task'
             # give exact location according to dictionary in config
             self.manual = config.get('manual')
+            self.subarea_key = config.get('subarea', 0)
             # bring this into a variable, so we can toggle it.
             # repeats until given new area by default if manual,
             # if set that way for random
             if self.manual:
                 self.repeat = True
+                if self.subarea_key > 9:
+                    raise ValueError('manual subareas greater than 9 have no meaning')
             else:
                 self.repeat = config['repeat_recall_fruit']
-            self.subarea_key = config.get('subarea', 0)
+
             print 'fruit manual, repeat, area', self.manual, self.repeat, self.subarea_key
-            self.new_subarea_key = None
-            if self.subarea_key:
-                # print 'true'
-                self.new_subarea_key = self.subarea_key
+            self.new_subarea_key = self.subarea_key
             # print('subarea', self.subarea_key)
             self.alpha = self.config['alpha']
             # print('alpha', self.alpha)
@@ -247,6 +248,7 @@ class Fruit():
         # print('num_shows', self.num_shows)
         remember = False
         if self.num_shows == self.config['num_repeat_visible']:
+            print 'required, first trial after visible repeats'
             # first trial after required visible repeats is required,
             # always a repeat
             # always alpha, if set in config
@@ -255,15 +257,15 @@ class Fruit():
                 trial_type = 'repeat_alpha'
             else:
                 trial_type = 'repeat'
-        elif self.num_shows > self.config['num_repeat_visible']:
-            # print 'okay to change areas'
-            # okay to change position
+        elif self.num_shows == 0:
+            # first trial, so definitely a new position...
             remember, trial_type = self.choose_new_recall_trial_type()
-        elif self.repeat and self.pos_dict:
-            # this is repeat because required, so always full bright,
-            # print 'repeating same place, make bright'
+        elif self.num_shows < self.config['num_repeat_visible']:
+            print 'required bright'
             trial_type = 'repeat_bright'
-        else:
+        elif self.num_shows > self.config['num_repeat_visible']:
+            print 'okay to change areas'
+            # okay to change position
             remember, trial_type = self.choose_new_recall_trial_type()
         print('remember', remember)
         print('trial type', trial_type)
@@ -273,6 +275,8 @@ class Fruit():
     def choose_new_recall_trial_type(self):
         # possible to change position of fruit, check to see if we are,
         # and if so, how
+        print 'change position?'
+        print('self.manual', self.manual, 'self.repeat', self.repeat)
         reset_num_shows = True
         if self.new_subarea_key and self.manual:
             trial_type = 'manual_bright'
@@ -326,8 +330,9 @@ class Fruit():
             # we switched subareas
             self.subarea_key = self.new_subarea_key
             self.new_subarea_key = None
-            # since specific x, y, go ahead and add to list
-            pos_list.append(self.config['points'].get(self.subarea_key))
+            # if specific x, y, go ahead and add to list
+            if 'manual' in repeat:
+                pos_list.append(self.config['points'].get(self.subarea_key))
         # get alt_area
         alt_area = create_alt_fruit_area(self.subarea_key)
         # print pos_list
@@ -354,6 +359,7 @@ class Fruit():
                         (x, y) = self.config['points'].get(self.subarea_key)
                     else:
                         # print 'get random'
+                        print('subarea_key', self.subarea_key)
                         (x, y) = mB.get_random_xy(pos_list, avatar_x_y, self.config, [self.subarea_key])
                     pos_list.append((x, y))
                     # always be ready to repeat recall fruit, cheap

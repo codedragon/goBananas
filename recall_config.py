@@ -24,23 +24,24 @@ fruit_to_remember = 'old_banana'
 # fruit_to_remember = None
 # how close to remembered location to get reward?
 distance_goal = [3, 3]
-manual = True  # using pre-configured locations, False: use random locations (either way can specify sub-area)
-repeat_recall_fruit = True  # can be toggled with key, repeats location
+manual = False  # using pre-configured locations, False: use random locations (either way can specify sub-area)
+repeat_recall_fruit = False  # can be toggled with key, repeats location
 time_to_recall = 120  # number of seconds to get to remembered location
 time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
 # for training, fruit_to_remember location can be limited to a small area of the courtyard
 # (areas arranged same as numbers on keypad), zero means can be anywhere
 # if manual is true, this specifies a particular position in this subarea, otherwise
 # random location in this area
-subarea = 7  # this is the starting spot, can be changed by a keypress later on
+# to use the whole area, use subarea 10
+subarea = 10  # this is the starting spot, can be changed by a keypress later on
 # once trained, alpha will be at zero, no banana showing
 # can use this to set specific area for alternate fruit to show up. if not set, alternate
 # fruit can show up anywhere except the subarea where the recall fruit is. List
-alt_subarea = [3]
+# alt_subarea = [3]
 # if alpha is greater than zero in config, when recall fruit moves to a new area will automatically
 # be at this alpha again until changed.
 alpha = 0.1  # this is for training in the recall task. fully visible is 1, invisible is 0
-first_fruit_alpha = True  # make the first recall fruit (after solids) be alpha, even
+first_fruit_alpha = False  # make the first recall fruit (after solids) be alpha, even
 # if using invisible for last trial
 # how many times to repeat the recall fruit at full visible before
 # subject has to remember where the fruit is.

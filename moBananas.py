@@ -32,6 +32,9 @@ def get_random_xy(pos_list, avatar=(0, 0), config=None, area=None):
     if config is None:
         config = {}
         execfile('config.py', config)
+    whole_area = False
+    if area is None or area == [10]:
+        whole_area = True
     # print('pos list', pos_list)
     # print('avatar', avatar)
     # print('config', config)
@@ -43,12 +46,13 @@ def get_random_xy(pos_list, avatar=(0, 0), config=None, area=None):
         # print 'after point'
         return x, y
     # using whole area
-    if not area or len(area) == 9:
+    if whole_area or len(area) == 9:
         # print 'user whole area'
         # use entire area
         while True:
             x = random.uniform(config['min_x'], config['max_x'])
             y = random.uniform(config['min_y'], config['max_y'])
+            # print x, y, pos_list, avatar
             if check_distances_good(x, y, pos_list, avatar, config):
                 return x, y
     # need to figure out geometry. may be easier to exclude areas if using
