@@ -32,7 +32,7 @@ def check_repeat(trial_num, original_list):
     return repeat_list, trial_type
 
 
-def create_alt_fruit_area(subarea_key, alt_subarea=None):
+def create_alt_fruit_area(subarea_key=None, alt_subarea=None):
     # alternate fruit can be directed to a specific subarea, or can be
     # chosen automatically as any section except the one the recall fruit
     # is in.
@@ -334,7 +334,13 @@ class Fruit():
             if 'manual' in repeat:
                 pos_list.append(self.config['points'].get(self.subarea_key))
         # get alt_area
-        alt_area = create_alt_fruit_area(self.subarea_key)
+        if self.config.get('alt_subarea'):
+            #print 'use alt_subarea'
+            alt_area = create_alt_fruit_area(alt_subarea=self.config['alt_subarea'])
+            #print alt_area
+        else:
+            #print 'use any area'
+            alt_area = create_alt_fruit_area(self.subarea_key)
         # print pos_list
         # print 'avatar pos', avatar_x_y
         for name, fruit in self.fruit_models.iteritems():
