@@ -4,6 +4,7 @@ from load_models import load_models, get_model
 import moBananas as mB
 import random
 from sys import stdout
+from math import sin, cos, radians
 
 
 def check_repeat(trial_num, original_list):
@@ -561,9 +562,32 @@ class Fruit():
         self.new_subarea_key = subarea_key
 
     def check_distance_to_fruit(self, target_fruit):
+        # Zowie, appears to be a panda3d method, but I can't
+        # get to it, because I don't know how to get to the
+        # panda actor node. :(
         avatar = Avatar.Avatar.getInstance()
         avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
         banana = self.fruit_models[target_fruit]
         banana_pos = (banana.getPos()[0], banana.getPos()[1])
         dist_to_banana = mB.get_distance(avatar_pos, banana_pos)
         return dist_to_banana
+
+    def move_recall_fruit_to_avatar(self):
+        # 0 heading for avatar is off by 90 degrees from where one
+        # would expect it to be, which makes for some interesting
+        # gymnastics
+        print 'move fruit in front of avatar'
+        avatar = Avatar.Avatar.getInstance()
+        avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
+        print avatar_pos
+        avatar_head = avatar.getH() + 90
+        heading = radians(avatar_head)
+        print avatar_head
+        x2 = avatar_pos[0] + cos(heading) * 2
+        y2 = avatar_pos[1] + sin(heading) * 2
+        # print x2, y2
+        recall_fruit = self.fruit_models[self.config['fruit_to_remember']]
+        # print recall_fruit.getPos()
+        z = recall_fruit.getPos()[2]
+        recall_fruit.setPos(Point3(x2, y2, z))
+        print 'new position', recall_fruit.getPos()

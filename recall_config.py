@@ -24,7 +24,7 @@ fruit_to_remember = 'old_banana'
 # fruit_to_remember = None
 # how close to remembered location to get reward?
 distance_goal = [3, 3]
-manual = False  # using pre-configured locations, False: use random locations (either way can specify sub-area)
+manual = True  # using pre-configured locations, False: use random locations (either way can specify sub-area)
 repeat_recall_fruit = False  # can be toggled with key, repeats location
 time_to_recall = 120  # number of seconds to get to remembered location
 time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
@@ -33,7 +33,7 @@ time_to_flash = 0  # number of seconds to flash fruit, zero for no flashing
 # if manual is true, this specifies a particular position in this subarea, otherwise
 # random location in this area
 # to use the whole area, use subarea 10
-subarea = 10  # this is the starting spot, can be changed by a keypress later on
+subarea = 6  # this is the starting spot, can be changed by a keypress later on
 # once trained, alpha will be at zero, no banana showing
 # can use this to set specific area for alternate fruit to show up. if not set, alternate
 # fruit can show up anywhere except the subarea where the recall fruit is. List
@@ -45,7 +45,7 @@ first_fruit_alpha = False  # make the first recall fruit (after solids) be alpha
 # if using invisible for last trial
 # how many times to repeat the recall fruit at full visible before
 # subject has to remember where the fruit is.
-num_repeat_visible = 2
+num_repeat_visible = 1
 points = {1: (-9.5, -9.5),
           2: (0, -9.5),
           3: (9.5, -9.5),
