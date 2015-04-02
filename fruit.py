@@ -585,8 +585,9 @@ class Fruit():
         x2 = avatar_pos[0] + cos(heading) * 2
         y2 = avatar_pos[1] + sin(heading) * 2
         # print x2, y2
-        recall_fruit = self.fruit_models[self.config['fruit_to_remember']]
-        # print recall_fruit.getPos()
-        z = recall_fruit.getPos()[2]
-        recall_fruit.setPos(Point3(x2, y2, z))
-        # print 'new position', recall_fruit.getPos()
+        if self.config['min_x'] < x2 < self.config['max_x'] and self.config['min_y'] < y2 < self.config['max_y']:
+            recall_fruit = self.fruit_models[self.config['fruit_to_remember']]
+            # print recall_fruit.getPos()
+            z = recall_fruit.getPos()[2]
+            recall_fruit.setPos(Point3(x2, y2, z))
+            # print 'new position', recall_fruit.getPos()
