@@ -301,7 +301,6 @@ class BananaRecall:
             self.fruit.move_recall_fruit_to_avatar()
         self.fruit.change_alpha_fruit('on')
         self.remembered_location = True
-        self.extra_reward()
         # no longer checking location
         self.find_recall_fruit = None
 
