@@ -69,7 +69,7 @@ class Fruit():
             else:
                 self.repeat = config['repeat_recall_fruit']
 
-            print 'fruit manual, repeat, area', self.manual, self.repeat, self.subarea_key
+            # print 'fruit manual, repeat, area', self.manual, self.repeat, self.subarea_key
             self.new_subarea_key = self.subarea_key
             # print('subarea', self.subarea_key)
             self.alpha = self.config['alpha']
@@ -249,7 +249,7 @@ class Fruit():
         # print('num_shows', self.num_shows)
         remember = False
         if self.num_shows == self.config['num_repeat_visible']:
-            print 'required, first trial after visible repeats'
+            # print 'required, first trial after visible repeats'
             # first trial after required visible repeats is required,
             # always a repeat
             # always alpha, if set in config
@@ -262,30 +262,30 @@ class Fruit():
             # first trial, so definitely a new position...
             remember, trial_type = self.choose_new_recall_trial_type()
         elif self.num_shows < self.config['num_repeat_visible']:
-            print 'required bright'
+            # print 'required bright'
             trial_type = 'repeat_bright'
         elif self.num_shows > self.config['num_repeat_visible']:
-            print 'okay to change areas'
+            # print 'okay to change areas'
             # okay to change position
             remember, trial_type = self.choose_new_recall_trial_type()
-        print('remember', remember)
-        print('trial type', trial_type)
+        # print('remember', remember)
+        # print('trial type', trial_type)
         self.num_shows += 1
         return remember, trial_type
 
     def choose_new_recall_trial_type(self):
         # possible to change position of fruit, check to see if we are,
         # and if so, how
-        print 'change position?'
-        print('self.manual', self.manual, 'self.repeat', self.repeat)
+        # print 'change position?'
+        # print('self.manual', self.manual, 'self.repeat', self.repeat)
         reset_num_shows = True
         if self.new_subarea_key and self.manual:
             trial_type = 'manual_bright'
         elif self.new_subarea_key and not self.manual:
-            print 'random and new subarea chosen'
+            # print 'random and new subarea chosen'
             trial_type = 'random_bright'
         elif not self.manual and not self.repeat:
-            print 'random and not repeating, so force new position'
+            # print 'random and not repeating, so force new position'
             trial_type = 'random_force_bright'
         else:
             trial_type = 'repeat'
@@ -336,11 +336,11 @@ class Fruit():
                 pos_list.append(self.config['points'].get(self.subarea_key))
         # get alt_area
         if self.config.get('alt_subarea'):
-            #print 'use alt_subarea'
+            # print 'use alt_subarea'
             alt_area = create_alt_fruit_area(alt_subarea=self.config['alt_subarea'])
-            #print alt_area
+            # print alt_area
         else:
-            #print 'use any area'
+            # print 'use any area'
             alt_area = create_alt_fruit_area(self.subarea_key)
         # print pos_list
         # print 'avatar pos', avatar_x_y
@@ -366,13 +366,13 @@ class Fruit():
                         (x, y) = self.config['points'].get(self.subarea_key)
                     else:
                         # print 'get random'
-                        print('subarea_key', self.subarea_key)
+                        # print('subarea_key', self.subarea_key)
                         (x, y) = mB.get_random_xy(pos_list, avatar_x_y, self.config, [self.subarea_key])
                     pos_list.append((x, y))
                     # always be ready to repeat recall fruit, cheap
                     self.pos_dict[name] = (x, y)
                     # make sure we know to show it, since not a repeat
-                print('recall fruit position', x, y)
+                # print('recall fruit position', x, y)
             else:
                 # fruit not remembering is in alternate area, if we have specified an area for the recall
                 # fruit
@@ -420,16 +420,16 @@ class Fruit():
                     self.change_alpha_fruit('on')
                 elif 'alpha' in repeat and self.alpha == 0:
                     # get alpha from config
-                    print 'reset recall fruit alpha'
+                    # print 'reset recall fruit alpha'
                     self.alpha = self.config['alpha']
-                    print('changed alpha', self.alpha)
+                    # print('changed alpha', self.alpha)
                     self.change_alpha_fruit('on_alpha')
                 elif self.alpha > 0:
                     # if alpha is on, use alpha
-                    print 'recall fruit alpha'
+                    # print 'recall fruit alpha'
                     self.change_alpha_fruit('on_alpha')
                 else:
-                    print 'recall fruit invisible'
+                    # print 'recall fruit invisible'
                     self.change_alpha_fruit('off')
                 self.fruit_list.append(name)
             else:
@@ -448,7 +448,7 @@ class Fruit():
         self.alpha_node_path = self.fruit_models[name].retrNodePath()
         self.alpha_node_path.setTransparency(TransparencyAttrib.MAlpha)
         if alpha:
-            print('make a fruit alpha', name, self.config['alpha'])
+            # print('make a fruit alpha', name, self.config['alpha'])
             self.alpha_node_path.setAlphaScale(self.config['alpha'])
             # log it
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha", [name + ' ' + str(self.config['alpha'])])
@@ -558,7 +558,7 @@ class Fruit():
             self.fruit_models[fruit].setStashed(True)
 
     def choose_recall_position(self, subarea_key):
-        print('new subarea key', subarea_key)
+        # print('new subarea key', subarea_key)
         self.new_subarea_key = subarea_key
 
     def check_distance_to_fruit(self, target_fruit):
@@ -574,15 +574,14 @@ class Fruit():
 
     def move_recall_fruit_to_avatar(self):
         # 0 heading for avatar is off by 90 degrees from where one
-        # would expect it to be, which makes for some interesting
-        # gymnastics
-        print 'move fruit in front of avatar'
+        # would expect it to be, so we rotate 90 degrees
+        # print 'move fruit in front of avatar'
         avatar = Avatar.Avatar.getInstance()
         avatar_pos = (avatar.getPos()[0], avatar.getPos()[1])
-        print avatar_pos
+        # print avatar_pos
         avatar_head = avatar.getH() + 90
         heading = radians(avatar_head)
-        print avatar_head
+        # print avatar_head
         x2 = avatar_pos[0] + cos(heading) * 2
         y2 = avatar_pos[1] + sin(heading) * 2
         # print x2, y2
@@ -590,4 +589,4 @@ class Fruit():
         # print recall_fruit.getPos()
         z = recall_fruit.getPos()[2]
         recall_fruit.setPos(Point3(x2, y2, z))
-        print 'new position', recall_fruit.getPos()
+        # print 'new position', recall_fruit.getPos()

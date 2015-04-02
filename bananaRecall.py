@@ -297,7 +297,8 @@ class BananaRecall:
     def found_banana(self):
         # VLQ.getInstance().writeLine("Remembered", [dist_to_banana])
         # change fruit alpha (make visible), and move so directly in front of avatar
-        self.fruit.move_recall_fruit_to_avatar()
+        if self.fruit.alpha == 0:
+            self.fruit.move_recall_fruit_to_avatar()
         self.fruit.change_alpha_fruit('on')
         self.remembered_location = True
         self.extra_reward()
