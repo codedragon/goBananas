@@ -48,6 +48,11 @@ class BananaRecall:
         # if fruit to remember is none when trying to run bananaRecall
         if self.config['fruit_to_remember'] is None:
             raise Exception("fruit_to_remember in config file must have a value")
+        # if on auto-pilot, make sure other configs make sense.
+        if self.config['auto_pilot']:
+            self.config['manual'] = False
+            self.config['repeat_recall_fruit'] = False
+            self.config['subarea'] = 10
         # print config['training']
         # print 'load testing', config['testing']
         # bring some configuration parameters into variables, so can change these

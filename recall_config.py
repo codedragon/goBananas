@@ -21,6 +21,7 @@ num_beeps = [8, 2]
 # RecallBanana configurations
 # for experiments where need to recall location, otherwise have fruit_to_remember set to None
 fruit_to_remember = 'old_banana'
+auto_pilot = True
 # fruit_to_remember = None
 # how close to remembered location to get reward?
 distance_goal = [3, 3]

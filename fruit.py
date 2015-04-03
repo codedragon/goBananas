@@ -429,7 +429,7 @@ class Fruit():
                     # print 'recall fruit alpha'
                     self.change_alpha_fruit('on_alpha')
                 else:
-                    # print 'recall fruit invisible'
+                    print 'recall fruit invisible'
                     self.change_alpha_fruit('off')
                 self.fruit_list.append(name)
             else:
