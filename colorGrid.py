@@ -2,8 +2,6 @@
 from pandaepl.common import *
 from panda3d.core import WindowProperties
 from load_models import PlaceModels, load_models
-from fruit import Fruit
-from logFruit import LogFruit
 import datetime
 import time
 import sys
@@ -129,10 +127,12 @@ class ColorGrid:
                         self.frame_loop(),
                         ))
         # send avatar position to blackrock/plexon
-        if self.config['sendData'] and LOADED_PYDAQ:
-            vr.addTask(Task("sendAvatar",
-                            lambda task_info:
-                            self.send_avatar_daq()))
+        # NEED TO ADJUST THIS TO SIZE OF GRID
+        #
+        # if self.config['sendData'] and LOADED_PYDAQ:
+        #     vr.addTask(Task("sendAvatar",
+        #                     lambda task_info:
+        #                     self.send_avatar_daq()))
 
         # set up reward system
         if self.config['reward'] and LOADED_PYDAQ:
@@ -176,6 +176,7 @@ class ColorGrid:
         # change color by difference of where we have gone.
         self.red += (x * 0.05)
         self.green += (y * 0.05)
+        # NEED TO CHANGE THIS SO POSITION ISN'T CHANGING INSTEAD
         if self.red > 1:
             self.red = 1
         elif self.red < 0:
