@@ -53,6 +53,7 @@ class BananaRecall:
             self.config['manual'] = False
             self.config['repeat_recall_fruit'] = False
             self.config['subarea'] = 10
+            self.config['first_fruit_alpha'] = False
         # print config['training']
         # print 'load testing', config['testing']
         # bring some configuration parameters into variables, so can change these

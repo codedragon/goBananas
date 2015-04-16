@@ -412,6 +412,7 @@ class Fruit():
         recall_fruit = self.config['fruit_to_remember']
         if recall_fruit:
             if name == recall_fruit:
+                # print 'make fruit visible (or not)'
                 # print('alpha', self.alpha)
                 # decide if we have shown required number of times at full bright.
                 if 'bright' in repeat:
