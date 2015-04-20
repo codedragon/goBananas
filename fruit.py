@@ -431,7 +431,7 @@ class Fruit():
                     self.change_alpha_fruit('on_alpha')
                 else:
                     print 'recall fruit invisible'
-                    self.change_alpha_fruit('off')
+                    self.change_alpha_fruit('off_alpha')
                 self.fruit_list.append(name)
             else:
                 self.fruit_list.append(name)
@@ -541,7 +541,7 @@ class Fruit():
             # print('should be on at this alpha ', self.alpha)
             self.alpha_node_path.setAlphaScale(self.alpha)
             # log what alpha we flashed at
-            # print('alpha', self.alpha)
+            print('alpha', self.alpha)
             # print('fruit', fruit)
             VideoLogQueue.VideoLogQueue.getInstance().writeLine("Alpha",
                                                                 [fruit + ' ' + str(self.alpha)])
