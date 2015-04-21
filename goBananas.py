@@ -202,6 +202,10 @@ class GoBananas:
         elif self.fruit.beeps == 0:
             # just ran into it, log which banana
             VLQ.getInstance().writeLine("Yummy", [current_fruit])
+            # send signal
+            if self.send_events:
+                self.send_events.send_signal(200)
+                self.send_strobe.send_signal()
             # log if alpha was turned on
             if self.fruit.fruit_models[current_fruit].retrNodePath().getTransparency():
                 # print 'alpha'
@@ -209,9 +213,7 @@ class GoBananas:
                 VLQ.getInstance().writeLine("Alpha", [current_fruit + ' ' + str(alpha)])
             # print('yummy', current_fruit)
             # print('banana pos', self.fruit.bananaModels[int(current_fruit[-2:])].getPos())
-            if self.send_events:
-                self.send_events.send_signal(200)
-                self.send_strobe.send_signal()
+
             # determine how much reward we are giving
             self.num_beeps = self.get_reward_level(current_fruit)
 
