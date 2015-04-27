@@ -220,6 +220,18 @@ def load_models():
     # courtyard.scale = Point3(0.5, 0.5, 1)
     fir_tree4.location = Point3(30, 37, -1)
 
+    ranch_house = PlaceModels()
+    ranch_house.group = 'stone'
+    # courtyard.group = 'other'
+    ranch_house.name = 'ranch_house'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    ranch_house.model = 'models/buildings/house.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    ranch_house.scale = 3.5
+    ranch_house.head = 15
+    # courtyard.scale = Point3(0.5, 0.5, 1)
+    ranch_house.location = Point3(-50, 3, 3.3)
+
     horizon = PlaceModels()
     horizon.name = 'horizon'
     horizon.group = ['circle']
