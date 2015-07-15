@@ -15,15 +15,26 @@ environ = 'original'
 #fruit = ['old_banana','cherry']
 #num_fruit = [5, 5]
 #num_beeps = [3, 5]
-fruit = ['old_banana','cherry']
-num_fruit = [2,2]
-num_beeps = [4,4]
+fruit = ['old_banana']
+num_fruit = [10]
+num_beeps = [3]
+# fruit_dict = {'old_banana008': (1.0308523924023465, 2.696501626688711), 
+# 	'old_banana009': (-0.8415660617180905, 8.517858840690405), 
+# 	'old_banana006': (-7.840797155108468, 6.988693437399192), 
+# 	'old_banana007': (-7.570439700755076, 1.638789689558127), 
+# 	'old_banana004': (-8.39561713487198, -3.3586250946766283), 
+# 	'old_banana005': (-5.393856172370732, -4.211553443023264), 
+# 	'old_banana002': (-9.824605435042828, -9.058700527886014), 
+# 	'old_banana003': (5.012920228098546, -4.492073778058923), 
+# 	'old_banana000': (-7.920266364380111, -0.7079936339602284), 
+# 	'old_banana001': (-2.6398400012779843, 8.638750166559326)}
+# fruit_dict = {}
 
 # factor to increase reward for last banana
 extra = 2
 
 # which fruit to make alpha, False for none (goBananas only)
-go_alpha = 'old_banana'
+# go_alpha = 'old_banana'
 
 # set how much alpha using for either recall or gobananas
 # fully visible is 1, invisible is 0,
