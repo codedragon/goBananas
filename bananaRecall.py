@@ -46,6 +46,8 @@ class BananaRecall:
         self.config = Conf.getInstance().getConfig()  # Get configuration dictionary.
         # raise an exception here, because config is probably wrong on several accounts
         # if fruit to remember is none when trying to run bananaRecall
+        self.reward_sound = base.loader.loadSfx("models/reward_beep.wav")
+
         if self.config['fruit_to_remember'] is None:
             raise Exception("fruit_to_remember in config file must have a value")
         # if on auto-pilot, make sure other configs make sense.
@@ -243,6 +245,7 @@ class BananaRecall:
             # print('beep', self.fruit.beeps)
             self.reward.pumpOut()
         else:
+            self.reward_sound.play()
             print('beep', self.fruit.beeps)
         # if this is first reward, log that
         if self.fruit.beeps == 0:
