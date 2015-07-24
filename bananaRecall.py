@@ -247,7 +247,6 @@ class BananaRecall:
         else:
             self.reward_sound.play()
             print('beep', self.fruit.beeps)
-            time.sleep(1)
 
         # if this is first reward, log that
         if self.fruit.beeps == 0:
