@@ -13,9 +13,9 @@ environ = 'original'
 # fruit is set up as a list, in the case that there are multiple fruit types to be had
 # for recallBanana, this list does NOT include the recall fruit
 fruit = ['cherry']
-num_fruit = [1]
+num_fruit = [2]
 # for bananaRecall, first number is for recall fruit, second for all other fruit
-num_beeps = [8, 2]
+num_beeps = [2, 1]
 # num_beeps = [3, 5]
 
 # RecallBanana configurations
@@ -44,14 +44,14 @@ subarea = 6  # this is the starting subarea for the recall fruit
 # alt_subarea = [3]
 # alpha can be changed by a keypress later on
 # once trained, change alpha to zero, no banana showing
-alpha = 0.1  # this is for training in the recall task. fully visible is 1, invisible is 0
+alpha = 0  # this is for training in the recall task. fully visible is 1, invisible is 0
 # if alpha is greater than zero in config, when recall fruit moves to a new area will automatically
 # be at this alpha again until changed.
 first_fruit_alpha = False  # make the first recall fruit (after solids) be alpha, even
 # if using invisible for last trial
 # how many times to repeat the recall fruit at full visible before
 # subject has to remember where the fruit is.
-num_repeat_visible = 1
+num_repeat_visible = 2
 
 points = {1: (-9.5, -9.5),
           2: (0, -9.5),
