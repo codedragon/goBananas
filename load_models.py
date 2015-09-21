@@ -33,7 +33,7 @@ def load_models():
 
     sky_model = PlaceModels()
     sky_model.name = 'sky'
-    sky_model.group = ['original', 'stone']
+    sky_model.group = ['original', 'stone', 'narrow']
     # sky_model.group = 'meh'
     sky_model.model = 'models/sky/sky.bam'
     sky_model.location = Point3(0, 0, -0.5)
@@ -242,6 +242,21 @@ def load_models():
     # horizon.model = 'models/sky/good_sky_hole.egg'
     # horizon.model = '../play_environ/models/sky_cylinder.egg'
     horizon.location = Point3(0, 0, -0.5)
+
+    narrow_court = PlaceModels()
+    narrow_court.group = 'narrow'
+    # courtyard.group = 'other'
+    narrow_court.name = 'terrain'
+    # courtyard.model = 'models/play_space/courtyard.bam'
+    narrow_court.model = 'models/play_space/narrow_court.egg'
+    # narrow_court.model = 'models/play_space/narrow_courtyard.egg'
+    # courtyard.model = '../play_environ/models/courtyard_one.egg'
+    narrow_court.scale = 1
+    narrow_court.head = 90
+    # narrow_court.scale = Point3(0.2, 0.1, 0.3)
+    narrow_court.location = Point3(0, 0, 0.8)
+    # narrow_court.location = Point3(0, 0, -0.5)
+    narrow_court.callback = 'MovingObject.handleRepelCollision'
 
     banana = PlaceModels()
     banana.name = 'old_banana'
