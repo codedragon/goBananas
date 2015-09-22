@@ -9,26 +9,18 @@ from pandaepl import Keyboard
 # environ types available:
 # 'original'
 environ = 'original'
-#environ = 'circle'
+# environ = 'circle'
 
 # Bananas.
-#fruit = ['old_banana','cherry']
-#num_fruit = [5, 5]
-#num_beeps = [3, 5]
+# fruit = ['old_banana','cherry']
+# num_fruit = [5, 5]
+# num_beeps = [3, 5]
 fruit = ['old_banana']
-num_fruit = [10]
+num_fruit = [4]
 num_beeps = [3]
-# fruit_dict = {'old_banana008': (1.0308523924023465, 2.696501626688711), 
-# 	'old_banana009': (-0.8415660617180905, 8.517858840690405), 
-# 	'old_banana006': (-7.840797155108468, 6.988693437399192), 
-# 	'old_banana007': (-7.570439700755076, 1.638789689558127), 
-# 	'old_banana004': (-8.39561713487198, -3.3586250946766283), 
-# 	'old_banana005': (-5.393856172370732, -4.211553443023264), 
-# 	'old_banana002': (-9.824605435042828, -9.058700527886014), 
-# 	'old_banana003': (5.012920228098546, -4.492073778058923), 
-# 	'old_banana000': (-7.920266364380111, -0.7079936339602284), 
-# 	'old_banana001': (-2.6398400012779843, 8.638750166559326)}
-# fruit_dict = {}
+# fruit_dict = {'old_banana000': (0, 0),
+#               'old_banana001': (0, 7),
+#               'old_banana002': (0, -7)}
 
 # factor to increase reward for last banana
 extra = 2
@@ -94,7 +86,7 @@ offset = (1, 1)  # (x,y)
 # 3d?
 # framebuffer-stereo 1
 
-#### Core PandaEPL settings ####
+# ### Core PandaEPL settings ####
 
 FOV = 60
 
