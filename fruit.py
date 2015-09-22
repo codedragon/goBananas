@@ -113,7 +113,11 @@ class Fruit():
         # variable to save the fruit we ran into most recently
         self.current_fruit = None
         # dictionary to save positions for repeated trials or single fruit
-        self.pos_dict = {}
+        if self.config.get('fruit_dict', False):
+            self.pos_dict = self.config['fruit_dict']
+        else:
+            self.pos_dict = {}
+        # print 'start', self.pos_dict
 
     def create_fruit(self, fruit_dict):
         self.num_fruit_dict = fruit_dict
@@ -181,6 +185,9 @@ class Fruit():
         trial_type = ''
         if self.repeat:
             self.repeat_list, trial_type = check_repeat(trial_num, self.repeat_list)
+            # print self.repeat_list
+            if self.config.get('fruit_dict', False):
+                trial_type = 'repeat'
             # print('got stuff back', trial_type)
             # print('trial number to be repeated', self.repeat_list[1])
         avatar_x_y = self.log_new_trial(trial_type, trial_num)
@@ -204,21 +211,29 @@ class Fruit():
             # print name
             # print pos_list
             # print('repeat', repeat)
+            overload = False
             if repeat == 'repeat':
-                # get x,y from the dictionary
-                (x, y) = self.pos_dict[name]
-            else:
+                if name in self.pos_dict:
+                    # get x,y from the dictionary
+                    (x, y) = self.pos_dict[name]
+                    if not mB.check_distances_good(x, y, pos_list, avatar_x_y, self.config):
+                        x = None
+                else:
+                    overload = True
+            if repeat != 'repeat' or overload:
                 # get new positions
                 (x, y) = mB.get_random_xy(pos_list, avatar_x_y, self.config)
                 pos_list.append((x, y))
             # print pos_list
             # print('current positions', name, x, y)
-            pos_dict[name] = (x, y)
-            self.make_fruit_visible(name, repeat)
+            if x is not None:
+                pos_dict[name] = (x, y)
+                self.make_fruit_visible(name, repeat)
         if repeat == 'new':
             # print 'save new'
             # save new banana placements
             self.pos_dict = pos_dict
+        # print 'position', self.pos_dict
         # print pos_dict
         # print('fruit list', self.fruit_list)
         return pos_dict

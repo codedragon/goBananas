@@ -9,21 +9,24 @@ from pandaepl import Keyboard
 # environ types available:
 # 'original'
 environ = 'original'
-#environ = 'circle'
+# environ = 'circle'
 
 # Bananas.
-#fruit = ['old_banana','cherry']
-#num_fruit = [5, 5]
-#num_beeps = [3, 5]
-fruit = ['old_banana','cherry']
-num_fruit = [2,2]
-num_beeps = [4,4]
+# fruit = ['old_banana','cherry']
+# num_fruit = [5, 5]
+# num_beeps = [3, 5]
+fruit = ['old_banana']
+num_fruit = [4]
+num_beeps = [3]
+# fruit_dict = {'old_banana000': (0, 0),
+#               'old_banana001': (0, 7),
+#               'old_banana002': (0, -7)}
 
 # factor to increase reward for last banana
 extra = 2
 
 # which fruit to make alpha, False for none (goBananas only)
-go_alpha = 'old_banana'
+# go_alpha = 'old_banana'
 
 # set how much alpha using for either recall or gobananas
 # fully visible is 1, invisible is 0,
@@ -83,7 +86,7 @@ offset = (1, 1)  # (x,y)
 # 3d?
 # framebuffer-stereo 1
 
-#### Core PandaEPL settings ####
+# ### Core PandaEPL settings ####
 
 FOV = 60
 

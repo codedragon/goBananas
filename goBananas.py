@@ -32,7 +32,7 @@ class GoBananas:
         # I should go ahead and make config a class variable. Is in memory, because
         # it is a class variable in fruit, so doubling many variables here.
         self.config = Conf.getInstance().getConfig()  # Get configuration dictionary.
-        print self.config['environ']
+        print 'environment: ', self.config['environ']
         # print config['training']
         # print 'load testing', config['testing']
         # bring some configuration parameters into memory, so we don't need to
