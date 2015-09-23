@@ -7,8 +7,8 @@ from pandaepl import Keyboard
 # Experiment-specific settings
 
 # environ types available:
-# 'original'
-environ = 'original'
+environ = 'narrow'
+# environ = 'original'
 # environ = 'circle'
 
 # Bananas.
@@ -16,14 +16,25 @@ environ = 'original'
 # num_fruit = [5, 5]
 # num_beeps = [3, 5]
 fruit = ['old_banana']
-num_fruit = [4]
-num_beeps = [3]
-# fruit_dict = {'old_banana000': (0, 0),
-#               'old_banana001': (0, 7),
-#               'old_banana002': (0, -7)}
+num_fruit = [5]
+num_beeps = [10]
+fruit_dict = {'old_banana000': (0, -7.8),
+              'old_banana001': (0, 7.8)}
+
+# fruit_dict = {'old_banana008': (1.0308523924023465, 2.696501626688711), 
+# 	'old_banana009': (-0.8415660617180905, 8.517858840690405), 
+# 	'old_banana006': (-7.840797155108468, 6.988693437399192), 
+# 	'old_banana007': (-7.570439700755076, 1.638789689558127), 
+# 	'old_banana004': (-8.39561713487198, -3.3586250946766283), 
+# 	'old_banana005': (-5.393856172370732, -4.211553443023264), 
+# 	'old_banana002': (-9.824605435042828, -9.058700527886014), 
+# 	'old_banana003': (5.012920228098546, -4.492073778058923), 
+# 	'old_banana000': (-7.920266364380111, -0.7079936339602284), 
+# 	'old_banana001': (-2.6398400012779843, 8.638750166559326)}
+# fruit_dict = {}
 
 # factor to increase reward for last banana
-extra = 2
+extra = 1.5
 
 # which fruit to make alpha, False for none (goBananas only)
 # go_alpha = 'old_banana'
@@ -34,11 +45,14 @@ extra = 2
 alpha = 0.2
 
 # how close is too close together?
-tooClose = 1  # 1
+tooClose = 2  # 1
 
 # are we repeating a certain configuration of bananas?
 # one of the first x banana configurations will be chosen
 # at random to be repeated.
+# this must be true if using manual positions, in which
+# case repeat_number is ignored, and manual positions are
+# always used
 fruit_repeat = True
 
 # How often to repeat the trial (will be one randomized
@@ -46,10 +60,10 @@ fruit_repeat = True
 repeat_number = 10
 
 # Banana Positions
-min_x = -10
-max_x = 10
-min_y = -10
-max_y = 10
+min_x = -0.1
+max_x = 0.1
+min_y = -6
+max_y = 6
 
 # used for placing bananas in circular environment
 radius = 14
@@ -58,16 +72,16 @@ radius = 14
 crosshair = False
 
 # Are we giving rewards?
-reward = True
-# reward = False
+# reward = True
+reward = False
 
 # Are we collecting eye data?
-eyeData = True
-# eyeData = False
+# eyeData = True
+eyeData = False
 
 # are we sending data to plexon or blackrock?
-sendData = True
-# sendData = False
+# sendData = True
+sendData = False
 
 # for activating reward system
 pulseInterval = 200  # in ms still or goBananas
@@ -86,13 +100,13 @@ offset = (1, 1)  # (x,y)
 # 3d?
 # framebuffer-stereo 1
 
-# ### Core PandaEPL settings ####
+#### Core PandaEPL settings ####
 
 FOV = 60
 
 # Movement
-linearAcceleration = 30
-fullForwardSpeed = 2.8
+linearAcceleration = 20
+fullForwardSpeed = 1
 fullBackwardSpeed = 0
 turningAcceleration = 130
 fullTurningSpeed = 55
@@ -102,13 +116,13 @@ minTurningLinearSpeed = 1.5
 minTurningLinearSpeedIncrement = 0.5
 
 # Point3 is global from panda3d.core
-initialPos = Point3(0, 0, 1)
+initialPos = Point3(0, -7.5, 1)
 
 # If you want to collide with bananas at a closer or 
 # further distance, change this, but does no good if 
 # thing running into has huge radius
 # avatarRadius = 0.3
-avatarRadius = 0.2
+avatarRadius = 0.1
 
 cameraPos = Point3(0, 0, 0)
 friction = 0.4  # 0.4
