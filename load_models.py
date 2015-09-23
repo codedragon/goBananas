@@ -34,7 +34,6 @@ def load_models():
     sky_model = PlaceModels()
     sky_model.name = 'sky'
     sky_model.group = ['original', 'stone', 'narrow']
-    # sky_model.group = 'meh'
     sky_model.model = 'models/sky/sky.bam'
     sky_model.location = Point3(0, 0, -0.5)
     sky_model.scale = 1.6
@@ -71,9 +70,7 @@ def load_models():
     courtyard.group = 'circle'
     # courtyard.group = 'other'
     courtyard.name = 'terrain'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     courtyard.model = 'models/play_space/round_courtyard.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     courtyard.scale = 1
     # courtyard.scale = Point3(0.5, 0.5, 1)
     courtyard.location = Point3(0, 0, 0)
@@ -81,7 +78,6 @@ def load_models():
 
     ground = PlaceModels()
     ground.group = 'stone'
-    # ground.group = 'other'
     ground.name = 'ground'
     ground.model = 'models/play_space/ground.bam'
     ground.scale = 1.5
@@ -90,152 +86,127 @@ def load_models():
 
     sq_courtyard = PlaceModels()
     sq_courtyard.group = 'stone'
-    # courtyard.group = 'other'
     sq_courtyard.name = 'terrain'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     sq_courtyard.model = 'models/play_space/walls.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     sq_courtyard.scale = 1
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     sq_courtyard.location = Point3(0, 0, 0)
     sq_courtyard.callback = 'MovingObject.handleRepelCollision'
 
     # mountains y is distance from wall,
     mountain = PlaceModels()
     mountain.group = 'stone'
-    # courtyard.group = 'other'
     mountain.name = 'mountain'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     mountain.model = 'models/mountain/mountain.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     mountain.scale = 0.0005
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     mountain.location = Point3(0, -30, -0.5)
 
     mountain2 = PlaceModels()
     mountain2.group = 'stone'
-    # courtyard.group = 'other'
     mountain2.name = 'mountain2'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     mountain2.model = 'models/mountain/mountain.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     mountain2.scale = 0.0004
     mountain2.head = 180
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     mountain2.location = Point3(30, -45, -0.5)
 
     mountain3 = PlaceModels()
     mountain3.group = 'stone'
-    # courtyard.group = 'other'
     mountain3.name = 'mountain3'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     mountain3.model = 'models/mountain/mountain.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     mountain3.scale = 0.0003
     mountain3.head = 270
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     mountain3.location = Point3(11, -40, -0.5)
 
     windmill = PlaceModels()
     windmill.group = 'stone'
-    # courtyard.group = 'other'
     windmill.name = 'windmill'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     windmill.model = 'models/windmill/windmill.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     windmill.scale = 0.03
     windmill.head = 15
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     windmill.location = Point3(-10, 30, -1)
 
     tree = PlaceModels()
     tree.group = 'stone'
-    # courtyard.group = 'other'
     tree.name = 'tree'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     tree.model = 'models/trees/tree.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     tree.scale = 0.5
-    #tree.head = 15
-    # courtyard.scale = Point3(0.5, 0.5, 1)
+    # tree.head = 15
     tree.location = Point3(40, 20, 0)
 
     tree2 = PlaceModels()
     tree2.group = 'stone'
-    # courtyard.group = 'other'
     tree2.name = 'tree2'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     tree2.model = 'models/trees/tree.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     tree2.scale = 0.3
     tree2.head = 120
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     tree2.location = Point3(30, 12, 0)
+
+    tree_n = PlaceModels()
+    tree_n.group = ['narrow']
+    tree_n.name = 'tree'
+    tree_n.model = 'models/trees/tree.bam'
+    tree_n.scale = 0.5
+    # tree_n.head = 15
+    tree_n.location = Point3(-3, 13, 0)
 
     fir_tree = PlaceModels()
     fir_tree.group = 'stone'
-    # courtyard.group = 'other'
     fir_tree.name = 'fir_tree'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     fir_tree.model = 'models/trees/fir_tree.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     fir_tree.scale = 2
-    #fir_tree.head = 15
-    # courtyard.scale = Point3(0.5, 0.5, 1)
+    # fir_tree.head = 15
     fir_tree.location = Point3(40, 0, -2)
 
     fir_tree2 = PlaceModels()
     fir_tree2.group = 'stone'
-    # courtyard.group = 'other'
     fir_tree2.name = 'fir_tree2'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     fir_tree2.model = 'models/trees/fir_tree.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     fir_tree2.scale = 5
     fir_tree2.head = 90
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     fir_tree2.location = Point3(40, 10, 0)
 
     fir_tree3 = PlaceModels()
     fir_tree3.group = 'stone'
-    # courtyard.group = 'other'
     fir_tree3.name = 'fir_tree3'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     fir_tree3.model = 'models/trees/fir_tree.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     fir_tree3.scale = 2.5
     fir_tree3.head = 180
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     fir_tree3.location = Point3(30, 20, -1)
 
     fir_tree4 = PlaceModels()
     fir_tree4.group = 'stone'
-    # courtyard.group = 'other'
     fir_tree4.name = 'fir_tree4'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     fir_tree4.model = 'models/trees/fir_tree.bam'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     fir_tree4.scale = 3.5
     fir_tree4.head = 120
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     fir_tree4.location = Point3(30, 37, -1)
+
+    fir_tree_n = PlaceModels()
+    fir_tree_n.group = ['narrow']
+    fir_tree_n.name = 'fir_tree'
+    fir_tree_n.model = 'models/trees/fir_tree.bam'
+    fir_tree_n.scale = 1.5
+    #fir_tree.head = 15
+    fir_tree_n.location = Point3(-2, -13, -2)
+
+    fir_tree_n2 = PlaceModels()
+    fir_tree_n2.group = ['narrow']
+    fir_tree_n2.name = 'fir_tree2'
+    fir_tree_n2.model = 'models/trees/fir_tree.bam'
+    fir_tree_n2.scale = 1
+    fir_tree_n2.head = 90
+    fir_tree_n2.location = Point3(2.1, 0, 0)
 
     ranch_house = PlaceModels()
     ranch_house.group = 'stone'
-    # courtyard.group = 'other'
     ranch_house.name = 'ranch_house'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     ranch_house.model = 'models/buildings/house.egg'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     ranch_house.scale = 3.5
     ranch_house.head = 15
-    # courtyard.scale = Point3(0.5, 0.5, 1)
     ranch_house.location = Point3(-50, 3, 3.3)
 
     horizon = PlaceModels()
     horizon.name = 'horizon'
     horizon.group = ['circle']
-    # horizon.scale = Point3(2, 2, 1)
     horizon.scale = Point3(2, 2, 4)
     # horizon.scale = 0.5
     horizon.model = 'models/sky/sky_kahana2.bam'
@@ -245,17 +216,11 @@ def load_models():
 
     narrow_court = PlaceModels()
     narrow_court.group = 'narrow'
-    # courtyard.group = 'other'
     narrow_court.name = 'terrain'
-    # courtyard.model = 'models/play_space/courtyard.bam'
     narrow_court.model = 'models/play_space/narrow_court.egg'
-    # narrow_court.model = 'models/play_space/narrow_courtyard.egg'
-    # courtyard.model = '../play_environ/models/courtyard_one.egg'
     narrow_court.scale = 1
     narrow_court.head = 90
-    # narrow_court.scale = Point3(0.2, 0.1, 0.3)
     narrow_court.location = Point3(0, 0, 0.8)
-    # narrow_court.location = Point3(0, 0, -0.5)
     narrow_court.callback = 'MovingObject.handleRepelCollision'
 
     banana = PlaceModels()

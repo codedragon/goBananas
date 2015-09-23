@@ -217,8 +217,10 @@ class Fruit():
                     # get x,y from the dictionary
                     (x, y) = self.pos_dict[name]
                     if not mB.check_distances_good(x, y, pos_list, avatar_x_y, self.config):
+                        # print 'too close'
                         x = None
                 else:
+                    # print 'no position, get random'
                     overload = True
             if repeat != 'repeat' or overload:
                 # get new positions
